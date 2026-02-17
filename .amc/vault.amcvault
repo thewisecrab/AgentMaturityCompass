@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "kdf": {
+    "name": "pbkdf2-sha256",
+    "iterations": 210000,
+    "keyLen": 32,
+    "digest": "sha256",
+    "saltB64": "8XpXDNS7BK1Mb0kRVcgY9w=="
+  },
+  "cipher": {
+    "name": "aes-256-gcm",
+    "ivB64": "WrWmiBKvPfJQGuwX",
+    "authTagB64": "JmeHUtMEVs2VFaB+YHLpbA==",
+    "ciphertextB64": "wbQwNxSnSWceMwZbjKBAhnWjTB+aM0yf9JAGIq6MD8M+S1DyipfHhICsInKqEFk5SekqrXZWkROj2NOajLCJZoTr77EK59eKYiPcGvWSeXaEeJTnyDCE48EDGMGJoYm8K2A9NwK2vXVP12jPhhLN9x+HnSII/jgtkB/COjO6AU/mOP3ltEWM9sT7UmTm26OJ127loebSrHQ7PuM5U0htZYb0jLQ9ryyp9CuhargKQHJu7VqBsPlRi4PicE7T7o9ogFmaoVQ+CGl8KUBqCb83Vtpkp++g3CPZ3EzIRhyirfCJT+ydp04VYZLTkWqt4EVQcvY3qpCd3RIgioj6UoNBovl3aBuYF6LAbQKEHElm2YTgFkHu8jOkpAO8OZLXavqOYhy3wIndXELDhUuFjWkTRvLosXj8nlpVWCaby4cofhoS49QNp6uHP6dUg+v4YaecUQljdXUV4pfHvcY4Ro8vP25AJOVB69QN6lgNWXODOSSAkYZ8Qrbi0zZf6svU1TKNtEA3IQwCBHi0O8/mR/CLd/a1tVjN0b0BOVF20yvQtzXaakN011XWjx/L/WwXxFQtxXojQUaoVPn9QrESugvNB+07eiM0+yrLKVCjj9a3pWyd/HFRu3w/7EvVwnr/h5lBQdZqQi5fM5rrViLOmpKJ4EEpj4v6RfvoksRmNlTpgWIJQHP5HkIt2tsakfy0OWFeEpsAYtM6sP2+Z/CBu7aJkfvCrZvt5/2Pv8s39hWFg8VemOJ2s/bUz2GSTp0P1WR3a4VZxCi95ibzmzpiJJCg2TGZ8mcWoQ7GpBnTsl4aadRkq05RJXVviXQC96beNO0PLvaVMi/MdwkVbRqa"
+  }
+}

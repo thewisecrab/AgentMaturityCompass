@@ -1,0 +1,38 @@
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: amc.example.internal
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: amc-example-tls
+      hosts:
+        - amc.example.internal
+
+env:
+  AMC_BIND: "0.0.0.0"
+  AMC_TRUSTED_PROXY_HOPS: "1"
+  AMC_LAN_MODE: "true"
+
+networkPolicy:
+  enabled: true
+  ingressNamespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ingress-nginx
+  ingressPodSelector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+  dnsNamespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: kube-system
+  dnsPodSelector:
+    matchLabels:
+      k8s-app: kube-dns
+  dnsPorts:
+    - 53
+  allowedEgressCidrs:
+    - 203.0.113.0/24
+  allowedEgressPorts:
+    - 443

@@ -1,0 +1,18 @@
+{{- if and .Values.notary.enabled .Values.notary.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "amc.fullname" . }}-notary
+  labels:
+    {{- include "amc.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.notary.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.notary.persistence.size }}
+  {{- if .Values.notary.persistence.storageClassName }}
+  storageClassName: {{ .Values.notary.persistence.storageClassName }}
+  {{- end }}
+{{- end }}
+

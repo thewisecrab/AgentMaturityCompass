@@ -1,0 +1,33 @@
+import { getPrivateKeyPem, getPublicKeyPem, signHexDigest } from "../keys.js";
+import { sha256Hex } from "../../utils/hash.js";
+import type { SignKind, SignedDigest, SignatureEnvelope } from "./signerTypes.js";
+
+export function signDigestWithVault(params: {
+  workspace: string;
+  kind: SignKind;
+  digestHex: string;
+}): SignedDigest {
+  const privateKeyPem = getPrivateKeyPem(params.workspace, "auditor");
+  const publicKeyPem = getPublicKeyPem(params.workspace, "auditor");
+  const signature = signHexDigest(params.digestHex, privateKeyPem);
+  const envelope: SignatureEnvelope = {
+    v: 1,
+    alg: "ed25519",
+    pubkeyB64: Buffer.from(publicKeyPem, "utf8").toString("base64"),
+    fingerprint: sha256Hex(Buffer.from(publicKeyPem, "utf8")),
+    sigB64: signature,
+    signedTs: Date.now(),
+    signer: {
+      type: "VAULT",
+      attestationLevel: "SOFTWARE"
+    }
+  };
+  return {
+    digestSha256: params.digestHex,
+    signature,
+    signedTs: envelope.signedTs,
+    signer: "auditor",
+    envelope
+  };
+}
+

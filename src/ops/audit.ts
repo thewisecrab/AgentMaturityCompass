@@ -1,0 +1,53 @@
+import { openLedger } from "../ledger/ledger.js";
+import { sha256Hex } from "../utils/hash.js";
+
+export function appendOpsAuditEvent(params: {
+  workspace: string;
+  auditType: string;
+  payload?: Record<string, unknown>;
+  severity?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+}): { eventId: string; eventHash: string } {
+  const ledger = openLedger(params.workspace);
+  const sessionId = `ops-${params.auditType.toLowerCase()}-${Date.now()}`;
+  const json = JSON.stringify({
+    auditType: params.auditType,
+    ...(params.payload ?? {})
+  });
+  try {
+    ledger.startSession({
+      sessionId,
+      runtime: "unknown",
+      binaryPath: "amc",
+      binarySha256: sha256Hex(Buffer.from("amc", "utf8"))
+    });
+    const event = ledger.appendEvidenceWithReceipt({
+      sessionId,
+      runtime: "unknown",
+      eventType: "audit",
+      payload: json,
+      payloadExt: "json",
+      inline: true,
+      meta: {
+        auditType: params.auditType,
+        severity: params.severity ?? "LOW",
+        trustTier: "OBSERVED",
+        source: "ops"
+      },
+      receipt: {
+        kind: "guard_check",
+        agentId: "system",
+        providerId: "ops",
+        model: null,
+        bodySha256: sha256Hex(Buffer.from(json, "utf8"))
+      }
+    });
+    ledger.sealSession(sessionId);
+    return {
+      eventId: event.id,
+      eventHash: event.eventHash
+    };
+  } finally {
+    ledger.close();
+  }
+}
+

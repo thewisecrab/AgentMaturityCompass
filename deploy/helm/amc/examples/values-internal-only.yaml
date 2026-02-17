@@ -1,0 +1,29 @@
+ingress:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  ingressNamespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ingress-nginx
+  ingressPodSelector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+  dnsNamespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: kube-system
+  dnsPodSelector:
+    matchLabels:
+      k8s-app: kube-dns
+  dnsPorts:
+    - 53
+  allowedEgressCidrs:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  allowedEgressPorts:
+    - 443
+    - 80
+
+bootstrap:
+  enabled: true

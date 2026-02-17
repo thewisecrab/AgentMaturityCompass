@@ -1,0 +1,24 @@
+function esc(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function cssForStatus(status) {
+  const value = String(status ?? "INSUFFICIENT_EVIDENCE").toUpperCase();
+  if (value === "PASS" || value === "OK") {
+    return "status-ok";
+  }
+  if (value === "FAIL") {
+    return "status-bad";
+  }
+  return "status-warn";
+}
+
+export function renderControlStatusChip(status) {
+  const value = String(status ?? "INSUFFICIENT_EVIDENCE").toUpperCase();
+  return `<span class="${cssForStatus(value)}">${esc(value)}</span>`;
+}

@@ -1,0 +1,7 @@
+export type ForecastSseEventType =
+  | "FORECAST_UPDATED"
+  | "ADVISORY_CREATED"
+  | "ADVISORY_ACKNOWLEDGED"
+  | "DRIFT_DETECTED"
+  | "ANOMALY_DETECTED";
+

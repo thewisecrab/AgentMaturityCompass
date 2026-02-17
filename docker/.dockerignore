@@ -1,0 +1,9 @@
+.git
+.github
+node_modules
+dist
+.amc
+coverage
+*.log
+tmp
+deploy

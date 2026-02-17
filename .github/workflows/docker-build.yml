@@ -1,0 +1,89 @@
+name: Docker Build
+
+on:
+  pull_request:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint/template
+        run: |
+          helm lint ./deploy/helm/amc
+          helm template amc ./deploy/helm/amc > /tmp/amc-helm-rendered.yaml
+
+      - name: Build Docker image
+        run: docker build -t amc-studio:ci .
+
+      - name: Prepare bootstrap secrets
+        run: |
+          mkdir -p /tmp/amc-secrets
+          echo "ci-vault-passphrase-123456" > /tmp/amc-secrets/vault.txt
+          echo "owner" > /tmp/amc-secrets/owner-user.txt
+          echo "owner-password-123" > /tmp/amc-secrets/owner-pass.txt
+
+      - name: Run container smoke test
+        run: |
+          docker run -d --name amc-ci \
+            -p 3210:3210 -p 3211:3211 -p 3212:3212 \
+            -e AMC_BOOTSTRAP=1 \
+            -e AMC_BIND=0.0.0.0 \
+            -e AMC_LAN_MODE=true \
+            -e AMC_VAULT_PASSPHRASE_FILE=/run/secrets/vault \
+            -e AMC_BOOTSTRAP_OWNER_USERNAME_FILE=/run/secrets/owner-user \
+            -e AMC_BOOTSTRAP_OWNER_PASSWORD_FILE=/run/secrets/owner-pass \
+            -v /tmp/amc-secrets/vault.txt:/run/secrets/vault:ro \
+            -v /tmp/amc-secrets/owner-user.txt:/run/secrets/owner-user:ro \
+            -v /tmp/amc-secrets/owner-pass.txt:/run/secrets/owner-pass:ro \
+            amc-studio:ci
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3212/readyz >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:3212/healthz
+          curl -fsS http://127.0.0.1:3212/console >/dev/null
+          for route in openai anthropic gemini grok openrouter local; do
+            code=$(curl -s -o "/tmp/gateway-${route}.txt" -w "%{http_code}" "http://127.0.0.1:3210/${route}/v1/models")
+            if [ "$code" -eq 404 ] || [ "$code" -eq 000 ]; then
+              echo "Gateway route /${route} not healthy (status ${code})"
+              exit 1
+            fi
+          done
+          docker exec amc-ci node dist/cli.js doctor --json > /tmp/doctor.json
+
+      - name: Ensure logs are redacted
+        run: |
+          docker logs amc-ci > /tmp/amc-logs.txt 2>&1 || true
+          if grep -Ei "Bearer\\s+[A-Za-z0-9._-]{10,}|api_key|lease_[A-Za-z0-9]" /tmp/amc-logs.txt; then
+            echo "Potential secret material detected in container logs"
+            exit 1
+          fi
+
+      - name: Upload smoke artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: amc-docker-smoke
+          path: |
+            /tmp/doctor.json
+            /tmp/amc-logs.txt
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f amc-ci || true

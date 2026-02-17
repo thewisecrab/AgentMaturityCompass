@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AMC Console - Ops</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <style>
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      .card {
+        border: 1px solid #d0d7de;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+        background: #fff;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      button {
+        border: 1px solid #1f2937;
+        background: #111827;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+      }
+      button.secondary {
+        background: #fff;
+        color: #111827;
+      }
+      pre {
+        background: #0b1020;
+        color: #d1e8ff;
+        border-radius: 8px;
+        padding: 10px;
+        overflow: auto;
+        font-size: 12px;
+      }
+      .warn {
+        color: #b91c1c;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Operations</h1>
+      <p>Retention, maintenance, backup freshness, and readiness.</p>
+      <div class="card">
+        <h2>Readiness</h2>
+        <div id="ready"></div>
+      </div>
+      <div class="card">
+        <h2>Retention</h2>
+        <div id="retention"></div>
+        <div class="row" style="margin-top: 8px">
+          <button id="retention-dry">Run Dry-Run</button>
+          <button id="retention-run">Run Retention</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Maintenance</h2>
+        <div id="maintenance"></div>
+        <div class="row" style="margin-top: 8px">
+          <button class="secondary" id="vacuum">Vacuum</button>
+          <button class="secondary" id="prune">Prune Cache</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Backup Freshness</h2>
+        <div id="backup"></div>
+      </div>
+      <div class="card">
+        <h2>Last Action</h2>
+        <pre id="out">No action run yet.</pre>
+      </div>
+    </main>
+    <script>
+      async function getJson(path, init) {
+        const res = await fetch(path, Object.assign({ credentials: "include" }, init || {}));
+        const text = await res.text();
+        let body = null;
+        try {
+          body = text ? JSON.parse(text) : null;
+        } catch {
+          body = { raw: text };
+        }
+        if (!res.ok) {
+          throw new Error((body && body.error) || res.status + " " + res.statusText);
+        }
+        return body;
+      }
+
+      function setOut(value) {
+        document.getElementById("out").textContent = JSON.stringify(value, null, 2);
+      }
+
+      async function refresh() {
+        try {
+          const ready = await getJson("/readyz");
+          const status = ready.status || "UNKNOWN";
+          document.getElementById("ready").innerHTML =
+            "<div><strong>" +
+            status +
+            "</strong></div><pre>" +
+            JSON.stringify(ready, null, 2) +
+            "</pre>";
+        } catch (error) {
+          document.getElementById("ready").innerHTML = "<div class='warn'>" + String(error) + "</div>";
+        }
+
+        try {
+          const retention = await getJson("/ops/retention/status");
+          document.getElementById("retention").innerHTML = "<pre>" + JSON.stringify(retention, null, 2) + "</pre>";
+        } catch (error) {
+          document.getElementById("retention").innerHTML = "<div class='warn'>" + String(error) + "</div>";
+        }
+
+        try {
+          const maintenance = await getJson("/ops/maintenance/stats");
+          document.getElementById("maintenance").innerHTML = "<pre>" + JSON.stringify(maintenance, null, 2) + "</pre>";
+        } catch (error) {
+          document.getElementById("maintenance").innerHTML = "<div class='warn'>" + String(error) + "</div>";
+        }
+
+        try {
+          const backup = await getJson("/ops/backup/status");
+          const warning = backup.warning ? "warn" : "";
+          document.getElementById("backup").innerHTML =
+            "<div class='" + warning + "'><pre>" + JSON.stringify(backup, null, 2) + "</pre></div>";
+        } catch (error) {
+          document.getElementById("backup").innerHTML = "<div class='warn'>" + String(error) + "</div>";
+        }
+      }
+
+      document.getElementById("retention-dry").addEventListener("click", async () => {
+        try {
+          const out = await getJson("/ops/retention/run", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ dryRun: true })
+          });
+          setOut(out);
+          refresh();
+        } catch (error) {
+          setOut({ error: String(error) });
+        }
+      });
+
+      document.getElementById("retention-run").addEventListener("click", async () => {
+        try {
+          const out = await getJson("/ops/retention/run", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ dryRun: false })
+          });
+          setOut(out);
+          refresh();
+        } catch (error) {
+          setOut({ error: String(error) });
+        }
+      });
+
+      document.getElementById("vacuum").addEventListener("click", async () => {
+        try {
+          const out = await getJson("/ops/maintenance/vacuum", { method: "POST" });
+          setOut(out);
+          refresh();
+        } catch (error) {
+          setOut({ error: String(error) });
+        }
+      });
+
+      document.getElementById("prune").addEventListener("click", async () => {
+        try {
+          const out = await getJson("/ops/maintenance/prune", { method: "POST" });
+          setOut(out);
+          refresh();
+        } catch (error) {
+          setOut({ error: String(error) });
+        }
+      });
+
+      refresh();
+    </script>
+  </body>
+</html>

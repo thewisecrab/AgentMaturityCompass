@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+.amc/evidence.sqlite
+.amc/evidence.sqlite-shm
+.amc/evidence.sqlite-wal

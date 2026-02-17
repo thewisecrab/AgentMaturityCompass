@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "id": "toolMisuse",
+  "name": "Tool Misuse Pack V1",
+  "scenarios": [
+    "tools.signed-config",
+    "tools.high-risk-denied",
+    "tools.denial-observed"
+  ]
+}

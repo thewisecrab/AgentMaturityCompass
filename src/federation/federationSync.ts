@@ -1,0 +1,381 @@
+import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, relative, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { federationManifestSchema, federationManifestSignatureSchema, type FederationManifest } from "./federationSchema.js";
+import { ensureFederationPublisherKey, signFederationDigest, verifyFederationDigest } from "./federationIdentity.js";
+import { federationInboxDir, federationOutboxDir, loadFederationConfig } from "./federationStore.js";
+import { ensureDir, pathExists, readUtf8, writeFileAtomic } from "../utils/fs.js";
+import { sha256Hex } from "../utils/hash.js";
+import { generateTransparencyInclusionProof, currentTransparencyMerkleRoot, ensureTransparencyMerkleInitialized, exportTransparencyProofBundle } from "../transparency/merkleIndexStore.js";
+import { ingestBenchmarks } from "../benchmarks/benchImport.js";
+import { readTransparencyEntries } from "../transparency/logChain.js";
+
+function tarCreate(sourceDir: string, outFile: string): void {
+  const out = spawnSync("tar", ["-czf", outFile, "-C", sourceDir, "."], { encoding: "utf8" });
+  if (out.status !== 0) {
+    throw new Error(`failed to create federation package: ${(`${out.stdout ?? ""}${out.stderr ?? ""}`).trim()}`);
+  }
+}
+
+function tarExtract(bundleFile: string, outDir: string): void {
+  const out = spawnSync("tar", ["-xzf", bundleFile, "-C", outDir], { encoding: "utf8" });
+  if (out.status !== 0) {
+    throw new Error(`failed to extract federation package: ${(`${out.stdout ?? ""}${out.stderr ?? ""}`).trim()}`);
+  }
+}
+
+function resolveExtractedRoot(outDir: string, requiredFiles: string[]): string {
+  const hasRequiredAt = (base: string): boolean => requiredFiles.every((file) => pathExists(join(base, file)));
+  if (hasRequiredAt(outDir)) {
+    return outDir;
+  }
+  const dirs = readdirSync(outDir, { withFileTypes: true }).filter((entry) => entry.isDirectory());
+  for (const dir of dirs) {
+    const candidate = join(outDir, dir.name);
+    if (hasRequiredAt(candidate)) {
+      return candidate;
+    }
+  }
+  return outDir;
+}
+
+function collectArtifacts(workspace: string): {
+  benchmarks: string[];
+  certs: string[];
+  bom: string[];
+  plugins: string[];
+} {
+  const searchRoots = [join(workspace, ".amc"), workspace];
+  const benchmarks: string[] = [];
+  const certs: string[] = [];
+  const bom: string[] = [];
+  const plugins: string[] = [];
+  const seen = new Set<string>();
+  const walk = (dir: string): void => {
+    if (!pathExists(dir)) return;
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === "node_modules" || entry.name === "dist" || entry.name.startsWith(".")) {
+          if (!full.includes(join(workspace, ".amc"))) {
+            continue;
+          }
+        }
+        walk(full);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      if (seen.has(full)) continue;
+      seen.add(full);
+      if (entry.name.endsWith(".amcbench")) benchmarks.push(full);
+      else if (entry.name.endsWith(".amccert")) certs.push(full);
+      else if (entry.name.endsWith(".amcplug")) plugins.push(full);
+      else if (entry.name.endsWith(".json") && entry.name.includes("bom")) {
+        const sig = `${full}.sig`;
+        if (pathExists(sig)) bom.push(full);
+      }
+    }
+  };
+  for (const root of searchRoots) {
+    walk(root);
+  }
+  const sorter = (a: string, b: string) => a.localeCompare(b);
+  return {
+    benchmarks: benchmarks.sort(sorter),
+    certs: certs.sort(sorter),
+    bom: bom.sort(sorter),
+    plugins: plugins.sort(sorter)
+  };
+}
+
+function artifactShaToTransparencyEntryHash(workspace: string): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const entry of readTransparencyEntries(workspace)) {
+    const artifactSha = entry.artifact?.sha256;
+    if (typeof artifactSha === "string" && artifactSha.length === 64 && !map.has(artifactSha)) {
+      map.set(artifactSha, entry.hash);
+    }
+  }
+  return map;
+}
+
+function listFiles(root: string): Array<{ path: string; sha256: string; size: number }> {
+  const out: Array<{ path: string; sha256: string; size: number }> = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile()) {
+        const rel = relative(root, full).replace(/\\/g, "/");
+        if (rel === "manifest.sig") continue;
+        const bytes = readFileSync(full);
+        out.push({
+          path: rel,
+          sha256: sha256Hex(bytes),
+          size: statSync(full).size
+        });
+      }
+    }
+  };
+  walk(root);
+  return out.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+export function exportFederationPackage(params: {
+  workspace: string;
+  outFile: string;
+}): {
+  outFile: string;
+  manifest: FederationManifest;
+  benchmarkCount: number;
+  certCount: number;
+  bomCount: number;
+  pluginCount: number;
+} {
+  const config = loadFederationConfig(params.workspace);
+  const publisher = ensureFederationPublisherKey(params.workspace);
+  ensureTransparencyMerkleInitialized(params.workspace);
+  const merkleRoot = currentTransparencyMerkleRoot(params.workspace);
+  const artifacts = collectArtifacts(params.workspace);
+  const temp = mkdtempSync(join(tmpdir(), "amc-fed-export-"));
+  try {
+    const root = join(temp, "federation");
+    ensureDir(root);
+    ensureDir(join(root, "artifacts", "benchmarks"));
+    ensureDir(join(root, "artifacts", "certs"));
+    ensureDir(join(root, "artifacts", "bom"));
+    ensureDir(join(root, "public-keys"));
+    ensureDir(join(root, "transparency"));
+    ensureDir(join(root, "transparency", "proofs"));
+    ensureDir(join(root, "artifacts", "plugins"));
+
+    for (const file of (config.federation.sharePolicy.allowBenchmarks ? artifacts.benchmarks : [])) {
+      const dst = join(root, "artifacts", "benchmarks", relative(params.workspace, file).replace(/[\\/]/g, "__"));
+      writeFileAtomic(dst, readFileSync(file), 0o644);
+    }
+    for (const file of (config.federation.sharePolicy.allowCerts ? artifacts.certs : [])) {
+      const dst = join(root, "artifacts", "certs", relative(params.workspace, file).replace(/[\\/]/g, "__"));
+      writeFileAtomic(dst, readFileSync(file), 0o644);
+    }
+    for (const file of (config.federation.sharePolicy.allowBom ? artifacts.bom : [])) {
+      const dst = join(root, "artifacts", "bom", relative(params.workspace, file).replace(/[\\/]/g, "__"));
+      writeFileAtomic(dst, readFileSync(file), 0o644);
+      const sig = `${file}.sig`;
+      writeFileAtomic(`${dst}.sig`, readFileSync(sig), 0o644);
+    }
+    for (const file of (config.federation.sharePolicy.allowPlugins ? artifacts.plugins : [])) {
+      const dst = join(root, "artifacts", "plugins", relative(params.workspace, file).replace(/[\\/]/g, "__"));
+      writeFileAtomic(dst, readFileSync(file), 0o644);
+    }
+
+    const currentRootFile = join(params.workspace, ".amc", "transparency", "merkle", "current.root.json");
+    const currentRootSigFile = join(params.workspace, ".amc", "transparency", "merkle", "current.root.sig");
+    if (pathExists(currentRootFile)) {
+      writeFileAtomic(join(root, "transparency", "current.root.json"), readFileSync(currentRootFile), 0o644);
+    }
+    if (pathExists(currentRootSigFile)) {
+      writeFileAtomic(join(root, "transparency", "current.root.sig"), readFileSync(currentRootSigFile), 0o644);
+    }
+    // Optional inclusion proofs for transparency entries matching exported artifact hashes.
+    const allShas = [
+      ...(config.federation.sharePolicy.allowBenchmarks ? artifacts.benchmarks.map((file) => sha256Hex(readFileSync(file))) : []),
+      ...(config.federation.sharePolicy.allowCerts ? artifacts.certs.map((file) => sha256Hex(readFileSync(file))) : []),
+      ...(config.federation.sharePolicy.allowBom ? artifacts.bom.map((file) => sha256Hex(readFileSync(file))) : []),
+      ...(config.federation.sharePolicy.allowPlugins ? artifacts.plugins.map((file) => sha256Hex(readFileSync(file))) : [])
+    ];
+    const transparencyLookup = artifactShaToTransparencyEntryHash(params.workspace);
+    for (const sha of allShas) {
+      const entryHash = transparencyLookup.get(sha);
+      if (!entryHash) {
+        continue;
+      }
+      try {
+        const proof = generateTransparencyInclusionProof(params.workspace, entryHash);
+        const proofOut = join(root, "transparency", "proofs", `${proof.entryHash}.amcproof`);
+        exportTransparencyProofBundle({
+          workspace: params.workspace,
+          entryHash: proof.entryHash,
+          outFile: proofOut
+        });
+      } catch {
+        // no matching transparency entry is acceptable.
+      }
+    }
+
+    writeFileAtomic(join(root, "public-keys", "publisher.pub"), Buffer.from(publisher.publicKeyPem, "utf8"), 0o644);
+
+    const manifest = federationManifestSchema.parse({
+      v: 1,
+      manifestId: randomUUID(),
+      createdTs: Date.now(),
+      sourceOrgName: config.federation.orgName,
+      sourceOrgId: config.federation.orgId,
+      publisherKeyFingerprint: publisher.fingerprint,
+      files: listFiles(root)
+    });
+    const manifestPath = join(root, "manifest.json");
+    writeFileAtomic(manifestPath, JSON.stringify(manifest, null, 2), 0o644);
+    const digest = sha256Hex(readFileSync(manifestPath));
+    const sig = federationManifestSignatureSchema.parse({
+      digestSha256: digest,
+      signature: signFederationDigest(params.workspace, digest),
+      signedTs: Date.now(),
+      signer: "publisher"
+    });
+    writeFileAtomic(join(root, "manifest.sig"), JSON.stringify(sig, null, 2), 0o644);
+
+    const outFile = resolve(params.workspace, params.outFile);
+    ensureDir(dirname(outFile));
+    ensureDir(federationOutboxDir(params.workspace));
+    tarCreate(root, outFile);
+    return {
+      outFile,
+      manifest,
+      benchmarkCount: config.federation.sharePolicy.allowBenchmarks ? artifacts.benchmarks.length : 0,
+      certCount: config.federation.sharePolicy.allowCerts ? artifacts.certs.length : 0,
+      bomCount: config.federation.sharePolicy.allowBom ? artifacts.bom.length : 0,
+      pluginCount: config.federation.sharePolicy.allowPlugins ? artifacts.plugins.length : 0
+    };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+export function verifyFederationPackage(bundleFile: string): {
+  ok: boolean;
+  errors: string[];
+  manifest: FederationManifest | null;
+} {
+  const errors: string[] = [];
+  const temp = mkdtempSync(join(tmpdir(), "amc-fed-verify-"));
+  try {
+    tarExtract(bundleFile, temp);
+    const root = resolveExtractedRoot(temp, ["manifest.json", "manifest.sig", "public-keys/publisher.pub"]);
+    const manifestPath = join(root, "manifest.json");
+    const sigPath = join(root, "manifest.sig");
+    const pubPath = join(root, "public-keys", "publisher.pub");
+    if (!pathExists(manifestPath) || !pathExists(sigPath) || !pathExists(pubPath)) {
+      return {
+        ok: false,
+        errors: ["federation package missing manifest/signature/publisher key"],
+        manifest: null
+      };
+    }
+    let manifest: FederationManifest | null = null;
+    try {
+      manifest = federationManifestSchema.parse(JSON.parse(readUtf8(manifestPath)) as unknown);
+    } catch (error) {
+      errors.push(`invalid manifest.json: ${String(error)}`);
+    }
+    try {
+      const sig = federationManifestSignatureSchema.parse(JSON.parse(readUtf8(sigPath)) as unknown);
+      const digest = sha256Hex(readFileSync(manifestPath));
+      if (digest !== sig.digestSha256) {
+        errors.push("manifest digest mismatch");
+      } else {
+        const pub = readUtf8(pubPath);
+        if (!verifyFederationDigest(digest, sig.signature, pub)) {
+          errors.push("manifest signature invalid");
+        }
+      }
+    } catch (error) {
+      errors.push(`invalid manifest.sig: ${String(error)}`);
+    }
+    if (manifest) {
+      for (const row of manifest.files) {
+        const file = join(root, row.path);
+        if (!pathExists(file)) {
+          errors.push(`missing file listed in manifest: ${row.path}`);
+          continue;
+        }
+        const digest = sha256Hex(readFileSync(file));
+        if (digest !== row.sha256) {
+          errors.push(`sha mismatch for ${row.path}`);
+        }
+      }
+    }
+    return {
+      ok: errors.length === 0,
+      errors,
+      manifest
+    };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+export function importFederationPackage(params: {
+  workspace: string;
+  bundleFile: string;
+}): {
+  sourceOrgId: string;
+  importedPath: string;
+  benchmarkCount: number;
+  certCount: number;
+  bomCount: number;
+  pluginCount: number;
+} {
+  const verify = verifyFederationPackage(params.bundleFile);
+  if (!verify.ok || !verify.manifest) {
+    throw new Error(`federation package verify failed: ${verify.errors.join("; ")}`);
+  }
+  const temp = mkdtempSync(join(tmpdir(), "amc-fed-import-"));
+  try {
+    tarExtract(params.bundleFile, temp);
+    const root = resolveExtractedRoot(temp, ["manifest.json", "manifest.sig", "public-keys/publisher.pub"]);
+    const importedPath = join(federationInboxDir(params.workspace), verify.manifest.sourceOrgId, verify.manifest.manifestId);
+    ensureDir(importedPath);
+    for (const file of verify.manifest.files) {
+      const src = join(root, file.path);
+      const dst = join(importedPath, file.path);
+      ensureDir(dirname(dst));
+      writeFileAtomic(dst, readFileSync(src), 0o644);
+    }
+    if (pathExists(join(root, "manifest.json"))) {
+      writeFileAtomic(join(importedPath, "manifest.json"), readFileSync(join(root, "manifest.json")), 0o644);
+    }
+    if (pathExists(join(root, "manifest.sig"))) {
+      writeFileAtomic(join(importedPath, "manifest.sig"), readFileSync(join(root, "manifest.sig")), 0o644);
+    }
+    if (pathExists(join(root, "public-keys", "publisher.pub"))) {
+      const pubDst = join(importedPath, "public-keys", "publisher.pub");
+      ensureDir(dirname(pubDst));
+      writeFileAtomic(pubDst, readFileSync(join(root, "public-keys", "publisher.pub")), 0o644);
+    }
+
+    const benchDir = join(importedPath, "artifacts", "benchmarks");
+    let benchmarkCount = 0;
+    if (pathExists(benchDir)) {
+      for (const entry of readdirSync(benchDir, { withFileTypes: true })) {
+        if (!entry.isFile() || !entry.name.endsWith(".amcbench")) continue;
+        ingestBenchmarks(params.workspace, join(benchDir, entry.name));
+        benchmarkCount += 1;
+      }
+    }
+    const certDir = join(importedPath, "artifacts", "certs");
+    const bomDir = join(importedPath, "artifacts", "bom");
+    const pluginDir = join(importedPath, "artifacts", "plugins");
+    const certCount = pathExists(certDir)
+      ? readdirSync(certDir, { withFileTypes: true }).filter((entry) => entry.isFile() && entry.name.endsWith(".amccert")).length
+      : 0;
+    const bomCount = pathExists(bomDir)
+      ? readdirSync(bomDir, { withFileTypes: true }).filter((entry) => entry.isFile() && entry.name.endsWith(".json")).length
+      : 0;
+    const pluginCount = pathExists(pluginDir)
+      ? readdirSync(pluginDir, { withFileTypes: true }).filter((entry) => entry.isFile() && entry.name.endsWith(".amcplug")).length
+      : 0;
+    return {
+      sourceOrgId: verify.manifest.sourceOrgId,
+      importedPath,
+      benchmarkCount,
+      certCount,
+      bomCount,
+      pluginCount
+    };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}

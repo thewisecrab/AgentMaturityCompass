@@ -1,0 +1,129 @@
+replicaCount: 1
+
+image:
+  repository: amc-studio
+  tag: local
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 3212
+  gatewayPort: 3210
+  proxyPort: 3211
+
+workspace:
+  mountPath: /data/amc
+  persistence:
+    enabled: true
+    storageClassName: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+
+notary:
+  enabled: false
+  port: 4343
+  requiredAttestationLevel: SOFTWARE
+  persistence:
+    enabled: true
+    storageClassName: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+  passphraseSecret:
+    name: amc-bootstrap
+    key: notaryPassphrase
+  authSecret:
+    name: amc-bootstrap
+    key: notaryAuthSecret
+
+bootstrap:
+  enabled: true
+  ownerUsernameSecret:
+    name: amc-bootstrap
+    key: ownerUsername
+  ownerPasswordSecret:
+    name: amc-bootstrap
+    key: ownerPassword
+  vaultPassphraseSecret:
+    name: amc-bootstrap
+    key: vaultPassphrase
+
+env:
+  AMC_BIND: "0.0.0.0"
+  AMC_STUDIO_PORT: "3212"
+  AMC_GATEWAY_PORT: "3210"
+  AMC_PROXY_PORT: "3211"
+  AMC_TOOLHUB_PORT: "3213"
+  AMC_LAN_MODE: "true"
+  AMC_ALLOWED_CIDRS: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1/32,::1/128"
+  AMC_QUERY_LEASE_CARRIER_ENABLED: "false"
+  AMC_TRUSTED_PROXY_HOPS: "1"
+  AMC_DATA_RETENTION_DAYS: "30"
+  AMC_ENABLE_NOTARY: "false"
+  AMC_NOTARY_BASE_URL: "http://127.0.0.1:4343"
+  AMC_NOTARY_REQUIRED_ATTESTATION: "SOFTWARE"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+podSecurityContext:
+  fsGroup: 10001
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: amc.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: amc-tls
+      hosts:
+        - amc.local
+
+networkPolicy:
+  enabled: true
+  ingressNamespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ingress-nginx
+  ingressPodSelector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+  dnsNamespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: kube-system
+  dnsPodSelector:
+    matchLabels:
+      k8s-app: kube-dns
+  dnsPorts:
+    - 53
+  allowedEgressCidrs: []
+  allowedEgressPorts:
+    - 443
+    - 80
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

@@ -1,0 +1,47 @@
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function clampPercent(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return 0;
+  }
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+export function renderScoreGauge(params) {
+  const label = params?.label || "Risk Assurance Score";
+  const score = params?.score;
+  const status = String(params?.status || "UNKNOWN").toUpperCase();
+  if (score === null || score === undefined || !Number.isFinite(Number(score))) {
+    return `
+      <div class="card status-warn">
+        <div><strong>${escapeHtml(label)}</strong></div>
+        <div class="muted">${escapeHtml(status)} (numeric score unavailable)</div>
+      </div>
+    `;
+  }
+  const value = Number(score);
+  const pct = clampPercent(value);
+  const cssClass = value >= 85 ? "status-ok" : value >= 60 ? "status-warn" : "status-bad";
+  return `
+    <div class="card ${cssClass}">
+      <div class="row wrap">
+        <strong>${escapeHtml(label)}</strong>
+        <span>${escapeHtml(status)}</span>
+      </div>
+      <div class="row wrap">
+        <div style="flex:1;min-width:180px;border:1px solid #ddd;border-radius:6px;overflow:hidden;height:16px;background:#f4f4f4;">
+          <div style="height:100%;width:${pct}%;background:${value >= 85 ? "#0a7f2e" : value >= 60 ? "#ad7d00" : "#9b1c1c"};"></div>
+        </div>
+        <strong>${value.toFixed(1)}/100</strong>
+      </div>
+    </div>
+  `;
+}

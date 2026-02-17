@@ -1,0 +1,1 @@
+{"stage":"process_start","command":"node","args":["-e","console.log(process.env.OPENAI_BASE_URL); process.exit(0)"],"meta":{"mode":"supervise","providerRoute":"http://127.0.0.1:3210/openai"}}

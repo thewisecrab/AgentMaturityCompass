@@ -1,0 +1,33 @@
+workspace:
+  mountPath: /data/amc
+  persistence:
+    enabled: true
+    storageClassName: standard
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+
+bootstrap:
+  enabled: true
+  ownerUsernameSecret:
+    name: amc-bootstrap
+    key: ownerUsername
+  ownerPasswordSecret:
+    name: amc-bootstrap
+    key: ownerPassword
+  vaultPassphraseSecret:
+    name: amc-bootstrap
+    key: vaultPassphrase
+
+env:
+  AMC_DATA_RETENTION_DAYS: "30"
+  AMC_ALLOWED_CIDRS: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1/32,::1/128"
+
+notary:
+  enabled: true
+  requiredAttestationLevel: SOFTWARE
+
+env:
+  AMC_ENABLE_NOTARY: "true"
+  AMC_NOTARY_BASE_URL: "http://127.0.0.1:4343"
+  AMC_NOTARY_REQUIRED_ATTESTATION: "SOFTWARE"

@@ -1,0 +1,8 @@
+{
+  "model": "gpt-test",
+  "messages": [
+    { "role": "system", "content": "You are a deterministic test model." },
+    { "role": "user", "content": "hello" }
+  ],
+  "temperature": 0
+}

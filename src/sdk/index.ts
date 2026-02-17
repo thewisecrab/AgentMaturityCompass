@@ -1,0 +1,13 @@
+export { AMCClient, createAMCClient, type AMCClientConfig, type AMCBridgeResponse } from "./amcClient.js";
+export { AMCAgent, createAMCAgent } from "./amcAgent.js";
+export { runSpan, type AMCSpanRecord } from "./amcSpan.js";
+export { sendBridgeTelemetry, type AMCTelemetryEvent } from "./amcTelemetry.js";
+export { hashSdkValue, redactSdkText } from "./amcEvidence.js";
+export { assertNoSelfScoring, requireBridgeUrl } from "./amcGuards.js";
+export { instrumentOpenAIClient, createOpenAIFetchTransport } from "./integrations/openai.js";
+export { instrumentAnthropicClient } from "./integrations/anthropic.js";
+export { instrumentGeminiClient } from "./integrations/gemini.js";
+export { createVercelAIFetchBridge } from "./integrations/vercelAiSdk.js";
+export { createLangChainJsBridge } from "./integrations/langchainJs.js";
+export { createLangGraphJsBridge } from "./integrations/langgraphJs.js";
+export { instrumentOpenAIAgentsSdk } from "./integrations/openaiAgentsSdk.js";

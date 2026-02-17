@@ -1,0 +1,233 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changeset:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map((l) => l.name);
+            if (labels.includes("skip-changeset")) {
+              core.info("skip-changeset label present; skipping changeset requirement.");
+              return;
+            }
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100
+            });
+            const hasChangeset = files.some((f) => f.filename.startsWith(".changeset/") && f.filename.endsWith(".md") && !f.filename.endsWith("README.md"));
+            if (!hasChangeset) {
+              core.setFailed("Missing changeset file. Add one with `npm run changeset` or apply `skip-changeset` label.");
+            }
+
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Release smoke checks
+        run: |
+          npm pack --json > /tmp/amc-pack.json
+          TGZ=$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync("/tmp/amc-pack.json","utf8"));process.stdout.write(j[0].filename)')
+          node dist/cli.js release sbom --out /tmp/sbom.cdx.json
+          node dist/cli.js release licenses --out /tmp/licenses.json
+          node dist/cli.js release provenance --out /tmp/provenance.json
+          node dist/cli.js release scan --in "$TGZ" --out /tmp/secret-scan.json
+
+  e2e-smoke-local:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Local e2e smoke
+        run: node dist/cli.js e2e smoke --mode local --json > /tmp/e2e-smoke-local.json
+
+      - name: Upload smoke artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-smoke-local
+          path: /tmp/e2e-smoke-local.json
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t amc-studio:ci .
+
+      - name: Prepare bootstrap secrets
+        run: |
+          mkdir -p /tmp/amc-secrets
+          echo "ci-vault-passphrase-123456" > /tmp/amc-secrets/vault.txt
+          echo "owner" > /tmp/amc-secrets/owner-user.txt
+          echo "owner-password-123" > /tmp/amc-secrets/owner-pass.txt
+          echo "ci-notary-auth-secret-123456789012345678901234" > /tmp/amc-secrets/notary-auth.txt
+
+      - name: Run container smoke
+        run: |
+          docker run -d --name amc-ci \
+            -p 3210:3210 -p 3211:3211 -p 3212:3212 \
+            -e AMC_BOOTSTRAP=1 \
+            -e AMC_ENABLE_NOTARY=0 \
+            -e AMC_BIND=0.0.0.0 \
+            -e AMC_LAN_MODE=true \
+            -e AMC_VAULT_PASSPHRASE_FILE=/run/secrets/vault \
+            -e AMC_BOOTSTRAP_OWNER_USERNAME_FILE=/run/secrets/owner-user \
+            -e AMC_BOOTSTRAP_OWNER_PASSWORD_FILE=/run/secrets/owner-pass \
+            -e AMC_NOTARY_AUTH_SECRET_FILE=/run/secrets/notary-auth \
+            -v /tmp/amc-secrets/vault.txt:/run/secrets/vault:ro \
+            -v /tmp/amc-secrets/owner-user.txt:/run/secrets/owner-user:ro \
+            -v /tmp/amc-secrets/owner-pass.txt:/run/secrets/owner-pass:ro \
+            -v /tmp/amc-secrets/notary-auth.txt:/run/secrets/notary-auth:ro \
+            amc-studio:ci
+
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:3212/readyz >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:3212/healthz >/dev/null
+          curl -fsS http://127.0.0.1:3212/console >/dev/null
+          docker exec amc-ci node dist/cli.js doctor --json > /tmp/docker-doctor.json
+
+      - name: Secret leak check
+        run: |
+          docker logs amc-ci > /tmp/docker-smoke.log 2>&1 || true
+          if grep -Ei "Bearer\\s+[A-Za-z0-9._-]{10,}|api_key|lease_[A-Za-z0-9]|BEGIN PRIVATE KEY" /tmp/docker-smoke.log; then
+            echo "Potential secret material detected in docker logs"
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f amc-ci || true
+
+      - name: Upload docker smoke artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-smoke
+          path: |
+            /tmp/docker-doctor.json
+            /tmp/docker-smoke.log
+
+  helm-lint-template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint/template
+        run: |
+          helm lint ./deploy/helm/amc
+          helm template amc ./deploy/helm/amc > /tmp/amc-helm-rendered.yaml
+          grep -q "kind: Deployment" /tmp/amc-helm-rendered.yaml
+          grep -q "kind: Service" /tmp/amc-helm-rendered.yaml
+          grep -q "kind: Ingress" /tmp/amc-helm-rendered.yaml
+          grep -q "kind: PersistentVolumeClaim" /tmp/amc-helm-rendered.yaml
+          grep -q "kind: NetworkPolicy" /tmp/amc-helm-rendered.yaml
+          grep -q "kind: PodDisruptionBudget" /tmp/amc-helm-rendered.yaml
+          grep -q "runAsNonRoot: true" /tmp/amc-helm-rendered.yaml
+          grep -q "readOnlyRootFilesystem: true" /tmp/amc-helm-rendered.yaml
+          grep -q "allowPrivilegeEscalation: false" /tmp/amc-helm-rendered.yaml
+
+      - name: Upload helm render artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-template
+          path: /tmp/amc-helm-rendered.yaml
+
+  security-scan-lite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Scan repository and plugin fixture
+        run: node scripts/security-scan-lite.mjs /tmp/security-scan-lite.json
+
+      - name: Create signed release bundle for scan
+        run: |
+          node -e "const fs=require('fs');const {generateKeyPairSync}=require('crypto');const kp=generateKeyPairSync('ed25519');fs.writeFileSync('/tmp/amc-release.key',kp.privateKey.export({format:'pem',type:'pkcs8'}),{mode:0o600});"
+          node dist/cli.js release pack --out /tmp/amc-ci.amcrelease --private-key /tmp/amc-release.key
+
+      - name: Scan release bundle and produce license inventory
+        run: |
+          node dist/cli.js release scan --in /tmp/amc-ci.amcrelease --out /tmp/release-secret-scan.json
+          node dist/cli.js release licenses --out /tmp/licenses.json
+
+      - name: Upload security artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-lite
+          path: |
+            /tmp/security-scan-lite.json
+            /tmp/release-secret-scan.json
+            /tmp/licenses.json

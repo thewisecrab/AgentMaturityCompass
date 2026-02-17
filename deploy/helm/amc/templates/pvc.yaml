@@ -1,0 +1,17 @@
+{{- if .Values.workspace.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "amc.fullname" . }}
+  labels:
+    {{- include "amc.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.workspace.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.workspace.persistence.size }}
+  {{- if .Values.workspace.persistence.storageClassName }}
+  storageClassName: {{ .Values.workspace.persistence.storageClassName }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,230 @@
+import { randomUUID } from "node:crypto";
+import type { Ledger } from "../ledger/ledger.js";
+import { hashBinaryOrPath } from "../ledger/ledger.js";
+import type { RuntimeName, TrustTier } from "../types.js";
+import { sha256Hex } from "../utils/hash.js";
+
+export function startAssuranceSession(params: {
+  ledger: Ledger;
+  mode: "supervise" | "sandbox";
+  agentId: string;
+  packIds: string[];
+  trustTier: TrustTier;
+}): string {
+  const sessionId = randomUUID();
+  params.ledger.startSession({
+    sessionId,
+    runtime: "unknown",
+    binaryPath: "amc-assurance-runner",
+    binarySha256: hashBinaryOrPath("amc-assurance-runner", "1")
+  });
+
+  params.ledger.appendEvidence({
+    sessionId,
+    runtime: "unknown",
+    eventType: "audit",
+    payload: JSON.stringify({
+      auditType: "ASSURANCE_RUN_STARTED",
+      severity: "LOW",
+      mode: params.mode,
+      agentId: params.agentId,
+      packIds: params.packIds
+    }),
+    payloadExt: "json",
+    inline: true,
+    meta: {
+      auditType: "ASSURANCE_RUN_STARTED",
+      severity: "LOW",
+      mode: params.mode,
+      agentId: params.agentId,
+      packIds: params.packIds,
+      trustTier: params.trustTier
+    }
+  });
+
+  return sessionId;
+}
+
+export function writeScenarioPrompt(params: {
+  ledger: Ledger;
+  sessionId: string;
+  runtime: RuntimeName;
+  trustTier: TrustTier;
+  packId: string;
+  scenarioId: string;
+  prompt: string;
+  agentId: string;
+}): string {
+  return params.ledger.appendEvidence({
+    sessionId: params.sessionId,
+    runtime: params.runtime,
+    eventType: "stdin",
+    payload: params.prompt,
+    payloadExt: "txt",
+    meta: {
+      source: "assurance",
+      packId: params.packId,
+      scenarioId: params.scenarioId,
+      direction: "assurance_to_agent",
+      agentId: params.agentId,
+      trustTier: params.trustTier
+    }
+  });
+}
+
+export function writeScenarioResponse(params: {
+  ledger: Ledger;
+  sessionId: string;
+  runtime: RuntimeName;
+  trustTier: TrustTier;
+  packId: string;
+  scenarioId: string;
+  response: string;
+  agentId: string;
+}): string {
+  return params.ledger.appendEvidence({
+    sessionId: params.sessionId,
+    runtime: params.runtime,
+    eventType: "stdout",
+    payload: params.response,
+    payloadExt: "txt",
+    meta: {
+      source: "assurance",
+      packId: params.packId,
+      scenarioId: params.scenarioId,
+      direction: "agent_to_assurance",
+      agentId: params.agentId,
+      trustTier: params.trustTier
+    }
+  });
+}
+
+export function writeScenarioTestResult(params: {
+  ledger: Ledger;
+  sessionId: string;
+  runtime: RuntimeName;
+  trustTier: TrustTier;
+  agentId: string;
+  packId: string;
+  scenarioId: string;
+  score0to100: number;
+  pass: boolean;
+  reasons: string[];
+  correlatedRequestIds: string[];
+}): string {
+  return params.ledger.appendEvidence({
+    sessionId: params.sessionId,
+    runtime: params.runtime,
+    eventType: "test",
+    payload: JSON.stringify({
+      testType: "ASSURANCE_SCENARIO_RESULT",
+      packId: params.packId,
+      scenarioId: params.scenarioId,
+      score0to100: params.score0to100,
+      pass: params.pass,
+      reasons: params.reasons,
+      correlatedRequestIds: params.correlatedRequestIds
+    }),
+    payloadExt: "json",
+    inline: true,
+    meta: {
+      source: "assurance",
+      testType: "ASSURANCE_SCENARIO_RESULT",
+      packId: params.packId,
+      scenarioId: params.scenarioId,
+      score0to100: params.score0to100,
+      pass: params.pass,
+      correlatedRequestIds: params.correlatedRequestIds,
+      agentId: params.agentId,
+      trustTier: params.trustTier
+    }
+  });
+}
+
+export function writePackScoreTestResult(params: {
+  ledger: Ledger;
+  sessionId: string;
+  runtime: RuntimeName;
+  trustTier: TrustTier;
+  agentId: string;
+  assuranceRunId: string;
+  packId: string;
+  score0to100: number;
+  passCount: number;
+  failCount: number;
+}): string {
+  return params.ledger.appendEvidence({
+    sessionId: params.sessionId,
+    runtime: params.runtime,
+    eventType: "test",
+    payload: JSON.stringify({
+      testType: "ASSURANCE_PACK_SCORE",
+      assuranceRunId: params.assuranceRunId,
+      packId: params.packId,
+      score0to100: params.score0to100,
+      passCount: params.passCount,
+      failCount: params.failCount
+    }),
+    payloadExt: "json",
+    inline: true,
+    meta: {
+      source: "assurance",
+      testType: "ASSURANCE_PACK_SCORE",
+      assuranceRunId: params.assuranceRunId,
+      packId: params.packId,
+      score0to100: params.score0to100,
+      passCount: params.passCount,
+      failCount: params.failCount,
+      agentId: params.agentId,
+      trustTier: params.trustTier
+    }
+  });
+}
+
+export function writeAssuranceAudit(params: {
+  ledger: Ledger;
+  sessionId: string;
+  runtime: RuntimeName;
+  trustTier: TrustTier;
+  agentId: string;
+  packId: string;
+  scenarioId: string;
+  auditType: string;
+  severity?: "LOW" | "MED" | "HIGH" | "CRITICAL";
+  message: string;
+}): string {
+  const severity = params.severity ?? "HIGH";
+  const payload = JSON.stringify({
+    auditType: params.auditType,
+    severity,
+    message: params.message,
+    packId: params.packId,
+    scenarioId: params.scenarioId
+  });
+  const event = params.ledger.appendEvidenceWithReceipt({
+    sessionId: params.sessionId,
+    runtime: params.runtime,
+    eventType: "audit",
+    payload,
+    payloadExt: "json",
+    inline: true,
+    meta: {
+      source: "assurance",
+      auditType: params.auditType,
+      severity,
+      message: params.message,
+      packId: params.packId,
+      scenarioId: params.scenarioId,
+      agentId: params.agentId,
+      trustTier: params.trustTier
+    },
+    receipt: {
+      kind: params.auditType.startsWith("TOOL_") ? "tool_action" : "guard_check",
+      agentId: params.agentId,
+      providerId: "unknown",
+      model: null,
+      bodySha256: sha256Hex(Buffer.from(payload, "utf8"))
+    }
+  });
+  return event.id;
+}

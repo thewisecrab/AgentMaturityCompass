@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "amc.fullname" . }}
+  labels:
+    {{- include "amc.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app.kubernetes.io/name: {{ include "amc.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+    - name: studio
+      port: {{ .Values.service.port }}
+      targetPort: studio
+    - name: gateway
+      port: {{ .Values.service.gatewayPort }}
+      targetPort: gateway
+    - name: proxy
+      port: {{ .Values.service.proxyPort }}
+      targetPort: proxy

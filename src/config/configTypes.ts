@@ -1,0 +1,40 @@
+export type LogLevel = "error" | "warn" | "info" | "debug";
+
+export interface StudioRuntimeConfig {
+  hostDir: string | null;
+  defaultWorkspaceId: string;
+  hostBind: string;
+  hostPort: number;
+  hostPublicBaseUrl: string | null;
+  workspaceDir: string;
+  bind: string;
+  studioPort: number;
+  gatewayPort: number;
+  proxyPort: number;
+  toolhubPort: number;
+  logLevel: LogLevel;
+  lanMode: boolean;
+  allowedCidrs: string[];
+  queryLeaseCarrierEnabled: boolean;
+  trustedProxyHops: number;
+  dataRetentionDays: number;
+  minFreeDiskMb: number;
+  maxRequestBytes: number;
+  corsAllowedOrigins: string[];
+  allowPublicBind: boolean;
+  metricsBind: string;
+  metricsPort: number;
+  bootstrap: boolean;
+  vaultPassphrase: string | null;
+  bootstrapOwnerUsername: string | null;
+  bootstrapOwnerPassword: string | null;
+  sessionSigningKey: string | null;
+  enableNotary: boolean;
+  notaryBaseUrl: string;
+  notaryRequiredAttestation: "SOFTWARE" | "HARDWARE";
+  notaryAuthSecret: string | null;
+  bootstrapHostAdminUsername: string | null;
+  bootstrapHostAdminPassword: string | null;
+  bootstrapDefaultWorkspaceId: string | null;
+  bootstrapDefaultWorkspaceName: string | null;
+}
