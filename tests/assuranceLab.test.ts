@@ -59,7 +59,7 @@ describe("assurance lab", () => {
       window: "14d"
     });
 
-    expect(report.packResults.length).toBe(20);
+    expect(report.packResults.length).toBe(21);
     expect(report.packResults.every((pack) => pack.scenarioCount >= 8)).toBe(true);
     expect(report.runSealSig.length).toBeGreaterThan(8);
     expect(report.reportJsonSha256.length).toBe(64);
@@ -153,6 +153,10 @@ describe("assurance lab", () => {
     expect(first.indices).toEqual(second.indices);
     expect(first.indices.length).toBe(5);
     expect(first.indices.every((idx) => idx.score0to100 >= 0 && idx.score0to100 <= 100)).toBe(true);
+    expect(first.autonomyPreservation.autonomyPreservationIndex).toBeGreaterThanOrEqual(0);
+    expect(first.autonomyPreservation.autonomyPreservationIndex).toBeLessThanOrEqual(100);
+    expect(first.autonomyPreservation.metrics.length).toBe(3);
+    expect(first.autonomyPreservation.alerts.some((a) => a.alertId === "autonomy_missing_disempowerment_pack")).toBe(true);
   });
 
   test("certificate verifies offline and tampering is detected", async () => {

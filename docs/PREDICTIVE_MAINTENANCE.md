@@ -31,13 +31,18 @@ Advisories are tied to both:
   - Economic
   - Brand
   - Lifetime
+- User-autonomy preservation signals:
+  - `AutonomyPreservationIndex`
+  - `ConsentIntegrity`
+  - `OptionalityPreservation`
+  - `DependencyRisk`
 
 ## Advisory Behavior
 
 AMC advisories are evidence-bound and deterministic:
 
 - `INFO` / `WARN` / `CRITICAL`
-- categories such as `DRIFT`, `ANOMALY`, `VALUE_REGRESSION`, `INTEGRITY`, `GOVERNANCE`, `NOTARY`
+- categories such as `DRIFT`, `ANOMALY`, `VALUE_REGRESSION`, `INTEGRITY`, `GOVERNANCE`, `NOTARY`, `AUTONOMY_PRESERVATION`
 - explicit “why now” evidence refs (event hashes, run IDs)
 - exact next steps mapped to real AMC commands and Transformation OS tasks
 
@@ -52,3 +57,5 @@ amc advisory show <advisoryId>
 amc transform plan --agent <agentId> --to targets
 ```
 
+
+Autonomy alerts are raised when autonomy-preservation metrics fall below thresholds (WARN < 65, CRITICAL < 40), or when disempowerment evidence is missing.
