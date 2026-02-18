@@ -125,6 +125,33 @@ describe("addSemanticEdge", () => {
     expect(edge.confidence).toBe(0.5);
     expect(edge.impactWeight).toBe(0.9);
   });
+
+  test("produces deterministic hash for semantically identical edges", () => {
+    const graph = makeGraph([{ id: "n1", label: "A" }, { id: "n2", label: "B" }]);
+    const overlayA = createSemanticOverlay(graph);
+    const overlayB = createSemanticOverlay(graph);
+
+    const edgeA = addSemanticEdge(overlayA, {
+      type: "REQUIRES",
+      fromNodeId: "n1",
+      toNodeId: "n2",
+      confidence: 0.7,
+      impactWeight: 0.6,
+      description: "same relationship",
+    });
+
+    const edgeB = addSemanticEdge(overlayB, {
+      type: "REQUIRES",
+      fromNodeId: "n1",
+      toNodeId: "n2",
+      confidence: 0.7,
+      impactWeight: 0.6,
+      description: "same relationship",
+    });
+
+    expect(edgeA.edgeId).not.toBe(edgeB.edgeId);
+    expect(edgeA.hash).toBe(edgeB.hash);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -322,6 +349,34 @@ describe("diffGraphs", () => {
     const diff = diffGraphs(graph, graph, oldOverlay, newOverlay);
     expect(diff.trustImpact).toBeLessThan(0); // riskier
   });
+
+  test("does not report churn when semantic edges are recreated with different IDs", () => {
+    const graph = makeGraph([{ id: "n1", label: "A" }, { id: "n2", label: "B" }]);
+    const oldOverlay = createSemanticOverlay(graph);
+    const newOverlay = createSemanticOverlay(graph);
+
+    addSemanticEdge(oldOverlay, {
+      type: "REQUIRES",
+      fromNodeId: "n1",
+      toNodeId: "n2",
+      confidence: 0.8,
+      impactWeight: 0.5,
+      description: "A requires B",
+    });
+    addSemanticEdge(newOverlay, {
+      type: "REQUIRES",
+      fromNodeId: "n1",
+      toNodeId: "n2",
+      confidence: 0.8,
+      impactWeight: 0.5,
+      description: "A requires B",
+    });
+
+    const diff = diffGraphs(graph, graph, oldOverlay, newOverlay);
+    expect(diff.edgesAdded).toEqual([]);
+    expect(diff.edgesRemoved).toEqual([]);
+    expect(diff.summary).toBe("No changes");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -386,6 +441,22 @@ describe("checkGraphIntegrity", () => {
     expect(result.pass).toBe(true);
     expect(result.warnings.some((w) => w.includes("contradiction"))).toBe(true);
   });
+
+  test("warns when orphaned node references exist but are within limit", () => {
+    const graph = makeGraph([{ id: "n1", label: "A" }]);
+    const overlay = createSemanticOverlay(graph);
+
+    addSemanticEdge(overlay, {
+      type: "REQUIRES",
+      fromNodeId: "n1",
+      toNodeId: "n-missing",
+      description: "dangling",
+    });
+
+    const result = checkGraphIntegrity(graph, overlay, { maxOrphanedNodes: 5 });
+    expect(result.pass).toBe(true);
+    expect(result.warnings.some((w) => w.includes("orphaned node reference"))).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -444,8 +515,8 @@ describe("markdown rendering", () => {
       nodesAdded: ["n3"],
       nodesRemoved: ["n2"],
       nodesModified: [],
-      edgesAdded: [],
-      edgesRemoved: [],
+      edgesAdded: ["se_1"],
+      edgesRemoved: ["se_2"],
       summary: "+1 nodes, -1 nodes",
       trustImpact: 0,
     };
@@ -454,6 +525,8 @@ describe("markdown rendering", () => {
     expect(md).toContain("# Graph Diff Report");
     expect(md).toContain("Nodes Added");
     expect(md).toContain("Nodes Removed");
+    expect(md).toContain("Semantic Edges Added");
+    expect(md).toContain("Semantic Edges Removed");
   });
 
   test("renderIntegrityCheckMarkdown produces valid output", () => {

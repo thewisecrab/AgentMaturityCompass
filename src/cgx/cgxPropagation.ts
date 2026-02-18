@@ -141,8 +141,9 @@ export interface GraphHotspot {
 // ---------------------------------------------------------------------------
 
 function computeEdgeHash(edge: Omit<SemanticEdge, "hash">): string {
+  // Intentionally exclude edgeId/timestamps so semantically identical edges hash identically
+  // across runs. This improves deterministic diffing/reporting.
   return sha256Hex(canonicalize({
-    edgeId: edge.edgeId,
     type: edge.type,
     fromNodeId: edge.fromNodeId,
     toNodeId: edge.toNodeId,
@@ -150,6 +151,10 @@ function computeEdgeHash(edge: Omit<SemanticEdge, "hash">): string {
     description: edge.description,
     impactWeight: edge.impactWeight,
   }));
+}
+
+function semanticEdgeIdentity(edge: SemanticEdge): string {
+  return [edge.type, edge.fromNodeId, edge.toNodeId, edge.hash].join("|");
 }
 
 /**
@@ -376,10 +381,12 @@ export function simulateRiskPropagation(
   return {
     sourceNodeId,
     affectedNodes: Array.from(bestPerNode.values()).sort(
-      (a, b) => b.riskScore - a.riskScore,
+      (a, b) => (b.riskScore - a.riskScore) || a.nodeId.localeCompare(b.nodeId),
     ),
     blastRadius: Number(blastRadius.toFixed(4)),
-    chains: chains.sort((a, b) => b.totalRisk - a.totalRisk).slice(0, 20),
+    chains: chains
+      .sort((a, b) => (b.totalRisk - a.totalRisk) || a.path.join("→").localeCompare(b.path.join("→")))
+      .slice(0, 20),
   };
 }
 
@@ -411,22 +418,29 @@ export function diffGraphs(
     }
   }
 
-  // Edge diffs (semantic overlay)
-  const oldEdgeIds = new Set(oldOverlay?.edges.map((e) => e.edgeId) ?? []);
-  const newEdgeIds = new Set(newOverlay?.edges.map((e) => e.edgeId) ?? []);
-  const edgesAdded = [...newEdgeIds].filter((id) => !oldEdgeIds.has(id));
-  const edgesRemoved = [...oldEdgeIds].filter((id) => !newEdgeIds.has(id));
+  // Edge diffs (semantic overlay), compared by semantic identity (not random edgeId)
+  const oldEdges = oldOverlay?.edges ?? [];
+  const newEdges = newOverlay?.edges ?? [];
+  const oldEdgeIdentitySet = new Set(oldEdges.map(semanticEdgeIdentity));
+  const newEdgeIdentitySet = new Set(newEdges.map(semanticEdgeIdentity));
+
+  const edgesAdded = newEdges
+    .filter((edge) => !oldEdgeIdentitySet.has(semanticEdgeIdentity(edge)))
+    .map((edge) => edge.edgeId);
+  const edgesRemoved = oldEdges
+    .filter((edge) => !newEdgeIdentitySet.has(semanticEdgeIdentity(edge)))
+    .map((edge) => edge.edgeId);
 
   // Trust impact heuristic
-  const addedConflicts = newOverlay?.edges.filter(
-    (e) => edgesAdded.includes(e.edgeId) &&
+  const addedConflicts = newEdges.filter(
+    (e) => !oldEdgeIdentitySet.has(semanticEdgeIdentity(e)) &&
       (e.type === "CONTRADICTS" || e.type === "BLOCKS" || e.type === "CONFLICTS_WITH"),
-  ).length ?? 0;
+  ).length;
 
-  const removedConflicts = oldOverlay?.edges.filter(
-    (e) => edgesRemoved.includes(e.edgeId) &&
+  const removedConflicts = oldEdges.filter(
+    (e) => !newEdgeIdentitySet.has(semanticEdgeIdentity(e)) &&
       (e.type === "CONTRADICTS" || e.type === "BLOCKS" || e.type === "CONFLICTS_WITH"),
-  ).length ?? 0;
+  ).length;
 
   const trustImpact = removedConflicts - addedConflicts; // positive = safer
 
@@ -508,6 +522,8 @@ export function checkGraphIntegrity(
     errors.push(
       `${orphanedNodeIds.length} orphaned node references exceed max ${maxOrphanedNodes}`,
     );
+  } else if (orphanedNodeIds.length > 0) {
+    warnings.push(`${orphanedNodeIds.length} orphaned node reference(s) detected`);
   }
 
   // Compute max propagation depth (BFS on edges)
@@ -600,7 +616,7 @@ export function detectHotspots(
     }
   }
 
-  return hotspots.sort((a, b) => b.riskScore - a.riskScore);
+  return hotspots.sort((a, b) => (b.riskScore - a.riskScore) || a.nodeId.localeCompare(b.nodeId));
 }
 
 // ---------------------------------------------------------------------------
@@ -661,6 +677,22 @@ export function renderGraphDiffMarkdown(diff: GraphDiffResult): string {
   if (diff.nodesModified.length > 0) {
     lines.push(`## Nodes Modified (${diff.nodesModified.length})`);
     for (const id of diff.nodesModified.slice(0, 10)) {
+      lines.push(`- ${id}`);
+    }
+    lines.push("");
+  }
+
+  if (diff.edgesAdded.length > 0) {
+    lines.push(`## Semantic Edges Added (${diff.edgesAdded.length})`);
+    for (const id of diff.edgesAdded.slice(0, 10)) {
+      lines.push(`- ${id}`);
+    }
+    lines.push("");
+  }
+
+  if (diff.edgesRemoved.length > 0) {
+    lines.push(`## Semantic Edges Removed (${diff.edgesRemoved.length})`);
+    for (const id of diff.edgesRemoved.slice(0, 10)) {
       lines.push(`- ${id}`);
     }
     lines.push("");
