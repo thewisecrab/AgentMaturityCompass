@@ -536,9 +536,193 @@
         "note": "rollback-to-v1",
         "parent_version": 34,
         "version": 35
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:20:05.380432+00:00",
+        "note": "init",
+        "parent_version": 35,
+        "version": 36
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:20:05.381965+00:00",
+        "note": "add c",
+        "parent_version": 36,
+        "version": 37
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:20:05.384907+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 37,
+        "version": 38
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:21:02.863557+00:00",
+        "note": "init",
+        "parent_version": 38,
+        "version": 39
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:21:02.864913+00:00",
+        "note": "add c",
+        "parent_version": 39,
+        "version": 40
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:21:02.867803+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 40,
+        "version": 41
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:22:03.526366+00:00",
+        "note": "init",
+        "parent_version": 41,
+        "version": 42
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:22:03.527769+00:00",
+        "note": "add c",
+        "parent_version": 42,
+        "version": 43
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:22:03.530681+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 43,
+        "version": 44
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:22:30.215855+00:00",
+        "note": "init",
+        "parent_version": 44,
+        "version": 45
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:22:30.217252+00:00",
+        "note": "add c",
+        "parent_version": 45,
+        "version": 46
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:22:30.220152+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 46,
+        "version": 47
       }
     ]
   },
-  "updated_at": "2026-02-18T16:08:45.971958+00:00",
+  "updated_at": "2026-02-18T16:22:30.220155+00:00",
   "workflow": {}
 }

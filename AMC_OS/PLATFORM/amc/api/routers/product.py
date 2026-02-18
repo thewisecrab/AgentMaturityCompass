@@ -88,9 +88,83 @@ from amc.product.dev_sandbox import (
     MockMode,
     get_dev_sandbox,
 )
+from amc.product.determinism_kit import (
+    DeterminismKit,
+    get_determinism_kit,
+)
+from amc.product.prompt_modules import (
+    PromptModuleRegistry,
+    MODULE_TYPES,
+    get_prompt_registry,
+)
+from amc.product.tool_semantic_docs import (
+    ToolSemanticDocGenerator,
+    get_doc_generator,
+)
+from amc.product.tool_parallelizer import (
+    ToolCall,
+    ToolParallelizer,
+    SideEffectPolicy,
+    build_execution_plan,
+    get_parallelizer,
+)
+from amc.product.tool_discovery import (
+    ToolRegistration,
+    ToolDiscoveryEngine,
+    get_tool_discovery_engine,
+)
+from amc.product.tool_reliability import (
+    CallRecord,
+    get_tool_reliability_predictor,
+)
+from amc.product.error_translator import (
+    get_error_translator,
+)
+from amc.product.memory_consolidation import (
+    MemoryItem,
+    get_memory_consolidation_engine,
+)
+from amc.product.scratchpad import (
+    Lifecycle,
+    ScratchEntry,
+    get_scratchpad_manager,
+)
 
 from fastapi import FastAPI
 from amc.core.config import get_settings
+
+# ── Wave-2 module imports ─────────────────────────────────────────────────
+from amc.product.autonomy_dial import (
+    AutonomyMode,
+    PolicyInput,
+    get_autonomy_dial,
+)
+from amc.product.goal_tracker import (
+    GoalInput,
+    MilestoneInput,
+    GoalStatus,
+    MilestoneStatus,
+    get_goal_tracker,
+)
+from amc.product.loop_detector import (
+    PatternType,
+    RecoveryStrategy,
+    get_loop_detector,
+)
+from amc.product.confidence import (
+    ConfidenceBand,
+    ConfidenceInput,
+    EvidenceItem,
+    get_confidence_estimator,
+)
+from amc.product.conversation_state import (
+    DecisionOutcome,
+    DecisionRecord,
+    PendingAction,
+    PendingActionStatus,
+    SnapshotInput,
+    get_state_manager,
+)
 
 router = APIRouter(prefix="/api/v1/product", tags=["product"])
 features_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-features"])
@@ -112,6 +186,23 @@ replay_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-re
 scaffold_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-scaffold"])
 devsandbox_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-devsandbox"])
 orchestration_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-orchestration"])
+determinism_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-determinism"])
+prompt_modules_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-prompts"])
+tool_docs_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-tool-docs"])
+tool_parallel_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-tool-parallel"])
+
+tool_discovery_router  = APIRouter(prefix="/api/v1/product", tags=["product", "product-tool-discovery"])
+tool_reliability_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-tool-reliability"])
+error_translator_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-error-translator"])
+memory_consolidation_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-memory-consolidation"])
+scratchpad_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-scratchpad"])
+
+# Wave-2 routers
+autonomy_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-autonomy"])
+goals_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-goals"])
+loops_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-loops"])
+confidence_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-confidence"])
+state_router = APIRouter(prefix="/api/v1/product", tags=["product", "product-state"])
 
 
 def register_product_routes(app: FastAPI) -> None:
@@ -140,6 +231,23 @@ def register_product_routes(app: FastAPI) -> None:
         (scaffold_router, getattr(settings, "module_product_scaffold_enabled", True)),
         (devsandbox_router, getattr(settings, "module_product_devsandbox_enabled", True)),
         (orchestration_router, getattr(settings, "module_product_orchestration_enabled", True)),
+        # Wave-4: Tools + Memory
+        (tool_discovery_router, getattr(settings, "module_product_tool_discovery_enabled", True)),
+        (tool_reliability_router, getattr(settings, "module_product_tool_reliability_enabled", True)),
+        (error_translator_router, getattr(settings, "module_product_error_translator_enabled", True)),
+        (memory_consolidation_router, getattr(settings, "module_product_memory_consolidation_enabled", True)),
+        (scratchpad_router, getattr(settings, "module_product_scratchpad_enabled", True)),
+        # Wave-2
+        (autonomy_router, getattr(settings, "module_product_autonomy_enabled", True)),
+        (goals_router, getattr(settings, "module_product_goals_enabled", True)),
+        (loops_router, getattr(settings, "module_product_loops_enabled", True)),
+        (confidence_router, getattr(settings, "module_product_confidence_enabled", True)),
+        (state_router, getattr(settings, "module_product_state_enabled", True)),
+        # Wave-4: model-ops + reliability
+        (determinism_router, getattr(settings, "module_product_determinism_enabled", True)),
+        (prompt_modules_router, getattr(settings, "module_product_prompts_enabled", True)),
+        (tool_docs_router, getattr(settings, "module_product_tool_docs_enabled", True)),
+        (tool_parallel_router, getattr(settings, "module_product_tool_parallel_enabled", True)),
     ]
     for route, enabled in module_routes:
         if enabled:
@@ -1987,3 +2095,1498 @@ def escalation_stats() -> dict[str, Any]:
     """Return escalation queue summary."""
     from amc.product.escalation import escalation_summary
     return escalation_summary(get_escalation_queue()).model_dump()
+
+
+# ===========================================================================
+# WAVE 2 — Autonomy Dial  (/api/v1/product/autonomy)
+# ===========================================================================
+
+
+class PolicySetRequest(BaseModel):
+    tenant_id: str
+    task_type: str
+    mode: str = AutonomyMode.CONDITIONAL.value
+    confidence_threshold: float = Field(0.85, ge=0.0, le=1.0)
+    description: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class AutonomyDecideRequest(BaseModel):
+    tenant_id: str
+    task_type: str
+    confidence: float = Field(1.0, ge=0.0, le=1.0)
+    context: dict[str, Any] = Field(default_factory=dict)
+
+
+@autonomy_router.post("/autonomy/policies", response_model=dict)
+def set_autonomy_policy(payload: PolicySetRequest) -> dict:
+    """Create or update the ask-vs-act policy for a task type."""
+    dial = get_autonomy_dial()
+    try:
+        mode = AutonomyMode(payload.mode)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"Invalid mode '{payload.mode}'.")
+    record = dial.set_policy(
+        PolicyInput(
+            tenant_id=payload.tenant_id,
+            task_type=payload.task_type,
+            mode=mode,
+            confidence_threshold=payload.confidence_threshold,
+            description=payload.description,
+            metadata=payload.metadata,
+        )
+    )
+    return record.dict
+
+
+@autonomy_router.get("/autonomy/policies", response_model=list)
+def list_autonomy_policies(tenant_id: str = Query(...), active_only: bool = True) -> list:
+    """List all autonomy policies for a tenant."""
+    return [p.dict for p in get_autonomy_dial().list_policies(tenant_id, active_only=active_only)]
+
+
+@autonomy_router.delete("/autonomy/policies/{policy_id}", response_model=dict)
+def delete_autonomy_policy(policy_id: str) -> dict:
+    ok = get_autonomy_dial().delete_policy(policy_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Policy not found")
+    return {"policy_id": policy_id, "deleted": True}
+
+
+@autonomy_router.post("/autonomy/decide", response_model=dict)
+def autonomy_decide(payload: AutonomyDecideRequest) -> dict:
+    """Resolve the ask-vs-act decision for a task, returns should_ask bool."""
+    decision = get_autonomy_dial().decide(
+        tenant_id=payload.tenant_id,
+        task_type=payload.task_type,
+        confidence=payload.confidence,
+        context=payload.context,
+    )
+    return decision.dict
+
+
+@autonomy_router.get("/autonomy/decisions", response_model=list)
+def list_autonomy_decisions(
+    tenant_id: str | None = None,
+    task_type: str | None = None,
+    limit: int = Query(50, ge=1, le=500),
+) -> list:
+    return [d.dict for d in get_autonomy_dial().list_decisions(tenant_id, task_type, limit)]
+
+
+@autonomy_router.get("/autonomy/defaults", response_model=dict)
+def get_default_modes() -> dict:
+    """Return the built-in default autonomy ladder."""
+    return get_autonomy_dial().default_modes()
+
+
+# ===========================================================================
+# WAVE 2 — Goal Tracker  (/api/v1/product/goals)
+# ===========================================================================
+
+
+class GoalCreateRequest(BaseModel):
+    tenant_id: str
+    title: str
+    description: str = ""
+    session_id: str = ""
+    keywords: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class GoalDecomposeRequest(BaseModel):
+    milestones: list[dict[str, Any]]
+
+
+class MilestoneUpdateRequest(BaseModel):
+    status: str
+
+
+class DriftCheckRequest(BaseModel):
+    action_summary: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+@goals_router.post("/goals", response_model=dict)
+def create_goal(payload: GoalCreateRequest) -> dict:
+    """Create a new goal."""
+    tracker = get_goal_tracker()
+    record = tracker.create_goal(
+        GoalInput(
+            tenant_id=payload.tenant_id,
+            title=payload.title,
+            description=payload.description,
+            session_id=payload.session_id,
+            keywords=payload.keywords,
+            metadata=payload.metadata,
+        )
+    )
+    return record.dict
+
+
+@goals_router.get("/goals/{goal_id}", response_model=dict)
+def get_goal(goal_id: str) -> dict:
+    record = get_goal_tracker().get_goal(goal_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    return record.dict
+
+
+@goals_router.get("/goals", response_model=list)
+def list_goals(
+    tenant_id: str = Query(...),
+    session_id: str | None = None,
+    status: str | None = None,
+    limit: int = Query(50, ge=1, le=500),
+) -> list:
+    tracker = get_goal_tracker()
+    status_enum = GoalStatus(status) if status else None
+    return [g.dict for g in tracker.list_goals(tenant_id, session_id=session_id, status=status_enum, limit=limit)]
+
+
+@goals_router.post("/goals/{goal_id}/decompose", response_model=list)
+def decompose_goal(goal_id: str, payload: GoalDecomposeRequest) -> list:
+    """Add milestones to a goal."""
+    return [m.dict for m in get_goal_tracker().decompose(goal_id, payload.milestones)]
+
+
+@goals_router.patch("/goals/{goal_id}/status", response_model=dict)
+def update_goal_status_route(goal_id: str, payload: MilestoneUpdateRequest) -> dict:
+    try:
+        status = GoalStatus(payload.status)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"Invalid status '{payload.status}'.")
+    record = get_goal_tracker().update_goal_status(goal_id, status)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    return record.dict
+
+
+@goals_router.patch("/goals/milestones/{milestone_id}/status", response_model=dict)
+def update_milestone_status_route(milestone_id: str, payload: MilestoneUpdateRequest) -> dict:
+    try:
+        status = MilestoneStatus(payload.status)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"Invalid status '{payload.status}'.")
+    record = get_goal_tracker().update_milestone_status(milestone_id, status)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    return record.dict
+
+
+@goals_router.post("/goals/{goal_id}/drift-check", response_model=dict)
+def check_goal_drift(goal_id: str, payload: DriftCheckRequest) -> dict:
+    """Evaluate whether an action aligns with the goal."""
+    try:
+        event = get_goal_tracker().check_drift(
+            goal_id=goal_id,
+            action_summary=payload.action_summary,
+            metadata=payload.metadata,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return event.dict
+
+
+@goals_router.get("/goals/{goal_id}/drift-events", response_model=list)
+def list_drift_events_route(
+    goal_id: str,
+    aligned_only: bool | None = None,
+    limit: int = Query(50, ge=1, le=500),
+) -> list:
+    return [e.dict for e in get_goal_tracker().list_drift_events(goal_id, aligned_only=aligned_only, limit=limit)]
+
+
+# ===========================================================================
+# WAVE 2 — Loop Detector  (/api/v1/product/loops)
+# ===========================================================================
+
+
+class ActionRecordRequest(BaseModel):
+    session_id: str
+    tenant_id: str
+    action_type: str
+    action_summary: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ActionCheckRequest(BaseModel):
+    session_id: str
+    tenant_id: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+@loops_router.post("/loops/actions", response_model=dict)
+def record_action(payload: ActionRecordRequest) -> dict:
+    """Record an agent action to history."""
+    entry = get_loop_detector().record_action(
+        session_id=payload.session_id,
+        tenant_id=payload.tenant_id,
+        action_type=payload.action_type,
+        action_summary=payload.action_summary,
+        metadata=payload.metadata,
+    )
+    return entry.dict
+
+
+@loops_router.post("/loops/check", response_model=dict)
+def check_loops(payload: ActionCheckRequest) -> dict:
+    """Check the session for loop/thrash patterns."""
+    result = get_loop_detector().check(
+        session_id=payload.session_id,
+        tenant_id=payload.tenant_id,
+        metadata=payload.metadata,
+    )
+    return result.dict
+
+
+@loops_router.post("/loops/record-and-check", response_model=dict)
+def record_and_check(payload: ActionRecordRequest) -> dict:
+    """Record action then immediately check for loops — single call convenience."""
+    result = get_loop_detector().record_action_and_check(
+        session_id=payload.session_id,
+        tenant_id=payload.tenant_id,
+        action_type=payload.action_type,
+        action_summary=payload.action_summary,
+        metadata=payload.metadata,
+    )
+    return result.dict
+
+
+@loops_router.post("/loops/detections/{detection_id}/resolve", response_model=dict)
+def resolve_loop_detection(detection_id: str) -> dict:
+    ok = get_loop_detector().resolve_detection(detection_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Detection not found")
+    return {"detection_id": detection_id, "resolved": True}
+
+
+@loops_router.get("/loops/detections", response_model=list)
+def list_loop_detections(
+    session_id: str | None = None,
+    tenant_id: str | None = None,
+    resolved: bool | None = None,
+    limit: int = Query(50, ge=1, le=500),
+) -> list:
+    return [
+        d.dict
+        for d in get_loop_detector().list_detections(
+            session_id=session_id, tenant_id=tenant_id, resolved=resolved, limit=limit
+        )
+    ]
+
+
+@loops_router.get("/loops/sessions/{session_id}/history", response_model=list)
+def session_action_history(session_id: str, limit: int = Query(50, ge=1, le=500)) -> list:
+    return [e.dict for e in get_loop_detector().session_history(session_id, limit=limit)]
+
+
+# ===========================================================================
+# WAVE 2 — Confidence Estimator  (/api/v1/product/confidence)
+# ===========================================================================
+
+
+class EvidenceItemRequest(BaseModel):
+    content: str
+    source: str = "unknown"
+    credibility: float = Field(0.8, ge=0.0, le=1.0)
+
+
+class ConfidenceEstimateRequest(BaseModel):
+    decision_type: str
+    description: str
+    evidence: list[EvidenceItemRequest] = Field(default_factory=list)
+    required_fields: list[str] = Field(default_factory=list)
+    available_fields: list[str] = Field(default_factory=list)
+    prior_accuracy: float | None = Field(None, ge=0.0, le=1.0)
+    session_id: str = ""
+    tenant_id: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ConfidenceOutcomeRequest(BaseModel):
+    outcome: str
+    correct: bool
+
+
+@confidence_router.post("/confidence/estimate", response_model=dict)
+def estimate_confidence(payload: ConfidenceEstimateRequest) -> dict:
+    """Estimate confidence for a decision point."""
+    estimator = get_confidence_estimator()
+    inp = ConfidenceInput(
+        decision_type=payload.decision_type,
+        description=payload.description,
+        evidence=[
+            EvidenceItem(content=e.content, source=e.source, credibility=e.credibility)
+            for e in payload.evidence
+        ],
+        required_fields=payload.required_fields,
+        available_fields=payload.available_fields,
+        prior_accuracy=payload.prior_accuracy,
+        session_id=payload.session_id,
+        tenant_id=payload.tenant_id,
+        metadata=payload.metadata,
+    )
+    return estimator.estimate(inp).dict
+
+
+@confidence_router.post("/confidence/estimates/{estimate_id}/outcome", response_model=dict)
+def record_confidence_outcome(estimate_id: str, payload: ConfidenceOutcomeRequest) -> dict:
+    ok = get_confidence_estimator().record_outcome(
+        estimate_id=estimate_id, outcome=payload.outcome, correct=payload.correct
+    )
+    if not ok:
+        raise HTTPException(status_code=404, detail="Estimate not found")
+    return {"estimate_id": estimate_id, "recorded": True}
+
+
+@confidence_router.get("/confidence/estimates/{estimate_id}", response_model=dict)
+def get_confidence_estimate(estimate_id: str) -> dict:
+    est = get_confidence_estimator().get_estimate(estimate_id)
+    if est is None:
+        raise HTTPException(status_code=404, detail="Estimate not found")
+    return est.dict
+
+
+@confidence_router.get("/confidence/estimates", response_model=list)
+def list_confidence_estimates(
+    tenant_id: str | None = None,
+    session_id: str | None = None,
+    decision_type: str | None = None,
+    band: str | None = None,
+    limit: int = Query(100, ge=1, le=1000),
+) -> list:
+    band_enum = ConfidenceBand(band) if band else None
+    return [
+        e.dict
+        for e in get_confidence_estimator().list_estimates(
+            tenant_id=tenant_id,
+            session_id=session_id,
+            decision_type=decision_type,
+            band=band_enum,
+            limit=limit,
+        )
+    ]
+
+
+@confidence_router.get("/confidence/accuracy", response_model=dict)
+def confidence_accuracy_summary(tenant_id: str = Query(...), decision_type: str | None = None) -> dict:
+    """Calibration accuracy by band for a tenant."""
+    return get_confidence_estimator().accuracy_summary(tenant_id, decision_type=decision_type)
+
+
+# ===========================================================================
+# WAVE 2 — Conversation State Snapshotter  (/api/v1/product/state)
+# ===========================================================================
+
+
+class DecisionRecordRequest(BaseModel):
+    key: str
+    value: Any
+    outcome: str = DecisionOutcome.CONFIRMED.value
+    rationale: str = ""
+    turn: int = 0
+
+
+class PendingActionRequest(BaseModel):
+    action_id: str = Field(default_factory=lambda: str(__import__("uuid").uuid4()))
+    action_type: str
+    description: str
+    status: str = PendingActionStatus.QUEUED.value
+    priority: int = 5
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SnapshotCreateRequest(BaseModel):
+    conversation_id: str
+    tenant_id: str
+    intent: str
+    entities: dict[str, Any] = Field(default_factory=dict)
+    decisions: list[DecisionRecordRequest] = Field(default_factory=list)
+    pending_actions: list[PendingActionRequest] = Field(default_factory=list)
+    context: dict[str, Any] = Field(default_factory=dict)
+    summary: str = ""
+    session_id: str = ""
+    turn_count: int = 0
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class RestoreRequest(BaseModel):
+    target_version: int
+    restored_by: str = "system"
+    reason: str = ""
+
+
+class EntityUpdateRequest(BaseModel):
+    updates: dict[str, Any]
+
+
+@state_router.post("/state/snapshots", response_model=dict)
+def create_snapshot(payload: SnapshotCreateRequest) -> dict:
+    """Snapshot the current conversation state."""
+    mgr = get_state_manager()
+    inp = SnapshotInput(
+        conversation_id=payload.conversation_id,
+        tenant_id=payload.tenant_id,
+        intent=payload.intent,
+        entities=payload.entities,
+        decisions=[
+            DecisionRecord(
+                key=d.key,
+                value=d.value,
+                outcome=DecisionOutcome(d.outcome),
+                rationale=d.rationale,
+                turn=d.turn,
+            )
+            for d in payload.decisions
+        ],
+        pending_actions=[
+            PendingAction(
+                action_id=p.action_id,
+                action_type=p.action_type,
+                description=p.description,
+                status=PendingActionStatus(p.status),
+                priority=p.priority,
+                metadata=p.metadata,
+            )
+            for p in payload.pending_actions
+        ],
+        context=payload.context,
+        summary=payload.summary,
+        session_id=payload.session_id,
+        turn_count=payload.turn_count,
+        metadata=payload.metadata,
+    )
+    return mgr.snapshot(inp).dict
+
+
+@state_router.get("/state/conversations/{conversation_id}/latest", response_model=dict)
+def get_latest_snapshot(conversation_id: str) -> dict:
+    snap = get_state_manager().get_latest(conversation_id)
+    if snap is None:
+        raise HTTPException(status_code=404, detail="No snapshot found")
+    return snap.dict
+
+
+@state_router.get("/state/snapshots/{snapshot_id}", response_model=dict)
+def get_snapshot(snapshot_id: str) -> dict:
+    snap = get_state_manager().get_snapshot(snapshot_id)
+    if snap is None:
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    return snap.dict
+
+
+@state_router.get("/state/conversations/{conversation_id}/history", response_model=list)
+def list_conversation_snapshots(
+    conversation_id: str, limit: int = Query(20, ge=1, le=100)
+) -> list:
+    return [s.dict for s in get_state_manager().list_snapshots(conversation_id, limit=limit)]
+
+
+@state_router.get("/state/conversations", response_model=list)
+def list_tenant_conversations(
+    tenant_id: str = Query(...),
+    session_id: str | None = None,
+    latest_only: bool = True,
+    limit: int = Query(50, ge=1, le=500),
+) -> list:
+    return [
+        s.dict
+        for s in get_state_manager().list_for_tenant(
+            tenant_id, session_id=session_id, latest_only=latest_only, limit=limit
+        )
+    ]
+
+
+@state_router.post("/state/conversations/{conversation_id}/restore", response_model=dict)
+def restore_conversation(conversation_id: str, payload: RestoreRequest) -> dict:
+    """Restore conversation to a historical snapshot version."""
+    try:
+        record = get_state_manager().restore(
+            conversation_id=conversation_id,
+            target_version=payload.target_version,
+            restored_by=payload.restored_by,
+            reason=payload.reason,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return record.dict
+
+
+@state_router.patch("/state/conversations/{conversation_id}/entities", response_model=dict)
+def update_conversation_entities(conversation_id: str, payload: EntityUpdateRequest) -> dict:
+    snap = get_state_manager().update_latest_entities(conversation_id, payload.updates)
+    if snap is None:
+        raise HTTPException(status_code=404, detail="No snapshot found for conversation")
+    return snap.dict
+
+
+@state_router.delete("/state/conversations/{conversation_id}", response_model=dict)
+def delete_conversation_snapshots(conversation_id: str) -> dict:
+    deleted = get_state_manager().delete_snapshots(conversation_id)
+    return {"conversation_id": conversation_id, "snapshots_deleted": deleted}
+
+
+# ==========================================================================
+# Wave-4: Tool Discovery  — /api/v1/product/tools/discover
+# ==========================================================================
+
+
+class ToolRegisterRequest(BaseModel):
+    tool_name: str
+    description: str
+    capabilities: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    category: str = "general"
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ToolDiscoverRequest(BaseModel):
+    intent: str
+    top_k: int = Field(5, ge=1, le=20)
+    category: str | None = None
+    min_success_rate: float = Field(0.0, ge=0.0, le=1.0)
+
+
+class ToolUsageRecordRequest(BaseModel):
+    tool_id: str
+    session_id: str = ""
+    intent: str = ""
+    succeeded: bool = True
+    latency_ms: int = 0
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+@tool_discovery_router.post("/tools/register", response_model=dict)
+def register_tool(payload: ToolRegisterRequest) -> dict:
+    """Register or update a tool in the discovery registry."""
+    engine = get_tool_discovery_engine()
+    record = engine.register_tool(
+        ToolRegistration(
+            tool_name=payload.tool_name,
+            description=payload.description,
+            capabilities=payload.capabilities,
+            tags=payload.tags,
+            category=payload.category,
+            input_schema=payload.input_schema,
+            output_schema=payload.output_schema,
+            metadata=payload.metadata,
+        )
+    )
+    return record.dict
+
+
+@tool_discovery_router.post("/tools/discover", response_model=list)
+def discover_tools(payload: ToolDiscoverRequest) -> list:
+    """Search tools by natural language intent and rank by relevance + history."""
+    engine = get_tool_discovery_engine()
+    results = engine.discover(
+        intent=payload.intent,
+        top_k=payload.top_k,
+        category=payload.category,
+        min_success_rate=payload.min_success_rate,
+    )
+    return [r.dict for r in results]
+
+
+@tool_discovery_router.get("/tools/registry", response_model=list)
+def list_registered_tools(
+    category: str | None = None,
+    active_only: bool = True,
+) -> list:
+    """List all registered tools."""
+    engine = get_tool_discovery_engine()
+    return [t.dict for t in engine.list_tools(category=category, active_only=active_only)]
+
+
+@tool_discovery_router.get("/tools/registry/{tool_id}", response_model=dict)
+def get_registered_tool(tool_id: str) -> dict:
+    """Fetch a tool record by ID."""
+    engine = get_tool_discovery_engine()
+    record = engine.get_tool(tool_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Tool not found")
+    return record.dict
+
+
+@tool_discovery_router.delete("/tools/registry/{tool_id}", response_model=dict)
+def deactivate_registered_tool(tool_id: str) -> dict:
+    """Deactivate a tool (soft-delete)."""
+    engine = get_tool_discovery_engine()
+    ok = engine.deactivate_tool(tool_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Tool not found")
+    return {"tool_id": tool_id, "deactivated": True}
+
+
+@tool_discovery_router.post("/tools/usage", response_model=dict)
+def record_tool_usage(payload: ToolUsageRecordRequest) -> dict:
+    """Record a tool usage outcome for historical success tracking."""
+    engine = get_tool_discovery_engine()
+    history_id = engine.record_usage(
+        tool_id=payload.tool_id,
+        session_id=payload.session_id,
+        intent=payload.intent,
+        succeeded=payload.succeeded,
+        latency_ms=payload.latency_ms,
+        metadata=payload.metadata,
+    )
+    return {"history_id": history_id, "tool_id": payload.tool_id}
+
+
+# ==========================================================================
+# Wave-4: Tool Reliability  — /api/v1/product/tools/reliability
+# ==========================================================================
+
+
+class RecordCallRequest(BaseModel):
+    tool_name: str
+    params: dict[str, Any] = Field(default_factory=dict)
+    succeeded: bool = True
+    error_type: str = ""
+    error_msg: str = ""
+    latency_ms: int = 0
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class PredictReliabilityRequest(BaseModel):
+    tool_name: str
+    params: dict[str, Any] = Field(default_factory=dict)
+    alternate_tools: list[str] = Field(default_factory=list)
+
+
+@tool_reliability_router.post("/tools/reliability/record", response_model=dict)
+def record_tool_call(payload: RecordCallRequest) -> dict:
+    """Record a tool call outcome for reliability tracking."""
+    predictor = get_tool_reliability_predictor()
+    call_id = predictor.record_call(
+        CallRecord(
+            tool_name=payload.tool_name,
+            params=payload.params,
+            succeeded=payload.succeeded,
+            error_type=payload.error_type,
+            error_msg=payload.error_msg,
+            latency_ms=payload.latency_ms,
+            metadata=payload.metadata,
+        )
+    )
+    return {"call_id": call_id, "tool_name": payload.tool_name}
+
+
+@tool_reliability_router.post("/tools/reliability/predict", response_model=dict)
+def predict_tool_reliability(payload: PredictReliabilityRequest) -> dict:
+    """Predict failure probability for a prospective tool call."""
+    predictor = get_tool_reliability_predictor()
+    prediction = predictor.predict(
+        tool_name=payload.tool_name,
+        params=payload.params,
+        alternate_tools=payload.alternate_tools,
+    )
+    return prediction.dict
+
+
+@tool_reliability_router.get("/tools/reliability/stats", response_model=list)
+def list_reliability_stats(limit: int = Query(50, ge=1, le=500)) -> list:
+    """List reliability stats for all tracked tools (worst first)."""
+    predictor = get_tool_reliability_predictor()
+    return [s.dict for s in predictor.list_stats(limit=limit)]
+
+
+@tool_reliability_router.get("/tools/reliability/stats/{tool_name}", response_model=dict)
+def get_tool_reliability_stats(tool_name: str) -> dict:
+    """Get reliability stats for a specific tool."""
+    predictor = get_tool_reliability_predictor()
+    stats = predictor.get_stats(tool_name)
+    if stats is None:
+        raise HTTPException(status_code=404, detail="No stats found for tool")
+    return stats.dict
+
+
+# ==========================================================================
+# Wave-4: Error Translator  — /api/v1/product/tools/errors
+# ==========================================================================
+
+
+class TranslateErrorRequest(BaseModel):
+    error_string: str
+    tool_name: str = ""
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+@error_translator_router.post("/tools/errors/translate", response_model=dict)
+def translate_tool_error(payload: TranslateErrorRequest) -> dict:
+    """Translate a tool error string into concrete remediation steps."""
+    translator = get_error_translator()
+    result = translator.translate(
+        error_string=payload.error_string,
+        tool_name=payload.tool_name,
+        params=payload.params or None,
+    )
+    return result.dict
+
+
+@error_translator_router.get("/tools/errors/categories", response_model=list)
+def list_error_categories() -> list:
+    """List all known error categories in the built-in library."""
+    translator = get_error_translator()
+    return translator.get_categories()
+
+
+@error_translator_router.get("/tools/errors/history", response_model=list)
+def get_error_history(
+    tool_name: str | None = None,
+    category: str | None = None,
+    limit: int = Query(100, ge=1, le=1000),
+) -> list:
+    """Query the error translation log."""
+    translator = get_error_translator()
+    return translator.get_error_history(
+        tool_name=tool_name,
+        category=category,
+        limit=limit,
+    )
+
+
+# ==========================================================================
+# Wave-4: Memory Consolidation  — /api/v1/product/memory/consolidate
+# ==========================================================================
+
+
+class MemoryItemRequest(BaseModel):
+    content: str
+    session_id: str = ""
+    tenant_id: str = ""
+    content_type: str = "fact"
+    source: str = ""
+    confidence: float = Field(1.0, ge=0.0, le=1.0)
+    importance: float = Field(0.5, ge=0.0, le=1.0)
+    tags: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ConsolidateRequest(BaseModel):
+    session_id: str = ""
+    tenant_id: str = ""
+    content_type: str | None = None
+    min_items: int = Field(2, ge=1)
+
+
+@memory_consolidation_router.post("/memory/items", response_model=dict)
+def add_memory_item(payload: MemoryItemRequest) -> dict:
+    """Add a memory item to the store."""
+    engine = get_memory_consolidation_engine()
+    record = engine.add_item(
+        MemoryItem(
+            content=payload.content,
+            session_id=payload.session_id,
+            tenant_id=payload.tenant_id,
+            content_type=payload.content_type,
+            source=payload.source,
+            confidence=payload.confidence,
+            importance=payload.importance,
+            tags=payload.tags,
+            metadata=payload.metadata,
+        )
+    )
+    return record.dict
+
+
+@memory_consolidation_router.get("/memory/items", response_model=list)
+def list_memory_items(
+    session_id: str | None = None,
+    tenant_id: str | None = None,
+    content_type: str | None = None,
+    consolidated: bool | None = None,
+    limit: int = Query(100, ge=1, le=1000),
+) -> list:
+    """List memory items with optional filters."""
+    engine = get_memory_consolidation_engine()
+    return [
+        r.dict
+        for r in engine.list_items(
+            session_id=session_id,
+            tenant_id=tenant_id,
+            content_type=content_type,
+            consolidated=consolidated,
+            limit=limit,
+        )
+    ]
+
+
+@memory_consolidation_router.get("/memory/items/{item_id}", response_model=dict)
+def get_memory_item(item_id: str) -> dict:
+    """Fetch a memory item by ID."""
+    engine = get_memory_consolidation_engine()
+    record = engine.get_item(item_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Memory item not found")
+    return record.dict
+
+
+@memory_consolidation_router.delete("/memory/items/{item_id}", response_model=dict)
+def delete_memory_item(item_id: str) -> dict:
+    engine = get_memory_consolidation_engine()
+    ok = engine.delete_item(item_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Memory item not found")
+    return {"item_id": item_id, "deleted": True}
+
+
+@memory_consolidation_router.post("/memory/consolidate", response_model=dict)
+def consolidate_memory(payload: ConsolidateRequest) -> dict:
+    """Consolidate memory items: merge duplicates, detect contradictions."""
+    engine = get_memory_consolidation_engine()
+    result = engine.consolidate(
+        session_id=payload.session_id,
+        tenant_id=payload.tenant_id,
+        content_type=payload.content_type,
+        min_items=payload.min_items,
+    )
+    return result.dict
+
+
+@memory_consolidation_router.get("/memory/consolidations", response_model=list)
+def list_consolidations(
+    session_id: str | None = None,
+    tenant_id: str | None = None,
+    limit: int = Query(50, ge=1, le=500),
+) -> list:
+    """List past consolidation results."""
+    engine = get_memory_consolidation_engine()
+    return [
+        r.dict
+        for r in engine.list_consolidations(
+            session_id=session_id,
+            tenant_id=tenant_id,
+            limit=limit,
+        )
+    ]
+
+
+@memory_consolidation_router.get("/memory/consolidations/{consolidation_id}", response_model=dict)
+def get_consolidation(consolidation_id: str) -> dict:
+    """Fetch a consolidation result by ID."""
+    engine = get_memory_consolidation_engine()
+    result = engine.get_consolidation(consolidation_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Consolidation not found")
+    return result.dict
+
+
+# ==========================================================================
+# Wave-4: Scratchpad  — /api/v1/product/memory/scratchpad
+# ==========================================================================
+
+
+class ScratchSetRequest(BaseModel):
+    session_id: str
+    key: str
+    value: Any
+    content_type: str = "text"
+    lifecycle: str = Lifecycle.KEEP.value
+    ttl_seconds: int | None = None
+    tags: list[str] = Field(default_factory=list)
+    tenant_id: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ScratchSweepRequest(BaseModel):
+    session_id: str
+
+
+@scratchpad_router.post("/memory/scratchpad", response_model=dict)
+def scratch_set(payload: ScratchSetRequest) -> dict:
+    """Create or update a scratchpad entry."""
+    mgr = get_scratchpad_manager()
+    try:
+        lc = Lifecycle(payload.lifecycle)
+    except ValueError:
+        lc = Lifecycle.KEEP
+    record = mgr.set(
+        ScratchEntry(
+            session_id=payload.session_id,
+            key=payload.key,
+            value=payload.value,
+            content_type=payload.content_type,
+            lifecycle=lc,
+            ttl_seconds=payload.ttl_seconds,
+            tags=payload.tags,
+            tenant_id=payload.tenant_id,
+            metadata=payload.metadata,
+        )
+    )
+    return record.dict
+
+
+@scratchpad_router.get("/memory/scratchpad/{session_id}/{key}", response_model=dict)
+def scratch_get(session_id: str, key: str) -> dict:
+    """Get a scratchpad entry by session and key."""
+    mgr = get_scratchpad_manager()
+    record = mgr.get(session_id, key)
+    if not record:
+        raise HTTPException(status_code=404, detail="Scratchpad entry not found or expired")
+    return record.dict
+
+
+@scratchpad_router.get("/memory/scratchpad/{session_id}", response_model=list)
+def scratch_list_session(
+    session_id: str,
+    lifecycle: str | None = None,
+    tag: str | None = None,
+    include_expired: bool = False,
+) -> list:
+    """List all scratchpad entries for a session."""
+    mgr = get_scratchpad_manager()
+    lc = None
+    if lifecycle:
+        try:
+            lc = Lifecycle(lifecycle)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid lifecycle: {lifecycle}")
+    records = mgr.list_session(
+        session_id=session_id,
+        lifecycle=lc,
+        include_expired=include_expired,
+        tag=tag,
+    )
+    return [r.dict for r in records]
+
+
+@scratchpad_router.delete("/memory/scratchpad/{session_id}/{key}", response_model=dict)
+def scratch_delete(session_id: str, key: str) -> dict:
+    """Delete a scratchpad entry."""
+    mgr = get_scratchpad_manager()
+    ok = mgr.delete(session_id, key)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Scratchpad entry not found")
+    return {"session_id": session_id, "key": key, "deleted": True}
+
+
+@scratchpad_router.delete("/memory/scratchpad/{session_id}", response_model=dict)
+def scratch_clear_session(
+    session_id: str,
+    lifecycle: str | None = None,
+) -> dict:
+    """Clear all entries for a session (optionally scoped by lifecycle)."""
+    mgr = get_scratchpad_manager()
+    lc = None
+    if lifecycle:
+        try:
+            lc = Lifecycle(lifecycle)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid lifecycle: {lifecycle}")
+    count = mgr.clear_session(session_id, lifecycle=lc)
+    return {"session_id": session_id, "cleared": count}
+
+
+@scratchpad_router.post("/memory/scratchpad/sweep", response_model=dict)
+def scratch_sweep(payload: ScratchSweepRequest) -> dict:
+    """Apply lifecycle rules for a session: discard ephemeral, mark promoted."""
+    mgr = get_scratchpad_manager()
+    result = mgr.sweep_session(payload.session_id)
+    return result.dict
+
+
+@scratchpad_router.post("/memory/scratchpad/purge-expired", response_model=dict)
+def scratch_purge_expired() -> dict:
+    """Remove all globally expired scratchpad entries."""
+    mgr = get_scratchpad_manager()
+    count = mgr.purge_expired()
+    return {"purged": count}
+
+
+@scratchpad_router.get("/memory/scratchpad/{session_id}/promoted", response_model=list)
+def scratch_get_promoted(session_id: str) -> list:
+    """Get all entries promoted during lifecycle sweep."""
+    mgr = get_scratchpad_manager()
+    return [r.dict for r in mgr.get_promoted(session_id)]
+
+
+# ==========================================================================
+# Wave-4: Model-Ops + Reliability Modules
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# Determinism Kit — /api/v1/product/determinism
+# --------------------------------------------------------------------------
+
+
+class TemplateRegisterRequest(BaseModel):
+    name: str
+    template_text: str
+    description: str = ""
+    variables: list[str] | None = None
+    workflow_id: str = ""
+
+
+class CanonRuleRequest(BaseModel):
+    name: str
+    rule_type: str
+    pattern: str = ""
+    replacement: str = ""
+    flags: str = ""
+    priority: int = 50
+    description: str = ""
+
+
+class WorkflowSettingsRequest(BaseModel):
+    workflow_id: str
+    settings: dict[str, Any]
+    description: str = ""
+
+
+class RunOutputRequest(BaseModel):
+    workflow_id: str
+    run_id: str
+    raw_output: str
+    output_key: str = "default"
+
+
+class CompareRunsRequest(BaseModel):
+    workflow_id: str
+    run_a_id: str
+    run_b_id: str
+    output_key: str = "default"
+    method: str = "exact"
+
+
+@determinism_router.post("/determinism/templates", response_model=dict)
+def create_determinism_template(payload: TemplateRegisterRequest) -> dict:
+    """Register or update a deterministic output template."""
+    kit = get_determinism_kit()
+    tpl = kit.register_template(
+        name=payload.name,
+        template_text=payload.template_text,
+        description=payload.description,
+        variables=payload.variables,
+        workflow_id=payload.workflow_id,
+    )
+    return tpl.dict
+
+
+@determinism_router.get("/determinism/templates", response_model=list)
+def list_determinism_templates(
+    workflow_id: str | None = None,
+    active_only: bool = True,
+) -> list:
+    """List output templates."""
+    return [t.dict for t in get_determinism_kit().list_templates(workflow_id=workflow_id, active_only=active_only)]
+
+
+@determinism_router.get("/determinism/templates/{template_id}", response_model=dict)
+def get_determinism_template(template_id: str) -> dict:
+    kit = get_determinism_kit()
+    tpl = kit.get_template(template_id)
+    if tpl is None:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return tpl.dict
+
+
+@determinism_router.post("/determinism/templates/{template_id}/render", response_model=dict)
+def render_determinism_template(template_id: str, context: dict[str, Any]) -> dict:
+    """Render a template with the given context variables."""
+    kit = get_determinism_kit()
+    try:
+        rendered = kit.render_template(template_id, context)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {"template_id": template_id, "rendered": rendered}
+
+
+@determinism_router.delete("/determinism/templates/{template_id}", response_model=dict)
+def delete_determinism_template(template_id: str) -> dict:
+    ok = get_determinism_kit().delete_template(template_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return {"template_id": template_id, "deleted": True}
+
+
+@determinism_router.post("/determinism/rules", response_model=dict)
+def create_canon_rule(payload: CanonRuleRequest) -> dict:
+    """Register or update a canonicalization rule."""
+    try:
+        rule = get_determinism_kit().register_canon_rule(
+            name=payload.name,
+            rule_type=payload.rule_type,
+            pattern=payload.pattern,
+            replacement=payload.replacement,
+            flags=payload.flags,
+            priority=payload.priority,
+            description=payload.description,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return rule.dict
+
+
+@determinism_router.get("/determinism/rules", response_model=list)
+def list_canon_rules(active_only: bool = True) -> list:
+    """List canonicalization rules."""
+    return [r.dict for r in get_determinism_kit().list_canon_rules(active_only=active_only)]
+
+
+@determinism_router.delete("/determinism/rules/{rule_id}", response_model=dict)
+def delete_canon_rule(rule_id: str) -> dict:
+    ok = get_determinism_kit().delete_canon_rule(rule_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Rule not found")
+    return {"rule_id": rule_id, "deleted": True}
+
+
+@determinism_router.post("/determinism/canonicalize", response_model=dict)
+def canonicalize_text(payload: dict[str, Any]) -> dict:
+    """Apply all active canonicalization rules to text and return result + hash."""
+    text = str(payload.get("text", ""))
+    canon_text, c_hash = get_determinism_kit().canonicalize_text(text)
+    return {"original": text, "canonical": canon_text, "hash": c_hash}
+
+
+@determinism_router.post("/determinism/settings", response_model=dict)
+def set_workflow_det_settings(payload: WorkflowSettingsRequest) -> dict:
+    """Set fixed LLM/tool settings for a workflow."""
+    ws = get_determinism_kit().set_workflow_settings(
+        workflow_id=payload.workflow_id,
+        settings=payload.settings,
+        description=payload.description,
+    )
+    return ws.dict
+
+
+@determinism_router.get("/determinism/settings/{workflow_id}", response_model=dict)
+def get_workflow_det_settings(workflow_id: str) -> dict:
+    ws = get_determinism_kit().get_workflow_settings(workflow_id)
+    if ws is None:
+        raise HTTPException(status_code=404, detail="Workflow settings not found")
+    return ws.dict
+
+
+@determinism_router.get("/determinism/settings", response_model=list)
+def list_workflow_det_settings() -> list:
+    return [ws.dict for ws in get_determinism_kit().list_workflow_settings()]
+
+
+@determinism_router.delete("/determinism/settings/{workflow_id}", response_model=dict)
+def delete_workflow_det_settings(workflow_id: str) -> dict:
+    ok = get_determinism_kit().delete_workflow_settings(workflow_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Workflow settings not found")
+    return {"workflow_id": workflow_id, "deleted": True}
+
+
+@determinism_router.post("/determinism/runs", response_model=dict)
+def record_run_output(payload: RunOutputRequest) -> dict:
+    """Record a run output for consistency tracking."""
+    out = get_determinism_kit().record_run_output(
+        workflow_id=payload.workflow_id,
+        run_id=payload.run_id,
+        raw_output=payload.raw_output,
+        output_key=payload.output_key,
+    )
+    return out.dict
+
+
+@determinism_router.get("/determinism/runs", response_model=list)
+def list_run_outputs_route(
+    workflow_id: str = Query(...),
+    output_key: str | None = None,
+    limit: int = 100,
+) -> list:
+    """List recorded run outputs."""
+    return [o.dict for o in get_determinism_kit().list_run_outputs(workflow_id, output_key=output_key, limit=limit)]
+
+
+@determinism_router.post("/determinism/compare", response_model=dict)
+def compare_runs_route(payload: CompareRunsRequest) -> dict:
+    """Compare two run outputs and return their consistency score."""
+    try:
+        score = get_determinism_kit().compare_runs(
+            workflow_id=payload.workflow_id,
+            run_a_id=payload.run_a_id,
+            run_b_id=payload.run_b_id,
+            output_key=payload.output_key,
+            method=payload.method,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return score.dict
+
+
+@determinism_router.get("/determinism/summary", response_model=dict)
+def consistency_summary_route(
+    workflow_id: str = Query(...),
+    output_key: str = "default",
+) -> dict:
+    """Aggregate consistency stats for a workflow."""
+    return get_determinism_kit().consistency_summary(workflow_id, output_key=output_key).dict
+
+
+# --------------------------------------------------------------------------
+# Prompt Modules — /api/v1/product/prompts
+# --------------------------------------------------------------------------
+
+
+class PromptModuleCreateRequest(BaseModel):
+    name: str
+    module_type: str
+    content: str
+    description: str = ""
+    tags: list[str] = Field(default_factory=list)
+
+
+class PromptModuleUpdateRequest(BaseModel):
+    module_type: str | None = None
+    content: str | None = None
+    description: str | None = None
+    tags: list[str] | None = None
+    active: bool | None = None
+
+
+class PromptTemplateCreateRequest(BaseModel):
+    name: str
+    module_refs: list[dict[str, Any]]
+    description: str = ""
+    separator: str = "\n\n"
+
+
+class PromptComposeRequest(BaseModel):
+    template_id: str
+    context: dict[str, Any] = Field(default_factory=dict)
+
+
+class PromptSnapshotRequest(BaseModel):
+    template_id: str
+    note: str = ""
+    context: dict[str, Any] = Field(default_factory=dict)
+
+
+@prompt_modules_router.post("/prompts/modules", response_model=dict)
+def create_prompt_module(payload: PromptModuleCreateRequest) -> dict:
+    """Create or update a reusable prompt module."""
+    try:
+        mod = get_prompt_registry().create_module(
+            name=payload.name,
+            module_type=payload.module_type,
+            content=payload.content,
+            description=payload.description,
+            tags=payload.tags,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return mod.dict
+
+
+@prompt_modules_router.get("/prompts/modules", response_model=list)
+def list_prompt_modules(
+    module_type: str | None = None,
+    tag: str | None = None,
+    active_only: bool = True,
+) -> list:
+    """List prompt modules."""
+    return [m.dict for m in get_prompt_registry().list_modules(
+        module_type=module_type, tag=tag, active_only=active_only
+    )]
+
+
+@prompt_modules_router.get("/prompts/modules/{module_id}", response_model=dict)
+def get_prompt_module(module_id: str) -> dict:
+    reg = get_prompt_registry()
+    mod = reg.get_module(module_id)
+    if mod is None:
+        raise HTTPException(status_code=404, detail="Module not found")
+    return mod.dict
+
+
+@prompt_modules_router.patch("/prompts/modules/{module_id}", response_model=dict)
+def update_prompt_module(module_id: str, payload: PromptModuleUpdateRequest) -> dict:
+    updates = {k: v for k, v in payload.model_dump().items() if v is not None}
+    try:
+        mod = get_prompt_registry().update_module(module_id, updates)
+    except (KeyError, ValueError) as exc:
+        code = 404 if isinstance(exc, KeyError) else 422
+        raise HTTPException(status_code=code, detail=str(exc)) from exc
+    return mod.dict
+
+
+@prompt_modules_router.delete("/prompts/modules/{module_id}", response_model=dict)
+def delete_prompt_module(module_id: str) -> dict:
+    ok = get_prompt_registry().delete_module(module_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Module not found")
+    return {"module_id": module_id, "deleted": True}
+
+
+@prompt_modules_router.get("/prompts/module-types", response_model=list)
+def list_module_types() -> list:
+    """Return valid module type names."""
+    return sorted(MODULE_TYPES)
+
+
+@prompt_modules_router.post("/prompts/templates", response_model=dict)
+def create_prompt_template(payload: PromptTemplateCreateRequest) -> dict:
+    """Create or update a prompt template."""
+    tmpl = get_prompt_registry().create_template(
+        name=payload.name,
+        module_refs=payload.module_refs,
+        description=payload.description,
+        separator=payload.separator,
+    )
+    return tmpl.dict
+
+
+@prompt_modules_router.get("/prompts/templates", response_model=list)
+def list_prompt_templates(active_only: bool = True) -> list:
+    return [t.dict for t in get_prompt_registry().list_templates(active_only=active_only)]
+
+
+@prompt_modules_router.get("/prompts/templates/{template_id}", response_model=dict)
+def get_prompt_template(template_id: str) -> dict:
+    reg = get_prompt_registry()
+    tmpl = reg.get_template(template_id)
+    if tmpl is None:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return tmpl.dict
+
+
+@prompt_modules_router.delete("/prompts/templates/{template_id}", response_model=dict)
+def delete_prompt_template(template_id: str) -> dict:
+    ok = get_prompt_registry().delete_template(template_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return {"template_id": template_id, "deleted": True}
+
+
+@prompt_modules_router.post("/prompts/compose", response_model=dict)
+def compose_prompt(payload: PromptComposeRequest) -> dict:
+    """Compose a prompt from a template with optional context substitution."""
+    try:
+        text = get_prompt_registry().compose(payload.template_id, context=payload.context)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {"template_id": payload.template_id, "composed": text}
+
+
+@prompt_modules_router.post("/prompts/versions/snapshot", response_model=dict)
+def snapshot_prompt_version(payload: PromptSnapshotRequest) -> dict:
+    """Create an immutable versioned snapshot of a prompt template."""
+    try:
+        v = get_prompt_registry().snapshot_version(
+            template_id=payload.template_id,
+            note=payload.note,
+            context=payload.context or None,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return v.dict
+
+
+@prompt_modules_router.get("/prompts/versions", response_model=list)
+def list_prompt_versions(
+    template_id: str = Query(...),
+    limit: int = Query(50, ge=1, le=200),
+) -> list:
+    """List versions for a template."""
+    return [v.dict for v in get_prompt_registry().list_versions(template_id, limit=limit)]
+
+
+@prompt_modules_router.get("/prompts/versions/latest", response_model=dict)
+def latest_prompt_version(template_id: str = Query(...)) -> dict:
+    v = get_prompt_registry().latest_version(template_id)
+    if v is None:
+        raise HTTPException(status_code=404, detail="No versions found")
+    return v.dict
+
+
+@prompt_modules_router.get("/prompts/versions/{version_id}", response_model=dict)
+def get_prompt_version(version_id: str) -> dict:
+    v = get_prompt_registry().get_version(version_id)
+    if v is None:
+        raise HTTPException(status_code=404, detail="Version not found")
+    return v.dict
+
+
+# --------------------------------------------------------------------------
+# Tool Semantic Docs — /api/v1/product/tools/docs
+# --------------------------------------------------------------------------
+
+
+class ToolDocRequest(BaseModel):
+    tool_spec: dict[str, Any]
+
+
+class ToolDocBatchRequest(BaseModel):
+    tool_specs: list[dict[str, Any]]
+
+
+@tool_docs_router.post("/tools/docs/generate", response_model=dict)
+def generate_tool_doc(payload: ToolDocRequest) -> dict:
+    """Generate semantic documentation for a single tool specification."""
+    doc = get_doc_generator().generate(payload.tool_spec)
+    return doc.dict
+
+
+@tool_docs_router.post("/tools/docs/batch", response_model=list)
+def generate_tool_docs_batch(payload: ToolDocBatchRequest) -> list:
+    """Generate semantic documentation for multiple tool specifications."""
+    docs = get_doc_generator().generate_batch(payload.tool_specs)
+    return [d.dict for d in docs]
+
+
+@tool_docs_router.delete("/tools/docs/cache", response_model=dict)
+def clear_tool_doc_cache() -> dict:
+    """Invalidate the doc generation cache."""
+    n = get_doc_generator().clear_cache()
+    return {"cleared": n}
+
+
+# --------------------------------------------------------------------------
+# Tool Parallelizer — /api/v1/product/tools/parallel
+# --------------------------------------------------------------------------
+
+
+class ToolCallRequest(BaseModel):
+    call_id: str = Field(default_factory=lambda: str(__import__("uuid").uuid4()))
+    tool_name: str
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    depends_on: list[str] = Field(default_factory=list)
+    has_side_effects: bool = False
+    timeout_ms: int | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ParallelAnalyzeRequest(BaseModel):
+    calls: list[ToolCallRequest]
+    side_effect_policy: str = SideEffectPolicy.SERIALIZE.value
+
+
+class ParallelPlanRequest(BaseModel):
+    calls: list[ToolCallRequest]
+    side_effect_policy: str = SideEffectPolicy.SERIALIZE.value
+
+
+@tool_parallel_router.post("/tools/parallel/analyze", response_model=dict)
+def analyze_parallelism(payload: ParallelAnalyzeRequest) -> dict:
+    """Analyze tool call list for parallelism without executing."""
+    try:
+        policy = SideEffectPolicy(payload.side_effect_policy)
+    except ValueError:
+        policy = SideEffectPolicy.SERIALIZE
+    p = get_parallelizer()
+    calls = [ToolCall.from_dict(c.model_dump()) for c in payload.calls]
+    return p.analyze_parallelism(calls)
+
+
+@tool_parallel_router.post("/tools/parallel/plan", response_model=dict)
+def build_parallel_plan(payload: ParallelPlanRequest) -> dict:
+    """Build an execution plan (dry run, no execution)."""
+    try:
+        policy = SideEffectPolicy(payload.side_effect_policy)
+    except ValueError:
+        policy = SideEffectPolicy.SERIALIZE
+    calls = [ToolCall.from_dict(c.model_dump()) for c in payload.calls]
+    try:
+        plan = build_execution_plan(calls, side_effect_policy=policy)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return plan.dict
