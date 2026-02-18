@@ -33,6 +33,8 @@ function requestImpl(url: URL) {
   return url.protocol === "https:" ? httpsRequest : httpRequest;
 }
 
+const WEBHOOK_TIMEOUT_MS = 10_000;
+
 async function postWebhook(urlRaw: string, body: string, secret: string): Promise<number> {
   const url = new URL(urlRaw);
   return new Promise<number>((resolvePromise, rejectPromise) => {
@@ -52,6 +54,9 @@ async function postWebhook(urlRaw: string, body: string, secret: string): Promis
         res.on("end", () => resolvePromise(status));
       }
     );
+    req.setTimeout(WEBHOOK_TIMEOUT_MS, () => {
+      req.destroy(new Error(`integration webhook timeout after ${WEBHOOK_TIMEOUT_MS}ms`));
+    });
     req.on("error", rejectPromise);
     req.write(body);
     req.end();
@@ -158,25 +163,30 @@ export async function dispatchIntegrationEvent(params: {
     };
     const payloadBody = canonicalize(payload);
     const payloadSha256 = sha256Hex(Buffer.from(payloadBody, "utf8"));
-    const httpStatus = await postWebhook(channel.url, payloadBody, secret);
-    const evidence = writeIntegrationEvidence({
-      workspace: params.workspace,
-      channelId: channel.id,
-      eventName: params.eventName,
-      agentId: params.agentId,
-      payloadBody,
-      payloadSha256,
-      httpStatus
-    });
-    dispatched.push({
-      channelId: channel.id,
-      eventName: params.eventName,
-      payloadSha256,
-      httpStatus,
-      eventId: evidence.eventId,
-      receiptId: evidence.receiptId,
-      receipt: evidence.receipt
-    });
+    try {
+      const httpStatus = await postWebhook(channel.url, payloadBody, secret);
+      const evidence = writeIntegrationEvidence({
+        workspace: params.workspace,
+        channelId: channel.id,
+        eventName: params.eventName,
+        agentId: params.agentId,
+        payloadBody,
+        payloadSha256,
+        httpStatus
+      });
+      dispatched.push({
+        channelId: channel.id,
+        eventName: params.eventName,
+        payloadSha256,
+        httpStatus,
+        eventId: evidence.eventId,
+        receiptId: evidence.receiptId,
+        receipt: evidence.receipt
+      });
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      skipped.push(`${channel.id}:dispatch-failed:${reason}`);
+    }
   }
   return {
     dispatched,

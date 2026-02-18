@@ -8,8 +8,10 @@ AMC Integration Hub dispatches deterministic ops events to configured webhooks a
 
 ## Dispatch Behavior
 - Canonical JSON payload (`AMC_OPS_EVENT`)
-- Webhook POST with secret header
-- Audit evidence event written (`auditType: INTEGRATION_DISPATCHED`)
+- Webhook POST with secret header (10s timeout per channel)
+- Per-channel isolation: one failing webhook does **not** abort other routed channels
+- Failures are returned in `skipped` as `<channelId>:dispatch-failed:<reason>`
+- Audit evidence event written (`auditType: INTEGRATION_DISPATCHED`) for successful dispatches
 - Ops receipt minted (monitor-signed) and stored in event metadata
 
 ## Commands
