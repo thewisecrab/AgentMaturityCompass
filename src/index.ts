@@ -42,6 +42,62 @@ export {
   renderTrustCompositionMarkdown,
   verifyCrossAgentReceipts
 } from "./fleet/trustComposition.js";
+// Orchestration DAG
+export {
+  createDag,
+  appendDagNode,
+  loadDag,
+  listDags,
+  queryDagsByAgent,
+  visualizeDag,
+  renderDagMarkdown,
+} from "./fleet/orchestrationDag.js";
+export type {
+  OrchestrationEventType,
+  DagNode,
+  OrchestrationDag,
+  DagVisualization,
+} from "./fleet/orchestrationDag.js";
+
+// Trust Inheritance Policy
+export {
+  loadTrustInheritancePolicy,
+  saveTrustInheritancePolicy,
+  setTrustInheritanceMode,
+  computeInheritedTrust,
+  renderTrustInheritanceMarkdown,
+} from "./fleet/trustInheritance.js";
+export type {
+  TrustInheritancePolicyMode,
+  TrustInheritancePolicy,
+  AgentTrustInput,
+  InheritedTrustResult,
+} from "./fleet/trustInheritance.js";
+
+// Handoff Packets
+export {
+  createHandoffPacket,
+  loadHandoffPacket,
+  listHandoffPackets,
+  verifyHandoffPacket,
+  renderHandoffPacketMarkdown,
+} from "./fleet/handoffPacket.js";
+export type {
+  HandoffPacket,
+  HandoffVerificationResult,
+} from "./fleet/handoffPacket.js";
+
+// Cross-Agent Contradiction Detection
+export {
+  detectContradictions,
+  renderContradictionReportMarkdown,
+} from "./fleet/contradictionDetector.js";
+export type {
+  ContradictionSeverity,
+  AgentContradiction,
+  ContradictionReport,
+} from "./fleet/contradictionDetector.js";
+
 export type {
   TrustInheritanceMode,
   DelegationEdge,

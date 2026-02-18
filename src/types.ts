@@ -19,7 +19,11 @@ export type EvidenceEventType =
   | "agent_process_started"
   | "agent_stdout"
   | "agent_stderr"
-  | "agent_process_exited";
+  | "agent_process_exited"
+  | "agent_handoff_sent"
+  | "agent_handoff_received"
+  | "agent_delegation_started"
+  | "agent_delegation_completed";
 
 export type RiskTier = "low" | "med" | "high" | "critical";
 export type TrustTier = "OBSERVED" | "OBSERVED_HARDENED" | "ATTESTED" | "SELF_REPORTED";

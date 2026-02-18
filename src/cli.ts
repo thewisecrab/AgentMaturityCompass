@@ -55,6 +55,30 @@ import {
   verifyCrossAgentReceipts
 } from "./fleet/trustComposition.js";
 import {
+  createDag,
+  appendDagNode,
+  loadDag,
+  listDags,
+  queryDagsByAgent,
+  visualizeDag,
+  renderDagMarkdown
+} from "./fleet/orchestrationDag.js";
+import {
+  loadTrustInheritancePolicy,
+  setTrustInheritanceMode,
+  renderTrustInheritanceMarkdown
+} from "./fleet/trustInheritance.js";
+import type { TrustInheritancePolicyMode } from "./fleet/trustInheritance.js";
+import {
+  createHandoffPacket,
+  verifyHandoffPacket,
+  renderHandoffPacketMarkdown
+} from "./fleet/handoffPacket.js";
+import {
+  detectContradictions,
+  renderContradictionReportMarkdown
+} from "./fleet/contradictionDetector.js";
+import {
   diffEvidenceBundles,
   exportEvidenceBundle,
   inspectEvidenceBundle,
@@ -6871,6 +6895,140 @@ fleet
           console.log(`    ${chalk.dim(gap)}`);
         }
       }
+    }
+  });
+
+fleet
+  .command("dag")
+  .description("Visualize orchestration delegation graph")
+  .option("--agent <id>", "filter by agent ID")
+  .option("--window <window>", "time window", "7d")
+  .argument("[dagId]", "show a specific DAG")
+  .action((dagId: string | undefined, opts: { agent?: string; window: string }) => {
+    const workspace = process.cwd();
+    if (dagId) {
+      const dag = loadDag(workspace, dagId);
+      console.log(renderDagMarkdown(dag));
+      return;
+    }
+    const windowMs = parseWindowToMs(opts.window);
+    if (opts.agent) {
+      const dags = queryDagsByAgent(workspace, opts.agent, windowMs);
+      if (dags.length === 0) {
+        console.log(`No DAGs found for agent ${opts.agent} in window ${opts.window}`);
+        return;
+      }
+      for (const dag of dags) {
+        console.log(renderDagMarkdown(dag));
+        console.log("");
+      }
+    } else {
+      const ids = listDags(workspace);
+      if (ids.length === 0) {
+        console.log("No orchestration DAGs found.");
+        return;
+      }
+      for (const id of ids) {
+        const dag = loadDag(workspace, id);
+        const vis = visualizeDag(dag);
+        console.log(`${id}: ${vis.nodeCount} nodes, roots=[${vis.rootAgents.join(",")}] leaves=[${vis.leafAgents.join(",")}]`);
+      }
+    }
+  });
+
+fleet
+  .command("trust-mode")
+  .description("Set trust inheritance policy mode")
+  .requiredOption("--mode <mode>", "STRICT|WEIGHTED|FLOOR")
+  .action((opts: { mode: string }) => {
+    const mode = opts.mode.toUpperCase() as TrustInheritancePolicyMode;
+    if (!["STRICT", "WEIGHTED", "FLOOR"].includes(mode)) {
+      throw new Error(`Invalid mode: ${opts.mode}. Must be STRICT, WEIGHTED, or FLOOR.`);
+    }
+    const policy = setTrustInheritanceMode(process.cwd(), mode);
+    console.log(chalk.green(`Trust inheritance mode set to: ${policy.mode}`));
+  });
+
+fleet
+  .command("handoff")
+  .description("Manage handoff packets")
+  .argument("<action>", "create|verify")
+  .option("--from <id>", "source agent ID")
+  .option("--to <id>", "target agent ID")
+  .option("--goal <goal>", "delegation goal")
+  .option("--mode <mode>", "execute|simulate", "execute")
+  .option("--packet <packetId>", "packet ID for verify")
+  .action((action: string, opts: { from?: string; to?: string; goal?: string; mode?: string; packet?: string }) => {
+    const workspace = process.cwd();
+    if (action === "create") {
+      if (!opts.from || !opts.to || !opts.goal) {
+        throw new Error("--from, --to, and --goal are required for create");
+      }
+      const packet = createHandoffPacket(workspace, {
+        fromAgentId: opts.from,
+        toAgentId: opts.to,
+        goal: opts.goal,
+        delegationScope: opts.mode === "simulate" ? ["READ_ONLY"] : ["READ_ONLY", "WRITE_LOW", "WRITE_HIGH"],
+      });
+      console.log(chalk.green(`Handoff packet created: ${packet.packetId}`));
+      console.log(`From: ${packet.fromAgentId} → To: ${packet.toAgentId}`);
+      console.log(`Expires: ${new Date(packet.expiryTs).toISOString()}`);
+    } else if (action === "verify") {
+      const packetId = opts.packet;
+      if (!packetId) {
+        throw new Error("--packet <packetId> required for verify");
+      }
+      const result = verifyHandoffPacket(workspace, packetId);
+      if (result.valid) {
+        console.log(chalk.green(`Packet ${packetId}: VALID`));
+      } else {
+        console.log(chalk.red(`Packet ${packetId}: INVALID`));
+        for (const err of result.errors) {
+          console.log(`  - ${err}`);
+        }
+      }
+      if (result.packet) {
+        console.log(`  Expired: ${result.expired}`);
+        console.log(`  Signature: ${result.signatureValid ? "valid" : "invalid"}`);
+      }
+    } else {
+      throw new Error(`Unknown handoff action: ${action}. Use create or verify.`);
+    }
+  });
+
+fleet
+  .command("contradictions")
+  .description("Detect cross-agent contradictions")
+  .option("--scope <scope>", "fleet or agent", "fleet")
+  .option("--window <window>", "evidence window", "30d")
+  .option("--min-delta <n>", "minimum level delta to report", "1")
+  .action(async (opts: { scope: string; window: string; minDelta: string }) => {
+    const workspace = process.cwd();
+    const agents = listAgents(workspace).map((r) => r.id);
+    const effectiveAgents = agents.length > 0 ? agents : ["default"];
+    const reports = [];
+    for (const agentId of effectiveAgents) {
+      const report = await runDiagnostic({
+        workspace,
+        window: opts.window,
+        targetName: "default",
+        claimMode: "auto",
+        agentId,
+      });
+      reports.push(report);
+    }
+    const result = detectContradictions(reports, {
+      minDelta: parseInt(opts.minDelta, 10),
+      scope: opts.scope === "agent" ? "agent" : "fleet",
+    });
+    if (result.totalContradictions === 0) {
+      console.log(chalk.green("No contradictions detected."));
+      return;
+    }
+    console.log(chalk.yellow(`Found ${result.totalContradictions} contradictions (CRITICAL: ${result.criticalCount}, WARN: ${result.warnCount}, INFO: ${result.infoCount})`));
+    for (const c of result.contradictions.slice(0, 20)) {
+      const color = c.severity === "CRITICAL" ? chalk.red : c.severity === "WARN" ? chalk.yellow : chalk.dim;
+      console.log(color(`  [${c.severity}] ${c.questionId}: ${c.agentA}=${c.agentALevel} vs ${c.agentB}=${c.agentBLevel} (Δ${c.delta})`));
     }
   });
 
