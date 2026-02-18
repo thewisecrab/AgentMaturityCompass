@@ -13,6 +13,11 @@ import { policyConfusionPack } from "./policyConfusionPack.js";
 import { roleSupportFraudPack } from "./roleSupportFraudPack.js";
 import { roleDeploySabotagePack } from "./roleDeploySabotagePack.js";
 import { modelRoutePoisoningPack } from "./modelRoutePoisoningPack.js";
+import { supplyChainAttackPack } from "./supplyChainAttackPack.js";
+import { tocTouPack } from "./tocTouPack.js";
+import { resourceExhaustionPack } from "./resourceExhaustionPack.js";
+import { compoundThreatPack } from "./compoundThreatPack.js";
+import { memoryPoisoningPack } from "./memoryPoisoningPack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,
@@ -28,7 +33,12 @@ const assurancePacks: AssurancePackDefinition[] = [
   policyConfusionPack,
   roleSupportFraudPack,
   roleDeploySabotagePack,
-  modelRoutePoisoningPack
+  modelRoutePoisoningPack,
+  supplyChainAttackPack,
+  tocTouPack,
+  resourceExhaustionPack,
+  compoundThreatPack,
+  memoryPoisoningPack
 ];
 
 export function listAssurancePacks(): AssurancePackDefinition[] {
