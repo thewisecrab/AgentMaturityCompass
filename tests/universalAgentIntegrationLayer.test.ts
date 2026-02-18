@@ -1,6 +1,6 @@
 import { request as httpRequest } from "node:http";
 import { createServer as createNetServer } from "node:net";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -95,7 +95,12 @@ function httpJson(params: {
 
 function runCli(cwd: string, args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
   return new Promise((resolvePromise) => {
-    const child = spawn(process.execPath, [join(process.cwd(), "dist", "cli.js"), ...args], {
+    const distCliPath = join(process.cwd(), "dist", "cli.js");
+    const tsxCliPath = join(process.cwd(), "node_modules", "tsx", "dist", "cli.mjs");
+    const childArgs = existsSync(distCliPath)
+      ? [distCliPath, ...args]
+      : [tsxCliPath, join(process.cwd(), "src", "cli.ts"), ...args];
+    const child = spawn(process.execPath, childArgs, {
       cwd,
       env: {
         ...process.env,
@@ -393,7 +398,7 @@ describe("universal agent integration layer", () => {
         "node",
         wrappedScript
       ]);
-      expect(ran.code).toBe(0);
+      expect(ran.code, `stdout:\n${ran.stdout}\nstderr:\n${ran.stderr}`).toBe(0);
       expect(`${ran.stdout}${ran.stderr}`).not.toContain("sk-ABCDEFGHIJKLMNOP");
 
       const ledger = openLedger(workspace);
