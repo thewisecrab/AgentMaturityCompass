@@ -1,0 +1,498 @@
+{
+  "prompt": {
+    "onboarding": [
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:02:29.971112+00:00",
+        "note": "init",
+        "parent_version": null,
+        "version": 1
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:02:29.972525+00:00",
+        "note": "add c",
+        "parent_version": 1,
+        "version": 2
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:02:29.975207+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 2,
+        "version": 3
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:03:49.008523+00:00",
+        "note": "init",
+        "parent_version": 3,
+        "version": 4
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:03:56.002415+00:00",
+        "note": "init",
+        "parent_version": 4,
+        "version": 5
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:05:49.407403+00:00",
+        "note": "init",
+        "parent_version": 5,
+        "version": 6
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:05:49.409133+00:00",
+        "note": "add c",
+        "parent_version": 6,
+        "version": 7
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:05:49.412092+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 7,
+        "version": 8
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:06:23.404020+00:00",
+        "note": "init",
+        "parent_version": 8,
+        "version": 9
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:06:23.405361+00:00",
+        "note": "add c",
+        "parent_version": 9,
+        "version": 10
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:06:23.408082+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 10,
+        "version": 11
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:06:56.704138+00:00",
+        "note": "init",
+        "parent_version": 11,
+        "version": 12
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:06:56.705425+00:00",
+        "note": "add c",
+        "parent_version": 12,
+        "version": 13
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:06:56.708084+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 13,
+        "version": 14
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:07:05.296789+00:00",
+        "note": "init",
+        "parent_version": 14,
+        "version": 15
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:07:05.298210+00:00",
+        "note": "add c",
+        "parent_version": 15,
+        "version": 16
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:07:05.301367+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 16,
+        "version": 17
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:07:33.597246+00:00",
+        "note": "init",
+        "parent_version": 17,
+        "version": 18
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:07:33.598657+00:00",
+        "note": "add c",
+        "parent_version": 18,
+        "version": 19
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:07:33.601428+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 19,
+        "version": 20
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:07:56.605603+00:00",
+        "note": "init",
+        "parent_version": 20,
+        "version": 21
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:07:56.606994+00:00",
+        "note": "add c",
+        "parent_version": 21,
+        "version": 22
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:07:56.609746+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 22,
+        "version": 23
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:08:07.972706+00:00",
+        "note": "init",
+        "parent_version": 23,
+        "version": 24
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:08:07.974010+00:00",
+        "note": "add c",
+        "parent_version": 24,
+        "version": 25
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:08:07.976727+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 25,
+        "version": 26
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:08:34.141754+00:00",
+        "note": "init",
+        "parent_version": 26,
+        "version": 27
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:08:34.143046+00:00",
+        "note": "add c",
+        "parent_version": 27,
+        "version": 28
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:08:34.146191+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 28,
+        "version": 29
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:08:41.538369+00:00",
+        "note": "init",
+        "parent_version": 29,
+        "version": 30
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-02-18T16:08:41.539811+00:00",
+        "note": "add c",
+        "parent_version": 30,
+        "version": 31
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-02-18T16:08:41.542663+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 31,
+        "version": 32
+      }
+    ]
+  },
+  "updated_at": "2026-02-18T16:08:41.542665+00:00",
+  "workflow": {}
+}

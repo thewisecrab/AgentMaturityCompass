@@ -180,6 +180,14 @@ Environment variables use prefix `AMC_`, e.g.:
 - `AMC_MODULE_SHIELD_ENABLED`, `AMC_MODULE_ENFORCE_ENABLED`
 - `AMC_MODULE_VAULT_ENABLED`, `AMC_MODULE_WATCH_ENABLED`
 - `AMC_MODULE_SCORE_ENABLED`
+- `AMC_MODULE_PRODUCT_ENABLED`
+- `AMC_MODULE_PRODUCT_FEATURES_ENABLED`
+- `AMC_MODULE_PRODUCT_METERING_ENABLED`
+- `AMC_MODULE_PRODUCT_FEEDBACK_ENABLED`
+- `AMC_MODULE_PRODUCT_ANALYTICS_ENABLED`
+- `AMC_MODULE_PRODUCT_VERSIONS_ENABLED`
+- `AMC_MODULE_PRODUCT_TOOL_CONTRACT_ENABLED`
+- `AMC_MODULE_PRODUCT_FAILURES_ENABLED`
 - `AMC_DLP_REDACT_EMAILS`
 - `AMC_SCORE_MAX_QUESTIONS`
 - `AMC_RECEIPTS_DB`
@@ -191,4 +199,17 @@ Environment variables use prefix `AMC_`, e.g.:
 - `GET /api/v1/product/features` — list AMC roadmap catalog features
 - `GET /api/v1/product/features?relevance=high` — filter by relevance (high/medium/low)
 - `GET /api/v1/product/features/summary` — roadmap summary by lane/relevance
+- `POST /api/v1/product/metering` — record usage event
+- `GET /api/v1/product/metering` — query usage events
+- `GET /api/v1/product/metering/billing` — query billing summary
+- `POST /api/v1/product/feedback` — capture improvement feedback
+- `GET /api/v1/product/feedback` — list feedback history
+- `GET /api/v1/product/feedback/score` — feedback-derived improvement score
+- `GET /api/v1/product/analytics` — dashboard combining metering & receipts
+- `POST /api/v1/product/versions/snapshot` — snapshot prompt/workflow content
+- `POST /api/v1/product/versions/diff` — diff two snapshots
+- `POST /api/v1/product/versions/rollback` — rollback to prior snapshot
+- `POST /api/v1/product/tool-contract/check` — validate tool invocation against contract
+- `POST /api/v1/product/tool-contract/repair` — repair tool invocation payload
+- `POST /api/v1/product/failures/cluster` — cluster failure findings
 - `/registry/skills` — skill registry API (when S7 is mounted)

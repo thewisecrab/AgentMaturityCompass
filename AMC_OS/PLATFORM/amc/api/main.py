@@ -294,4 +294,9 @@ _include_router_if_available("amc.api.routers.shield", "router")
 _include_router_if_available("amc.api.routers.enforce", "router")
 _include_router_if_available("amc.api.routers.vault", "router")
 _include_router_if_available("amc.api.routers.watch", "router")
-_include_router_if_available("amc.api.routers.product", "router")
+try:
+    from amc.api.routers.product import register_product_routes
+    register_product_routes(app)
+    log.info("router.loaded", module="amc.api.routers.product")
+except Exception as _product_exc:
+    log.warning("router.load_failed", module="amc.api.routers.product", error=str(_product_exc))

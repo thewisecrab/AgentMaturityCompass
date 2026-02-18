@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  amc-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: amc-platform:local
+    container_name: amc-api
+    env_file:
+      - .env
+    volumes:
+      - amc_data:/app/data
+      - ./data:/app/data
+    ports:
+      - "8080:8080"
+    environment:
+      - AMC_ENV=prod
+      - AMC_API_HOST=0.0.0.0
+      - AMC_API_PORT=8080
+      - AMC_RECEIPTS_DB=/app/data/amc_receipts.db
+    restart: unless-stopped
+
+volumes:
+  amc_data:
+    driver: local
