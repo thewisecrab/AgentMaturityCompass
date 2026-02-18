@@ -58,10 +58,19 @@ amc release verify dist/amc-<version>.amcrelease --pubkey ./release-signing.pub
 
 `/.github/workflows/release.yml` runs on tags `v*.*.*` and:
 - runs tests/build
+- runs prepack release guardrails
 - builds + signs `.amcrelease`
 - verifies bundle offline
 - publishes npm package
 - uploads release assets to GitHub Releases
+
+## 6) Operational runbooks (required)
+
+Before cutting a release, execute:
+- [`docs/RELEASE_RUNBOOK.md`](./RELEASE_RUNBOOK.md)
+- [`docs/MIGRATION_RUNBOOK.md`](./MIGRATION_RUNBOOK.md)
+
+These define required backup/restore drills, post-release verification, and rollback triggers.
 
 ## Key Rotation
 

@@ -10,9 +10,14 @@ permissions:
   packages: write
   id-token: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +48,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Prepack release guardrails
+        run: npm run release:prepack-check
 
       - name: Validate tag version matches package.json
         run: |
