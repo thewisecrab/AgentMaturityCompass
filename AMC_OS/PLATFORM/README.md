@@ -188,4 +188,7 @@ Environment variables use prefix `AMC_`, e.g.:
 
 - `GET /health` — platform version and env
 - `GET /receipts/verify` — chain integrity status
+- `GET /api/v1/product/features` — list AMC roadmap catalog features
+- `GET /api/v1/product/features?relevance=high` — filter by relevance (high/medium/low)
+- `GET /api/v1/product/features/summary` — roadmap summary by lane/relevance
 - `/registry/skills` — skill registry API (when S7 is mounted)
