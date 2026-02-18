@@ -1136,6 +1136,25 @@ export type {
   KnownUnknownsReport,
 } from "./diagnostic/knownUnknowns.js";
 
+// Identity Stability
+export {
+  computeIdentityStability,
+  renderIdentityStabilityMarkdown,
+  renderAnomaliesMarkdown,
+  DEFAULT_IDENTITY_STABILITY_CONFIG,
+} from "./diagnostic/identityStability.js";
+export type {
+  AnomalyType,
+  AnomalySeverity,
+  IdentityAnomaly,
+  IdentityStabilityReport,
+  BehavioralTrace,
+  StyleVector,
+  DecisionVector,
+  ValueVector,
+  IdentityStabilityConfig,
+} from "./diagnostic/identityStability.js";
+
 // Meta-Confidence
 export {
   computeQuestionMetaConfidence,
@@ -1175,6 +1194,18 @@ export type {
   ComponentConfidenceReport,
   ComponentHeatmapCell,
 } from "./diagnostic/componentConfidence.js";
+
+// Prediction-vs-Outcome Self-Calibration
+export {
+  computeConfidenceQuality,
+  renderConfidenceQualityMarkdown,
+} from "./diagnostic/selfCalibration.js";
+export type {
+  PredictionOutcome,
+  CalibrationBin,
+  ConfidenceQualityReport,
+  CalibrationOptions,
+} from "./diagnostic/selfCalibration.js";
 
 export type {
   AuditEventInput,
