@@ -71,6 +71,8 @@ export const cgxNodeSchema = z.object({
   evidenceRefs: cgxEvidenceRefsSchema.optional()
 });
 
+export const cgxEdgeFreshnessSchema = z.enum(["FRESH", "STALE", "EXPIRED"]);
+
 export const cgxEdgeSchema = z.object({
   id: z.string().min(1),
   type: z.enum([
@@ -83,12 +85,22 @@ export const cgxEdgeSchema = z.object({
     "IMPROVES",
     "RISKS",
     "PRODUCES",
-    "DEPENDS_ON"
+    "DEPENDS_ON",
+    "REQUIRES",
+    "CONTRADICTS",
+    "PATCHES",
+    "SUPERSEDES",
+    "BLOCKS",
+    "ENABLES"
   ]),
   from: z.string().min(1),
   to: z.string().min(1),
   hash: z.string().length(64),
-  evidenceRefs: cgxEvidenceRefsSchema.optional()
+  evidenceRefs: cgxEvidenceRefsSchema.optional(),
+  confidence: z.number().min(0).max(1).default(1.0),
+  lastVerifiedTs: z.number().int().default(0),
+  edgeEvidenceRefs: z.array(z.string().min(1)).default([]),
+  freshness: cgxEdgeFreshnessSchema.default("FRESH")
 });
 
 export const cgxGraphSchema = z.object({
@@ -145,3 +157,4 @@ export type CgxContextPack = z.infer<typeof cgxContextPackSchema>;
 export type CgxScope = z.infer<typeof cgxScopeSchema>;
 export type CgxNode = z.infer<typeof cgxNodeSchema>;
 export type CgxEdge = z.infer<typeof cgxEdgeSchema>;
+export type CgxEdgeFreshness = z.infer<typeof cgxEdgeFreshnessSchema>;

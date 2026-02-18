@@ -54,15 +54,28 @@ function addNode(map: Map<string, CgxNode>, node: Omit<CgxNode, "hash">): void {
   );
 }
 
-function addEdge(map: Map<string, CgxEdge>, edge: Omit<CgxEdge, "hash">): void {
+function addEdge(
+  map: Map<string, CgxEdge>,
+  edge: Omit<CgxEdge, "hash" | "confidence" | "lastVerifiedTs" | "edgeEvidenceRefs" | "freshness"> &
+    Partial<Pick<CgxEdge, "confidence" | "lastVerifiedTs" | "edgeEvidenceRefs" | "freshness">>
+): void {
   if (map.has(edge.id)) {
     return;
   }
+  const withDefaults = {
+    confidence: 1.0,
+    lastVerifiedTs: 0,
+    edgeEvidenceRefs: [] as string[],
+    freshness: "FRESH" as const,
+    ...edge,
+    hash: "0".repeat(64),
+  };
+  const h = sha256Hex(canonicalize(withDefaults));
   map.set(
     edge.id,
     cgxGraphSchema.shape.edges.element.parse({
-      ...edge,
-      hash: edgeHash(edge)
+      ...withDefaults,
+      hash: h,
     })
   );
 }
