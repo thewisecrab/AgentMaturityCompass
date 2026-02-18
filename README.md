@@ -66,6 +66,8 @@ Go-live references:
 - [`docs/AMC_MASTER_REFERENCE.md`](docs/AMC_MASTER_REFERENCE.md)
 - [`docs/SYSTEM_CAPABILITIES.md`](docs/SYSTEM_CAPABILITIES.md)
 - [`docs/LAUNCH.md`](docs/LAUNCH.md)
+- [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
+- [`docs/ARCHITECTURE_MAP.md`](docs/ARCHITECTURE_MAP.md)
 - [`docs/MECHANIC_MODE.md`](docs/MECHANIC_MODE.md)
 
 ## Go-Live Gate
@@ -81,21 +83,21 @@ amc verify all --json
 ## Deploy AMC Studio
 
 Production deployment assets are included:
-- Docker image (`/Users/thewisecrab/AMC/Dockerfile`)
-- Compose stacks (`/Users/thewisecrab/AMC/deploy/compose`)
-- Helm chart (`/Users/thewisecrab/AMC/deploy/helm/amc`)
+- Docker image (`Dockerfile`)
+- Compose stacks (`deploy/compose`)
+- Helm chart (`deploy/helm/amc`)
 
 Quick examples:
 
 ```bash
 # Docker compose
-cd /Users/thewisecrab/AMC/deploy/compose
+cd deploy/compose
 cp .env.example .env
 docker compose up -d --build
 
 # Helm
-helm lint /Users/thewisecrab/AMC/deploy/helm/amc
-helm template amc /Users/thewisecrab/AMC/deploy/helm/amc
+helm lint deploy/helm/amc
+helm template amc deploy/helm/amc
 ```
 
 Deployment guides:
@@ -631,9 +633,9 @@ Console plugin management page:
 - `/console/plugins`
 
 Docs:
-- [`/Users/thewisecrab/AMC/docs/PLUGINS.md`](docs/PLUGINS.md)
-- [`/Users/thewisecrab/AMC/docs/REGISTRY.md`](docs/REGISTRY.md)
-- [`/Users/thewisecrab/AMC/docs/PLUGIN_SUPPLY_CHAIN.md`](docs/PLUGIN_SUPPLY_CHAIN.md)
+- [`docs/PLUGINS.md`](docs/PLUGINS.md)
+- [`docs/REGISTRY.md`](docs/REGISTRY.md)
+- [`docs/PLUGIN_SUPPLY_CHAIN.md`](docs/PLUGIN_SUPPLY_CHAIN.md)
 
 ## Core Workflow
 

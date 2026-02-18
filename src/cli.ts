@@ -5190,6 +5190,51 @@ trust
     }
   });
 
+trust
+  .command("freshness")
+  .description("Report temporal trust freshness and half-life decay")
+  .option("--agent <agentId>", "agent ID", "default")
+  .option("--lookback-days <n>", "lookback horizon in days", "90")
+  .option("--stale-threshold <n>", "stale alert threshold for decay delta", "0.2")
+  .option("--half-life-behavioral <days>", "half-life for behavioral evidence (days)")
+  .option("--half-life-assurance <days>", "half-life for assurance evidence (days)")
+  .option("--half-life-cryptographic <days>", "half-life for cryptographic evidence (days)")
+  .option("--half-life-self-reported <days>", "half-life for self-reported evidence (days)")
+  .option("--view <mode>", "summary|freshness|json", "summary")
+  .action((opts: {
+    agent: string;
+    lookbackDays: string;
+    staleThreshold: string;
+    halfLifeBehavioral?: string;
+    halfLifeAssurance?: string;
+    halfLifeCryptographic?: string;
+    halfLifeSelfReported?: string;
+    view: "summary" | "freshness" | "json";
+  }) => {
+    const nowTs = Date.now();
+    const lookbackDays = Math.max(1, parseInt(opts.lookbackDays, 10) || 90);
+    const staleThreshold = Number.parseFloat(opts.staleThreshold);
+    const config = decayConfigSchema.parse({
+      behavioral: opts.halfLifeBehavioral !== undefined ? Number.parseFloat(opts.halfLifeBehavioral) : undefined,
+      assurance: opts.halfLifeAssurance !== undefined ? Number.parseFloat(opts.halfLifeAssurance) : undefined,
+      cryptographic: opts.halfLifeCryptographic !== undefined ? Number.parseFloat(opts.halfLifeCryptographic) : undefined,
+      selfReported: opts.halfLifeSelfReported !== undefined ? Number.parseFloat(opts.halfLifeSelfReported) : undefined
+    });
+    const runs = loadTemporalDecayRuns(process.cwd(), resolveAgentId(process.cwd(), opts.agent), lookbackDays, nowTs);
+    const evidence = deriveTemporalEvidenceFromRuns(runs);
+    const report = computeTemporalDecayReport(opts.agent, evidence, config, nowTs, Number.isFinite(staleThreshold) ? staleThreshold : 0.2);
+
+    if (opts.view === "json") {
+      console.log(JSON.stringify(report, null, 2));
+      return;
+    }
+    if (opts.view === "freshness") {
+      console.log(renderFreshnessMarkdown(report));
+      return;
+    }
+    console.log(renderTemporalDecayMarkdown(report));
+  });
+
 mode
   .command("owner")
   .description("Switch to owner mode (configuration + signing allowed)")
