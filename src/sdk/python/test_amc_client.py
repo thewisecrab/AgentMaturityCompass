@@ -86,6 +86,13 @@ class TestClientConstruction:
         client = create_amc_client(bridge_url="http://localhost:4100", token="t")
         assert isinstance(client, AMCClient)
 
+    def test_from_env_classmethod(self, monkeypatch):
+        monkeypatch.setenv("AMC_BRIDGE_URL", "http://bridge-from-env:4100")
+        monkeypatch.setenv("AMC_TOKEN", "token-from-env")
+        client = AMCClient.from_env()
+        assert client.bridge_url == "http://bridge-from-env:4100"
+        assert client.token == "token-from-env"
+
     def test_default_timeout(self):
         client = AMCClient(bridge_url="http://localhost:4100", token="t")
         assert client.timeout == 30.0

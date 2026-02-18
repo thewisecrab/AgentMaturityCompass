@@ -14,9 +14,11 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -54,8 +56,8 @@ func (r *BridgeResponse) Decode(target any) error {
 
 // Client is the AMC Bridge HTTP client.
 type Client struct {
-	cfg    Config
-	http   *http.Client
+	cfg  Config
+	http *http.Client
 }
 
 // NewClient creates a new AMC client. It reads AMC_BRIDGE_URL, AMC_TOKEN,
@@ -83,6 +85,11 @@ func NewClient(cfg Config) *Client {
 		cfg:  cfg,
 		http: &http.Client{Timeout: cfg.Timeout},
 	}
+}
+
+// NewClientFromEnv creates a client entirely from AMC_* env vars.
+func NewClientFromEnv() *Client {
+	return NewClient(Config{})
 }
 
 func (c *Client) callBridge(ctx context.Context, path string, payload any, correlationID string) (*BridgeResponse, error) {
@@ -131,43 +138,57 @@ func (c *Client) callBridge(ctx context.Context, path string, payload any, corre
 
 // OpenAIChat sends a chat completion request via the OpenAI provider.
 func (c *Client) OpenAIChat(ctx context.Context, payload map[string]any) (*BridgeResponse, error) {
-	assertNoSelfScoring(payload)
+	if err := assertNoSelfScoring(payload); err != nil {
+		return nil, err
+	}
 	return c.callBridge(ctx, "/bridge/openai/v1/chat/completions", payload, "")
 }
 
 // OpenAIResponses sends a request to the OpenAI responses endpoint.
 func (c *Client) OpenAIResponses(ctx context.Context, payload map[string]any) (*BridgeResponse, error) {
-	assertNoSelfScoring(payload)
+	if err := assertNoSelfScoring(payload); err != nil {
+		return nil, err
+	}
 	return c.callBridge(ctx, "/bridge/openai/v1/responses", payload, "")
 }
 
 // AnthropicMessages sends a messages request via the Anthropic provider.
 func (c *Client) AnthropicMessages(ctx context.Context, payload map[string]any) (*BridgeResponse, error) {
-	assertNoSelfScoring(payload)
+	if err := assertNoSelfScoring(payload); err != nil {
+		return nil, err
+	}
 	return c.callBridge(ctx, "/bridge/anthropic/v1/messages", payload, "")
 }
 
 // GeminiGenerateContent sends a generateContent request via the Gemini provider.
 func (c *Client) GeminiGenerateContent(ctx context.Context, model string, payload map[string]any) (*BridgeResponse, error) {
-	assertNoSelfScoring(payload)
-	return c.callBridge(ctx, fmt.Sprintf("/bridge/gemini/v1beta/models/%s:generateContent", model), payload, "")
+	if err := assertNoSelfScoring(payload); err != nil {
+		return nil, err
+	}
+	return c.callBridge(ctx, fmt.Sprintf("/bridge/gemini/v1beta/models/%s:generateContent", url.PathEscape(model)), payload, "")
 }
 
 // OpenRouterChat sends a chat completion request via OpenRouter.
 func (c *Client) OpenRouterChat(ctx context.Context, payload map[string]any) (*BridgeResponse, error) {
-	assertNoSelfScoring(payload)
+	if err := assertNoSelfScoring(payload); err != nil {
+		return nil, err
+	}
 	return c.callBridge(ctx, "/bridge/openrouter/v1/chat/completions", payload, "")
 }
 
 // XAIChat sends a chat completion request via xAI/Grok.
 func (c *Client) XAIChat(ctx context.Context, payload map[string]any) (*BridgeResponse, error) {
-	assertNoSelfScoring(payload)
+	if err := assertNoSelfScoring(payload); err != nil {
+		return nil, err
+	}
 	return c.callBridge(ctx, "/bridge/xai/v1/chat/completions", payload, "")
 }
 
 // LocalChat sends a chat completion request via local (OpenAI-compatible) provider.
 func (c *Client) LocalChat(ctx context.Context, payload map[string]any) (*BridgeResponse, error) {
-	assertNoSelfScoring(payload)
+	if err := assertNoSelfScoring(payload); err != nil {
+		return nil, err
+	}
 	return c.callBridge(ctx, "/bridge/local/v1/chat/completions", payload, "")
 }
 
@@ -246,14 +267,14 @@ func Redact(text string) string {
 
 // --- Self-scoring guard ---
 
-func assertNoSelfScoring(payload map[string]any) {
+func assertNoSelfScoring(payload map[string]any) error {
 	messages, ok := payload["messages"]
 	if !ok {
-		return
+		return nil
 	}
 	msgSlice, ok := messages.([]any)
 	if !ok {
-		return
+		return nil
 	}
 	for _, msg := range msgSlice {
 		m, ok := msg.(map[string]any)
@@ -265,18 +286,19 @@ func assertNoSelfScoring(payload map[string]any) {
 			continue
 		}
 		if strings.Contains(strings.ToLower(content), "amc_self_score") {
-			panic("amc: self-scoring detected — AMC SDK cannot be used to score its own outputs")
+			return errors.New("amc: self-scoring detected — AMC SDK cannot be used to score its own outputs")
 		}
 	}
+	return nil
 }
 
 // --- Lease management ---
 
 // LeaseInfo holds lease metadata.
 type LeaseInfo struct {
-	LeaseID   string `json:"leaseId"`
-	AgentID   string `json:"agentId"`
-	ExpiresAt string `json:"expiresAt"`
+	LeaseID   string   `json:"leaseId"`
+	AgentID   string   `json:"agentId"`
+	ExpiresAt string   `json:"expiresAt"`
 	Scopes    []string `json:"scopes"`
 }
 

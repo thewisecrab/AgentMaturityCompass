@@ -3,9 +3,11 @@ import { assertNoSelfScoring, requireBridgeUrl } from "./amcGuards.js";
 import { hashSdkValue, redactSdkText } from "./amcEvidence.js";
 import { sendBridgeTelemetry } from "./amcTelemetry.js";
 
+const DEFAULT_BRIDGE_URL = "http://127.0.0.1:3212";
+
 export interface AMCClientConfig {
-  bridgeUrl: string;
-  token: string;
+  bridgeUrl?: string;
+  token?: string;
   workspaceId?: string;
   fetchImpl?: typeof fetch;
 }
@@ -18,6 +20,12 @@ export interface AMCBridgeResponse<T = unknown> {
   correlationId: string | null;
 }
 
+function resolveClientConfig(config: AMCClientConfig): Required<Pick<AMCClientConfig, "bridgeUrl" | "token">> & AMCClientConfig {
+  const bridgeUrl = config.bridgeUrl ?? process.env.AMC_BRIDGE_URL ?? DEFAULT_BRIDGE_URL;
+  const token = config.token ?? process.env.AMC_TOKEN ?? "";
+  return { ...config, bridgeUrl, token };
+}
+
 export class AMCClient {
   readonly bridgeUrl: string;
   readonly token: string;
@@ -25,10 +33,11 @@ export class AMCClient {
   private readonly fetchImpl: typeof fetch;
 
   constructor(config: AMCClientConfig) {
-    this.bridgeUrl = requireBridgeUrl(config.bridgeUrl);
-    this.token = config.token;
-    this.workspaceId = config.workspaceId ?? null;
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    const resolved = resolveClientConfig(config);
+    this.bridgeUrl = requireBridgeUrl(resolved.bridgeUrl);
+    this.token = resolved.token;
+    this.workspaceId = resolved.workspaceId ?? null;
+    this.fetchImpl = resolved.fetchImpl ?? fetch;
   }
 
   private async callBridge<T>(path: string, payload: Record<string, unknown>): Promise<AMCBridgeResponse<T>> {
@@ -117,4 +126,8 @@ export class AMCClient {
 
 export function createAMCClient(config: AMCClientConfig): AMCClient {
   return new AMCClient(config);
+}
+
+export function createAMCClientFromEnv(overrides: Omit<AMCClientConfig, "bridgeUrl" | "token"> = {}): AMCClient {
+  return new AMCClient({ ...overrides });
 }

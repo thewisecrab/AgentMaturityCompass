@@ -1,4 +1,4 @@
-export { AMCClient, createAMCClient, type AMCClientConfig, type AMCBridgeResponse } from "./amcClient.js";
+export { AMCClient, createAMCClient, createAMCClientFromEnv, type AMCClientConfig, type AMCBridgeResponse } from "./amcClient.js";
 export { AMCAgent, createAMCAgent } from "./amcAgent.js";
 export { runSpan, type AMCSpanRecord } from "./amcSpan.js";
 export { sendBridgeTelemetry, type AMCTelemetryEvent } from "./amcTelemetry.js";

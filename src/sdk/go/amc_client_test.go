@@ -18,6 +18,18 @@ func TestNewClientDefaults(t *testing.T) {
 	}
 }
 
+func TestNewClientFromEnv(t *testing.T) {
+	t.Setenv("AMC_BRIDGE_URL", "http://env-bridge:4444/")
+	t.Setenv("AMC_TOKEN", "env-token")
+	c := NewClientFromEnv()
+	if c.cfg.BridgeURL != "http://env-bridge:4444" {
+		t.Errorf("expected env bridge URL, got %s", c.cfg.BridgeURL)
+	}
+	if c.cfg.Token != "env-token" {
+		t.Errorf("expected env token, got %s", c.cfg.Token)
+	}
+}
+
 func TestOutputHash(t *testing.T) {
 	h := OutputHash("hello")
 	if len(h) != 64 {
@@ -50,17 +62,14 @@ func TestRedact(t *testing.T) {
 }
 
 func TestAssertNoSelfScoring(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("expected panic for self-scoring payload")
-		}
-	}()
 	payload := map[string]any{
 		"messages": []any{
 			map[string]any{"content": "evaluate amc_self_score output"},
 		},
 	}
-	assertNoSelfScoring(payload)
+	if err := assertNoSelfScoring(payload); err == nil {
+		t.Error("expected error for self-scoring payload")
+	}
 }
 
 func TestOpenAIChat(t *testing.T) {
@@ -94,9 +103,7 @@ func TestOpenAIChat(t *testing.T) {
 }
 
 func TestMiddleware(t *testing.T) {
-	telemetryCalled := false
 	bridge := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		telemetryCalled = true
 		w.WriteHeader(200)
 		w.Write([]byte(`{"ok":true}`))
 	}))

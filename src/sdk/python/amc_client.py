@@ -135,6 +135,11 @@ class AMCClient:
                 "bridge_url is required. Set AMC_BRIDGE_URL env var or pass bridge_url parameter."
             )
 
+    @classmethod
+    def from_env(cls, **kwargs) -> "AMCClient":
+        """Create a client using AMC_* environment variables with optional overrides."""
+        return cls(**kwargs)
+
     def _headers(self, correlation_id: Optional[str] = None, extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
         """Build request headers."""
         headers: Dict[str, str] = {
@@ -163,6 +168,7 @@ class AMCClient:
         """
         import urllib.request
         import urllib.error
+        import urllib.parse
 
         url = f"{self.bridge_url}{path}"
         headers = self._headers(correlation_id, extra_headers)
@@ -220,8 +226,10 @@ class AMCClient:
     def gemini_generate_content(self, model: str, payload: dict, **kwargs) -> AMCBridgeResponse:
         """Send a generateContent request via Gemini provider."""
         _assert_no_self_scoring(payload)
+        import urllib.parse
+        model_path = urllib.parse.quote(model, safe="")
         return self._call_bridge(
-            f"/bridge/gemini/v1beta/models/{model}:generateContent", payload, **kwargs
+            f"/bridge/gemini/v1beta/models/{model_path}:generateContent", payload, **kwargs
         )
 
     def openrouter_chat(self, payload: dict, **kwargs) -> AMCBridgeResponse:
