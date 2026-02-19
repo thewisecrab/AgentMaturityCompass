@@ -7,7 +7,13 @@ coverage/
 .amc/evidence.sqlite
 .amc/evidence.sqlite-shm
 .amc/evidence.sqlite-wal
+.amc/guard_events.sqlite
+.amc/guard_events.sqlite-shm
+.amc/guard_events.sqlite-wal
 .amc/studio/tmp/
+.amc/release/working/
+.amc/**/*.json.sig
+.amc/**/scheduler.json
 *.db
 
 # Python platform
