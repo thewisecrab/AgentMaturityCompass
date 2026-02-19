@@ -1059,23 +1059,8 @@ program
     process.exit(report.failed > 0 ? 1 : 0);
   });
 
-program
-  .command("quickstart")
-  .description("One-command setup wizard")
-  .action(async () => {
-    const result = await quickstartWizard(process.cwd());
-    const doctor = runDoctor(process.cwd());
-    console.log(chalk.cyan("Doctor:"));
-    for (const line of doctor.lines) {
-      console.log(`  ${line}`);
-    }
-    console.log(chalk.cyan("Next commands:"));
-    console.log(`  ${result.nextGatewayCommand}`);
-    console.log(`  ${result.nextSuperviseCommand}`);
-    console.log(`  ${result.nextWrapCommand}`);
-    console.log(chalk.cyan("First diagnostic report:"));
-    console.log(`  ${result.firstRunReport}`);
-  });
+// quickstart retained as a unified onboarding flow is implemented below
+
 
 program
   .command("setup")
@@ -11191,9 +11176,44 @@ program
   .description("Generate integration scaffold for a framework")
   .argument("<framework>", "framework: express, fastapi, flask, langchain, llamaindex, generic-http")
   .option("--output-dir <dir>", "output directory for generated files", ".")
-  .action((framework: string, opts: { outputDir: string }) => {
+  .option("--project <path>", "project path for one-liner framework adapters")
+  .action(async (framework: string, opts: { outputDir: string; project?: string }) => {
+    if (framework === "langchain") {
+      const { createLangChainAdapter } = await import("./integrations/langchainAdapter.js");
+      const adapter = createLangChainAdapter({ projectPath: resolve(opts.project || process.cwd()), autoCapture: true });
+      console.log(chalk.green("✓ LangChain adapter configured"));
+      console.log(chalk.gray(`Project: ${adapter.config.projectPath}`));
+      console.log(chalk.cyan("\nUsage in your code:"));
+      console.log('  import { createLangChainAdapter } from "@amc/integrations/langchainAdapter";');
+      console.log('  const adapter = createLangChainAdapter({ projectPath: "." });');
+      console.log('  const wrappedAgent = adapter.wrapAgent(yourAgent);');
+      return;
+    }
+    if (framework === "crewai") {
+      const { createCrewAIAdapter } = await import("./integrations/crewaiAdapter.js");
+      const adapter = createCrewAIAdapter({ projectPath: resolve(opts.project || process.cwd()), autoCapture: true });
+      console.log(chalk.green("✓ CrewAI adapter configured"));
+      console.log(chalk.gray(`Project: ${adapter.config.projectPath}`));
+      console.log(chalk.cyan("\nUsage in your code:"));
+      console.log('  import { createCrewAIAdapter } from "@amc/integrations/crewaiAdapter";');
+      console.log('  const adapter = createCrewAIAdapter({ projectPath: "." });');
+      console.log('  const wrappedCrew = adapter.wrapCrew(yourCrew);');
+      return;
+    }
+    if (framework === "autogen") {
+      const { createAutoGenAdapter } = await import("./integrations/autogenAdapter.js");
+      const adapter = createAutoGenAdapter({ projectPath: resolve(opts.project || process.cwd()), autoCapture: true });
+      console.log(chalk.green("✓ AutoGen adapter configured"));
+      console.log(chalk.gray(`Project: ${adapter.config.projectPath}`));
+      console.log(chalk.cyan("\nUsage in your code:"));
+      console.log('  import { createAutoGenAdapter } from "@amc/integrations/autogenAdapter";');
+      console.log('  const adapter = createAutoGenAdapter({ projectPath: "." });');
+      console.log('  const wrappedAgent = adapter.wrapAgent(yourAgent);');
+      return;
+    }
+
     const is = require("./setup/integrationScaffold.js") as typeof import("./setup/integrationScaffold.js");
-    const validFrameworks = ["express", "fastapi", "flask", "langchain", "llamaindex", "generic-http", "custom"];
+    const validFrameworks = ["express", "fastapi", "flask", "langchain", "llamaindex", "generic-http", "custom", "crewai", "autogen"];
     if (!validFrameworks.includes(framework)) {
       console.log(chalk.red(`Unknown framework: ${framework}`));
       console.log("Available frameworks:");
@@ -12487,7 +12507,43 @@ domainCmd
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
 
-const score = program.command("score").description("Maturity scoring, adversarial testing, and evidence collection");
+const score = program.command("score").description("Maturity scoring, adversarial testing, and evidence collection")
+  .option("--tier <tier>", "tier: quick, standard, or deep", "quick")
+  .action(async (opts: { tier?: string }) => {
+    if (!opts.tier) return;
+    const tier = opts.tier as "quick" | "standard" | "deep";
+    if (tier !== "quick" && tier !== "standard" && tier !== "deep") {
+      console.error(chalk.red("Invalid tier. Use quick, standard, or deep."));
+      process.exit(1);
+      return;
+    }
+    const { getQuestionsForTier, computeQuickScore, renderAsciiRadar } = await import("./diagnostic/quickScore.js");
+    const questions = getQuestionsForTier(tier);
+    const answers: Record<string, number> = {};
+    if (process.stdin.isTTY) {
+      const inq = await import("inquirer");
+      for (const q of questions) {
+        const { level } = await inq.default.prompt([{
+          type: "list",
+          name: "level",
+          message: `${q.id}: ${q.title}`,
+          choices: q.options.map((o: { level: number; label: string }) => ({ name: `L${o.level} — ${o.label}`, value: o.level })),
+        }]);
+        answers[q.id] = level;
+      }
+    }
+    const result = computeQuickScore(answers, tier);
+    console.log(chalk.bold.hex("#FF6600")("\n📊  Assessment Result"));
+    console.log(chalk.gray(`Tier: ${tier}`));
+    console.log(chalk.gray(`Score: ${result.totalScore}/${result.maxScore} (${result.percentage}%)`));
+    console.log(renderAsciiRadar(result.layerScores));
+    if (result.gaps.length > 0) {
+      console.log(chalk.yellow("Top gaps:"));
+      for (const g of result.gaps) {
+        console.log(`  ${g.questionId}: ${g.title}`);
+      }
+    }
+  });
 
 score
   .command("formal-spec <agentId>")
@@ -12688,6 +12744,295 @@ confidence.command("drift").description("Show drift trend").option("--json", "JS
   const result = trackConfidenceDrift([]);
   if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold("Confidence Drift")); console.log(`  Trend:     ${result.driftTrend}`); console.log(`  Citationless high-conf: ${(result.citationlessHighConfidenceRate * 100).toFixed(0)}%`); }
 });
+
+// ── Tiered Score ──────────────────────────────────────────────────────────────
+score
+  .command("tier")
+  .description("Run tiered maturity assessment (quick/standard/deep)")
+  .option("--tier <tier>", "Assessment tier: quick, standard, or deep", "quick")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { tier?: string; json?: boolean }) => {
+    const { getQuestionsForTier, computeQuickScore, renderAsciiRadar } = await import("./diagnostic/quickScore.js");
+    const tier = (opts.tier === "standard" || opts.tier === "deep") ? opts.tier : "quick" as const;
+    const questions = getQuestionsForTier(tier);
+    const answers: Record<string, number> = {};
+
+    if (process.stdin.isTTY) {
+      const inq = await import("inquirer");
+      for (const q of questions) {
+        const { level } = await inq.default.prompt([{
+          type: "list",
+          name: "level",
+          message: `${q.id}: ${q.title}`,
+          choices: q.options.map((o: { level: number; label: string }) => ({ name: `L${o.level} — ${o.label}`, value: o.level })),
+        }]);
+        answers[q.id] = level;
+      }
+    }
+
+    const result = computeQuickScore(answers, tier);
+    if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+    console.log(chalk.bold.hex("#FF6600")(`\n📊  ${tier.charAt(0).toUpperCase() + tier.slice(1)} Score Assessment`));
+    console.log(chalk.gray(`Score: ${result.totalScore}/${result.maxScore} (${result.percentage}%)`));
+    console.log(renderAsciiRadar(result.layerScores));
+    if (result.gaps.length > 0) {
+      console.log(chalk.yellow("Top Gaps:"));
+      for (const g of result.gaps) { console.log(`  ${g.questionId}: ${g.title} (L${g.currentLevel} → L${g.targetLevel})`); }
+    }
+    console.log("");
+    for (const line of result.roadmap) { console.log(chalk.cyan(line)); }
+  });
+
+// ── Scan ──────────────────────────────────────────────────────────────────────
+const scan = program.command("scan").description("Zero-integration agent assessment scanner");
+
+scan
+  .option("--url <url>", "probe a running agent endpoint")
+  .option("--repo <url>", "scan a git repository")
+  .option("--local <path>", "scan a local codebase")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { url?: string; repo?: string; local?: string; json?: boolean }) => {
+    const provided = [opts.url, opts.repo, opts.local].filter(Boolean).length;
+    if (provided !== 1) {
+      console.error(chalk.red("Provide exactly one target: --url, --repo, or --local"));
+      return;
+    }
+
+    if (opts.url) {
+      const { probeEndpoint } = await import("./scanner/index.js");
+      const result = await probeEndpoint(opts.url);
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🔍  Endpoint Probe Results"));
+      console.log(chalk.gray(`URL: ${result.url}`));
+      console.log(chalk.gray(`Reachable: ${result.reachable}`));
+      console.log(chalk.gray(`Response time: ${result.responseTimeMs}ms`));
+      console.log(chalk.gray(`Signals: ${result.signals.join(", ") || "none"}`));
+      console.log(chalk.bold(`Preliminary Score: ${result.preliminaryScore.label}`));
+      return;
+    }
+
+    if (opts.repo) {
+      const { scanRepo, cleanupRepoScan } = await import("./scanner/index.js");
+      console.log(chalk.gray("Cloning repository..."));
+      const result = scanRepo(opts.repo);
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else {
+        console.log(chalk.bold.hex("#FF6600")("\n🔍  Repo Scan Results"));
+        console.log(chalk.gray(`Repo: ${result.repoUrl}`));
+        console.log(chalk.gray(`Files scanned: ${result.filesScanned}`));
+        console.log(chalk.gray(`Framework: ${result.detection.framework}`));
+        console.log(chalk.gray(`Security: ${result.detection.securityPosture}`));
+        console.log(chalk.bold(`Preliminary Score: ${result.preliminaryScore.label}`));
+      }
+      cleanupRepoScan(result);
+      return;
+    }
+
+    const { scanLocal } = await import("./scanner/index.js");
+    const result = scanLocal(opts.local!);
+    if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+    console.log(chalk.bold.hex("#FF6600")("\n🔍  Local Scan Results"));
+    console.log(chalk.gray(`Path: ${result.path}`));
+    console.log(chalk.gray(`Files scanned: ${result.filesScanned}`));
+    console.log(chalk.gray(`Framework: ${result.detection.framework} (${(result.detection.confidence * 100).toFixed(0)}% confidence)`));
+    console.log(chalk.gray(`Security: ${result.detection.securityPosture}`));
+    console.log(chalk.gray(`Tools: ${result.detection.toolUsage.join(", ") || "none detected"}`));
+    console.log(chalk.gray(`Governance: ${result.detection.governanceArtifacts.join(", ") || "none detected"}`));
+    console.log(chalk.bold(`Preliminary Score: ${result.preliminaryScore.label}`));
+    for (const s of result.detection.signals) { console.log(`  → ${s}`); }
+  });
+
+// ── Guardrails Simple Mode ───────────────────────────────────────────────────
+const guardrailsCmd = program.command("guardrails").description("Simple guardrail management");
+
+guardrailsCmd
+  .command("list")
+  .description("List all available guardrails with status")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    const { createGuardrailState, listGuardrailsWithStatus } = await import("./enforce/guardrailProfiles.js");
+    const state = createGuardrailState();
+    const list = listGuardrailsWithStatus(state);
+    if (opts.json) { console.log(JSON.stringify(list, null, 2)); return; }
+    console.log(chalk.bold("\n🛡️  Available Guardrails\n"));
+    for (const g of list) {
+      const status = g.enabled ? chalk.green("● ON ") : chalk.gray("○ OFF");
+      console.log(`  ${status}  ${g.name.padEnd(30)} ${chalk.gray(g.description)}`);
+    }
+  });
+
+guardrailsCmd
+  .command("enable <name>")
+  .description("Enable a guardrail")
+  .action(async (name: string) => {
+    const { createGuardrailState, enableGuardrail, AVAILABLE_GUARDRAILS } = await import("./enforce/guardrailProfiles.js");
+    const state = createGuardrailState();
+    if (enableGuardrail(state, name)) {
+      console.log(chalk.green(`✓ Enabled guardrail: ${name}`));
+    } else {
+      console.error(chalk.red(`Unknown guardrail: ${name}`));
+      console.log("Available:", AVAILABLE_GUARDRAILS.map(g => g.name).join(", "));
+    }
+  });
+
+guardrailsCmd
+  .command("disable <name>")
+  .description("Disable a guardrail")
+  .action(async (name: string) => {
+    const { createGuardrailState, disableGuardrail } = await import("./enforce/guardrailProfiles.js");
+    const state = createGuardrailState();
+    if (disableGuardrail(state, name)) {
+      console.log(chalk.yellow(`✗ Disabled guardrail: ${name}`));
+    } else {
+      console.error(chalk.red(`Guardrail not found or not enabled: ${name}`));
+    }
+  });
+
+guardrailsCmd
+  .command("profile <name>")
+  .description("Apply a guardrail profile (minimal, standard, strict, healthcare, financial)")
+  .action(async (profileName: string) => {
+    const { createGuardrailState, applyProfile, listGuardrailsWithStatus, GUARDRAIL_PROFILES } = await import("./enforce/guardrailProfiles.js");
+    const state = createGuardrailState();
+    if (applyProfile(state, profileName)) {
+      const enabled = listGuardrailsWithStatus(state).filter(g => g.enabled);
+      console.log(chalk.green(`✓ Applied profile: ${profileName} (${enabled.length} guardrails enabled)`));
+      for (const g of enabled) { console.log(`  ● ${g.name}`); }
+    } else {
+      console.error(chalk.red(`Unknown profile: ${profileName}`));
+      console.log("Available:", GUARDRAIL_PROFILES.map(p => p.name).join(", "));
+    }
+  });
+
+// ── Playground ───────────────────────────────────────────────────────────────
+const playground = program.command("playground").description("Interactive scenario runner").action(async () => {
+  const { createPlaygroundSession, runAllScenarios, formatPlaygroundReport } = await import("./playground/index.js");
+  const session = createPlaygroundSession();
+  const results = runAllScenarios(session);
+  console.log(formatPlaygroundReport(session));
+});
+
+playground
+  .command("run")
+  .description("Run all demo scenarios")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    const { createPlaygroundSession, runAllScenarios, formatPlaygroundReport } = await import("./playground/index.js");
+    const session = createPlaygroundSession();
+    const results = runAllScenarios(session);
+    if (opts.json) { console.log(JSON.stringify(results, null, 2)); return; }
+    console.log(formatPlaygroundReport(session));
+  });
+
+playground
+  .command("list")
+  .description("List available scenarios")
+  .action(async () => {
+    const { DEMO_SCENARIOS } = await import("./playground/index.js");
+    console.log(chalk.bold("\n🎮  Available Scenarios\n"));
+    for (const s of DEMO_SCENARIOS) {
+      console.log(`  ${s.id}: ${s.name}`);
+      console.log(chalk.gray(`    ${s.description} (${s.steps.length} steps)`));
+    }
+  });
+
+// ── Enhanced Dashboard ───────────────────────────────────────────────────────
+dashboard
+  .command("open")
+  .description("Build and serve dashboard at localhost:3210")
+  .option("--agent <agentId>", "agent ID")
+  .option("--port <port>", "port", "3210")
+  .option("--view <view>", "team view: engineer, product, ciso, exec", "engineer")
+  .action(async (opts: { agent?: string; port: string; view?: string }) => {
+    const resolvedAgent = opts.agent ?? activeAgent(program);
+    const outDir = resolvedAgent ? `.amc/agents/${resolvedAgent}/dashboard` : ".amc/dashboard";
+    try {
+      buildDashboard({ workspace: process.cwd(), agentId: resolvedAgent, outDir });
+    } catch (e: any) {
+      console.log(chalk.yellow(`Note: ${e.message}`));
+      console.log(chalk.gray("Dashboard will serve with available data."));
+    }
+    const handle = await serveDashboard({
+      workspace: process.cwd(),
+      agentId: resolvedAgent,
+      port: Number(opts.port),
+      outDir,
+    });
+    console.log(chalk.green(`\n🌐  Dashboard serving at ${handle.url}`));
+    console.log(chalk.gray(`View: ${opts.view || "engineer"}`));
+    console.log(chalk.gray("Press Ctrl+C to stop\n"));
+    await new Promise<void>((resolvePromise) => {
+      const shutdown = async () => {
+        process.off("SIGINT", shutdown);
+        process.off("SIGTERM", shutdown);
+        await handle.close();
+        resolvePromise();
+      };
+      process.on("SIGINT", shutdown);
+      process.on("SIGTERM", shutdown);
+    });
+  });
+
+// ── quickstart: one-command simplicity onboarding ─────────────────────────────
+program
+  .command("quickstart")
+  .description("2-minute quickstart with Quick Score assessment")
+  .action(async () => {
+    console.log(chalk.bold.hex("#FF6600")("\n🚀  AMC Quick Start — Agent Maturity in 2 Minutes\n"));
+
+    // Step 1: workspace init
+    console.log(chalk.cyan("Step 1: Setting up workspace..."));
+    try {
+      const ws = await quickstartWizard(process.cwd());
+      console.log(chalk.green("  ✓ Workspace initialized"));
+      console.log(chalk.gray(`    Gateway: ${ws.nextGatewayCommand}`));
+    } catch { console.log(chalk.green("  ✓ Workspace already configured")); }
+
+    // Step 2: Quick Score
+    console.log(chalk.cyan("\nStep 2: Quick Score Assessment (10 questions)\n"));
+    const { getQuestionsForTier, computeQuickScore, renderAsciiRadar } = await import("./diagnostic/quickScore.js");
+    const questions = getQuestionsForTier("quick");
+    const answers: Record<string, number> = {};
+
+    if (process.stdin.isTTY) {
+      const inq = await import("inquirer");
+      for (const q of questions) {
+        const { level } = await inq.default.prompt([{
+          type: "list",
+          name: "level",
+          message: `${q.id}: ${q.title}`,
+          choices: q.options.map((o: { level: number; label: string }) => ({ name: `L${o.level} — ${o.label}`, value: o.level })),
+        }]);
+        answers[q.id] = level;
+      }
+    } else {
+      console.log(chalk.yellow("  Non-interactive mode: using L0 defaults"));
+    }
+
+    const result = computeQuickScore(answers, "quick");
+
+    // Step 3: Results
+    console.log(chalk.cyan("\nStep 3: Your Results\n"));
+    console.log(chalk.bold(`  Overall: ${result.totalScore}/${result.maxScore} (${result.percentage}%)`));
+    console.log(renderAsciiRadar(result.layerScores));
+
+    if (result.gaps.length > 0) {
+      console.log(chalk.yellow("  Top 5 Gaps:"));
+      for (const g of result.gaps) {
+        console.log(`    • ${g.title}: L${g.currentLevel} → L${g.targetLevel}`);
+      }
+    }
+
+    console.log("");
+    for (const line of result.roadmap) { console.log(chalk.cyan(`  ${line}`)); }
+
+    console.log(chalk.bold.hex("#FF6600")("\n📋  Next Steps:"));
+    console.log("  amc score tier --tier standard   Full 42-question assessment");
+    console.log("  amc scan --local .               Scan your codebase");
+    console.log("  amc dashboard open               Open web dashboard");
+    console.log("  amc playground run               Run scenario tests");
+    console.log("  amc guardrails profile standard   Enable standard guardrails");
+    console.log("");
+  });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);

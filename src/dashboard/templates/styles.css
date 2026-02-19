@@ -131,3 +131,23 @@ body {
     grid-column: span 3;
   }
 }
+
+/* Team views */
+.view-header{margin-bottom:8px;}
+.score-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0;}
+.metric{background:#0b2c3a;padding:10px;border:1px solid #24475f;border-radius:8px;}
+.metric .label{font-size:.75rem;color:#9fb5bf;display:block;}
+.metric .value{font-size:1.2rem;font-weight:700;color:#e9f3ff;}
+.section{margin-top:12px;}
+.section h3{margin:0 0 6px 0;}
+.domain-breakdown .domain-row{display:flex;align-items:center;gap:8px;margin:6px 0;}
+.domain-name{width:220px;color:#b7c4ce;}
+.domain-bar{flex:1;background:#0e2736;height:10px;border-radius:6px;overflow:hidden;border:1px solid #22384a;}
+.domain-fill{height:100%;background:linear-gradient(90deg,#2fb8ff,#6be39f);}
+.domain-score{width:70px;text-align:right;}
+.export-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.exec-score{display:flex;align-items:baseline;gap:12px;}
+.exec-score .big-number{font-size:42px;font-weight:800;}
+.exec-score .max{font-size:18px;color:#9fb5bf;}
+.trust-high{color:#67d18e;}
+.trust-low{color:#f6b26b;}

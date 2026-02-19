@@ -86,6 +86,41 @@ function renderEvidenceGaps(data) {
   }
 }
 
+function parseViewFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get("view") || "engineer").toLowerCase();
+}
+
+function renderSimpleTeamView(data) {
+  const view = parseViewFromUrl();
+  const mount = document.getElementById("team-view");
+  if (!mount) return;
+  const run = data.latestRun;
+  const gaps = Array.isArray(data.evidenceGaps) ? data.evidenceGaps : [];
+  if (view === "exec") {
+    mount.innerHTML = `<h3>Executive Summary</h3><p>Overall: ${Number(data.overall || 0).toFixed(2)} | Trust: ${run?.trustLabel || "N/A"}</p><p>Top Risks: ${gaps.slice(0, 3).map((g) => g.questionId).join(", ") || "none"}</p>`;
+    return;
+  }
+  if (view === "product") {
+    mount.innerHTML = `<h3>Product View</h3><p>Progress: current layer count ${run?.layerScores?.length || 0}</p><p>Score trend points: ${(data.trends || []).length}</p>`;
+    return;
+  }
+  if (view === "ciso") {
+    mount.innerHTML = `<h3>Risk View</h3><p>Trust Label: ${run?.trustLabel || "N/A"}</p><p>Failure risk: ${Number(data.indices?.overallFailureRisk || 0).toFixed(3)}</p>`;
+    return;
+  }
+  mount.innerHTML = `<h3>Engineer View</h3><p>Overall: ${Number(data.overall || 0).toFixed(2)}</p><p>Questions: ${run?.questionScores?.length || 0}</p>`;
+}
+
+function renderSimpleDomainBreakdown(data) {
+  const mount = document.getElementById("domain-breakdown");
+  if (!mount) return;
+  const layers = Array.isArray(data.latestRun?.layerScores) ? data.latestRun.layerScores : [];
+  mount.innerHTML = layers
+    .map((layer) => `<div class="domain-row"><span class="domain-name">${layer.layerName}</span><div class="domain-bar"><div class="domain-fill" style="width:${(Number(layer.avgFinalLevel || 0) / 5) * 100}%"></div></div><span class="domain-score">${Number(layer.avgFinalLevel || 0).toFixed(1)}/5</span></div>`)
+    .join("");
+}
+
 function renderApprovalsSummary(data) {
   const el = document.getElementById("approvals-summary");
   const row = data.approvalsSummary || {
@@ -221,4 +256,6 @@ function renderStudioHome(data) {
   renderBenchmarkSummary(data);
   renderEvidenceGaps(data);
   renderEoc(document.getElementById("eoc"), data.eoc);
+  renderSimpleTeamView(data);
+  renderSimpleDomainBreakdown(data);
 })();
