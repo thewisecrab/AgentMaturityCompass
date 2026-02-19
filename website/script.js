@@ -39,6 +39,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const levels = document.querySelector('.levels');
   if (levels) levelObserver.observe(levels);
 
+  // Benchmark bars animation (proof section + research section)
+  const benchmarkObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const bars = e.target.querySelectorAll('.benchmark-bar');
+        bars.forEach((bar, i) => {
+          setTimeout(() => {
+            bar.style.width = bar.dataset.width;
+          }, i * 200);
+        });
+        benchmarkObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  // Observe proof comparison section
+  const proofSection = document.querySelector('.proof-comparison');
+  if (proofSection) benchmarkObserver.observe(proofSection);
+
+  // Observe benchmark cards section
+  const benchmarkCards = document.querySelector('.benchmark-cards');
+  if (benchmarkCards) benchmarkObserver.observe(benchmarkCards);
+
   // Copy button
   const copyBtn = document.querySelector('.copy-btn');
   copyBtn?.addEventListener('click', () => {
