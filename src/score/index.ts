@@ -69,3 +69,12 @@ export type { AgentClassification, AgentClassificationResult } from "./agentVsWo
 
 export { addLesson, queryLessons, getLearningMaturityScore } from "./lessonLearnedDatabase.js";
 export type { Lesson, LessonDatabase } from "./lessonLearnedDatabase.js";
+
+export { assessSimplicity } from "./simplicityScoring.js";
+export type { SimplicityProfile } from "./simplicityScoring.js";
+
+export { assessIdentityContinuity } from "./identityContinuity.js";
+export type { IdentityContinuityProfile } from "./identityContinuity.js";
+
+export { assessReputationPortability } from "./reputationPortability.js";
+export type { ReputationPortabilityProfile } from "./reputationPortability.js";
