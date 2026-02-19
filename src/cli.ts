@@ -11684,11 +11684,7 @@ governor
     console.log(renderConfidenceGovernorMarkdown(decision));
   });
 
-// ── Component Confidence ───────────────────────────────────────────────────
-program
-  .command("confidence")
-  .description("Per-component confidence breakdown")
-  .action(() => { program.commands.find((c: any) => c.name() === "confidence")?.help(); });
+// ── Component Confidence (see main confidence command group below) ──────────
 
 program
   .command("confidence-components")
@@ -12630,6 +12626,68 @@ score
 
 
 
+
+// Memory commands
+const memory = program.command("memory").description("Memory maturity assessment and management");
+memory.command("assess <agentId>").description("Full memory maturity assessment").option("--json", "JSON output").action(async (agentId: string, opts: { json?: boolean }) => {
+  const { assessMemoryMaturity } = await import("./score/memoryMaturity.js");
+  const result = assessMemoryMaturity({ agentId: 0 });
+  result.agentId = agentId;
+  if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold(`Memory Maturity — ${agentId}`)); console.log(`  Persistence: L${result.persistenceLevel}`); console.log(`  Continuity:  L${result.continuityLevel}`); console.log(`  Integrity:   L${result.integrityLevel}`); console.log(`  Overall:     ${result.overallScore}/100`); if (result.gaps.length) { console.log(chalk.yellow(`  Gaps: ${result.gaps.join("; ")}`)); } }
+});
+
+// Oversight commands
+const oversight = program.command("oversight").description("Human oversight quality assessment");
+oversight.command("assess <agentId>").description("Assess human oversight quality").option("--json", "JSON output").action(async (agentId: string, opts: { json?: boolean }) => {
+  const { assessOversightQuality } = await import("./score/humanOversightQuality.js");
+  const result = assessOversightQuality({ agentId: 0 });
+  result.agentId = agentId;
+  if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold(`Oversight Quality — ${agentId}`)); console.log(`  Existence:    ${result.oversightExistence}`); console.log(`  Context:      ${(result.contextCompleteness * 100).toFixed(0)}%`); console.log(`  Graduated:    ${result.graduatedAutonomy}`); console.log(`  Overall:      ${result.overallScore}/100`); }
+});
+
+// Classify command
+const classify = program.command("classify").description("Classify agent vs workflow");
+classify.command("agent <agentId>").description("Classify whether system is workflow or agent").option("--json", "JSON output").action(async (agentId: string, opts: { json?: boolean }) => {
+  const { classifyAgentVsWorkflow } = await import("./score/agentVsWorkflow.js");
+  const result = classifyAgentVsWorkflow({});
+  if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold(`Classification — ${agentId}`)); console.log(`  Type:       ${result.classification}`); console.log(`  AMC Level:  ${result.amcLevel}`); console.log(`  Label:      ${result.marketingLabel}`); console.log(`  Governance: ${result.governanceUrgency}`); }
+});
+
+// Claims command
+const claims = program.command("claims").description("Evidence claim expiry tracking");
+claims.command("list <agentId>").description("List all evidence claims with TTL status").option("--json", "JSON output").action(async (agentId: string, opts: { json?: boolean }) => {
+  const { checkClaimExpiry, CLAIM_TTL } = await import("./score/claimExpiry.js");
+  const result = checkClaimExpiry([]);
+  if (opts.json) { console.log(JSON.stringify({ agentId, ...result, ttlDefaults: CLAIM_TTL }, null, 2)); } else { console.log(chalk.bold(`Claims — ${agentId}`)); console.log(`  Expired: ${result.expired.length}`); console.log(`  Stale:   ${result.stale.length}`); console.log(`  Fresh:   ${result.fresh.length}`); console.log(`  Certification blocked: ${result.certificationBlocked}`); }
+});
+
+// DAG command
+const dag = program.command("dag").description("Orchestration DAG capture and scoring");
+dag.command("capture <agents...>").description("Capture orchestration DAG for agents").option("--json", "JSON output").action(async (agents: string[], opts: { json?: boolean }) => {
+  const { captureDAG } = await import("./score/orchestrationDAG.js");
+  const nodes = agents.map(a => ({ agentId: a, role: 'worker' as const, inputs: [], outputs: [], trustLevel: 'medium' as const }));
+  const result = captureDAG(nodes);
+  if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold("Orchestration DAG")); console.log(`  Nodes:    ${result.nodes.length}`); console.log(`  Edges:    ${result.edges.length}`); console.log(`  Cycles:   ${result.hasCycles}`); console.log(`  Depth:    ${result.maxDepth}`); }
+});
+dag.command("score").description("Score DAG governance").option("--json", "JSON output").action(async (opts: { json?: boolean }) => {
+  const { captureDAG, scoreDAGGovernance } = await import("./score/orchestrationDAG.js");
+  const dagResult = captureDAG([]);
+  const result = scoreDAGGovernance(dagResult);
+  if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold("DAG Governance Score")); console.log(`  Score: ${result.score}/100`); console.log(`  Level: ${result.level}`); }
+});
+
+// Confidence command
+const confidence = program.command("confidence").description("Confidence drift tracking");
+confidence.command("calibration").description("Show calibration report").option("--json", "JSON output").action(async (opts: { json?: boolean }) => {
+  const { trackConfidenceDrift } = await import("./score/confidenceDrift.js");
+  const result = trackConfidenceDrift([]);
+  if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold("Confidence Calibration")); console.log(`  Calibration: ${(result.calibrationScore * 100).toFixed(0)}%`); console.log(`  Drift trend: ${result.driftTrend}`); console.log(`  Overconfidence penalty: ${result.overconfidencePenalty.toFixed(1)}`); }
+});
+confidence.command("drift").description("Show drift trend").option("--json", "JSON output").action(async (opts: { json?: boolean }) => {
+  const { trackConfidenceDrift } = await import("./score/confidenceDrift.js");
+  const result = trackConfidenceDrift([]);
+  if (opts.json) { console.log(JSON.stringify(result, null, 2)); } else { console.log(chalk.bold("Confidence Drift")); console.log(`  Trend:     ${result.driftTrend}`); console.log(`  Citationless high-conf: ${(result.citationlessHighConfidenceRate * 100).toFixed(0)}%`); }
+});
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);

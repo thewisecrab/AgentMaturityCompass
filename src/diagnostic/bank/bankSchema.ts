@@ -58,7 +58,7 @@ export const diagnosticBankSchema = z
     diagnosticBank: z.object({
       version: z.literal(1),
       dimensions: z.array(diagnosticBankDimensionSchema).length(5),
-      questions: z.array(diagnosticBankQuestionSchema).length(51)
+      questions: z.array(diagnosticBankQuestionSchema).length(58)
     })
   })
   .superRefine((value, ctx) => {
@@ -96,10 +96,10 @@ export const diagnosticBankSchema = z
     }
 
     const expectedCounts: Record<number, number> = {
-      1: 11,
-      2: 5,
-      3: 16,
-      4: 12,
+      1: 12,
+      2: 8,
+      3: 17,
+      4: 14,
       5: 7
     };
 

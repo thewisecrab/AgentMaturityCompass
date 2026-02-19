@@ -45,3 +45,27 @@ export type { PlatformDependencyScore, PlatformDependencyProfile } from "./platf
 
 export { verifyAgentClaim, createAgentClaim } from "./crossAgentTrust.js";
 export type { AgentIdentityClaim, TrustVerificationResult } from "./crossAgentTrust.js";
+
+export { assessMemoryMaturity, scoreMemoryDimension } from "./memoryMaturity.js";
+export type { MemoryMaturityProfile } from "./memoryMaturity.js";
+
+export { assessOversightQuality } from "./humanOversightQuality.js";
+export type { OversightQualityProfile } from "./humanOversightQuality.js";
+
+export { checkClaimExpiry, CLAIM_TTL } from "./claimExpiry.js";
+export type { ClaimExpiryProfile } from "./claimExpiry.js";
+
+export { captureDAG, scoreDAGGovernance } from "./orchestrationDAG.js";
+export type { DAGNode, OrchestrationDAG } from "./orchestrationDAG.js";
+
+export { assessCommunityGovernance } from "./communityGovernance.js";
+export type { CommunityGovernanceProfile, GovernanceTarget } from "./communityGovernance.js";
+
+export { trackConfidenceDrift, applyConfidencePenalty } from "./confidenceDrift.js";
+export type { ConfidencePrediction, ConfidenceDriftProfile } from "./confidenceDrift.js";
+
+export { classifyAgentVsWorkflow } from "./agentVsWorkflow.js";
+export type { AgentClassification, AgentClassificationResult } from "./agentVsWorkflow.js";
+
+export { addLesson, queryLessons, getLearningMaturityScore } from "./lessonLearnedDatabase.js";
+export type { Lesson, LessonDatabase } from "./lessonLearnedDatabase.js";

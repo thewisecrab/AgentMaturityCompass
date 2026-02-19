@@ -4,10 +4,16 @@ import { diagnosticBankSchema, type DiagnosticBank } from "./bankSchema.js";
 
 function dimensionIdForQuestionId(qId: string): 1 | 2 | 3 | 4 | 5 {
   if (qId.startsWith("AMC-1.")) return 1;
+  if (qId.startsWith("AMC-COST-")) return 1;
   if (qId.startsWith("AMC-2.")) return 2;
+  if (qId.startsWith("AMC-HOQ-")) return 2;
+  if (qId.startsWith("AMC-GOV-PROACTIVE-")) return 2;
   if (qId.startsWith("AMC-3.")) return 3;
+  if (qId.startsWith("AMC-SOCIAL-")) return 3;
   if (qId.startsWith("AMC-4.")) return 4;
   if (qId.startsWith("AMC-MEM-")) return 4;
+  if (qId.startsWith("AMC-OPS-")) return 4;
+  if (qId.startsWith("AMC-RES-")) return 4;
   return 5;
 }
 
@@ -111,10 +117,10 @@ export function defaultDiagnosticBankV1(): DiagnosticBank {
     diagnosticBank: {
       version: 1,
       dimensions: [
-        { id: 1, name: "Strategic Agent Operations", questionCount: 11 },
-        { id: 2, name: "Agent Leadership", questionCount: 5 },
-        { id: 3, name: "Agent Culture", questionCount: 16 },
-        { id: 4, name: "Agent Resilience", questionCount: 12 },
+        { id: 1, name: "Strategic Agent Operations", questionCount: 12 },
+        { id: 2, name: "Agent Leadership", questionCount: 8 },
+        { id: 3, name: "Agent Culture", questionCount: 17 },
+        { id: 4, name: "Agent Resilience", questionCount: 14 },
         { id: 5, name: "Agent Skills", questionCount: 7 }
       ],
       questions

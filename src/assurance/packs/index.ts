@@ -37,6 +37,10 @@ import { mobilityFunctionalSafetyPack } from "./mobilityFunctionalSafetyPack.js"
 import { governanceNISTRMFPack } from "./governanceNISTRMFPack.js";
 import { technologyGDPRSOCPack } from "./technologyGDPRSOCPack.js";
 import { wealthManagementMiFIDPack } from "./wealthManagementMiFIDPack.js";
+import { memoryMaturityPack } from "./memoryMaturityPack.js";
+import { humanOversightQualityPack } from "./humanOversightQualityPack.js";
+import { instructionCompliancePack } from "./instructionCompliancePack.js";
+import { contentProvenancePack } from "./contentProvenancePack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,
@@ -76,7 +80,11 @@ const assurancePacks: AssurancePackDefinition[] = [
   mobilityFunctionalSafetyPack,
   governanceNISTRMFPack,
   technologyGDPRSOCPack,
-  wealthManagementMiFIDPack
+  wealthManagementMiFIDPack,
+  memoryMaturityPack,
+  humanOversightQualityPack,
+  instructionCompliancePack,
+  contentProvenancePack,
 ];
 
 export function listAssurancePacks(): AssurancePackDefinition[] {
@@ -103,5 +111,9 @@ export {
   mobilityFunctionalSafetyPack,
   governanceNISTRMFPack,
   technologyGDPRSOCPack,
-  wealthManagementMiFIDPack
+  wealthManagementMiFIDPack,
+  memoryMaturityPack,
+  humanOversightQualityPack,
+  instructionCompliancePack,
+  contentProvenancePack,
 };

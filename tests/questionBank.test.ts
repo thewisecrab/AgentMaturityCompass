@@ -2,20 +2,27 @@ import { describe, expect, test } from "vitest";
 import { questionBank } from "../src/diagnostic/questionBank.js";
 
 describe("question bank", () => {
-  test("has exactly 51 questions", () => {
-    expect(questionBank).toHaveLength(51);
+  test("has exactly 58 questions", () => {
+    expect(questionBank).toHaveLength(58);
   });
 
   test("has expected layer distribution 9/5/16/7/5", () => {
     const counts = {
-      L1: questionBank.filter((q) => q.id.startsWith("AMC-1.")).length,
-      L2: questionBank.filter((q) => q.id.startsWith("AMC-2.")).length,
-      L3: questionBank.filter((q) => q.id.startsWith("AMC-3.")).length,
-      L4: questionBank.filter((q) => q.id.startsWith("AMC-4.")).length + questionBank.filter((q) => q.id.startsWith("AMC-MEM-")).length,
+      L1: questionBank.filter((q) => q.id.startsWith("AMC-1.")).length
+        + questionBank.filter((q) => q.id.startsWith("AMC-COST-")).length,
+      L2: questionBank.filter((q) => q.id.startsWith("AMC-2.")).length
+        + questionBank.filter((q) => q.id.startsWith("AMC-HOQ-")).length
+        + questionBank.filter((q) => q.id.startsWith("AMC-GOV-PROACTIVE-")).length,
+      L3: questionBank.filter((q) => q.id.startsWith("AMC-3.")).length
+        + questionBank.filter((q) => q.id.startsWith("AMC-SOCIAL-")).length,
+      L4: questionBank.filter((q) => q.id.startsWith("AMC-4.")).length
+        + questionBank.filter((q) => q.id.startsWith("AMC-MEM-")).length
+        + questionBank.filter((q) => q.id.startsWith("AMC-OPS-")).length
+        + questionBank.filter((q) => q.id.startsWith("AMC-RES-")).length,
       L5: questionBank.filter((q) => q.id.startsWith("AMC-5.")).length
     };
 
-    expect(counts).toEqual({ L1: 11, L2: 5, L3: 16, L4: 12, L5: 7 });
+    expect(counts).toEqual({ L1: 12, L2: 8, L3: 17, L4: 14, L5: 7 });
   });
 
   test("each question has six options levels 0..5 and six gates", () => {
