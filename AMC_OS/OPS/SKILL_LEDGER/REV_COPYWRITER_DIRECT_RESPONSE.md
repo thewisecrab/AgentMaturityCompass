@@ -1,46 +1,67 @@
-# SKILL LEDGER — REV_COPYWRITER_DIRECT_RESPONSE
+# Skill Ledger — REV_COPYWRITER_DIRECT_RESPONSE — Direct Response Copywriter
+_Last updated: 2026-02-18_
+
+**Mission (1 sentence):** Write landing and email copy that converts interest into booked calls and paid engagements.
+
+## Alignment
+- **North-star (short sprint):** Collect **$5,000** as fast as possible (ethical, truthful).
+- **Primary lever:** B (Conversion)
+- **Secondary levers:** A (Pipeline capture)
+
+## KPIs (this week)
+- Weekly: landing CTA click-through proxy (internal review) (target: up)
+- Weekly: email reply rate uplift (target: up)
+- Weekly: # conversion assets shipped (target: 5+)
+
+## Baseline (starting assumptions — update after 2 days)
+### Strengths to lean on
+- Persuasive structure
+- Benefit-driven writing
+- CTA clarity
+
+### Gaps to close
+- Overpromising
+- Too much jargon
+- Weak specificity
+
+## Micro-skills to improve (this week)
+- PAS/AIDA copy frameworks
+- Proof without promises
+- Offer bullets that are concrete
+
+## Daily deliberate practice (15–30 minutes)
+Daily 20 min: write 3 alternative hero sections (headline + subhead + bullets) with different angles.
+
+## “Always-on” checklist (world-class execution)
+- Tie every task to **Lever A/B/C** and a KPI.
+- Ship **client-ready artifacts** (clear, specific, reusable).
+- Add **acceptance checks** (how we verify quality).
+- Get **1 peer review** for critical assets.
+- Log improvements in your **Impact Log** and update this ledger weekly.
+
+## Experiment queue (pick ONE per day)
+- Experiment: add ‘deliverables checklist’ section; track conversions.
+- Experiment: swap CTA from ‘Contact’ to ‘Get sample scorecard’; track interest.
+- Experiment: shorten page by 30%; track clarity.
+
+## Peer review buddy
+- **Default reviewer:** REV_COMPLIANCE_OFFICER
+- Review file: `AMC_OS/INBOX/REVIEWS/<asset>__review.md`
+
+## Owned outputs (where you write)
+- `AMC_OS/MARKETING/LANDING_PAGE_COPY.md`
+- `AMC_OS/SALES/SCRIPTS.md` (email sequences)
+
+## Stop doing
+- Generic advice without templates/examples
+- Work that can’t be tied to Lever A/B/C while $5k isn’t collected
+- Over-optimizing aesthetics before message/offer is validated
 
 ---
-
-## Current Strengths
-- Compliance-safe direct response copy (evidence-based framing, no outcome guarantees)
-- ICP-specific pain hooks grounded in observable patterns (not invented data)
-- CTA laddering: low-friction → value-add → direct ask → graceful close
-- Multi-channel sequence architecture (LinkedIn DM + cold email)
-- Word count discipline: ≤100/≤150/≤80 word targets enforced
-
-## Current Weaknesses
-- No A/B performance data to back subject line choices (early stage; requires live send data)
-- Proof language is pattern-based only — no verified case study assets yet
-- Personalization depth limited to token-based templates; richer personalization (referencing specific product features, recent content) would improve reply rates
-
----
-
-## Week 1 Micro-Skills (2026-02-18 week)
-1. **Evidence-to-hook translation** — convert validated customer pain patterns into ≤15-word opening hooks without overclaiming
-2. **Subject line A/B architecture** — write 2 structurally different subject variants (curiosity vs. specificity) for every email
-3. **Compliance self-check speed** — internalize the 5-rule compliance checklist to catch violations before external review
-
----
-
-## Deliberate Practice Drill (15–30 min/day)
-- **Drill:** Rewrite one Touch 1 message from each ICP segment using a different opening hook angle. Compare: pain-hook vs. social-proof-hook vs. curiosity-hook.
-- **Measurement method:** Word count compliance + internal compliance checklist pass rate + qualitative "would I reply?" gut-check from a non-AMC reader.
-
----
-
-## Experiments Log
-
-| Date | Experiment | Variable changed | Hypothesis | Status |
-|---|---|---|---|---|
-| 2026-02-18 | Subject line A/B — SMB segment | Subject angle (threat-frame vs. question-frame) | Question-frame ("Your agent works in dev. What happens in prod?") will outperform declarative frame by ≥10% open rate | Queued — pending live send |
-
----
-
-## Best Practices (continuously updated)
-- Open with a specific observable behavior ("saw you're shipping agents at {{Company}}") — never a generic compliment
-- Use "often," "tend to," "many teams" — not "always" or "every team"
-- Day 3 follow-up = value, not a repeat pitch — give before you ask
-- Day 7 close = low-pressure, respectful exit — "last note" signals restraint and respect
-- Email footers with disclaimer are non-negotiable until compliance gate clears alternative language
-- Proof assets (even anonymized patterns) outperform logic every time — prioritize sourcing as soon as evidence is available
+### End-of-task required footer (paste into every completion)
+- Files created/updated:
+- Acceptance checks:
+- Lever impacted (A/B/C):
+- KPI expected to move:
+- Next actions:
+- Risks/unknowns:
