@@ -3,6 +3,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
+import { emitGuardEvent } from './evidenceEmitter.js';
 
 export type RiskLevel = 'safe' | 'low' | 'medium' | 'high' | 'critical';
 
@@ -30,6 +31,13 @@ export class StepUpAuth {
       createdAt: new Date(),
     };
     this.requests.set(req.requestId, req);
+    emitGuardEvent({
+      agentId: 'system', moduleCode: 'E9',
+      decision: 'stepup',
+      reason: `Step-up required for ${action} (risk: ${risk})`,
+      severity: risk === 'critical' ? 'critical' : risk === 'high' ? 'high' : 'medium',
+      meta: { requestId: req.requestId, action, risk },
+    });
     return req;
   }
 

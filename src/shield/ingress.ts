@@ -1,3 +1,5 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
+
 export interface IngressRules {
   maxLength?: number;
   blockedPatterns?: RegExp[];
@@ -55,11 +57,14 @@ export class IngressFilter {
       }
     }
 
-    return {
-      allowed: blocked.length === 0 && !rateLimited,
-      sanitized,
-      blocked,
-      rateLimited,
-    };
+    const result = { allowed: blocked.length === 0 && !rateLimited, sanitized, blocked, rateLimited };
+    emitGuardEvent({
+      agentId: source, moduleCode: 'S5',
+      decision: result.allowed ? 'allow' : 'deny',
+      reason: result.allowed ? 'Ingress allowed' : `Blocked: ${blocked.join(', ')}${rateLimited ? ' (rate limited)' : ''}`,
+      severity: result.allowed ? 'low' : 'medium',
+      meta: { blocked, rateLimited },
+    });
+    return result;
   }
 }

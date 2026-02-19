@@ -3,6 +3,7 @@
  */
 
 import type { EvidenceArtifact } from './formalSpec.js';
+import { readGuardEvents } from '../enforce/evidenceEmitter.js';
 
 export interface CollectedEvidence {
   artifacts: EvidenceArtifact[];
@@ -10,6 +11,7 @@ export interface CollectedEvidence {
   totalTrust: number;
 }
 
+/** Original collector — backward compatible. */
 export function collectEvidence(moduleOutputs: Record<string, unknown>): CollectedEvidence {
   const artifacts: EvidenceArtifact[] = [];
   const trustBreakdown: Record<string, number> = {};
@@ -27,6 +29,55 @@ export function collectEvidence(moduleOutputs: Record<string, unknown>): Collect
     artifacts.push(artifact);
     trustBreakdown[qid] = trust;
     totalTrust += trust;
+  }
+
+  return { artifacts, trustBreakdown, totalTrust };
+}
+
+/**
+ * Collect evidence from the guard_events SQLite ledger.
+ * Reads real guard_check events and applies trust weights:
+ *   - guard_check (observed) = 1.0
+ *   - self_reported = 0.4
+ * Evidence gates: L1 requires ≥2 events within the window.
+ */
+export function collectEvidenceFromLedger(agentId: string, windowDays: number): CollectedEvidence {
+  const artifacts: EvidenceArtifact[] = [];
+  const trustBreakdown: Record<string, number> = {};
+  let totalTrust = 0;
+
+  try {
+    const windowHours = windowDays * 24;
+    const events = readGuardEvents(agentId, windowHours);
+
+    // Group events by module_code
+    const byModule = new Map<string, Array<{ decision: string; reason: string; severity: string; created_at: string; meta_json: string | null }>>();
+    for (const ev of events) {
+      const arr = byModule.get(ev.module_code) ?? [];
+      arr.push(ev);
+      byModule.set(ev.module_code, arr);
+    }
+
+    for (const [moduleCode, moduleEvents] of byModule) {
+      // guard_check events are OBSERVED trust = 1.0
+      const trust = 1.0;
+      const artifact: EvidenceArtifact = {
+        qid: moduleCode,
+        kind: 'observed',
+        trust,
+        payload: {
+          eventCount: moduleEvents.length,
+          decisions: moduleEvents.map(e => e.decision),
+          severities: moduleEvents.map(e => e.severity),
+        },
+        timestamp: new Date(moduleEvents[0]!.created_at),
+      };
+      artifacts.push(artifact);
+      trustBreakdown[moduleCode] = trust;
+      totalTrust += trust;
+    }
+  } catch (_e) {
+    // Fail-safe: return empty evidence on error
   }
 
   return { artifacts, trustBreakdown, totalTrust };

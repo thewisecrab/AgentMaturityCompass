@@ -2,6 +2,8 @@
  * Data taint propagation tracker.
  */
 
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export interface TaintedValue {
   value: unknown;
   sources: string[];
@@ -30,6 +32,13 @@ export class TaintTracker {
         sources.push(...existing.sources);
       }
       this.registry.set(outputKey, { value: existing?.value ?? null, sources, tainted: true });
+      emitGuardEvent({
+        agentId: 'system', moduleCode: 'E5',
+        decision: 'warn',
+        reason: `Taint propagated from ${inputKey} to ${outputKey}`,
+        severity: 'medium',
+        meta: { inputKey, outputKey, sources },
+      });
     }
   }
 

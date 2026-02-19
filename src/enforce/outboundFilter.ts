@@ -1,3 +1,5 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export interface OutboundRules {
   blockApiKeys?: boolean;
   blockEmails?: boolean;
@@ -63,7 +65,15 @@ export function filterOutbound(content: string, rules?: OutboundRules): Outbound
     }
   }
 
-  return { safe: findings.length === 0, filtered, findings };
+  const result = { safe: findings.length === 0, filtered, findings };
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'E10',
+    decision: result.safe ? 'allow' : 'warn',
+    reason: result.safe ? 'No sensitive data found' : `Found ${findings.length} sensitive items`,
+    severity: result.safe ? 'low' : 'high',
+    meta: { findingCount: findings.length, types: findings.map(f => f.type) },
+  });
+  return result;
 }
 
 export function checkOutbound(recipient: string, allowlist?: string[]): OutboundResult {

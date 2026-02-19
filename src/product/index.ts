@@ -1,3 +1,10 @@
+export { ScratchpadManager } from './scratchpad.js';
+export type { ScratchpadEntry } from './scratchpad.js';
+export { PromptModuleRegistry } from './promptModules.js';
+export { validateAndRepair } from './structuredOutput.js';
+export type { ValidateAndRepairResult } from './structuredOutput.js';
+export { diffOutputs } from './outputDiff.js';
+export type { DiffResult } from './outputDiff.js';
 export { CostLatencyRouter } from './costLatencyRouter.js';
 export type { RoutingProfile as ProductRoutingProfile, RouteResult } from './costLatencyRouter.js';
 export { AutonomyDial } from './autonomyDial.js';

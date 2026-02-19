@@ -1,3 +1,5 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export type SessionState = 'active' | 'suspended' | 'terminated';
 
 export interface SessionRecord {
@@ -26,21 +28,26 @@ export class SessionFirewall {
 
   checkSession(sessionId: string, action: string): SessionFirewallResult {
     const session = this.sessions.get(sessionId);
-    if (!session) return { allowed: false, reason: 'Session not found' };
-
-    if (session.state === 'terminated') {
-      return { allowed: false, reason: 'Session is terminated' };
+    let result: SessionFirewallResult;
+    if (!session) { result = { allowed: false, reason: 'Session not found' }; }
+    else if (session.state === 'terminated') {
+      result = { allowed: false, reason: 'Session is terminated' };
+    } else if (session.state === 'suspended') {
+      result = action === 'read'
+        ? { allowed: true, reason: 'Read allowed in suspended state' }
+        : { allowed: false, reason: 'Only read actions allowed in suspended state' };
+    } else {
+      session.lastActivity = Date.now();
+      result = { allowed: true, reason: 'Session is active' };
     }
-
-    if (session.state === 'suspended') {
-      if (action === 'read') {
-        return { allowed: true, reason: 'Read allowed in suspended state' };
-      }
-      return { allowed: false, reason: 'Only read actions allowed in suspended state' };
-    }
-
-    session.lastActivity = Date.now();
-    return { allowed: true, reason: 'Session is active' };
+    emitGuardEvent({
+      agentId: sessionId, moduleCode: 'E8',
+      decision: result.allowed ? 'allow' : 'deny',
+      reason: result.reason,
+      severity: result.allowed ? 'low' : 'medium',
+      meta: { action },
+    });
+    return result;
   }
 
   suspendSession(sessionId: string): boolean {

@@ -1,3 +1,5 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
+
 export interface Attack {
   type: string;
   pattern: string;
@@ -60,10 +62,13 @@ export function detectInjection(prompt: string): DetectorResult {
 
   const riskScore = attacks.length === 0 ? 0 : Math.min(1, attacks.reduce((s, a) => s + a.confidence, 0) / attacks.length);
 
-  return {
-    detected: attacks.length > 0,
-    attacks,
-    riskScore,
-    confidence: riskScore,
-  };
+  const result = { detected: attacks.length > 0, attacks, riskScore, confidence: riskScore };
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'S2',
+    decision: result.detected ? 'deny' : 'allow',
+    reason: result.detected ? `Detected ${attacks.length} injection attacks` : 'No injection detected',
+    severity: result.detected ? 'critical' : 'low',
+    meta: { attackCount: attacks.length, riskScore },
+  });
+  return result;
 }

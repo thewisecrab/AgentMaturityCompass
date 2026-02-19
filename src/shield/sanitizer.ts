@@ -1,3 +1,5 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
+
 export interface SanitizeOptions {
   maxLength?: number;
   stripHtml?: boolean;
@@ -53,5 +55,12 @@ export function sanitize(text: string, options: SanitizeOptions = {}): SanitizeR
     result = result.slice(0, options.maxLength);
   }
 
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'S4',
+    decision: removedCount > 0 ? 'warn' : 'allow',
+    reason: removedCount > 0 ? `Sanitized ${removedCount} items` : 'Input clean',
+    severity: removedCount > 0 ? 'medium' : 'low',
+    meta: { removedCount },
+  });
   return { sanitized: result, removedCount };
 }

@@ -2,6 +2,8 @@
  * Per-session circuit breaker.
  */
 
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export type CircuitState = 'closed' | 'open' | 'half-open';
 
 export interface CircuitBreakerConfig {
@@ -65,6 +67,7 @@ export class CircuitBreaker {
 
     if (state.calls > this.config.maxCalls || state.tokens > this.config.maxTokens) {
       state.openedAt = Date.now();
+      emitGuardEvent({ agentId: sessionId, moduleCode: 'E7', decision: 'deny', reason: 'Circuit breaker opened', severity: 'high', meta: { calls: state.calls, tokens: state.tokens } });
       return { allowed: false, state: 'open', hardKilled: true };
     }
 

@@ -1,3 +1,5 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export interface SecretBlindResult {
   blinded: string;
   secretsFound: number;
@@ -47,5 +49,12 @@ export function blindSecrets(text: string, extraPatterns?: RegExp[]): SecretBlin
     }
   }
 
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'E3',
+    decision: secretsFound > 0 ? 'warn' : 'allow',
+    reason: secretsFound > 0 ? `Found ${secretsFound} secrets` : 'No secrets found',
+    severity: secretsFound > 0 ? 'high' : 'low',
+    meta: { secretsFound, types: findings.map(f => f.type) },
+  });
   return { blinded, secretsFound, findings };
 }

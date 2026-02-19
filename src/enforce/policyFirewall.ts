@@ -2,6 +2,8 @@
  * Policy firewall — tool-call policy engine.
  */
 
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export type PolicyDecision = 'allow' | 'deny' | 'stepup' | 'sanitize' | 'quarantine';
 
 export interface PolicyResult {
@@ -44,11 +46,20 @@ export class PolicyFirewall {
       }
     }
 
-    return { decision, reasons, matchedRules, stepUpRequired };
+    const result = { decision, reasons, matchedRules, stepUpRequired };
+    emitGuardEvent({
+      agentId: _context?.agentId as string ?? 'unknown',
+      moduleCode: 'E1',
+      decision: decision === 'allow' ? 'allow' : decision === 'deny' ? 'deny' : decision === 'stepup' ? 'stepup' : 'warn',
+      reason: reasons.join('; ') || 'no rules matched',
+      severity: decision === 'deny' ? 'high' : decision === 'stepup' ? 'medium' : 'low',
+      meta: { toolName, matchedRules },
+    });
+    return result;
   }
 
   check(agentId: string, tool: string, action: string): PolicyResult {
-    return this.evaluate(action, { tool });
+    return this.evaluate(action, { tool, agentId });
   }
 
   listPolicies(): PolicyRule[] {

@@ -2,6 +2,8 @@
  * Threat intelligence — pattern matching against known threat indicators.
  */
 
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
+
 export interface ThreatMatch {
   pattern: string;
   category: string;
@@ -42,7 +44,15 @@ export function checkThreatIntel(text: string): ThreatIntelResult {
     }
   }
 
-  return { matched: threats.length > 0, threats, totalEntries: BUILT_IN_PATTERNS.length };
+  const result = { matched: threats.length > 0, threats, totalEntries: BUILT_IN_PATTERNS.length };
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'S3',
+    decision: result.matched ? 'deny' : 'allow',
+    reason: result.matched ? `Matched ${threats.length} threat patterns` : 'No threats matched',
+    severity: result.matched ? 'high' : 'low',
+    meta: { threatCount: threats.length, categories: threats.map(t => t.category) },
+  });
+  return result;
 }
 
 export function getStats(): { totalEntries: number; byCategory: Record<string, number> } {

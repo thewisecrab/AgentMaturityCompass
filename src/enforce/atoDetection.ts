@@ -2,6 +2,8 @@
  * Account takeover detection.
  */
 
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export interface AtoResult {
   suspicious: boolean;
   riskScore: number;
@@ -38,5 +40,13 @@ export function detectAto(events: Array<{ type: string; ts: number; metadata?: R
   if (geoAnomaly) { signals.push('Geographic anomaly'); riskScore += 25; }
 
   riskScore = Math.min(100, riskScore);
-  return { suspicious: riskScore >= 40, riskScore, signals };
+  const result = { suspicious: riskScore >= 40, riskScore, signals };
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'E4',
+    decision: result.suspicious ? 'deny' : 'allow',
+    reason: signals.join('; ') || 'No anomalies',
+    severity: riskScore >= 70 ? 'critical' : riskScore >= 40 ? 'high' : 'low',
+    meta: { riskScore, signals },
+  });
+  return result;
 }

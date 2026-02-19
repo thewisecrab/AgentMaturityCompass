@@ -1,43 +1,75 @@
-import { randomUUID } from 'node:crypto';
+/**
+ * Validate and repair LLM JSON output against a schema.
+ */
 
-export interface FieldDef { name: string; type: 'string' | 'number' | 'boolean' | 'date'; required?: boolean; }
-export interface StructuredOutput { format: string; data: unknown; valid: boolean; }
-
-export function extract(text: string, schema: { fields: FieldDef[] }): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const field of schema.fields) {
-    const pattern = new RegExp(`${field.name}[:\\s]+([^\\n,;]+)`, 'i');
-    const match = text.match(pattern);
-    if (match) result[field.name] = coerce(match[1]!.trim(), field.type);
-    else if (field.required) result[field.name] = null;
-  }
-  return result;
+export interface ValidateAndRepairResult {
+  valid: boolean;
+  repaired: boolean;
+  output: unknown;
+  issues: string[];
 }
 
-export function validate(output: unknown, schema: { fields: FieldDef[] }): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  if (typeof output !== 'object' || !output) { errors.push('Output is not an object'); return { valid: false, errors }; }
-  const obj = output as Record<string, unknown>;
-  for (const field of schema.fields) {
-    if (field.required && !(field.name in obj)) errors.push(`Missing required field: ${field.name}`);
-    if (field.name in obj && obj[field.name] != null) {
-      const actual = typeof obj[field.name];
-      if (field.type === 'number' && actual !== 'number') errors.push(`${field.name}: expected number, got ${actual}`);
-      if (field.type === 'boolean' && actual !== 'boolean') errors.push(`${field.name}: expected boolean, got ${actual}`);
-      if (field.type === 'string' && actual !== 'string') errors.push(`${field.name}: expected string, got ${actual}`);
+export function validateAndRepair(output: string, schema: Record<string, unknown>): ValidateAndRepairResult {
+  const issues: string[] = [];
+  let parsed: unknown;
+  let repaired = false;
+
+  // Try parse as-is
+  try {
+    parsed = JSON.parse(output);
+  } catch (_e) {
+    // Try to repair common issues
+    let fixed = output.trim();
+    // Remove markdown code fences
+    fixed = fixed.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
+    // Remove trailing commas before } or ]
+    fixed = fixed.replace(/,\s*([}\]])/g, '$1');
+    // Try again
+    try {
+      parsed = JSON.parse(fixed);
+      repaired = true;
+      issues.push('Repaired: removed code fences or trailing commas');
+    } catch (_e2) {
+      return { valid: false, repaired: false, output: null, issues: ['Failed to parse JSON'] };
     }
   }
-  return { valid: errors.length === 0, errors };
-}
 
-export function coerce(value: unknown, targetType: 'string' | 'number' | 'boolean' | 'date'): unknown {
-  const str = String(value).trim();
-  if (targetType === 'number') return Number(str) || 0;
-  if (targetType === 'boolean') return str === 'true' || str === '1' || str === 'yes';
-  if (targetType === 'date') return new Date(str).toISOString();
-  return str;
-}
+  // Validate against schema (basic property type checking)
+  const props = schema.properties as Record<string, { type?: string }> | undefined;
+  const required = schema.required as string[] | undefined;
 
-export function formatStructuredOutput(data: unknown, format: string): StructuredOutput {
-  return { format, data, valid: true };
+  if (props && typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+    const obj = parsed as Record<string, unknown>;
+
+    if (required) {
+      for (const key of required) {
+        if (!(key in obj)) {
+          issues.push(`Missing required field: ${key}`);
+          // Attempt repair with defaults
+          const propSchema = props[key];
+          if (propSchema?.type === 'string') { obj[key] = ''; repaired = true; }
+          else if (propSchema?.type === 'number') { obj[key] = 0; repaired = true; }
+          else if (propSchema?.type === 'boolean') { obj[key] = false; repaired = true; }
+          else if (propSchema?.type === 'array') { obj[key] = []; repaired = true; }
+          else if (propSchema?.type === 'object') { obj[key] = {}; repaired = true; }
+        }
+      }
+    }
+
+    for (const [key, value] of Object.entries(obj)) {
+      const propSchema = props[key];
+      if (!propSchema) continue;
+      if (propSchema.type && typeof value !== propSchema.type) {
+        if (propSchema.type === 'number' && typeof value === 'string') {
+          const num = Number(value);
+          if (!isNaN(num)) { obj[key] = num; repaired = true; issues.push(`Coerced ${key} from string to number`); }
+        } else if (propSchema.type === 'string' && typeof value === 'number') {
+          obj[key] = String(value); repaired = true; issues.push(`Coerced ${key} from number to string`);
+        }
+      }
+    }
+    parsed = obj;
+  }
+
+  return { valid: issues.filter(i => i.startsWith('Missing')).length === 0 || repaired, repaired, output: parsed, issues };
 }

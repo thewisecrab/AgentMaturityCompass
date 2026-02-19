@@ -3,6 +3,8 @@
  * Detects dangerous patterns in code: eval, exec, hardcoded secrets, etc.
  */
 
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
+
 export interface AnalyzerFinding {
   severity: 'critical' | 'high' | 'medium' | 'low';
   pattern: string;
@@ -74,10 +76,13 @@ export function analyzeSkill(code: string, _filename?: string): AnalyzerResult {
   }
   riskScore = Math.min(100, riskScore);
 
-  return {
-    riskScore,
-    riskLevel: computeRiskLevel(riskScore),
-    findings,
-    filesScanned: 1,
-  };
+  const result = { riskScore, riskLevel: computeRiskLevel(riskScore), findings, filesScanned: 1 };
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'S1',
+    decision: riskScore >= 60 ? 'deny' : riskScore >= 20 ? 'warn' : 'allow',
+    reason: `Risk score: ${riskScore}, level: ${result.riskLevel}`,
+    severity: riskScore >= 80 ? 'critical' : riskScore >= 60 ? 'high' : riskScore >= 40 ? 'medium' : 'low',
+    meta: { riskScore, findingCount: findings.length },
+  });
+  return result;
 }

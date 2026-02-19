@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { readGuardEvents } from '../enforce/evidenceEmitter.js';
 
 export interface AuditEvent {
   eventId: string;
@@ -65,4 +66,88 @@ export function exportToSiem(events: Array<{ action: string; risk: string }>, fo
     format: fmt,
     exported: true,
   };
+}
+
+/** MITRE ATT&CK category mapping */
+export enum MITRECategory {
+  execution = 'execution',
+  credential_access = 'credential_access',
+  exfiltration_risk = 'exfiltration_risk',
+  defense_evasion = 'defense_evasion',
+  lateral_movement = 'lateral_movement',
+}
+
+const MODULE_MITRE_MAP: Record<string, MITRECategory> = {
+  E1: MITRECategory.execution,
+  E2: MITRECategory.execution,
+  E3: MITRECategory.credential_access,
+  E4: MITRECategory.credential_access,
+  E7: MITRECategory.defense_evasion,
+  E10: MITRECategory.exfiltration_risk,
+  S1: MITRECategory.execution,
+  S2: MITRECategory.defense_evasion,
+  S3: MITRECategory.lateral_movement,
+};
+
+export function mapToMITRE(moduleCode: string, _decision: string): MITRECategory {
+  return MODULE_MITRE_MAP[moduleCode] ?? MITRECategory.execution;
+}
+
+/** Splunk HEC JSON format */
+export function exportSplunk(events: AuditEvent[]): string {
+  return events.map(e => JSON.stringify({
+    time: Math.floor(e.timestamp.getTime() / 1000),
+    sourcetype: 'amc:guard',
+    event: {
+      eventId: e.eventId,
+      actor: e.actor,
+      action: e.action,
+      resource: e.resource,
+      outcome: e.outcome,
+      severity: e.severity,
+      mitre: mapToMITRE(e.action, e.outcome),
+      metadata: e.metadata ?? {},
+    },
+  })).join('\n');
+}
+
+/** Elastic ECS format */
+export function exportElastic(events: AuditEvent[]): string {
+  return events.map(e => JSON.stringify({
+    '@timestamp': e.timestamp.toISOString(),
+    event: { id: e.eventId, action: e.action, outcome: e.outcome, severity: severityToNum[e.severity.toLowerCase()] ?? 5 },
+    agent: { name: e.actor },
+    destination: { address: e.resource },
+    threat: { technique: { name: mapToMITRE(e.action, e.outcome) } },
+    labels: e.metadata ?? {},
+  })).join('\n');
+}
+
+/** JSONL — one JSON object per line */
+export function exportJsonl(events: AuditEvent[]): string {
+  return events.map(e => JSON.stringify({
+    eventId: e.eventId,
+    timestamp: e.timestamp.toISOString(),
+    actor: e.actor,
+    action: e.action,
+    resource: e.resource,
+    outcome: e.outcome,
+    severity: e.severity,
+    metadata: e.metadata ?? {},
+  })).join('\n');
+}
+
+/** Read recent guard events from SQLite and convert to AuditEvent[] */
+export function readRecentGuardEvents(windowHours: number): AuditEvent[] {
+  const rows = readGuardEvents(undefined, windowHours);
+  return rows.map(r => ({
+    eventId: r.id,
+    timestamp: new Date(r.created_at),
+    actor: r.agent_id,
+    action: r.module_code,
+    resource: r.module_code,
+    outcome: r.decision,
+    severity: r.severity,
+    metadata: r.meta_json ? JSON.parse(r.meta_json) : undefined,
+  }));
 }

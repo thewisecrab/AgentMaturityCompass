@@ -1,3 +1,5 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
+
 export interface FieldSchema {
   type: 'string' | 'number' | 'boolean' | 'object' | 'array';
   required?: boolean;
@@ -114,5 +116,13 @@ export function validateSchema(data: unknown, schema: SchemaDefinition): SchemaV
     }
   }
 
-  return { valid: errors.length === 0, errors, warnings, coercionAttempts };
+  const result = { valid: errors.length === 0, errors, warnings, coercionAttempts };
+  emitGuardEvent({
+    agentId: 'system', moduleCode: 'E6',
+    decision: result.valid ? 'allow' : 'deny',
+    reason: result.valid ? 'Schema valid' : `Schema errors: ${errors.join('; ')}`,
+    severity: result.valid ? 'low' : 'medium',
+    meta: { errorCount: errors.length, warningCount: warnings.length },
+  });
+  return result;
 }
