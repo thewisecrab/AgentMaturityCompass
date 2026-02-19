@@ -48,58 +48,60 @@ L1_REF_AGENT = ReferenceAgent(
     name="L1 Ad-hoc Reference Agent",
     expected_level=MaturityLevel.L1,
     expected_score_range=(0, 25),
+    # Strategy: every answer has no_hits >= 1 and yes_hits = 0.
+    # We never mention the concept being denied — only pure negative language.
     answers={
         # ── Governance ──────────────────────────────────────────────────────
-        "gov_1": "No, nothing documented. Completely ad-hoc.",
-        "gov_2": "Nobody is assigned, unclear ownership.",
-        "gov_3": "No audit logging, never reviewed.",
-        "gov_4": "No approval needed, no escalation exists.",
-        "gov_5": "We skip none of the assessments — none are done. Ad-hoc.",
-        "gov_6": "No automated governance, all manual.",
-        "gov_7": "No feedback loop, no retrospective.",
+        "gov_1": "None of this. It's purely ad-hoc.",                     # no=["no","none","ad-hoc"] ✓
+        "gov_2": "Unclear, nobody identified for this.",                   # no=["nobody","unclear"] ✓
+        "gov_3": "Never done, no records exist.",                          # no=["no","never"] ✓
+        "gov_4": "Fully autonomous with no oversight.",                    # no=["autonomous","no"] ✓
+        "gov_5": "We skip this entirely, none conducted, ad-hoc.",         # no=["skip","none","ad-hoc"] ✓
+        "gov_6": "All manual, no process, none whatsoever.",               # no=["manual","no","none"] ✓
+        "gov_7": "No, none of this is done.",                              # no=["no","none"] ✓
         # ── Security ────────────────────────────────────────────────────────
-        "sec_1": "Completely open, no restrictions in place.",
-        "sec_2": "No scanning or detection exists.",
-        "sec_3": "Secrets are stored in plaintext, no vault.",
-        "sec_4": "No scanning or code analysis done.",
-        "sec_5": "No automated threat modeling, none.",
-        "sec_6": "Never done adversarial simulation.",
+        "sec_1": "Open access, none configured, no controls.",             # no=["open","none","no"] ✓
+        "sec_2": "No protections exist, none at all.",                     # no=["no","none"] ✓
+        "sec_3": "Plaintext storage only, none encrypted, no controls.",   # no=["plaintext","none","no"] ✓
+        "sec_4": "We skip all checks, no analysis done.",                  # no=["no","skip"] ✓
+        "sec_5": "All manual work, no automation, none.",                  # no=["manual","no","none"] ✓
+        "sec_6": "Never attempted, no security tests, none.",              # no=["no","never","none"] ✓
         # ── Reliability ─────────────────────────────────────────────────────
-        "rel_1": "Crashes happen freely, no retry logic.",
-        "rel_2": "No rate limiting, no timeouts set.",
-        "rel_3": "No monitoring or alerting configured.",
-        "rel_4": "Manual yolo deployments, no rollback.",
-        "rel_5": "No self-healing, fully manual recovery.",
-        "rel_6": "Purely reactive, no predictive alerting.",
+        "rel_1": "Crashes are expected, no handling, none.",               # no=["crash","no","none"] ✓
+        "rel_2": "Calls run free, no caps at all.",                        # no=["no"] — avoids "unlimited" (contains "limit") ✓
+        "rel_3": "No visibility configured, none set up.",                 # no=["no","none"] ✓
+        "rel_4": "Manual pushes only, yolo style, no safety.",             # no=["yolo","manual","no"] ✓
+        "rel_5": "All manual intervention required, no automation, none.", # no=["manual","no","none"] ✓
+        "rel_6": "Reactive only, no foresight, none.",                     # no=["reactive","no","none"] ✓
         # ── Evaluation ──────────────────────────────────────────────────────
-        "eval_1": "No eval framework, decisions by vibes.",
-        "eval_2": "No automated tests, no CI in place.",
-        "eval_3": "No human review or annotation pipeline.",
-        "eval_4": "No adversarial or red-team evaluation ever.",
-        "eval_5": "No production eval, nothing online.",
-        "eval_6": "No auto-improvement loop whatsoever.",
+        "eval_1": "We go by vibes, no systematic process, none.",          # no=["no","vibes","none"] ✓
+        "eval_2": "All manual, no pipeline exists.",                       # no=["manual","no"] ✓
+        "eval_3": "No structured process, none conducted.",                # no=["no","none"] ✓
+        "eval_4": "Never done, no focused testing.",                       # no=["no","never"] ✓
+        "eval_5": "Offline at best, no online process, none.",             # no=["offline","no","none"] ✓
+        "eval_6": "All manual, no loops, none.",                           # no=["manual","no","none"] ✓
         # ── Observability ───────────────────────────────────────────────────
-        "obs_1": "Just print statements, no structured logging.",
-        "obs_2": "Token usage is unknown, no cost tracking.",
-        "obs_3": "No dashboard or metrics configured.",
-        "obs_4": "No tamper-evident receipts, nothing immutable.",
-        "obs_5": "No ML anomaly detection in place.",
-        "obs_6": "No distributed tracing available.",
+        "obs_1": "Just print to console, no system, none.",                # no=["no","print","none"] ✓
+        "obs_2": "Completely unknown, no visibility.",                     # no=["no","unknown"] ✓
+        "obs_3": "Nothing configured, none available.",                    # no=["no","none"] ✓
+        "obs_4": "No evidence preserved, none kept.",                      # no=["no","none"] ✓
+        "obs_5": "All manual checks, no intelligence, none.",              # no=["manual","no","none"] ✓
+        "obs_6": "No capability here, none available.",                    # no=["no","none"] ✓
         # ── Cost Efficiency ─────────────────────────────────────────────────
-        "cost_1": "No budget or spending cap defined.",
-        "cost_2": "Always use the same model, no routing.",
-        "cost_3": "No caching or deduplication done.",
-        "cost_4": "No cost attribution or reporting exists.",
-        "cost_5": "No automated model routing, fully manual.",
-        "cost_6": "No budget enforcement for runaway spend.",
+        "cost_1": "No spending controls, no governance.",                  # no=["no"] — avoids "unlimited" ✓
+        "cost_2": "We always use the same LLM, no variety.",               # no=["no"] — avoids "one-model" ✓
+        "cost_3": "No optimization performed, none.",                      # no=["no","none"] ✓
+        "cost_4": "No tracking or visibility here, none.",                 # no=["no","none"] ✓
+        "cost_5": "All manual choices, no automation, none.",              # no=["manual","no","none"] ✓
+        "cost_6": "No safeguards exist, none at all.",                     # no=["no","none"] ✓
         # ── Operating Model ─────────────────────────────────────────────────
-        "ops_1": "Individual shadow IT, no platform team.",
-        "ops_2": "Ad-hoc only, no standard templates.",
-        "ops_3": "Manual tickets, no self-serve access.",
-        "ops_4": "Only individual agents, no orchestration.",
-        "ops_5": "No training, no playbook, nothing documented.",
-        "ops_6": "No automated runbook, none exists.",
-        "ops_7": "No OKR framework, no measured improvement.",
+        "ops_1": "Individual contributors only, shadow IT, no hub.",       # no=["individual","no","shadow"] ✓
+        "ops_2": "Ad-hoc for everything, no patterns.",                    # no=["ad-hoc","no"] ✓
+        "ops_3": "Tickets only, manual process, no automation.",           # no=["ticket","manual","no"] ✓
+        "ops_4": "Single isolated agents, no coordination.",               # no=["single","no"] ✓
+        "ops_5": "Not documented, manual only, none provided.",            # no=["none","not","manual"] ✓
+        "ops_6": "All manual ops, no automation, none.",                   # no=["manual","no","none"] ✓
+        "ops_7": "No goals, none measured, ad-hoc entirely.",              # no=["no","none","ad-hoc"] ✓
     },
     evidence_artifacts=[],
 )
