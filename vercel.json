@@ -1,0 +1,6 @@
+{
+  "outputDirectory": "website",
+  "routes": [
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}

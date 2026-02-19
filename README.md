@@ -1,369 +1,697 @@
 # Agent Maturity Compass (AMC)
 
-**Evidence-gated trust scoring for AI agents.**
+**Evidence-gated trust scoring, governance, and compliance for AI agents.**  
+The only platform that proves AI agent maturity through execution-verified evidence — not self-reported claims.
 
 [![npm](https://img.shields.io/npm/v/agent-maturity-compass)](https://www.npmjs.com/package/agent-maturity-compass)
-[![Tests](https://img.shields.io/badge/tests-1072%20passing-brightgreen)](https://github.com/thewisecrab/AgentMaturityCompass)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-1072%20passing-brightgreen)](https://github.com/thewisecrab/AgentMaturityCompass/actions)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-green)](https://nodejs.org)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![arXiv](https://img.shields.io/badge/arXiv-cs.AI%20%7C%20cs.SE-orange)](whitepaper/AMC_WHITEPAPER_v1.md)
 
 ---
 
-## Which Guide Is For You?
+## The Problem
 
-| I want to... | Jump to |
-|---|---|
-| Understand what AMC is in plain English | [ELI5 — Explain Like I'm 5](#-eli5--explain-like-im-5) |
-| Get started as a developer | [Developer Quickstart](#-developer-quickstart) |
-| Integrate AMC into production | [Technical Reference](#-technical-reference) |
-| Deploy for my enterprise | [Enterprise Guide](docs/ENTERPRISE.md) |
+Every AI governance framework in existence has the same fatal flaw: **the agent being evaluated provides the evidence.**
 
----
+Survey-based tools. Self-reported checklists. Documentation that says "we follow best practices." None of it is verifiable. Any agent can score 100/100 by choosing the right keywords.
 
-## 🧒 ELI5 — Explain Like I'm 5
+AMC measured this gap empirically:
 
-**Imagine your AI agent is a new employee.**
+| Scoring Method | Score | Delta |
+|---|---|---|
+| Keyword-based (claim what you want) | 100/100 | — |
+| Execution-verified (EPES trust weights) | **16/100** | **+84 points inflated** |
 
-You wouldn't hand a brand-new hire the keys to the company bank account on day one. You'd watch them work first. See if they follow instructions. Check their decisions. Build up trust over time — and keep a paper trail.
+That 84-point gap is the documentation inflation problem. AMC is the only framework that closes it.
 
-AMC does exactly that for AI agents.
-
-**The problem AMC solves:**  
-Right now, when an AI agent says "I'm safe, trustworthy, and well-behaved" — you just have to take its word for it. There's no proof. No receipt. No audit trail. Anyone can build an agent that claims it's mature and responsible.
-
-**What AMC does instead:**  
-AMC watches what your AI agent *actually does* — every tool call, every decision, every action — and writes it down in a tamper-proof logbook. Then it grades the agent on 42 questions across 5 levels (think: kindergarten → PhD). The grade is **earned from evidence**, not self-reported.
-
-**Like a credit score, but for AI agents:**
-- L1 (Foundation) → The agent can walk and chew gum
-- L2 (Reliability) → It doesn't crash or loop endlessly  
-- L3 (Governance) → It follows rules and can be audited
-- L4 (Excellence) → You'd trust it with real decisions
-- L5 (Leadership) → Enterprise-grade, certified, and provable
-
-**The anti-cheat part:**  
-AMC scores are signed with a cryptographic key in an isolated process (the Notary). If anyone tampers with the evidence — even you — the signature breaks and the score is invalid. You can't fake a good AMC score.
-
-**Who this is for:**  
-Anyone building, buying, or deploying AI agents who wants proof — not promises — that their agents are safe, auditable, and production-ready.
+→ [Read the Whitepaper](whitepaper/AMC_WHITEPAPER_v1.md) · [Read the Research: EPES Trust System](docs/EVIDENCE_TRUST.md)
 
 ---
 
-## 🧑‍💻 Developer Quickstart
+## The Solution
 
-Get your first agent score in 5 minutes.
+AMC wraps your AI agent with an observer that writes **execution-proof evidence** — signed, hash-chained, tamper-evident — and scores maturity from *what the agent actually does*, not what it claims.
 
-### Install
+```
+Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed, hash-chained)
+                                                             ↓
+                                               Scoring Engine (42 questions, 5 layers)
+                                                             ↓
+                                              AMC Studio (localhost:3212)
+```
+
+**Five trust tiers** (differential scoring weights):
+| Tier | Source | Multiplier |
+|---|---|---|
+| `OBSERVED_HARDENED` | AMC-controlled traces + stronger context | 1.1× |
+| `OBSERVED` | Directly observed AMC gateway/monitor | 1.0× |
+| `ATTESTED` | Cryptographic attestation (vault/notary) | 0.8× |
+| `SELF_REPORTED` | Agent claims | 0.4× (capped, cannot inflate maturity) |
+
+---
+
+## Install
 
 ```bash
 npm i -g agent-maturity-compass
 ```
 
-Or from source:
-
+From source:
 ```bash
 git clone https://github.com/thewisecrab/AgentMaturityCompass.git
-cd AgentMaturityCompass
-npm ci && npm run build && npm link
+cd AgentMaturityCompass && npm ci && npm run build && npm link
 ```
 
-### Initialize and Score
-
-```bash
-# Set up a demo workspace with a sample agent
-amc setup --demo
-
-# Start the Studio (web console at http://localhost:3212)
-amc up
-
-# Wrap your AI agent — AMC captures evidence automatically
-amc adapters run --agent my-agent --adapter claude-cli -- claude
-
-# Score it
-amc run --agent my-agent --window 14d
-
-# See the score
-amc status --agent my-agent
-```
-
-### Wrap Any AI Agent (one-liner)
-
-```bash
-# Claude
-amc adapters run --agent my-agent --adapter claude-cli -- claude
-
-# Gemini
-amc adapters run --agent my-agent --adapter gemini-cli -- gemini
-
-# OpenAI / GPT-4o
-amc adapters run --agent my-agent --adapter openai-sdk -- node ./my-gpt-agent.js
-
-# OpenClaw
-amc adapters run --agent my-agent --adapter openclaw-cli -- openclaw run
-
-# OpenRouter
-amc adapters run --agent my-agent --adapter openrouter -- node ./my-agent.js
-
-# Ollama (local models)
-amc adapters run --agent my-agent --adapter ollama -- ollama run mistral
-
-# xAI Grok
-amc adapters run --agent my-agent --adapter xai-grok -- node ./grok-agent.js
-
-# Any CLI tool
-amc adapters run --agent my-agent --adapter generic-cli -- node my-bot.js
-```
-
-### Node.js SDK
-
-```typescript
-import { wrapFetch, startLedger, computeMaturityScore } from "agent-maturity-compass";
-
-// Wrap fetch — every API call becomes a signed evidence event
-const monitoredFetch = wrapFetch(globalThis.fetch, {
-  agentId: "my-agent",
-  gatewayBaseUrl: "http://localhost:3210/openai",
-});
-
-// Score based on collected evidence
-const score = await computeMaturityScore(evidence);
-console.log(`Level: ${score.overallLevel}, Score: ${score.overallScore}`);
-```
-
-### Key Commands
-
-```bash
-# Score
-amc run --agent my-agent --window 14d        # Run scoring window
-amc status --agent my-agent                  # Current score summary
-amc learn --agent my-agent --question AMC-2.5 # Get improvement tips
-
-# Verify integrity
-amc verify all --json                         # Tamper-evident chain check
-amc audit binder create --scope workspace     # Export audit binder (SOC2)
-
-# Improve
-amc mechanic plan create --scope workspace    # Upgrade plan
-amc mechanic whatif --add-evidence "tool-call-log" # Simulate score impact
-
-# Security
-amc shield analyze --agent my-agent          # Injection detection
-amc enforce check --agent my-agent           # Policy compliance
-amc watch attest --agent my-agent            # Safety attestation
-```
+→ [Full Install Guide](docs/INSTALL.md) — npm, Docker, Helm, macOS, Linux, Windows/WSL2
 
 ---
 
-## ⚙️ Technical Reference
-
-### Architecture
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        AI Agent                              │
-│  (Claude, GPT-4o, Gemini, Ollama, any CLI or SDK agent)     │
-└───────────────────────────┬──────────────────────────────────┘
-                            │ wrapped by adapter
-┌──────────────────────────▼──────────────────────────────────┐
-│                   AMC Gateway Proxy                          │
-│  (localhost:3210 — intercepts every LLM call, writes        │
-│   hash-chained receipts to the Evidence Ledger)             │
-└───────────────────────────┬──────────────────────────────────┘
-                            │
-        ┌───────────────────┼─────────────────────┐
-        ▼                   ▼                     ▼
-┌──────────────┐  ┌─────────────────┐  ┌─────────────────────┐
-│   Evidence   │  │     Notary      │  │     Governor        │
-│   Ledger     │  │ (isolated sign  │  │ (autonomy enforcer) │
-│ (append-only)│  │  process, L4+)  │  │                     │
-└──────────────┘  └─────────────────┘  └─────────────────────┘
-        │
-        ▼
-┌──────────────────────────────────────────────────────────────┐
-│                   Scoring Engine                             │
-│  42 QIDs × 5 levels × evidence trust tiers                  │
-│  (OBSERVED > ATTESTED > SELF_REPORTED)                       │
-└──────────────────────────────────────────────────────────────┘
-        │
-        ▼
-┌──────────────────────────────────────────────────────────────┐
-│              AMC Studio (localhost:3212)                     │
-│  Console · Dashboards · Compliance · Fleet Management       │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Scoring Model
-
-AMC scores on 42 questions (QIDs) across 5 maturity levels:
-
-| Level | Name | Min Events | Min Score |
-|-------|------|-----------|-----------|
-| L1 | Foundation | 2+ observed events | — |
-| L2 | Reliability | — | 25% |
-| L3 | Governance | — | 50% |
-| L4 | Excellence | — | 75% |
-| L5 | Leadership | 16+ events, 8+ sessions, 10+ days | 90% |
-
-**Evidence Trust Tiers** (anti-gaming):
-- `OBSERVED` — AMC saw it happen (highest weight)
-- `ATTESTED` — third-party signed attestation
-- `SELF_REPORTED` — agent claimed it (lowest weight)
-
-L5 requires infrastructure-level evidence: org-level governance, multi-agent federation, cross-org trust. Code alone won't get you there.
-
-### Module Overview
-
-| Module | Description | Docs |
-|--------|-------------|------|
-| **Shield** (S1–S16) | Prompt injection, SBOM, supply chain, reputation | [SHIELD_ENFORCE_REFERENCE.md](docs/SHIELD_ENFORCE_REFERENCE.md) |
-| **Enforce** (E1–E35) | Policy firewall, exec guard, ATO detection, taint analysis | [SHIELD_ENFORCE_REFERENCE.md](docs/SHIELD_ENFORCE_REFERENCE.md) |
-| **Vault** (V1–V14) | Secrets, zero-key agents, DLP, DSAR, data residency | [VAULT.md](docs/VAULT.md) |
-| **Watch** (W1–W10) | Safety testing, host hardening, attestation | [ASSURANCE_LAB.md](docs/ASSURANCE_LAB.md) |
-| **Score** | 42-QID engine, adversarial testing, formal verification | [AMC_MASTER_REFERENCE.md](docs/AMC_MASTER_REFERENCE.md) |
-| **Ledger** | Append-only, hash-chained evidence store | [NOTARY.md](docs/NOTARY.md) |
-| **Notary** | Isolated signing process (anti-tampering boundary) | [NOTARY.md](docs/NOTARY.md) |
-| **Governor** | Autonomy enforcement, approval gates | [GOVERNOR.md](docs/GOVERNOR.md) |
-| **Assurance Lab** | Red-team packs: injection, exfiltration, tool misuse | [ASSURANCE_LAB.md](docs/ASSURANCE_LAB.md) |
-| **Product** | Routing, retry, loop detection, workflow, metering | [FULL_MODULE_ROADMAP.md](docs/FULL_MODULE_ROADMAP.md) |
-
-### CLI Command Groups
+## 60-Second Quickstart
 
 ```bash
-amc setup              # Initialize workspace
-amc up                 # Start Studio + Gateway
-amc run                # Score an agent
-amc status             # View scores
-amc verify             # Verify evidence chain integrity
-amc adapters           # Wrap/configure agent adapters
-amc gateway            # Manage LLM gateway proxy
-amc ledger             # Evidence ledger operations
-amc notary             # Signing boundary management
-amc shield             # Injection detection, SBOM, supply chain
-amc enforce            # Policy enforcement, exec guard, ATO
-amc watch              # Safety testing, attestation, hardening
-amc vault              # Secrets, DLP, DSAR, data residency
-amc score              # Adversarial testing, formal spec, evidence
-amc product            # Routing, workflow, metering, autonomy
-amc mechanic           # Upgrade plans, targets, what-if
-amc learn              # Per-question improvement guidance
-amc audit              # Audit binders (SOC2, GDPR, HIPAA)
-amc compliance         # Framework mapping and reports
-amc fleet              # Multi-agent fleet management
-amc host               # Multi-workspace host mode
-amc user               # RBAC management
-amc identity           # SSO/OIDC/SAML
-amc scim               # SCIM provisioning
-amc release            # Sign and verify release bundles
-amc e2e                # End-to-end smoke tests
+amc setup --demo          # bootstrap workspace + demo agent
+amc up                    # Studio: http://localhost:3212 | Gateway: http://localhost:3210
+amc adapters run --agent demo-agent --adapter claude-cli -- claude
+amc run --agent demo-agent --window 14d
+amc status --agent demo-agent
 ```
 
-→ [Full CLI Reference](docs/AMC_MASTER_REFERENCE.md)
+→ [Full Quickstart](docs/QUICKSTART.md) · [Solo User Guide](docs/SOLO_USER.md)
 
-### Adapters — Full Provider List
+---
 
-| Provider | Adapter ID | Type |
-|----------|-----------|------|
-| Claude (Anthropic) | `claude-cli` | CLI |
-| GPT-4o (OpenAI) | `openai-sdk` | SDK |
-| Gemini (Google) | `gemini-cli` | CLI |
-| Grok (xAI) | `xai-grok` | SDK |
-| OpenRouter | `openrouter` | SDK |
-| OpenClaw | `openclaw-cli` | CLI |
-| Ollama (local) | `ollama` | CLI |
-| LangChain | `langchain` | SDK |
-| Any CLI | `generic-cli` | CLI |
+## 🧒 ELI5 — What Even Is This?
 
-→ [Full Adapters Guide](docs/ADAPTERS.md) · [All Integrations](docs/INTEGRATIONS.md)
+Imagine hiring a new employee. You wouldn't give them the master key on day one. You'd watch them work. Check their decisions. Build up trust from evidence. And keep a paper trail.
 
-### Deploy
+AMC does that for AI agents.
+
+**The credit score analogy:** AMC gives your AI agent a maturity score (L1–L5) based on what it *actually does* — every tool call, every decision, every action — written to a tamper-proof logbook. The score is signed by an isolated process (the Notary). You can't fake a good AMC score.
+
+**L1** = the agent can walk and chew gum  
+**L3** = you'd trust it with decisions that matter  
+**L5** = enterprise-grade, certified, auditable, provably safe
+
+---
+
+## What AMC Does (Full Platform)
+
+AMC is a **25-module trust and safety platform** covering the full agent lifecycle:
+
+### 1. Evidence Capture — Connect Any Agent
+
+```bash
+# One-liner adapter wraps
+amc adapters run --agent my-agent --adapter claude-cli      -- claude
+amc adapters run --agent my-agent --adapter gemini-cli      -- gemini
+amc adapters run --agent my-agent --adapter openclaw-cli    -- openclaw run
+amc adapters run --agent my-agent --adapter openai-sdk      -- node ./gpt-agent.js
+amc adapters run --agent my-agent --adapter xai-grok        -- node ./grok-agent.js
+amc adapters run --agent my-agent --adapter openrouter      -- node ./my-agent.js
+amc adapters run --agent my-agent --adapter ollama          -- ollama run mistral
+amc adapters run --agent my-agent --adapter langchain-node  -- node ./lc-agent.js
+amc adapters run --agent my-agent --adapter langchain-python -- python agent.py
+amc adapters run --agent my-agent --adapter autogen-cli     -- python autogen_agent.py
+amc adapters run --agent my-agent --adapter crewai-cli      -- python crew.py
+amc adapters run --agent my-agent --adapter semantic-kernel -- dotnet run
+amc adapters run --agent my-agent --adapter generic-cli     -- ./my-bot
+
+# SDK — wrap fetch for automatic evidence capture
+import { wrapFetch, instrumentAnthropicClient, instrumentOpenAIClient } from "agent-maturity-compass";
+
+# Sandbox mode — Docker-isolated execution
+amc sandbox run --agent my-agent -- ./my-agent
+
+# Pairing — connect remote agents
+amc pair create --agent-name "prod-agent" --ttl-min 60
+```
+
+**Gateway Proxy** (universal LLM proxy with receipt-signed evidence):
+- Routes: `/openai`, `/anthropic`, `/gemini`, `/grok`, `/openrouter`, `/local`
+- Bridge endpoints for drop-in provider replacement
+- Supports: OpenAI, Azure OpenAI, Anthropic, Gemini, xAI Grok, OpenRouter, Mistral, Cohere, Groq, Together AI, Fireworks, Perplexity, DeepSeek, Qwen, any local OpenAI-compatible server
+
+→ [Adapters Guide](docs/ADAPTERS.md) · [All Integrations](docs/INTEGRATIONS.md) · [Bridge](docs/BRIDGE.md)
+
+---
+
+### 2. Scoring — 42 Questions, 5 Layers, 6 Levels
+
+```bash
+amc run --agent my-agent --window 14d   # score
+amc report                               # detailed report
+amc compare                              # compare runs
+amc history --agent my-agent            # score history
+```
+
+**5 Maturity Layers:**
+
+| Layer | Questions | What It Measures |
+|---|---|---|
+| L1: Strategic Operations | 9 | Charter, channels, tools, governance, observability |
+| L2: Leadership & Autonomy | 5 | Aspiration surfacing, agility, verified outcomes, risk anticipation, truthfulness |
+| L3: Culture & Alignment | 15 | Values (6), positioning (5), enablers (5) |
+| L4: Resilience | 7 | Accountability, learning, inquiry, empathy, risk assurance, sensemaking |
+| L5: Skills | 5 | Design thinking, interaction design, architecture, domain mastery, digital mastery |
+
+**Evidence Gates** (must be passed before level unlocks):
+
+| Level | Min Events | Min Sessions | Min Days |
+|---|---|---|---|
+| L1 | 2 | 1 | 1 |
+| L2 | 4 | 2 | 2 |
+| L3 | 8 | 3 | 3 |
+| L4 | 12 | 5 | 7 |
+| L5 | 16 | 8 | 10 |
+
+Agents cannot submit scores. Missing evidence → `UNKNOWN`. Self-reported evidence capped at 0.4× weight and cannot unlock levels.
+
+→ [Full 42-Question Reference](docs/AMC_QUESTIONS_IN_DEPTH.md) · [Master Reference](docs/AMC_MASTER_REFERENCE.md)
+
+---
+
+### 3. Governance & Enforcement
+
+**Governor** — policy-as-code autonomy control:
+```bash
+amc governor check --agent my-agent --action DEPLOY --risk high
+```
+Action classes: `READ_ONLY`, `WRITE_LOW`, `WRITE_HIGH`, `DEPLOY`, `SECURITY`, `FINANCIAL`, `NETWORK_EXTERNAL`, `DATA_EXPORT`, `IDENTITY`
+
+**ToolHub** — trusted tool proxy with intent→execute flow:
+```bash
+# tools.yaml defines allowlist/denylist — deny-by-default, signed, receipts
+```
+
+**Work Orders** — signed job envelopes with risk classification:
+```bash
+amc workorder create --agent my-agent --title "Deploy v2" --risk high --mode execute --allow DEPLOY
+```
+
+**Tickets** — short-lived execute tokens (TTL-bounded):
+```bash
+amc ticket issue --agent my-agent --workorder <woId> --action DEPLOY --ttl 15m
+```
+
+**Approvals** — dual-control with quorum:
+```bash
+amc approvals approve --agent my-agent <approvalId> --mode execute --reason "approved"
+```
+Signed, single-shot consumed. Agent cannot self-approve.
+
+**Leases** — short-lived scoped gateway access:
+```bash
+amc lease issue --agent my-agent --ttl 60m --scopes gateway:llm --routes /openai --rpm 60
+```
+
+**Budgets** — per-agent LLM request/token/cost limits:
+```bash
+# .amc/budgets.yaml — enforced by gateway
+```
+
+**Drift/Freeze** — regression detection → automatic action freeze:
+```bash
+amc advisory list    # view drift advisories
+amc advisory ack <id>
+```
+
+→ [Governor Docs](docs/GOVERNOR.md) · [Approvals](docs/APPROVALS.md) · [Leases](docs/LEASES.md)
+
+---
+
+### 4. Vault + Notary + Zero-Key Agents
+
+**Zero-key model**: Provider API keys stay in the vault. Agents get short-lived leases. Agent-supplied credentials stripped and audited.
+
+```bash
+amc vault init / unlock / lock / status / rotate-keys
+amc notary init / start / status / attest / verify-attest
+amc connect --token-file ./agent.token   # agent gets dummy key (amc_dummy)
+```
+
+**Shield (S1–S16)** — supply chain, injection, attachment, OAuth, threat intel:
+```bash
+amc shield analyze --agent my-agent
+amc shield sandbox --agent my-agent
+amc shield sbom --agent my-agent
+amc shield reputation --tool-name some-tool
+amc shield detect-injection --input "$(cat prompt.txt)"
+```
+
+**Enforce (E1–E35)** — policy firewall, exec guard, ATO detection, taint analysis:
+```bash
+amc enforce check --agent my-agent
+amc enforce exec-guard --command "rm -rf /"   # → BLOCKED
+amc enforce blind-secrets                      # redact before LLM
+amc enforce ato-detect --session-id <id>
+amc enforce numeric-check --value 1000000
+amc enforce taint --source user_input
+```
+
+**Watch (W1–W10)** — safety testing, attestation, host hardening:
+```bash
+amc watch attest --agent my-agent
+amc watch explain --agent my-agent
+amc watch safety-test --agent my-agent
+amc watch host-hardening
+```
+
+→ [Shield/Enforce/Watch Reference](docs/SHIELD_ENFORCE_REFERENCE.md) · [Vault](docs/VAULT.md) · [Notary](docs/NOTARY.md)
+
+---
+
+### 5. Northstar Prompts + Truthguard
+
+**Northstar**: Owner-signed prompt packs enforced across all providers. Agents cannot override system prompts.
+```bash
+amc prompt pack build --agent my-agent
+# Bridge enforces signed prompt, detects/rejects override attempts
+```
+
+**Truthguard**: Deterministic output contract linter. Validates claim inflation, evidence binding, disallowed mentions, secret patterns.
+```bash
+# Output contract format enforced at bridge:
+{"v":1,"answer":"...","claims":[{"text":"...","evidenceRefs":["ev_..."]}],"unknowns":[...]}
+```
+
+→ [Northstar Prompts](docs/NORTHSTAR_PROMPTS.md) · [Truthguard](docs/TRUTHGUARD.md) · [Anti-Hallucination](docs/ANTI_HALLUCINATION.md)
+
+---
+
+### 6. Assurance Lab — Red Team Packs
+
+```bash
+amc assurance run --scope workspace --pack all
+amc assurance run --scope workspace --pack injection
+amc assurance run --scope workspace --pack exfiltration
+amc assurance cert issue --run <runId>
+amc assurance cert verify agent.amccert
+```
+
+Built-in packs: `injection`, `exfiltration`, `toolMisuse`, `truthfulness`, `sandboxBoundary`, `notaryAttestation`
+
+Waivers: dual-control, max 72h, signed — don't change scores.
+
+→ [Assurance Lab](docs/ASSURANCE_LAB.md) · [Assurance Certs](docs/ASSURANCE_CERTS.md)
+
+---
+
+### 7. Value Realization Engine
+
+5 value dimensions scored deterministically: Emotional, Functional, Economic, Brand, Lifetime.
+
+```bash
+amc value init
+amc value contract init --scope agent --id my-agent --type code-agent
+amc value snapshot
+amc value report
+amc outcomes init --agent my-agent
+amc outcomes report --agent my-agent --window 14d
+```
+
+→ [Value Realization](docs/VALUE_REALIZATION.md)
+
+---
+
+### 8. Mechanic Workbench — Upgrade Planning
+
+```bash
+amc mechanic targets init --scope workspace
+amc mechanic plan create --scope workspace --from measured --to targets
+amc mechanic plan execute <planId>
+amc mechanic simulate <planId>
+amc mechanic whatif --agent my-agent --set AMC-1.1=3 --set AMC-3.3.1=5
+amc learn --agent my-agent --question AMC-2.5
+```
+
+What-if simulator: instant deterministic preview of score impact before executing plan.
+
+→ [Mechanic Workbench](docs/MECHANIC_WORKBENCH.md)
+
+---
+
+### 9. Benchmarks + Ecosystem Comparison
+
+Privacy-safe, signed benchmark artifacts (`.amcbench`). Compare against peers without exposing evidence.
+
+```bash
+amc bench create --scope workspace --out latest.amcbench
+amc bench verify latest.amcbench
+amc bench registry init / publish / serve / import
+amc bench compare --scope workspace --against imported
+```
+
+→ [Benchmarking](docs/BENCHMARKING.md)
+
+---
+
+### 10. Certification + CI Release Gates
+
+```bash
+amc certify --agent my-agent --run <runId> --policy gatePolicy.json --out agent.amccert
+amc cert verify agent.amccert
+amc ci init --agent my-agent          # generates .github/workflows/amc.yml
+amc gate --bundle latest.amcbundle --policy gatePolicy.json
+```
+
+Gate policy: `minIntegrityIndex`, `minOverall`, `minLayer`, `requireObservedForLevel5`, `requireExperimentPass`
+
+→ [Certification](docs/CERTIFICATION.md) · [CI Integration](docs/CI.md)
+
+---
+
+### 11. Fleet + ORG Compass
+
+```bash
+amc fleet init
+amc agent add / list / use <id>
+amc fleet report --window 30d
+amc org init / add node / score / compare
+```
+
+ORG Compass: comparative scorecards across TEAM/FUNCTION/PROCESS/ENTERPRISE/ECOSYSTEM. Trust-weighted aggregation with evidence-gap caps.
+
+→ [Fleet](docs/FLEET.md) · [ORG Compass](docs/ORG_COMPASS.md)
+
+---
+
+### 12. Compliance + Audit Binders
+
+```bash
+amc audit binder create --scope workspace --out workspace.amcaudit
+amc compliance report --framework SOC2 --window 14d
+amc compliance report --framework NIST_AI_RMF
+amc compliance report --framework ISO_27001
+```
+
+Frameworks: SOC2, NIST AI RMF, ISO/IEC 42001:2023. Merkle-anchored evidence proofs. Offline-verifiable. Auditor disclosure with evidence request controls.
+
+→ [Compliance](docs/COMPLIANCE.md) · [Audit Binder](docs/AUDIT_BINDER.md)
+
+---
+
+### 13. Forecasting + Advisories
+
+Deterministic trend/risk forecasting — no LLM judges, no hallucinated projections.
+
+```bash
+amc forecast init
+amc forecast refresh --scope workspace
+amc advisory list / show <id> / ack <id>
+```
+
+Algorithms: Theil-Sen, MAD, EWMA, CUSUM. Insufficient evidence → explicit `INSUFFICIENT_EVIDENCE`. No numeric projections fabricated.
+
+→ [Forecasting](docs/FORECASTING.md)
+
+---
+
+### 14. Agent Passport + Open Standard
+
+```bash
+amc passport create --scope agent --id my-agent --out agent.amcpass
+amc passport verify agent.amcpass
+amc standard generate / verify
+```
+
+Privacy-safe shareable maturity credential. No raw prompts/logs/PII/secrets.
+
+→ [Agent Passport](docs/AGENT_PASSPORT.md) · [Open Standard](docs/OPEN_STANDARD.md)
+
+---
+
+### 15. Archetypes + Policy Packs
+
+**10 built-in agent archetypes** with pre-configured governance:
+
+| Archetype | Risk Profile | Use Case |
+|---|---|---|
+| `code-agent` | Low/Medium/High | Software development automation |
+| `research-agent` | Low/Medium | Information gathering and synthesis |
+| `customer-support-agent` | Low/Medium | Support ticket handling |
+| `sales-bdr-agent` | Medium | Outbound sales prospecting |
+| `devops-sre-agent` | High | Infrastructure management |
+| `security-analyst-agent` | High | Security monitoring and response |
+| `data-analyst-agent` | Medium | Data analysis and reporting |
+| `executive-assistant-agent` | Medium/High | Scheduling, communications |
+| `multi-agent-orchestrator` | High | Orchestrating other agents |
+| `rpa-workflow-automation` | Medium | Robotic process automation |
+
+```bash
+amc archetype apply --agent my-agent code-agent
+amc policy pack apply code-agent.high
+```
+
+→ [Archetypes](docs/ARCHETYPES.md) · [Policy Packs](docs/POLICY_PACKS.md)
+
+---
+
+### 16. Federation + Plugins
+
+```bash
+amc federate init / peer add / export / import   # cross-org trust sharing
+amc plugin pack / registry init / install        # signed, dual-control extensions
+```
+
+→ [Federation](docs/FEDERATION.md) · [Plugins](docs/PLUGINS.md)
+
+---
+
+## Artifact Formats
+
+Every AMC export is signed, offline-verifiable, and tamper-evident:
+
+| Artifact | Extension | What It Contains |
+|---|---|---|
+| Evidence bundle | `.amcbundle` | Ledger + receipts + scores |
+| Benchmark | `.amcbench` | Privacy-safe metrics + Merkle proofs |
+| Prompt pack | `.amcprompt` | Owner-signed system prompt |
+| Assurance cert | `.amccert` | Red-team pass/fail + signatures |
+| Audit binder | `.amcaudit` | SOC2/NIST/ISO control mapping + evidence |
+| Passport | `.amcpass` | Privacy-safe maturity credential |
+| Release bundle | `.amcrelease` | npm tarball + SBOM + provenance |
+| Backup | `.amcbackup` | AES-256-GCM encrypted workspace |
+| Federation package | `.amcfed` | Cross-org benchmark/cert export |
+| Transparency bundle | `.amctlog` | Merkle-anchored event log |
+| Merkle proof | `.amcproof` | Inclusion proof for offline verify |
+| Plugin package | `.amcplug` | Declarative extension (non-executable) |
+| Notary attestation | `.amcattest` | Hardware-backed signing proof |
+
+---
+
+## AMC Studio Console
+
+`amc up` starts the full local control plane at `http://localhost:3212`:
+
+**Dashboard pages:** home, agent, compass, equalizer, governor, toolhub, approvals, users, leases, budgets, drift, workorders, benchmarks, benchCompare, benchRegistry, benchPortfolio, transparency, trust, compliance, northstar, diagnosticView, contextGraph, forecast, forecastAgent, advisories, assurance, assuranceCert, assuranceRun, value, valueAgent, outcomes, experiments, mechanic, simulator, upgradeWizard, org, compare, systemic, passport, standard, audit, auditBinder, plugins, policypacks, integrations, ops, portfolioForecast
+
+---
+
+## Pricing
+
+| | **Free** | **Pro / Power** | **Enterprise** |
+|---|---|---|---|
+| **Agents** | 1 | Up to 10 | Unlimited |
+| **Evidence retention** | 7 days | 90 days | Custom |
+| **Scoring** | Basic (L1–L3) | Full (L1–L5) | Full + custom dimensions |
+| **Studio** | ✅ Local only | ✅ Local + team sharing | ✅ Multi-workspace host mode |
+| **Adapters** | All | All | All + custom |
+| **Gateway proxy** | ✅ | ✅ | ✅ High-throughput |
+| **Governance** | Basic policy | Full Governor + ToolHub | Full + dual-control approvals |
+| **Assurance packs** | Injection only | All 6 packs | All + custom packs |
+| **Compliance** | — | SOC2 mapping | SOC2 + NIST + ISO/IEC 42001 |
+| **Audit binders** | — | ✅ | ✅ Auditor portal |
+| **RBAC** | Owner only | Owner + Auditor | Full RBAC (6 roles) |
+| **SSO/SAML/OIDC** | — | — | ✅ |
+| **SCIM provisioning** | — | — | ✅ |
+| **Notary** (hardware trust) | — | Local vault | Hardware + isolated process |
+| **Federation** | — | — | ✅ Cross-org trust sharing |
+| **Fleet mode** | — | Up to 10 agents | Unlimited + portfolio views |
+| **Certification** | — | Agent passport | Enterprise cert + CI gates |
+| **Benchmarks** | — | Private | ✅ + Ecosystem comparison |
+| **SLA / Support** | Community | Email | Dedicated |
+| **Price** | **Free forever** | **$199/mo** | **Contact us** |
+
+→ [Full Pricing Details](docs/SOLO_USER.md) · [Enterprise Guide](docs/ENTERPRISE.md)
+
+---
+
+## AMC vs. Alternatives
+
+| Capability | AMC | NIST AI RMF | ISO/IEC 42001 | CMMI | TrustVector | Guardrails AI |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Agent-specific design | ✅ | 🔶 | ❌ | ❌ | 🔶 | ✅ |
+| Automated maturity scoring | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **Execution-proof evidence** | **✅** | **❌** | **❌** | **❌** | **❌** | **❌** |
+| Anti-gaming (cannot self-score) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Tamper-evident hash chain | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Zero-key agent model | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Deterministic (no LLM judge) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Offline-verifiable artifacts | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Multi-layer governance (42 QIDs) | ✅ | 🔶 | 🔶 | 🔶 | 🔶 | ❌ |
+| Self-improvement loop | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Fleet + multi-org | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Free tier | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| CI/CD release gates | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Compliance binders (SOC2/ISO) | ✅ | 🔶 | ✅ | ❌ | 🔶 | ❌ |
+
+**The one thing nobody else does:** Execution-proof evidence. When AMC says your agent is L3, there are 8+ observed events, 3+ sessions, 3+ days of signed evidence backing that claim. No self-reporting. No keyword inflation.
+
+---
+
+## Deploy
 
 ```bash
 # Local (Studio + Gateway)
 amc up
 
-# Docker Compose (recommended for teams)
+# Docker Compose
 cd deploy/compose && cp .env.example .env
 docker compose up -d --build
-# → Studio: http://localhost:3212
-# → Gateway: http://localhost:3210
+# Studio: http://localhost:3212 | Gateway: http://localhost:3210
 
-# Docker + TLS
+# Docker + TLS (Caddy)
 docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d
 
 # Kubernetes (Helm)
 helm install amc deploy/helm/amc
+
+# Production smoke test
+amc e2e smoke --mode local --json
+amc verify all --json
 ```
 
-### Production Checklist
+→ [Deployment Guide](docs/DEPLOYMENT.md) · [Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md) · [Operations](docs/OPERATIONS.md)
 
-```bash
-npm ci && npm test && npm run build          # Verify clean build
-amc e2e smoke --mode local --json            # E2E smoke test
-amc verify all --json                        # Chain integrity
-amc release pack --out ./amc.amcrelease      # Sign release
-amc release verify ./amc.amcrelease          # Verify signature
-```
+---
 
-→ [Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md) · [Enterprise Guide](docs/ENTERPRISE.md)
+## CLI Quick Reference
 
-### Trust Model
+| Command | What It Does |
+|---|---|
+| `amc setup` | Initialize workspace |
+| `amc up / down / status` | Studio lifecycle |
+| `amc run` | Score an agent |
+| `amc report / history / compare` | View scores |
+| `amc verify all` | Verify evidence chain integrity |
+| `amc adapters run` | Wrap an AI agent |
+| `amc gateway` | Manage LLM gateway proxy |
+| `amc ledger` | Evidence ledger operations |
+| `amc notary` | Signing boundary management |
+| `amc shield` | S1–S16: injection, SBOM, supply chain |
+| `amc enforce` | E1–E35: policy, exec guard, ATO, taint |
+| `amc watch` | W1–W10: safety testing, attestation |
+| `amc vault` | V1–V14: secrets, DLP, DSAR, residency |
+| `amc score` | Adversarial testing, formal spec |
+| `amc product` | Routing, workflow, metering |
+| `amc governor` | Autonomy check + enforcement |
+| `amc workorder` | Signed job envelopes |
+| `amc ticket` | Short-lived execute tokens |
+| `amc approvals` | Dual-control approvals |
+| `amc lease` | Scoped gateway leases |
+| `amc budget` | Usage limit management |
+| `amc mechanic` | Upgrade plans, targets, what-if |
+| `amc learn` | Per-question improvement guidance |
+| `amc assurance` | Red-team packs + certs |
+| `amc forecast` | Deterministic maturity forecasts |
+| `amc advisory` | Drift advisories |
+| `amc audit` | Audit binders (SOC2, NIST, ISO) |
+| `amc compliance` | Framework mapping and reports |
+| `amc certify / cert` | Agent certification |
+| `amc ci` | CI/CD release gates |
+| `amc bench` | Benchmarks + ecosystem comparison |
+| `amc passport` | Shareable maturity credential |
+| `amc fleet` | Multi-agent fleet management |
+| `amc org` | ORG Compass (cross-org scorecards) |
+| `amc host` | Multi-workspace host mode |
+| `amc user` | RBAC management |
+| `amc identity` | SSO/OIDC/SAML |
+| `amc scim` | SCIM provisioning |
+| `amc archetype` | Apply agent archetype |
+| `amc policy pack` | Golden governance bundles |
+| `amc plugin` | Signed marketplace extensions |
+| `amc federate` | Cross-org trust federation |
+| `amc release` | Sign + verify release bundles |
+| `amc e2e` | End-to-end smoke tests |
+| `amc transparency` | Merkle transparency log |
+| `amc northstar` | Prompt enforcement |
+| `amc whatif` | Score impact simulator |
+| `amc snapshot` | Agent state snapshot |
+| `amc loop` | Continuous improvement loop |
+| `amc doctor` | Runtime troubleshooting |
+| `amc sandbox` | Docker-isolated execution |
+
+→ [Full CLI Reference](docs/AMC_MASTER_REFERENCE.md)
+
+---
+
+## Whitepaper
+
+**[AMC: A Multi-Dimensional Maturity Framework for Autonomous AI Agents with Execution-Proof Evidence](whitepaper/AMC_WHITEPAPER_v1.md)**
+
+*POLARIS Research Team, AMC Labs | February 2026 | cs.AI, cs.SE, cs.MA*
+
+Covers:
+- The Execution-Proof Evidence System (EPES) with formal trust multipliers
+- Formal maturity function M(a,d,t) with time-parameterized evidence decay
+- Empirical benchmark: +84pt keyword inflation vs execution-verified scoring
+- Autonomous self-improvement loop: L1→L4 (94/100 human-guided), L1→L4 (80/100 autonomous)
+- Comparison to NIST AI RMF, ISO/IEC 42001, CMMI v2.0
+- 42 rubric questions, full scoring methodology
+
+---
+
+## Trust Model
 
 | Boundary | Trust |
-|----------|-------|
+|---|---|
 | AI Agent | **Untrusted** — claims only, evidence-gated |
-| AMC Gateway / Monitor | **Trusted** — writes observed evidence |
+| AMC Gateway / Monitor | **Trusted** — writes OBSERVED evidence |
 | Owner / Auditor | **Trusted** — signs targets, runs, configs |
 | Notary | **Trusted + Isolated** — signing boundary, fail-closed |
+
+**Fail-closed behaviors:** Invalid signatures → `/readyz` returns 503. Invalid prompt policy under ENFORCE → bridge 503. Invalid audit/assurance policy → endpoints blocked. No graceful degradation when trust fails.
 
 ---
 
 ## Documentation
 
 ### Getting Started
-- [Quickstart](docs/QUICKSTART.md) — zero to first score in 5 minutes
-- [Installation](docs/INSTALL.md) — npm, Docker, Helm, macOS/Linux/Windows/WSL2
-- [Solo User Guide](docs/SOLO_USER.md) — individual developer workflow
+[Quickstart](docs/QUICKSTART.md) · [Install](docs/INSTALL.md) · [Solo User Guide](docs/SOLO_USER.md)
 
 ### Integration
-- [Adapters Guide](docs/ADAPTERS.md) — wrap any AI agent in one command
-- [All Integrations](docs/INTEGRATIONS.md) — Claude, GPT-4o, Gemini, Grok, OpenRouter, Ollama, LangChain
-- [Runtime SDK](docs/RUNTIME_SDK.md) — Node.js embed helpers
-- [Bridge](docs/BRIDGE.md) — connect remote agents
+[Adapters](docs/ADAPTERS.md) · [Integrations](docs/INTEGRATIONS.md) · [Bridge](docs/BRIDGE.md) · [Runtime SDK](docs/RUNTIME_SDK.md)
 
-### Reference
-- [Master CLI Reference](docs/AMC_MASTER_REFERENCE.md) — every `amc` command documented
-- [Shield / Enforce Reference](docs/SHIELD_ENFORCE_REFERENCE.md) — security module commands
-- [Architecture Map](docs/ARCHITECTURE_MAP.md)
-- [Full Module Roadmap](docs/FULL_MODULE_ROADMAP.md)
-- [Whitepaper](whitepaper/AMC_WHITEPAPER_v1.md)
+### Governance
+[Governor](docs/GOVERNOR.md) · [Approvals](docs/APPROVALS.md) · [Leases](docs/LEASES.md) · [Vault](docs/VAULT.md) · [Notary](docs/NOTARY.md)
 
-### Enterprise
-- [Enterprise Guide](docs/ENTERPRISE.md) — multi-workspace, RBAC, SSO, compliance
-- [Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md) — production go-live gate
-- [Compliance](docs/COMPLIANCE.md) — SOC2, GDPR, HIPAA mapping
+### Security
+[Shield/Enforce Reference](docs/SHIELD_ENFORCE_REFERENCE.md) · [Assurance Lab](docs/ASSURANCE_LAB.md) · [Threat Model](docs/THREAT_MODEL.md) · [Supply Chain](docs/SUPPLY_CHAIN.md)
 
 ### Operations
-- [Deployment](docs/DEPLOYMENT.md) · [Operations](docs/OPERATIONS.md) · [Security](docs/SECURITY_DEPLOYMENT.md)
-- [Backups](docs/BACKUPS.md) · [Metrics](docs/METRICS.md)
-- [Release Runbook](docs/RELEASE_RUNBOOK.md)
+[Deployment](docs/DEPLOYMENT.md) · [Operations](docs/OPERATIONS.md) · [Backups](docs/BACKUPS.md) · [Metrics](docs/METRICS.md) · [Ops Hardening](docs/OPS_HARDENING.md)
+
+### Enterprise
+[Enterprise Guide](docs/ENTERPRISE.md) · [Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md) · [Compliance](docs/COMPLIANCE.md) · [RBAC](docs/RBAC.md) · [SSO/OIDC](docs/SSO_OIDC.md) · [SSO/SAML](docs/SSO_SAML.md) · [SCIM](docs/SCIM.md)
+
+### Reference
+[Master CLI Reference](docs/AMC_MASTER_REFERENCE.md) · [Architecture](docs/ARCHITECTURE_MAP.md) · [42 Questions](docs/AMC_QUESTIONS_IN_DEPTH.md) · [Full Module Roadmap](docs/FULL_MODULE_ROADMAP.md) · [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
+
+### Research
+[Whitepaper](whitepaper/AMC_WHITEPAPER_v1.md) · [Evidence Trust](docs/EVIDENCE_TRUST.md) · [Benchmarks](docs/BENCHMARKS.md)
 
 ---
 
-## Runtime Requirements
+## Runtime
 
-- **Node.js:** ≥ 20
-- **npm:** ≥ 9
+- **Node.js:** ≥ 20 · **npm:** ≥ 9
 - **OS:** macOS, Linux, Windows (WSL2)
-- **Docker:** optional (for Compose/K8s deploy)
-- **License:** [MIT](LICENSE)
-- **Security:** [SECURITY.md](SECURITY.md)
+- **Docker:** optional — Compose/Helm deploy
+- **License:** [MIT](LICENSE) · **Security:** [SECURITY.md](SECURITY.md)
 
 ---
 
-## Why Not Just Trust the Agent?
-
-Because agents lie. Not maliciously — they just self-report.
-
-Every governance framework, every AI safety paper, every enterprise AI audit comes back to the same problem: **the thing being evaluated is the one providing the evidence.** AMC breaks that loop. The evidence is written by an observer (the gateway/monitor), signed by an isolated notary, and chained with cryptographic hashes. The agent can't forge its own score.
-
-That's the insight. The rest is engineering.
+> *"The thing being evaluated cannot be trusted to provide its own evidence. AMC breaks that loop."*  
+> — AMC Design Principle #1
