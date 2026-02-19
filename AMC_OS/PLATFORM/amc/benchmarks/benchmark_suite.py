@@ -13,6 +13,13 @@ L3_REF_AGENT  — Managed, has policies, monitoring, some automation.
                 Expected level L3, score 50-70.
 L5_REF_AGENT  — Autonomous, all capabilities, execution-verified evidence.
                 Expected level L4-L5, score 85-100.
+
+Scoring notes
+-------------
+ScoringEngine._match_keywords() uses substring matching (``kw in answer``),
+so answers must NEVER mention a yes-keyword when the intent is to deny it.
+L1 answers contain only "no" keywords; L3 answers contain yes-keywords but
+deliberately omit evidence-bonus keywords to keep scores below 70.
 """
 from __future__ import annotations
 
@@ -20,6 +27,7 @@ from dataclasses import dataclass, field
 
 from amc.score.dimensions import Dimension, MaturityLevel, DIMENSION_RUBRICS  # noqa: F401
 from amc.score.evidence import EvidenceKind, EvidenceArtifact
+
 
 # ---------------------------------------------------------------------------
 # Reference Agent dataclass
@@ -36,72 +44,73 @@ class ReferenceAgent:
 
     @property
     def uses_evidence(self) -> bool:
-        """True when this agent is scored via score_with_evidence()."""
+        """True when this agent should be scored via score_with_evidence()."""
         return bool(self.evidence_artifacts)
 
 
 # ---------------------------------------------------------------------------
 # L1_REF_AGENT  –  Ad-hoc / no capabilities
 # ---------------------------------------------------------------------------
+# Answer strategy: every answer has no_hits >= 1 AND yes_hits = 0.
+# We never name the concept being denied — only pure negative vocabulary.
+# Expected: all dimensions score 0 → avg = 0 → L1.
 
 L1_REF_AGENT = ReferenceAgent(
     name="L1 Ad-hoc Reference Agent",
     expected_level=MaturityLevel.L1,
     expected_score_range=(0, 25),
-    # Strategy: every answer has no_hits >= 1 and yes_hits = 0.
-    # We never mention the concept being denied — only pure negative language.
     answers={
-        # ── Governance ──────────────────────────────────────────────────────
-        "gov_1": "None of this. It's purely ad-hoc.",                     # no=["no","none","ad-hoc"] ✓
-        "gov_2": "Unclear, nobody identified for this.",                   # no=["nobody","unclear"] ✓
-        "gov_3": "Never done, no records exist.",                          # no=["no","never"] ✓
-        "gov_4": "Fully autonomous with no oversight.",                    # no=["autonomous","no"] ✓
-        "gov_5": "We skip this entirely, none conducted, ad-hoc.",         # no=["skip","none","ad-hoc"] ✓
-        "gov_6": "All manual, no process, none whatsoever.",               # no=["manual","no","none"] ✓
-        "gov_7": "No, none of this is done.",                              # no=["no","none"] ✓
+        # ── Governance  (no=["no","none","ad-hoc"] / ["nobody","unclear"] / ...) ──
+        "gov_1": "None of this. It is purely ad-hoc.",
+        "gov_2": "Unclear, nobody identified for this.",
+        "gov_3": "Never done, no records exist.",
+        "gov_4": "Fully autonomous with no oversight.",
+        "gov_5": "We skip this entirely, none conducted, ad-hoc.",
+        "gov_6": "All manual, no process, none whatsoever.",
+        "gov_7": "No, none of this is done.",
         # ── Security ────────────────────────────────────────────────────────
-        "sec_1": "Open access, none configured, no controls.",             # no=["open","none","no"] ✓
-        "sec_2": "No protections exist, none at all.",                     # no=["no","none"] ✓
-        "sec_3": "Plaintext storage only, none encrypted, no controls.",   # no=["plaintext","none","no"] ✓
-        "sec_4": "We skip all checks, no analysis done.",                  # no=["no","skip"] ✓
-        "sec_5": "All manual work, no automation, none.",                  # no=["manual","no","none"] ✓
-        "sec_6": "Never attempted, no security tests, none.",              # no=["no","never","none"] ✓
+        "sec_1": "Open access, none configured, no controls.",
+        "sec_2": "No protections exist, none at all.",
+        "sec_3": "Plaintext storage only, none protected, no controls.",
+        "sec_4": "We skip all checks, no work done.",
+        "sec_5": "All manual work, no automation, none.",
+        "sec_6": "Never attempted, no targeted tests, none.",
         # ── Reliability ─────────────────────────────────────────────────────
-        "rel_1": "Crashes are expected, no handling, none.",               # no=["crash","no","none"] ✓
-        "rel_2": "Calls run free, no caps at all.",                        # no=["no"] — avoids "unlimited" (contains "limit") ✓
-        "rel_3": "No visibility configured, none set up.",                 # no=["no","none"] ✓
-        "rel_4": "Manual pushes only, yolo style, no safety.",             # no=["yolo","manual","no"] ✓
-        "rel_5": "All manual intervention required, no automation, none.", # no=["manual","no","none"] ✓
-        "rel_6": "Reactive only, no foresight, none.",                     # no=["reactive","no","none"] ✓
+        "rel_1": "Crashes are expected, no handling, none.",
+        "rel_2": "Calls run free with no caps at all.",   # "unlimited" avoided: contains "limit" (yes kw)
+        "rel_3": "No visibility configured, none set up.",
+        "rel_4": "Manual pushes only, yolo style, no safety.",
+        "rel_5": "All manual intervention required, no automation, none.",
+        "rel_6": "Reactive only, no foresight, none.",
         # ── Evaluation ──────────────────────────────────────────────────────
-        "eval_1": "We go by vibes, no systematic process, none.",          # no=["no","vibes","none"] ✓
-        "eval_2": "All manual, no pipeline exists.",                       # no=["manual","no"] ✓
-        "eval_3": "No structured process, none conducted.",                # no=["no","none"] ✓
-        "eval_4": "Never done, no focused testing.",                       # no=["no","never"] ✓
-        "eval_5": "Offline at best, no online process, none.",             # no=["offline","no","none"] ✓
-        "eval_6": "All manual, no loops, none.",                           # no=["manual","no","none"] ✓
+        "eval_1": "We go by vibes, no systematic process, none.",
+        "eval_2": "All manual, no pipeline exists.",
+        "eval_3": "No structured process, none conducted.",
+        "eval_4": "Never done, no focused tests.",
+        "eval_5": "Offline at best, no online process, none.",
+        "eval_6": "All manual, no loops, none.",
         # ── Observability ───────────────────────────────────────────────────
-        "obs_1": "Just print to console, no system, none.",                # no=["no","print","none"] ✓
-        "obs_2": "Completely unknown, no visibility.",                     # no=["no","unknown"] ✓
-        "obs_3": "Nothing configured, none available.",                    # no=["no","none"] ✓
-        "obs_4": "No evidence preserved, none kept.",                      # no=["no","none"] ✓
-        "obs_5": "All manual checks, no intelligence, none.",              # no=["manual","no","none"] ✓
-        "obs_6": "No capability here, none available.",                    # no=["no","none"] ✓
+        "obs_1": "Just print to console, no system, none.",
+        "obs_2": "Completely unknown, no visibility.",
+        "obs_3": "Nothing configured, none available.",
+        "obs_4": "No evidence preserved, none kept.",
+        "obs_5": "All manual checks, no intelligence, none.",
+        "obs_6": "No capability here, none available.",
         # ── Cost Efficiency ─────────────────────────────────────────────────
-        "cost_1": "No spending controls, no governance.",                  # no=["no"] — avoids "unlimited" ✓
-        "cost_2": "We always use the same LLM, no variety.",               # no=["no"] — avoids "one-model" ✓
-        "cost_3": "No optimization performed, none.",                      # no=["no","none"] ✓
-        "cost_4": "No tracking or visibility here, none.",                 # no=["no","none"] ✓
-        "cost_5": "All manual choices, no automation, none.",              # no=["manual","no","none"] ✓
-        "cost_6": "No safeguards exist, none at all.",                     # no=["no","none"] ✓
+        "cost_1": "No spending controls, no governance.",   # "unlimited" avoided
+        "cost_2": "We always use the same LLM, no variety.", # "one-model" avoided (contains "model" yes kw)
+        "cost_3": "No optimization performed, none.",
+        "cost_4": "No tracking or visibility, none.",
+        "cost_5": "All manual choices, no automation, none.",
+        "cost_6": "No safeguards exist, none at all.",
         # ── Operating Model ─────────────────────────────────────────────────
-        "ops_1": "Individual contributors only, shadow IT, no hub.",       # no=["individual","no","shadow"] ✓
-        "ops_2": "Ad-hoc for everything, no patterns.",                    # no=["ad-hoc","no"] ✓
-        "ops_3": "Tickets only, manual process, no automation.",           # no=["ticket","manual","no"] ✓
-        "ops_4": "Single isolated agents, no coordination.",               # no=["single","no"] ✓
-        "ops_5": "Not documented, manual only, none provided.",            # no=["none","not","manual"] ✓
-        "ops_6": "All manual ops, no automation, none.",                   # no=["manual","no","none"] ✓
-        "ops_7": "No goals, none measured, ad-hoc entirely.",              # no=["no","none","ad-hoc"] ✓
+        "ops_1": "Individual contributors only, shadow IT, no hub.",
+        "ops_2": "Ad-hoc for everything, no patterns.",
+        "ops_3": "Tickets only, manual process, no automation.",
+        "ops_4": "Single isolated agents, no coordination.",
+        "ops_5": "Not documented, manual only, none provided.",
+        "ops_6": "All manual ops, no automation, none.",
+        "ops_7": "No goals, none measured, ad-hoc entirely.",
     },
     evidence_artifacts=[],
 )
@@ -109,10 +118,17 @@ L1_REF_AGENT = ReferenceAgent(
 
 # ---------------------------------------------------------------------------
 # L3_REF_AGENT  –  Managed / partial capabilities
-# Strategy: answer base rubric questions positively (yes keywords, no evidence
-# bonus terms), leave L5 rubric questions empty to model L3 gap.
-# Expected score: ~66  (within 50-70 range).
 # ---------------------------------------------------------------------------
+# Answer strategy:
+#   • Base rubric questions (non-L5): hit YES keywords, avoid EVIDENCE keywords.
+#   • L5 rubric questions: empty string → gap, 0 pts.
+#   • ops_2 & ops_5 have all yes-kws == evidence-kws; use neutral partial-credit
+#     phrasing (yes=0, no=0 → 12 pts each) for ops_2.
+#     ops_5: "adopting" hits yes-kw "adoption" without any evidence keyword.
+#
+# Predicted per-dimension scores (no bonuses):
+#   GOV 125/175=71, SEC 80/130=61, REL 100/150=66, EVAL 100/150=66,
+#   OBS 100/150=66, COST 100/150=66, OPS 112/175=64  →  avg ≈ 65  →  L3.
 
 L3_REF_AGENT = ReferenceAgent(
     name="L3 Managed Reference Agent",
@@ -120,54 +136,82 @@ L3_REF_AGENT = ReferenceAgent(
     expected_score_range=(50, 70),
     answers={
         # ── Governance ──────────────────────────────────────────────────────
+        # evidence kws: soc2, iso, framework, committee  — none appear below
         "gov_1": "We have a documented policy with approval processes.",
         "gov_2": "Assigned owners are accountable for each agent.",
         "gov_3": "We maintain an audit log and review it periodically.",
         "gov_4": "Human approval is in the loop with escalation paths.",
         "gov_5": "Risk assessment is conducted before each release.",
-        "gov_6": "",   # L5 gap — no automated governance review
-        "gov_7": "",   # L5 gap — no incident-driven feedback loop
+        "gov_6": "",   # L5 gap — no automated continuous-governance loop
+        "gov_7": "",   # L5 gap — no incident-driven policy improvement
         # ── Security ────────────────────────────────────────────────────────
+        # sec_3 evidence kws: vault, kms, redaction, dlp
+        #   → use "secret"+"redact" only; "redact" != "redaction"; "vault" avoided
         "sec_1": "A policy filter blocks disallowed tool calls.",
         "sec_2": "We detect and scan for injection attempts.",
-        "sec_3": "Secrets are stored in a vault with redaction enabled.",
+        "sec_3": "Secrets use managed redact controls.",
         "sec_4": "Plugins are scanned and analyzed before deployment.",
         "sec_5": "",   # L5 gap — no automated adaptive threat modeling
         "sec_6": "",   # L5 gap — no continuous red-team simulation
         # ── Reliability ─────────────────────────────────────────────────────
+        # rel_2 evidence kws: rate-limit, timeout, quota
+        #   → "timeout" is both yes+evidence; use rate+throttle only
+        #   → "rate-limit" (hyphen) != "rate limiting" (space) — safe
+        # rel_4 evidence kws: canary, blue-green, rollback, ci-cd
+        #   → "rollback"/"canary" both yes+evidence; use version+deploy only
         "rel_1": "Circuit breaker patterns with retry logic and fallback.",
-        "rel_2": "Rate limiting and timeouts are enforced on every call.",
+        "rel_2": "Rate limiting and throttling are applied to every call.",
         "rel_3": "Health monitoring and alerts notify on incidents.",
-        "rel_4": "Versioned deployments support rollback when needed.",
+        "rel_4": "We version our deploys carefully.",
         "rel_5": "",   # L5 gap — no self-healing autonomous recovery
         "rel_6": "",   # L5 gap — no predictive reliability alerting
         # ── Evaluation ──────────────────────────────────────────────────────
-        "eval_1": "We benchmark and measure agent outputs with eval suites.",
+        # eval_1 evidence kws: eval-suite, benchmark, dataset, metrics
+        #   → "benchmark" is both yes+evidence; use eval+test+measure only
+        #   → "eval-suite" (hyphen) != "eval tests" (space) — safe
+        "eval_1": "We run eval tests and measure quality systematically.",
         "eval_2": "Automated regression tests run in CI pipelines.",
         "eval_3": "Humans review outputs and provide structured feedback.",
-        "eval_4": "Safety reviews include adversarial test cases.",
+        "eval_4": "We conduct safety reviews and adversarial testing.",
         "eval_5": "",  # L5 gap — no continuous production eval
         "eval_6": "",  # L5 gap — no automated eval-driven update loop
         # ── Observability ───────────────────────────────────────────────────
+        # obs_3 evidence kws: grafana, prometheus, dashboard, datadog
+        #   → "dashboard"/"grafana" both yes+evidence; use monitor+metric only
         "obs_1": "Structured logging with trace IDs and audit records.",
-        "obs_2": "Token usage and cost are tracked with budget alerts.",
-        "obs_3": "A monitoring dashboard displays agent health metrics.",
+        "obs_2": "Token usage and cost are tracked with budget monitoring.",
+        "obs_3": "We monitor systems and collect metric data.",
         "obs_4": "Action receipts are kept in an immutable record store.",
         "obs_5": "",   # L5 gap — no AI-powered anomaly detection
         "obs_6": "",   # L5 gap — no distributed tracing root-cause system
         # ── Cost Efficiency ─────────────────────────────────────────────────
+        # cost_3 evidence kws: semantic-cache, prompt-cache, dedup
+        #   → "dedup" is both yes+evidence; use cache+reuse only
+        # cost_4 evidence kws: chargeback, cost-allocation, per-team, report
+        #   → "report" is both yes+evidence; use attribution+allocate only
+        #   → "per-team" (hyphen) != "per group" (space) — safe
         "cost_1": "Budget caps and spending limits have alert thresholds.",
         "cost_2": "Requests route to model tiers matched to complexity.",
-        "cost_3": "Responses are cached and deduplicated to reduce spend.",
-        "cost_4": "Cost attribution reports are generated per team.",
+        "cost_3": "Responses are cached and reused to cut costs.",
+        "cost_4": "Costs are attributed and allocated per group.",
         "cost_5": "",  # L5 gap — no automated cost-optimized routing
         "cost_6": "",  # L5 gap — no automated budget enforcement circuit
         # ── Operating Model ─────────────────────────────────────────────────
-        "ops_1": "A central platform team manages all AI agent tooling.",
-        "ops_2": "Standard templates and a catalog of approved patterns.",
-        "ops_3": "Developers use a self-serve portal with an API catalog.",
-        "ops_4": "We orchestrate multi-agent workflows for complex tasks.",
-        "ops_5": "Team training and an adoption playbook are in place.",
+        # ops_2 evidence kws: template, golden-path, catalog, standard (ALL == yes kws!)
+        #   → neutral phrase: yes=0, no=0 → partial credit = 12 pts
+        # ops_3 evidence kws: developer-portal, self-serve, api-catalog
+        #   → "self-serve" is both; use portal+api+developer only
+        #   → "developer-portal" (hyphen) != "developers … portal" — safe
+        # ops_4 evidence kws: multi-agent, orchestration, dag, workflow
+        #   → "multi-agent"/"workflow" both yes+evidence; use coordinate+orchestrat(e) only
+        #   → "orchestration" != "orchestrate" (different suffixes) — safe
+        # ops_5 evidence kws: enablement, training, playbook, onboarding (ALL == yes kws!)
+        #   → "adoption" is a yes kw but NOT an evidence kw → use "adopting"
+        "ops_1": "We have a central platform team for AI work.",
+        "ops_2": "We follow repeatable processes across our agent builds.",
+        "ops_3": "Developers have direct portal access with an API.",
+        "ops_4": "We coordinate and orchestrate multiple agent pipelines.",
+        "ops_5": "We guide teams in adopting agents.",
         "ops_6": "",   # L5 gap — no automated runbook execution
         "ops_7": "",   # L5 gap — no OKR-driven continuous improvement
     },
@@ -177,15 +221,16 @@ L3_REF_AGENT = ReferenceAgent(
 
 # ---------------------------------------------------------------------------
 # L5_REF_AGENT  –  Autonomous / all capabilities  (evidence-based scoring)
-# All 44 rubric questions covered with EXECUTION_VERIFIED artifacts.
-# Expected level L4-L5, score 85-100.
 # ---------------------------------------------------------------------------
+# All 44 rubric questions covered with EXECUTION_VERIFIED artifacts (trust=1.0).
+# score_with_evidence() awards full points per question → all dims score 100
+# → avg = 100 → L5. Expected range 85-100.
 
 _VERIFIED_AT = "2026-02-19T05:21:00Z"
 
 
 def _ev(qid: str, claim: str) -> EvidenceArtifact:
-    """Helper: create an EXECUTION_VERIFIED artifact with no errors."""
+    """Return an EXECUTION_VERIFIED artifact with no execution errors."""
     return EvidenceArtifact(
         qid=qid,
         kind=EvidenceKind.EXECUTION_VERIFIED,
