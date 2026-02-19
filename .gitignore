@@ -2,9 +2,13 @@ node_modules/
 dist/
 coverage/
 .DS_Store
+
+# AMC runtime data
 .amc/evidence.sqlite
 .amc/evidence.sqlite-shm
 .amc/evidence.sqlite-wal
+.amc/studio/tmp/
+*.db
 
 # Python platform
 platform/python/.venv/
@@ -14,3 +18,22 @@ platform/python/.pytest_cache/
 platform/python/*.db
 platform/python/amc_routing.db
 platform/python/*.egg-info/
+
+# Workspace / personal files (OpenClaw workspace — do NOT commit)
+SOUL.md
+MEMORY.md
+BOOTSTRAP.md
+HEARTBEAT.md
+IDENTITY.md
+USER.md
+TOOLS.md
+NOW.md
+CONTINUATION.md
+AGENTS.md
+AMC_ARMY_ROLES.md
+qualification.md
+sales_playbook.md
+AMC_OS/
+memory/
+amc_ai_army/
+ASSETS/
