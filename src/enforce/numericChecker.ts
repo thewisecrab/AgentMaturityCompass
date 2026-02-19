@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Numeric range and plausibility checker.
  */
@@ -28,5 +29,6 @@ export function checkNumeric(value: number, opts: {
     if (value < 0) flags.push('Negative currency value');
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E23', decision: 'allow', reason: 'E23 decision', severity: 'medium' });
   return { valid: flags.length === 0, flags };
 }

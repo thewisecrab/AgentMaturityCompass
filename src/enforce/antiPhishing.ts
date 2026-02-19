@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface ApprovalCheckRequest {
   senderName: string;
   senderEmail?: string;
@@ -55,6 +56,7 @@ export function checkApprovalRequest(request: ApprovalCheckRequest): PhishingRes
   if (/-(login|signin|verify|secure|update)/i.test(text)) indicators.push('Suspicious keywords');
 
   const confidence = Math.min(indicators.length * 0.2, 1);
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E16', decision: 'deny', reason: 'E16 decision', severity: 'high' });
   return { isPhishing: indicators.length >= 2, indicators, confidence };
 }
 

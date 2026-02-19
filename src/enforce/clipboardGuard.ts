@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface ClipboardFinding {
   type: string;
   match: string;
@@ -35,5 +36,6 @@ export function guardClipboard(content: string): ClipboardResult {
     scrubbed = scrubbed.replace(new RegExp(regex.source, regex.flags), replacement);
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E31', decision: 'allow', reason: 'E31 decision', severity: 'medium' });
   return { safe: findings.length === 0, scrubbed, findings };
 }

@@ -1,8 +1,8 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 /**
  * Threat intelligence — pattern matching against known threat indicators.
  */
 
-import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 
 export interface ThreatMatch {
   pattern: string;

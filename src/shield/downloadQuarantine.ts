@@ -3,6 +3,7 @@
  */
 
 import { createHash } from 'node:crypto';
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 
 export interface QuarantineResult {
   allowed: boolean;
@@ -18,18 +19,22 @@ export function quarantineCheck(url: string, filename: string): QuarantineResult
 
   for (const domain of BLOCKED_DOMAINS) {
     if (url.includes(domain)) {
+      emitGuardEvent({ agentId: 'system', moduleCode: 'S13', decision: 'allow', reason: 'S13 decision', severity: 'high' });
       return { allowed: false, reason: `Blocked domain: ${domain}`, hash };
     }
   }
 
   const ext = filename.slice(filename.lastIndexOf('.')).toLowerCase();
   if (BLOCKED_EXTENSIONS.has(ext)) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'S13', decision: 'allow', reason: 'S13 decision', severity: 'high' });
     return { allowed: false, reason: `Blocked file extension: ${ext}`, hash };
   }
 
   if (!url.startsWith('https://')) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'S13', decision: 'allow', reason: 'S13 decision', severity: 'high' });
     return { allowed: false, reason: 'Non-HTTPS download blocked', hash };
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S13', decision: 'allow', reason: 'S13 decision', severity: 'high' });
   return { allowed: true, reason: 'Passed quarantine checks', hash };
 }

@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface EgressRequest {
   url: string;
   method: string;
@@ -23,6 +24,7 @@ export function checkEgressRequest(request: EgressRequest): EgressResult {
   try {
     domain = new URL(url).hostname;
   } catch {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E4', decision: 'allow', reason: 'E4 decision', severity: 'high' });
     return {
       allowed: false, domain: 'invalid', logged: true, strippedHeaders: [],
       auditEntry: { timestamp: Date.now(), url, method, decision: 'blocked:invalid-url' },
@@ -33,6 +35,7 @@ export function checkEgressRequest(request: EgressRequest): EgressResult {
     allowedDomains.some(d => domain === d || domain.endsWith('.' + d));
 
   if (!domainAllowed) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E4', decision: 'allow', reason: 'E4 decision', severity: 'high' });
     return {
       allowed: false, domain, logged: true, strippedHeaders: [],
       auditEntry: { timestamp: Date.now(), url, method, decision: 'blocked:domain-not-allowed' },
@@ -48,6 +51,7 @@ export function checkEgressRequest(request: EgressRequest): EgressResult {
     }
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E4', decision: 'allow', reason: 'E4 decision', severity: 'high' });
   return {
     allowed: true, domain, logged: true, strippedHeaders,
     auditEntry: { timestamp: Date.now(), url, method, decision: 'allowed' },

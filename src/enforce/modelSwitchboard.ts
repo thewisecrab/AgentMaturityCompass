@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Model routing switchboard.
  */

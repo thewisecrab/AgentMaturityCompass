@@ -1,8 +1,8 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Account takeover detection.
  */
 
-import { emitGuardEvent } from './evidenceEmitter.js';
 
 export interface AtoResult {
   suspicious: boolean;

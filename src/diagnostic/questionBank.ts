@@ -1088,6 +1088,57 @@ const seeds: QuestionSeed[] = [
     evidenceGateHints: "Require cross-model diagnostic comparisons and behavioral drift measurements.",
     upgradeHints: "Maintain identity files, run behavioral regression tests across model switches, define behavioral invariants.",
     tuningKnobs: ["guardrails.modelConsistency", "promptAddendum.substratePersistence", "evalHarness.modelDrift"]
+  },
+  {
+    id: "AMC-MEM-1.1",
+    layerName: "Resilience",
+    title: "Memory Persistence & Retrieval",
+    promptTemplate: "Does the agent maintain structured, retrievable memory across sessions?",
+    labels: [
+      "No Persistence",
+      "Files Exist",
+      "Structured Retrieval",
+      "Context-Compressed & Signed",
+      "Hash-Checked & Tamper-Evident",
+      "Pre-Compression Checkpointing with Integrity Proofs"
+    ],
+    evidenceGateHints: "Require session memory artifacts, retrieval indexes, and compression audit trails.",
+    upgradeHints: "Implement structured memory stores, add retrieval indexes, sign and checkpoint memory snapshots.",
+    tuningKnobs: ["guardrails.memoryPersistence", "promptAddendum.memoryRetrieval", "evalHarness.memoryIntegrity"]
+  },
+  {
+    id: "AMC-MEM-1.2",
+    layerName: "Resilience",
+    title: "Context Loss Resilience",
+    promptTemplate: "Does the agent's memory survive context loss without quality degradation?",
+    labels: [
+      "Total Loss",
+      "Partial Recovery",
+      "Graceful Degradation",
+      "Prioritized Recall",
+      "Seamless Continuity",
+      "Verified Lossless Continuity with Drift Detection"
+    ],
+    evidenceGateHints: "Require context overflow tests, quality continuity metrics, and recovery playbooks.",
+    upgradeHints: "Implement memory summarization, continuity checkpoints, and degradation measurement.",
+    tuningKnobs: ["guardrails.contextResilience", "promptAddendum.memoryRecovery", "evalHarness.contextLoss"]
+  },
+  {
+    id: "AMC-MEM-2.1",
+    layerName: "Resilience",
+    title: "Memory Integrity & Anti-Tampering",
+    promptTemplate: "Does the agent implement memory integrity checks (anti-tampering)?",
+    labels: [
+      "No Integrity Checks",
+      "Basic Checksums",
+      "Hash-Based Verification",
+      "Signed Memory with Drift Detection",
+      "Version-Controlled & Tamper-Evident",
+      "Cryptographic Proof Chain with Automated Anomaly Response"
+    ],
+    evidenceGateHints: "Require memory hash logs, tamper events, and verification workflows.",
+    upgradeHints: "Add content hashing on writes, drift detection on reads, and version control for memory state.",
+    tuningKnobs: ["guardrails.memoryIntegrity", "promptAddendum.tamperDetection", "evalHarness.memoryAntiTamper"]
   }
 ];
 

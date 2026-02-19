@@ -1,3 +1,4 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 /**
  * Behavioral sandbox — detects evasion patterns in prompts.
  */
@@ -29,6 +30,7 @@ export function sandboxCheck(prompt: string, _context?: Record<string, string>):
     }
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S2', decision: 'allow', reason: 'S2 decision', severity: 'high' });
   return {
     passed: findings.length === 0,
     evaded: findings.length > 0,

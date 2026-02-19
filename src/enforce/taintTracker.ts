@@ -1,8 +1,8 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Data taint propagation tracker.
  */
 
-import { emitGuardEvent } from './evidenceEmitter.js';
 
 export interface TaintedValue {
   value: unknown;

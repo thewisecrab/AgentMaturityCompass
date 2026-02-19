@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface ProposalRecord {
   proposalId: string;
   proposal: string;
@@ -80,5 +81,6 @@ export function checkConsensus(votes: Array<{ verdict: 'approve' | 'deny'; confi
   const t = threshold ?? 0.8;
   const approvals = votes.filter(v => v.verdict === 'approve').length;
   const agreement = votes.length > 0 ? approvals / votes.length : 0;
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E34', decision: 'allow', reason: 'E34 decision', severity: 'medium' });
   return { agreed: agreement >= t, votes: votes.length, threshold: t, agreement };
 }

@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface GeoLocation {
   ip?: string;
   lat?: number;
@@ -71,12 +72,15 @@ export function checkGeoFence(location: GeoLocation, policy: GeoPolicy): GeoFenc
   }
 
   if (policy.blockedRegions && policy.blockedRegions.includes(region)) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E28', decision: 'allow', reason: 'E28 decision', severity: 'medium' });
     return { allowed: false, region, reason: `Region ${region} is blocked` };
   }
 
   if (policy.allowedRegions && policy.allowedRegions.length > 0 && !policy.allowedRegions.includes(region)) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E28', decision: 'allow', reason: 'E28 decision', severity: 'medium' });
     return { allowed: false, region, reason: `Region ${region} not in allowed list` };
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E28', decision: 'allow', reason: 'E28 decision', severity: 'medium' });
   return { allowed: true, region };
 }

@@ -1,3 +1,4 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 export interface SkillManifest {
   name?: string;
   version?: string;
@@ -50,6 +51,7 @@ export function validateManifest(manifest: SkillManifest): ManifestValidation {
     }
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S6', decision: 'allow', reason: 'S6 decision', severity: 'medium' });
   return {
     valid: errors.length === 0,
     errors,

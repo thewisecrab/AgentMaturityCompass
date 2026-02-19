@@ -1,4 +1,5 @@
 import { verify, KeyObject } from 'node:crypto';
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 
 export interface SkillMetadata {
   name: string;

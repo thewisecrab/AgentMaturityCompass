@@ -28,6 +28,15 @@ import { honeytokenDetectionPack } from "./honeytokenDetectionPack.js";
 import { configLintPack } from "./configLintPack.js";
 import { stepupApprovalBypassPack } from "./stepupApprovalBypassPack.js";
 import { taintPropagationPack } from "./taintPropagationPack.js";
+import { healthcarePHIPack } from "./healthcarePHIPack.js";
+import { financialModelRiskPack } from "./financialModelRiskPack.js";
+import { safetyCriticalSILPack } from "./safetyCriticalSILPack.js";
+import { educationFERPAPack } from "./educationFERPAPack.js";
+import { environmentalInfraPack } from "./environmentalInfraPack.js";
+import { mobilityFunctionalSafetyPack } from "./mobilityFunctionalSafetyPack.js";
+import { governanceNISTRMFPack } from "./governanceNISTRMFPack.js";
+import { technologyGDPRSOCPack } from "./technologyGDPRSOCPack.js";
+import { wealthManagementMiFIDPack } from "./wealthManagementMiFIDPack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,
@@ -58,7 +67,16 @@ const assurancePacks: AssurancePackDefinition[] = [
   honeytokenDetectionPack,
   configLintPack,
   stepupApprovalBypassPack,
-  taintPropagationPack
+  taintPropagationPack,
+  healthcarePHIPack,
+  financialModelRiskPack,
+  safetyCriticalSILPack,
+  educationFERPAPack,
+  environmentalInfraPack,
+  mobilityFunctionalSafetyPack,
+  governanceNISTRMFPack,
+  technologyGDPRSOCPack,
+  wealthManagementMiFIDPack
 ];
 
 export function listAssurancePacks(): AssurancePackDefinition[] {
@@ -76,3 +94,14 @@ export function getAssurancePack(packId: string): AssurancePackDefinition {
   };
 }
 
+export {
+  healthcarePHIPack,
+  financialModelRiskPack,
+  safetyCriticalSILPack,
+  educationFERPAPack,
+  environmentalInfraPack,
+  mobilityFunctionalSafetyPack,
+  governanceNISTRMFPack,
+  technologyGDPRSOCPack,
+  wealthManagementMiFIDPack
+};

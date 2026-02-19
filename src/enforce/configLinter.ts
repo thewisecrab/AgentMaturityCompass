@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Configuration risk linter.
  */
@@ -51,5 +52,6 @@ export function lintConfig(config: Record<string, unknown>): LintResult {
   for (const f of findings) riskScore += weights[f.severity];
   riskScore = Math.min(100, riskScore);
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E25', decision: 'allow', reason: 'E25 decision', severity: 'low' });
   return { passed: findings.length === 0, findings, overallRisk: computeRisk(riskScore), riskScore, score: riskScore };
 }

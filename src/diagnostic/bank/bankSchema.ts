@@ -58,7 +58,7 @@ export const diagnosticBankSchema = z
     diagnosticBank: z.object({
       version: z.literal(1),
       dimensions: z.array(diagnosticBankDimensionSchema).length(5),
-      questions: z.array(diagnosticBankQuestionSchema).length(48)
+      questions: z.array(diagnosticBankQuestionSchema).length(51)
     })
   })
   .superRefine((value, ctx) => {
@@ -99,7 +99,7 @@ export const diagnosticBankSchema = z
       1: 11,
       2: 5,
       3: 16,
-      4: 9,
+      4: 12,
       5: 7
     };
 

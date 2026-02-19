@@ -1,8 +1,8 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Per-session circuit breaker.
  */
 
-import { emitGuardEvent } from './evidenceEmitter.js';
 
 export type CircuitState = 'closed' | 'open' | 'half-open';
 

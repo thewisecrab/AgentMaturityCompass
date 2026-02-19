@@ -1,9 +1,9 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 /**
  * Static code/skill analyzer — pure TypeScript, no external deps.
  * Detects dangerous patterns in code: eval, exec, hardcoded secrets, etc.
  */
 
-import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 
 export interface AnalyzerFinding {
   severity: 'critical' | 'high' | 'medium' | 'low';

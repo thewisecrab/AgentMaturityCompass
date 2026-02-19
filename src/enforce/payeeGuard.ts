@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Payment/payee guard.
  */
@@ -19,5 +20,6 @@ export function checkPayee(payee: { name: string; account?: string; amount?: num
   if (/test|dummy|fake/i.test(payee.name)) { flags.push('Suspicious payee name'); riskScore += 25; }
 
   riskScore = Math.min(100, riskScore);
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E20', decision: 'allow', reason: 'E20 decision', severity: 'high' });
   return { safe: riskScore < 30, flags, riskScore };
 }

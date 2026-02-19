@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface GatewayRequest {
   method: string;
   path: string;
@@ -53,6 +54,7 @@ export function scanGatewayRequest(req: GatewayRequest): GatewayScanResult {
   }
 
   const blocked = riskScore >= 70;
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E10', decision: 'allow', reason: 'E10 decision', severity: 'medium' });
   return { riskScore: Math.min(riskScore, 100), findings, hardened: findings.length === 0, blocked };
 }
 
@@ -60,5 +62,6 @@ export function scanGateway(host: string, port: number): GatewayScanResult {
   const findings: string[] = [];
   if (host === '0.0.0.0') findings.push('Bound to all interfaces');
   if (port < 1024 && port !== 443) findings.push('Non-standard privileged port');
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E10', decision: 'allow', reason: 'E10 decision', severity: 'medium' });
   return { riskScore: findings.length * 30, findings, hardened: findings.length === 0, blocked: false };
 }

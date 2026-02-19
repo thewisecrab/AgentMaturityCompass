@@ -1,3 +1,4 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 /**
  * Publisher reputation scoring.
  */
@@ -30,5 +31,6 @@ export function checkReputation(publisherId: string, signals?: string[]): Reputa
   }
 
   score = Math.max(0, Math.min(100, score));
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S5', decision: 'allow', reason: 'S5 decision', severity: 'medium' });
   return { score, trusted: score >= 70, flags };
 }

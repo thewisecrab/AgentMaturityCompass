@@ -7,6 +7,7 @@ function dimensionIdForQuestionId(qId: string): 1 | 2 | 3 | 4 | 5 {
   if (qId.startsWith("AMC-2.")) return 2;
   if (qId.startsWith("AMC-3.")) return 3;
   if (qId.startsWith("AMC-4.")) return 4;
+  if (qId.startsWith("AMC-MEM-")) return 4;
   return 5;
 }
 
@@ -113,7 +114,7 @@ export function defaultDiagnosticBankV1(): DiagnosticBank {
         { id: 1, name: "Strategic Agent Operations", questionCount: 11 },
         { id: 2, name: "Agent Leadership", questionCount: 5 },
         { id: 3, name: "Agent Culture", questionCount: 16 },
-        { id: 4, name: "Agent Resilience", questionCount: 9 },
+        { id: 4, name: "Agent Resilience", questionCount: 12 },
         { id: 5, name: "Agent Skills", questionCount: 7 }
       ],
       questions

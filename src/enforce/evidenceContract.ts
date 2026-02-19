@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { emitGuardEvent } from './evidenceEmitter.js';
 
 export interface Claim {
   id: string;
@@ -36,6 +37,7 @@ export function createEvidenceContract(claims: Claim[]): EvidenceContract {
   for (const claim of claims) {
     claimHashes[claim.id] = hashContent(JSON.stringify(claim));
   }
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E24', decision: 'allow', reason: 'E24 decision', severity: 'medium' });
   return {
     contractId: `ec_${Date.now()}_${hashContent(JSON.stringify(claims)).slice(0, 8)}`,
     claims,
@@ -61,6 +63,7 @@ export function verifyEvidenceContract(contract: EvidenceContract, evidence: Evi
   }
 
   const satisfiedCount = claimResults.filter(r => r.satisfied).length;
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E24', decision: 'allow', reason: 'E24 decision', severity: 'medium' });
   return {
     verified: claimResults.every(r => r.satisfied),
     claimResults,

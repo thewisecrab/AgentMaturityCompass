@@ -1,8 +1,8 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Shell execution guard — blocks dangerous commands.
  */
 
-import { emitGuardEvent } from './evidenceEmitter.js';
 
 export interface ExecGuardResult {
   allowed: boolean;

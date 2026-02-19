@@ -1,7 +1,7 @@
 {
   "enabled": true,
-  "lastRefreshTs": 1771499004466,
-  "nextRefreshTs": 1771585404466,
+  "lastRefreshTs": 1771507104712,
+  "nextRefreshTs": 1771593504712,
   "lastOutcome": {
     "status": "SKIPPED",
     "reason": "workspace not ready"

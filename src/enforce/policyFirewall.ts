@@ -1,8 +1,8 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Policy firewall — tool-call policy engine.
  */
 
-import { emitGuardEvent } from './evidenceEmitter.js';
 
 export type PolicyDecision = 'allow' | 'deny' | 'stepup' | 'sanitize' | 'quarantine';
 

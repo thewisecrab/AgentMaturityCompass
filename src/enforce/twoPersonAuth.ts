@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface PendingApproval {
   actionId: string;
   action: string;
@@ -58,5 +59,6 @@ const defaultAuth = new TwoPersonAuth();
 
 export function checkTwoPersonApproval(approvals: string[]): TwoPersonResult {
   const unique = new Set(approvals).size;
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E19', decision: 'allow', reason: 'E19 decision', severity: 'high' });
   return { approved: unique >= 2, approvals: unique, required: 2 };
 }

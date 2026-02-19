@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface ProxyRequest {
   url: string;
   headers: Record<string, string>;
@@ -22,16 +23,19 @@ export function validateProxyRequest(req: ProxyRequest): ProxyGuardResult {
   try {
     hostname = new URL(req.url).hostname;
   } catch {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E12', decision: 'allow', reason: 'E12 decision', severity: 'medium' });
     return { allowed: false, upstream: req.url, headers: {}, reason: 'Invalid URL', findings: ['Invalid URL'] };
   }
 
   if (INTERNAL_RANGES.test(hostname)) {
     findings.push('SSRF: targets internal IP');
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E12', decision: 'allow', reason: 'E12 decision', severity: 'medium' });
     return { allowed: false, upstream: hostname, headers: {}, reason: 'Internal IP blocked', findings };
   }
 
   if (CLOUD_METADATA.includes(hostname)) {
     findings.push('SSRF: targets cloud metadata endpoint');
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E12', decision: 'allow', reason: 'E12 decision', severity: 'medium' });
     return { allowed: false, upstream: hostname, headers: {}, reason: 'Cloud metadata blocked', findings };
   }
 
@@ -52,6 +56,7 @@ export function validateProxyRequest(req: ProxyRequest): ProxyGuardResult {
     } catch { /* ignore */ }
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E12', decision: 'allow', reason: 'E12 decision', severity: 'medium' });
   return {
     allowed: findings.length === 0, upstream: hostname,
     headers: { 'X-Forwarded-By': 'amc-proxy-guard' },
@@ -62,6 +67,7 @@ export function validateProxyRequest(req: ProxyRequest): ProxyGuardResult {
 
 export function checkProxy(upstream: string): ProxyGuardResult {
   const blocked = upstream.includes('localhost') || upstream.includes('127.0.0.1') || upstream.includes('169.254.');
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E12', decision: 'allow', reason: 'E12 decision', severity: 'medium' });
   return {
     allowed: !blocked, upstream,
     headers: { 'X-Forwarded-By': 'amc-proxy-guard' },

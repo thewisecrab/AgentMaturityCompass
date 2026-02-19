@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface TemplatePolicy {
   maxVars?: number;
   maxOutputLength?: number;
@@ -28,6 +29,7 @@ export function renderTemplate(template: string, vars: Record<string, string>, p
   for (const m of matches) {
     const varName = m[1]!.trim();
     if (DANGEROUS_VARS.includes(varName)) {
+      emitGuardEvent({ agentId: 'system', moduleCode: 'E32', decision: 'allow', reason: 'E32 decision', severity: 'low' });
       return { rendered: '', variablesUsed: [], warnings: [`Blocked: dangerous variable reference {{${varName}}}`], blocked: true };
     }
   }
@@ -61,5 +63,6 @@ export function renderTemplate(template: string, vars: Record<string, string>, p
     warnings.push('Output truncated to max length');
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E32', decision: 'allow', reason: 'E32 decision', severity: 'low' });
   return { rendered, variablesUsed, warnings, blocked: false };
 }

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { emitGuardEvent } from './evidenceEmitter.js';
 
 export interface BrowserAction {
   type: 'navigate' | 'click' | 'form-submit' | 'screenshot';
@@ -21,10 +22,12 @@ export function checkBrowserAction(action: BrowserAction): BrowserGuardrailResul
   let riskScore = 0;
 
   if (DANGEROUS_SCHEMES.test(url)) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E3', decision: 'allow', reason: 'E3 decision', severity: 'high' });
     return { allowed: false, blockedReason: `Dangerous scheme in URL: ${url.split(':')[0]}`, riskScore: 100 };
   }
 
   if (INTERNAL_IP.test(url)) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E3', decision: 'allow', reason: 'E3 decision', severity: 'high' });
     return { allowed: false, blockedReason: 'URL targets internal/private IP address', riskScore: 95 };
   }
 
@@ -32,14 +35,17 @@ export function checkBrowserAction(action: BrowserAction): BrowserGuardrailResul
   try {
     hostname = new URL(url).hostname;
   } catch {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E3', decision: 'allow', reason: 'E3 decision', severity: 'high' });
     return { allowed: false, blockedReason: 'Invalid URL', riskScore: 90 };
   }
 
   if (blocklist && blocklist.some(b => hostname.endsWith(b))) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E3', decision: 'allow', reason: 'E3 decision', severity: 'high' });
     return { allowed: false, blockedReason: `Domain ${hostname} is blocklisted`, riskScore: 85 };
   }
 
   if (allowlist && allowlist.length > 0 && !allowlist.some(a => hostname.endsWith(a))) {
+    emitGuardEvent({ agentId: 'system', moduleCode: 'E3', decision: 'allow', reason: 'E3 decision', severity: 'high' });
     return { allowed: false, blockedReason: `Domain ${hostname} not in allowlist`, riskScore: 70 };
   }
 
@@ -50,6 +56,7 @@ export function checkBrowserAction(action: BrowserAction): BrowserGuardrailResul
   if (url.includes('..')) riskScore += 20;
   if (url.length > 2000) riskScore += 15;
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E3', decision: 'allow', reason: 'E3 decision', severity: 'high' });
   return { allowed: true, riskScore };
 }
 

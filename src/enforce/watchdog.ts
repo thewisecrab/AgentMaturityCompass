@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface WatchdogConfig {
   timeoutMs: number;
   onTimeout?: string;
@@ -68,5 +69,6 @@ const defaultManager = new WatchdogManager();
 
 export function watchdogReview(toolName: string, _params: Record<string, unknown>): WatchdogDecision {
   const highRisk = ['send_payment', 'delete', 'deploy'].includes(toolName);
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E33', decision: 'deny', reason: 'E33 decision', severity: 'high' });
   return { approved: !highRisk, requiresEvidence: highRisk, riskScore: highRisk ? 85 : 20 };
 }

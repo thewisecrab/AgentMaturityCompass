@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface IdempotencyCheck {
   canProceed: boolean;
   existingResult?: unknown;
@@ -45,5 +46,6 @@ const defaultStore = new IdempotencyStore();
 export function checkIdempotency(workflowId: string, action: string, params: Record<string, unknown>): IdempotencyCheck {
   const key = `${workflowId}:${action}:${JSON.stringify(params)}`;
   const { found, result } = defaultStore.check(key);
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E29', decision: 'deny', reason: 'E29 decision', severity: 'low' });
   return { canProceed: !found, existingResult: result, key };
 }

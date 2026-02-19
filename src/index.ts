@@ -1264,6 +1264,9 @@ export * from "./watch/index.js";
 // ── Score modules ─────────────────────────────────────────────────────
 export * from "./score/index.js";
 
+// ── Domain modules ────────────────────────────────────────────────────
+export * from "./domains/index.js";
+
 // ── Product modules ───────────────────────────────────────────────────
 export * from "./product/index.js";
 

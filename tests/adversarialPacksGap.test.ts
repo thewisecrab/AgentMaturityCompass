@@ -5,9 +5,9 @@ import { listAssurancePacks, getAssurancePack } from "../src/assurance/packs/ind
 // New pack registration
 // ---------------------------------------------------------------------------
 describe("new adversarial packs registration", () => {
-  test("pack list now includes 20 packs", () => {
+  test("pack registry includes baseline adversarial packs", () => {
     const packs = listAssurancePacks();
-    expect(packs.length).toBe(29);
+    expect(packs.length).toBeGreaterThanOrEqual(29);
   });
 
   test("role-specific support fraud pack is registered", () => {

@@ -2610,6 +2610,62 @@ const ci = program.command("ci").description("CI/CD release gate helpers");
 const archetype = program.command("archetype").description("Archetype packs");
 const exportGroup = program.command("export").description("Export policy packs and badges");
 const assurance = program.command("assurance").description("Assurance Lab red-team packs");
+
+
+assurance
+  .command("toctou")
+  .description("Run TOCTOU assurance pack")
+  .requiredOption("--agent <agentId>", "agent ID")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; json?: boolean }) => {
+    try {
+      const { runToctouPack } = await import("./lab/packs/toctouPack.js");
+      const result = await runToctouPack(opts.agent);
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.yellow("\n🧪 TOCTOU Pack"));
+      console.log(JSON.stringify(result, null, 2));
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
+  });
+
+assurance
+  .command("compound-threats")
+  .description("Run compound threat assurance pack")
+  .requiredOption("--agent <agentId>", "agent ID")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; json?: boolean }) => {
+    try {
+      const { runCompoundThreatPack } = await import("./lab/packs/compoundThreatPack.js");
+      const result = await runCompoundThreatPack(opts.agent);
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.yellow("\n🧪 Compound Threat Pack"));
+      console.log(JSON.stringify(result, null, 2));
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
+  });
+
+assurance
+  .command("shutdown-compliance")
+  .description("Run shutdown compliance pack")
+  .requiredOption("--agent <agentId>", "agent ID")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; json?: boolean }) => {
+    try {
+      const { runShutdownCompliancePack } = await import("./lab/packs/shutdownCompliancePack.js");
+      const result = await runShutdownCompliancePack(opts.agent);
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.yellow("\n🧪 Shutdown Compliance Pack"));
+      console.log(JSON.stringify(result, null, 2));
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
+  });
+
 const cert = program.command("cert").description("Certificate operations");
 const dashboard = program.command("dashboard").description("Device-first Compass dashboard");
 const vault = program.command("vault").description("Encrypted key vault operations");
@@ -12198,6 +12254,243 @@ vault
 // ============================================================
 // SCORE — Maturity scoring and evidence collection
 // ============================================================
+const productGlossary = program.command("glossary").description("Domain terminology management");
+const domainCmd = program.command("domain").description("Domain-specific architecture and compliance operations");
+
+product
+  .command("features")
+  .description("List product features")
+  .option("--relevance <level>", "Filter by relevance: high, medium, low")
+  .option("--lane <lane>", "Filter by lane")
+  .option("--amc-fit", "Only AMC-fit features")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { relevance?: string; lane?: string; amcFit?: boolean; json?: boolean }) => {
+    try {
+      const { listFeatures } = await import("./product/featureCatalog.js");
+      const filter: { relevance?: string; lane?: string; amcFit?: boolean } = {};
+      if (opts.relevance) filter.relevance = opts.relevance;
+      if (opts.lane) filter.lane = opts.lane;
+      if (opts.amcFit) filter.amcFit = true;
+      const features = listFeatures(filter);
+      if (opts.json) { console.log(JSON.stringify(features, null, 2)); return; }
+      console.log(chalk.bold.yellow(`\n📦  Product Features (${features.length})`));
+      for (const f of features) {
+        console.log(`  ${chalk.cyan(f.id)} ${f.name} [${f.relevance}] ${f.amcFit ? chalk.green("✓ AMC") : ""}`);
+      }
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+product
+  .command("features-recommended")
+  .description("Show top recommended product features")
+  .option("--limit <n>", "Max features to show", "10")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { limit?: string; json?: boolean }) => {
+    try {
+      const { getRecommended } = await import("./product/featureCatalog.js");
+      const features = getRecommended(parseInt(opts.limit ?? "10", 10));
+      if (opts.json) { console.log(JSON.stringify(features, null, 2)); return; }
+      console.log(chalk.bold.yellow(`\n📦  Recommended Features (${features.length})`));
+      for (const f of features) console.log(`  ${chalk.cyan(f.id)} ${f.name} — ${f.pricingRange}`);
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+productGlossary
+  .command("define <term> <definition>")
+  .description("Define a glossary term")
+  .option("--domain <domain>", "Domain category", "general")
+  .option("--json", "Output as JSON")
+  .action(async (term: string, definition: string, opts: { domain?: string; json?: boolean }) => {
+    try {
+      const { GlossaryManager } = await import("./product/glossary.js");
+      const mgr = new GlossaryManager();
+      const id = mgr.define(term, definition, opts.domain);
+      if (opts.json) { console.log(JSON.stringify({ id, term, definition }, null, 2)); return; }
+      console.log(chalk.bold.yellow("\n📖  Term Defined"));
+      console.log(chalk.gray("ID:"), id);
+      console.log(chalk.gray("Term:"), term);
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+productGlossary
+  .command("lookup <term>")
+  .description("Look up a glossary term")
+  .option("--json", "Output as JSON")
+  .action(async (term: string, opts: { json?: boolean }) => {
+    try {
+      const { GlossaryManager } = await import("./product/glossary.js");
+      const mgr = new GlossaryManager();
+      const entry = mgr.lookup(term);
+      if (!entry) { console.log(chalk.yellow("Term not found.")); return; }
+      if (opts.json) { console.log(JSON.stringify(entry, null, 2)); return; }
+      console.log(chalk.bold.yellow("\n📖  Glossary Entry"));
+      console.log(chalk.gray("Term:"), entry.term);
+      console.log(chalk.gray("Definition:"), entry.definition);
+      console.log(chalk.gray("Domain:"), entry.domain);
+      if (entry.aliases.length) console.log(chalk.gray("Aliases:"), entry.aliases.join(", "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+domainCmd
+  .command("list")
+  .description("List all 7 domains with metadata")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { listDomainMetadataCli } = await import("./domains/domainCliIntegration.js");
+      const domains = listDomainMetadataCli();
+      if (opts.json) { console.log(JSON.stringify(domains, null, 2)); return; }
+      console.log(chalk.bold.cyan(`\n🧭  Domain Catalog (${domains.length})`));
+      for (const domain of domains) {
+        console.log(`  ${chalk.cyan(domain.id)}  ${domain.name}`);
+        console.log(`    Risk: ${domain.riskLevel} | EU AI Act: ${domain.euAIActCategory} | Questions: ${domain.questionCount}`);
+        console.log(`    Regulatory: ${domain.regulatoryBasis.join(", ")}`);
+      }
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+domainCmd
+  .command("assess")
+  .description("Run full domain assessment")
+  .requiredOption("--agent <id>", "Agent ID")
+  .requiredOption("--domain <d>", "Domain: health|education|environment|mobility|governance|technology|wealth")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; domain: string; json?: boolean }) => {
+    try {
+      const { assessDomainForAgent, parseDomainOrThrow } = await import("./domains/domainCliIntegration.js");
+      const domain = parseDomainOrThrow(opts.domain);
+      const assessment = assessDomainForAgent({ agentId: opts.agent, domain });
+      if (opts.json) { console.log(JSON.stringify(assessment.result, null, 2)); return; }
+      const result = assessment.result;
+      console.log(chalk.bold.cyan("\n🧭  Domain Assessment"));
+      console.log(chalk.gray("Agent:"), opts.agent);
+      console.log(chalk.gray("Domain:"), `${result.domainMetadata.name} (${result.domain})`);
+      console.log(chalk.gray("Base Score:"), result.baseScore);
+      console.log(chalk.gray("Domain Score:"), result.domainScore);
+      console.log(chalk.gray("Composite Score:"), result.compositeScore);
+      console.log(chalk.gray("Level:"), result.level);
+      console.log(chalk.gray("Certification Readiness:"), result.certificationReadiness ? chalk.green("ready") : chalk.red("not ready"));
+      console.log(chalk.gray("Compliance Gaps:"), result.complianceGaps.length);
+      console.log(chalk.gray("Regulatory Warnings:"), result.regulatoryWarnings.length);
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+domainCmd
+  .command("modules")
+  .description("Show module activation map for domain")
+  .requiredOption("--domain <d>", "Domain: health|education|environment|mobility|governance|technology|wealth")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { domain: string; json?: boolean }) => {
+    try {
+      const { getDomainModules, parseDomainOrThrow } = await import("./domains/domainCliIntegration.js");
+      const domain = parseDomainOrThrow(opts.domain);
+      const modules = getDomainModules(domain);
+      if (opts.json) { console.log(JSON.stringify(modules, null, 2)); return; }
+      console.log(chalk.bold.cyan(`\n🧭  Module Activation Map (${domain})`));
+      console.log(chalk.gray(`Total modules: ${modules.length}`));
+      for (const module of modules) {
+        console.log(`  ${chalk.cyan(module.moduleId)} ${module.moduleName} [${module.relevance}]`);
+      }
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+domainCmd
+  .command("gaps")
+  .description("Show compliance gaps for an agent and domain")
+  .requiredOption("--agent <id>", "Agent ID")
+  .requiredOption("--domain <d>", "Domain: health|education|environment|mobility|governance|technology|wealth")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; domain: string; json?: boolean }) => {
+    try {
+      const { getDomainGaps, parseDomainOrThrow } = await import("./domains/domainCliIntegration.js");
+      const domain = parseDomainOrThrow(opts.domain);
+      const gaps = getDomainGaps(opts.agent, domain);
+      if (opts.json) { console.log(JSON.stringify(gaps, null, 2)); return; }
+      console.log(chalk.bold.cyan(`\n🧭  Compliance Gaps (${domain})`));
+      if (gaps.length === 0) {
+        console.log(chalk.green("No compliance gaps detected."));
+        return;
+      }
+      for (const gap of gaps) {
+        console.log(`  ${chalk.yellow(gap.questionId)} ${gap.dimension} L${gap.currentLevel}->L${gap.requiredLevel}`);
+        console.log(`    ${gap.regulatoryRef}`);
+      }
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+domainCmd
+  .command("report")
+  .description("Build full domain report and write it to a file")
+  .requiredOption("--agent <id>", "Agent ID")
+  .requiredOption("--domain <d>", "Domain: health|education|environment|mobility|governance|technology|wealth")
+  .requiredOption("--output <file>", "Output report path")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; domain: string; output: string; json?: boolean }) => {
+    try {
+      const { buildDomainReportForAgent, parseDomainOrThrow } = await import("./domains/domainCliIntegration.js");
+      const domain = parseDomainOrThrow(opts.domain);
+      const report = buildDomainReportForAgent({ agentId: opts.agent, domain, outputPath: opts.output });
+      if (opts.json) {
+        console.log(JSON.stringify({
+          outputPath: report.outputPath,
+          assessment: report.assessment,
+          report: report.reportObject
+        }, null, 2));
+        return;
+      }
+      console.log(chalk.bold.cyan("\n🧭  Domain Report Generated"));
+      console.log(chalk.gray("Agent:"), opts.agent);
+      console.log(chalk.gray("Domain:"), domain);
+      console.log(chalk.gray("Output:"), report.outputPath ?? opts.output);
+      console.log(chalk.gray("Composite Score:"), report.assessment.compositeScore);
+      console.log(chalk.gray("Level:"), report.assessment.level);
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+domainCmd
+  .command("assurance")
+  .description("Run domain-specific assurance packs")
+  .requiredOption("--agent <id>", "Agent ID")
+  .requiredOption("--domain <d>", "Domain: health|education|environment|mobility|governance|technology|wealth")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; domain: string; json?: boolean }) => {
+    try {
+      const { parseDomainOrThrow, runDomainAssurance } = await import("./domains/domainCliIntegration.js");
+      const domain = parseDomainOrThrow(opts.domain);
+      const run = runDomainAssurance(opts.agent, domain);
+      if (opts.json) { console.log(JSON.stringify(run, null, 2)); return; }
+      console.log(chalk.bold.cyan(`\n🧭  Domain Assurance (${run.domain})`));
+      console.log(chalk.gray("Agent:"), run.agentId);
+      for (const pack of run.packRuns) {
+        console.log(`  ${chalk.cyan(pack.packId)} ${pack.title}`);
+        console.log(`    scenarios=${pack.scenarioCount} passed=${pack.passed} failed=${pack.failed} passRate=${pack.passRate}%`);
+      }
+      console.log(chalk.gray("Totals:"), `scenarios=${run.totalScenarios} passed=${run.passed} failed=${run.failed}`);
+      console.log(chalk.gray("Overall:"), run.allPassed ? chalk.green("all checks passed") : chalk.yellow("review required"));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+domainCmd
+  .command("roadmap")
+  .description("Generate 30/60/90-day roadmap for this domain")
+  .requiredOption("--agent <id>", "Agent ID")
+  .requiredOption("--domain <d>", "Domain: health|education|environment|mobility|governance|technology|wealth")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; domain: string; json?: boolean }) => {
+    try {
+      const { getDomainRoadmap, parseDomainOrThrow } = await import("./domains/domainCliIntegration.js");
+      const domain = parseDomainOrThrow(opts.domain);
+      const roadmap = getDomainRoadmap(opts.agent, domain);
+      if (opts.json) { console.log(JSON.stringify(roadmap, null, 2)); return; }
+      console.log(chalk.bold.cyan(`\n🧭  Domain Roadmap (${domain})`));
+      for (const item of roadmap) {
+        console.log(`  [P${item.priority}] ${item.timeframe} ${item.action}`);
+        if (item.moduleId) console.log(`    module: ${item.moduleId}`);
+        console.log(`    regulatory: ${item.regulatoryImpact}`);
+      }
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
 const score = program.command("score").description("Maturity scoring, adversarial testing, and evidence collection");
 
 score
@@ -12246,6 +12539,96 @@ score
       console.log(chalk.gray("Evidence:"), JSON.stringify(result, null, 2));
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
+
+score
+  .command("production-ready <agentId>")
+  .description("Run production readiness gate for an agent")
+  .option("--strict", "require all readiness gates", false)
+  .option("--json", "Output as JSON")
+  .action(async (agentId: string, opts: { strict?: boolean; json?: boolean }) => {
+    try {
+      const { assessProductionReadiness } = await import("./score/productionReadiness.js");
+      const result = assessProductionReadiness(agentId, { strictMode: !!opts.strict });
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🛠  Production Readiness"));
+      console.log(chalk.gray("Agent:"), agentId);
+      console.log(chalk.gray("Ready:"), result.ready ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Score:"), result.score);
+      console.log(chalk.gray("Gate failures:"), result.blockers.join(", ") || "none");
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
+  });
+
+score
+  .command("operational-independence <agentId>")
+  .description("Calculate operational independence score")
+  .option("--window <days>", "window in days", "30")
+  .option("--json", "Output as JSON")
+  .action(async (agentId: string, opts: { window: string; json?: boolean }) => {
+    try {
+      const { scoreOperationalIndependence } = await import("./score/operationalIndependence.js");
+      const result = scoreOperationalIndependence(agentId, Number(opts.window));
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🕒  Operational Independence"));
+      console.log(chalk.gray("Agent:"), agentId);
+      console.log(chalk.gray("Score:"), result.score);
+      console.log(chalk.gray("Longest run days:"), result.longestRunDays);
+      console.log(chalk.gray("Escalation rate:"), `${result.escalationRate}%`);
+      console.log(chalk.gray("Drift events:"), result.driftEvents);
+      console.log(chalk.gray("Quality held:"), result.qualityHeld ? "yes" : "no");
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
+  });
+
+score
+  .command("evidence-coverage <agentId>")
+  .description("Show automated vs manual evidence coverage")
+  .option("--json", "Output as JSON")
+  .action(async (agentId: string, opts: { json?: boolean }) => {
+    try {
+      const { getEvidenceCoverageReport } = await import("./score/evidenceCoverageGap.js");
+      const result = getEvidenceCoverageReport(agentId);
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🧩  Evidence Coverage"));
+      console.log(chalk.gray("Agent:"), agentId);
+      console.log(chalk.gray("Coverage:"), `${result.coveragePercent}%`);
+      console.log(chalk.gray("Automated:"), result.automatedCoverage);
+      console.log(chalk.gray("Manual required:"), result.manualRequired);
+      console.log(chalk.gray("Tradeoffs:"), result.improvementPlan.join("; "));
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
+  });
+
+score
+  .command("lean-profile")
+  .description("Show lean AMC profile")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { getLeanAMCProfile } = await import("./score/leanAMC.js");
+      const result = getLeanAMCProfile();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🧪  Lean AMC Profile"));
+      console.log(chalk.gray("Required modules:"), result.requiredModules.join(", "));
+      console.log(chalk.gray("Skippable modules:"), result.skippableModules.join(", "));
+      console.log(chalk.gray("Estimated setup hours:"), result.estimatedSetupHours);
+      console.log(chalk.gray("Max achievable level:"), result.maximumAchievableLevel);
+      console.log(chalk.gray("Tradeoffs:"), result.tradeoffs.join("; "));
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
+  });
+
+
+
+
 
 
 program.parseAsync(process.argv).catch((error: unknown) => {

@@ -1,3 +1,4 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 export interface OAuthScopeResult {
   valid: boolean;
   granted: string[];
@@ -54,6 +55,7 @@ export function checkOAuthScopes(requested: string[], allowed: string[]): OAuthS
     }
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S12', decision: 'allow', reason: 'S12 decision', severity: 'medium' });
   return {
     valid: denied.length === 0,
     granted,

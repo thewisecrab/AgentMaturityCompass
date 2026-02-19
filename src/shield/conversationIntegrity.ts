@@ -3,6 +3,7 @@
  */
 
 import { createHash } from 'node:crypto';
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 
 export interface IntegrityResult {
   valid: boolean;
@@ -23,6 +24,7 @@ export function checkIntegrity(messages: Array<{ role: string; content: string }
     chainHash = expected;
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S14', decision: 'allow', reason: 'S14 decision', severity: 'medium' });
   return {
     valid: tamperedTurns.length === 0,
     tamperedTurns,

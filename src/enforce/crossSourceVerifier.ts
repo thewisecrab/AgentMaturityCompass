@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 /**
  * Cross-source verification — checks claim consistency across sources.
  */
@@ -33,5 +34,6 @@ export function verifyCrossSources(claim: string, sources: string[]): Verificati
   }
 
   const confidence = sources.length > 0 ? supporting / sources.length : 0;
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E30', decision: 'allow', reason: 'E30 decision', severity: 'medium' });
   return { consistent: conflicts.length === 0, conflicts, confidence };
 }

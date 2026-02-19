@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface DryRunRequest {
   actionType: string;
   target: string;
@@ -36,6 +37,7 @@ export function dryRunAction(action: DryRunRequest): DryRunResult {
   const proposedChanges = Object.entries(action.params).map(([k, v]) => `${k} = ${JSON.stringify(v)}`);
   const scope = action.target.includes('*') ? 'broad' : 'targeted';
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E17', decision: 'allow', reason: 'E17 decision', severity: 'medium' });
   return {
     riskLevel,
     predictedOutcome: `${action.actionType} on ${action.target}`,

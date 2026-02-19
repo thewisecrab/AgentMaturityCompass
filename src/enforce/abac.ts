@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface ABACCondition {
   attribute: string;
   operator: 'eq' | 'neq' | 'in' | 'contains' | 'gt' | 'lt' | 'exists';
@@ -61,6 +62,7 @@ export function checkAccess(request: ABACRequest, policies: ABACPolicy[]): ABACR
 
   // deny-overrides
   const allowed = hasDeny ? false : hasAllow;
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E15', decision: 'allow', reason: 'E15 decision', severity: 'medium' });
   return {
     allowed,
     matchedPolicies,
@@ -74,6 +76,7 @@ export function checkABAC(subjectAttrs: Record<string, string>, requiredAttrs: R
   for (const [k, v] of Object.entries(requiredAttrs)) {
     if (subjectAttrs[k] === v) matched.push(k);
   }
+  emitGuardEvent({ agentId: 'system', moduleCode: 'E15', decision: 'allow', reason: 'E15 decision', severity: 'medium' });
   return {
     allowed: matched.length === Object.keys(requiredAttrs).length,
     matchedPolicies: [],

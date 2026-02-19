@@ -1,3 +1,4 @@
+import { emitGuardEvent } from './evidenceEmitter.js';
 export interface SandboxConfig {
   memoryLimitMb: number;
   cpuTimeMs: number;

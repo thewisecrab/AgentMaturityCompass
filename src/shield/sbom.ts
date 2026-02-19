@@ -1,3 +1,4 @@
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 /**
  * Software Bill of Materials (SBOM) generator — CycloneDX-compatible format.
  */
@@ -33,5 +34,6 @@ export function generateSbom(dependencies: Record<string, string>): SbomResult {
     components.push({ name, version, source: 'npm', cveAlerts });
   }
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S4', decision: 'allow', reason: 'S4 decision', severity: 'medium' });
   return { components, format: 'CycloneDX-compatible', highRiskCount };
 }

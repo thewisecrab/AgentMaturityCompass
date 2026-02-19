@@ -3,6 +3,7 @@
  */
 
 import { createHash } from 'node:crypto';
+import { emitGuardEvent } from '../enforce/evidenceEmitter.js';
 
 export interface FingerprintResult {
   sessionId: string;
@@ -22,5 +23,6 @@ export function fingerprint(sessionData: Record<string, unknown>): FingerprintRe
   const sorted = JSON.stringify(sessionData, Object.keys(sessionData).sort());
   const fp = createHash('sha256').update(sorted).digest('hex').slice(0, 16);
 
+  emitGuardEvent({ agentId: 'system', moduleCode: 'S16', decision: 'allow', reason: 'S16 decision', severity: 'medium' });
   return { sessionId, fingerprint: fp, anomalies };
 }
