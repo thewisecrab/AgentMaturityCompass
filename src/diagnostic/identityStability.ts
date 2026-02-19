@@ -110,17 +110,17 @@ export const DEFAULT_IDENTITY_STABILITY_CONFIG: IdentityStabilityConfig = {
 // Math helpers
 // ---------------------------------------------------------------------------
 
-function vectorValues(v: Record<string, number>): number[] {
-  return Object.values(v);
+function vectorValues(v: Record<string, number> | StyleVector | DecisionVector | ValueVector): number[] {
+  return Object.values(v) as number[];
 }
 
 function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length || a.length === 0) return 0;
   let dot = 0, magA = 0, magB = 0;
   for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    magA += a[i] * a[i];
-    magB += b[i] * b[i];
+    dot += a[i]! * b[i]!;
+    magA += a[i]! * a[i]!;
+    magB += b[i]! * b[i]!;
   }
   const denom = Math.sqrt(magA) * Math.sqrt(magB);
   return denom === 0 ? 0 : dot / denom;
@@ -145,7 +145,7 @@ function stddev(values: number[]): number {
 function pairwiseDistances(traces: BehavioralTrace[], extract: (t: BehavioralTrace) => number[]): number[] {
   const distances: number[] = [];
   for (let i = 0; i < traces.length - 1; i++) {
-    distances.push(cosineDistance(extract(traces[i]), extract(traces[i + 1])));
+    distances.push(cosineDistance(extract(traces[i]!), extract(traces[i + 1]!)));
   }
   return distances;
 }
@@ -168,8 +168,8 @@ function detectAnomalies(
   const sorted = [...traces].sort((a, b) => a.timestamp - b.timestamp);
 
   for (let i = 1; i < sorted.length; i++) {
-    const prev = sorted[i - 1];
-    const curr = sorted[i];
+    const prev = sorted[i - 1]!;
+    const curr = sorted[i]!;
 
     // Style shift
     const styleDist = cosineDistance(
@@ -297,17 +297,17 @@ export function computeIdentityStability(
   const adversarial = sorted.filter((t) => t.isAdversarial);
   let adversarialResilience = 1;
   if (normal.length > 0 && adversarial.length > 0) {
-    const normalMeanStyle = vectorValues(normal[0].communicationStyle).map((_, i) =>
-      mean(normal.map((t) => vectorValues(t.communicationStyle)[i])),
+    const normalMeanStyle = vectorValues(normal[0]!.communicationStyle).map((_, i) =>
+      mean(normal.map((t) => vectorValues(t.communicationStyle)[i] ?? 0)),
     );
-    const advMeanStyle = vectorValues(adversarial[0].communicationStyle).map((_, i) =>
-      mean(adversarial.map((t) => vectorValues(t.communicationStyle)[i])),
+    const advMeanStyle = vectorValues(adversarial[0]!.communicationStyle).map((_, i) =>
+      mean(adversarial.map((t) => vectorValues(t.communicationStyle)[i] ?? 0)),
     );
-    const normalMeanValues = vectorValues(normal[0].valueExpression).map((_, i) =>
-      mean(normal.map((t) => vectorValues(t.valueExpression)[i])),
+    const normalMeanValues = vectorValues(normal[0]!.valueExpression).map((_, i) =>
+      mean(normal.map((t) => vectorValues(t.valueExpression)[i] ?? 0)),
     );
-    const advMeanValues = vectorValues(adversarial[0].valueExpression).map((_, i) =>
-      mean(adversarial.map((t) => vectorValues(t.valueExpression)[i])),
+    const advMeanValues = vectorValues(adversarial[0]!.valueExpression).map((_, i) =>
+      mean(adversarial.map((t) => vectorValues(t.valueExpression)[i] ?? 0)),
     );
     adversarialResilience = clamp01(
       1 - (cosineDistance(normalMeanStyle, advMeanStyle) + cosineDistance(normalMeanValues, advMeanValues)) / 2,
@@ -325,11 +325,11 @@ export function computeIdentityStability(
         ...vectorValues(t.decisionPattern),
         ...vectorValues(t.valueExpression),
       ]);
-      return allVecs[0].map((_, i) => mean(allVecs.map((v) => v[i])));
+      return allVecs[0]!.map((_, i) => mean(allVecs.map((v) => v[i] ?? 0)));
     });
     const drifts: number[] = [];
     for (let i = 1; i < sessionMeans.length; i++) {
-      drifts.push(cosineDistance(sessionMeans[i - 1], sessionMeans[i]));
+      drifts.push(cosineDistance(sessionMeans[i - 1]!, sessionMeans[i]!));
     }
     crossSessionDrift = mean(drifts);
   }
@@ -345,11 +345,11 @@ export function computeIdentityStability(
         ...vectorValues(t.decisionPattern),
         ...vectorValues(t.valueExpression),
       ]);
-      return allVecs[0].map((_, i) => mean(allVecs.map((v) => v[i])));
+      return allVecs[0]!.map((_, i) => mean(allVecs.map((v) => v[i] ?? 0)));
     });
     const drifts: number[] = [];
     for (let i = 1; i < modelMeans.length; i++) {
-      drifts.push(cosineDistance(modelMeans[i - 1], modelMeans[i]));
+      drifts.push(cosineDistance(modelMeans[i - 1]!, modelMeans[i]!));
     }
     crossModelDrift = mean(drifts);
   }

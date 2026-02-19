@@ -147,7 +147,7 @@ export function detectGamingPatterns(signals: CommunitySignal[]): GamingDetectio
   for (const [source, sigs] of bySource) {
     if (sigs.length > 10) {
       const sorted = sigs.sort((a, b) => a.ts - b.ts);
-      const timeSpan = sorted[sorted.length - 1].ts - sorted[0].ts;
+      const timeSpan = sorted[sorted.length - 1]!.ts - sorted[0]!.ts;
       if (timeSpan < 60_000 * 5) {
         // 10+ signals in 5 minutes
         detections.push({

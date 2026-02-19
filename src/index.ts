@@ -1251,3 +1251,26 @@ export {
   renderCodeGraphMarkdown,
 } from "./cgx/semanticCodeEdges.js";
 export type { CodeNode, CodeEdge, CodeGraph, CodeNodeType, CodeEdgeType } from "./cgx/semanticCodeEdges.js";
+
+// ── Shield modules ────────────────────────────────────────────────────
+export * from "./shield/index.js";
+
+// ── Enforce modules ───────────────────────────────────────────────────
+export * from "./enforce/index.js";
+
+// ── Watch modules ─────────────────────────────────────────────────────
+export * from "./watch/index.js";
+
+// ── Score modules ─────────────────────────────────────────────────────
+export * from "./score/index.js";
+
+// ── Product modules ───────────────────────────────────────────────────
+export * from "./product/index.js";
+
+// ── Vault extensions ──────────────────────────────────────────────────
+export * from "./vault/ragGuard.js";
+export * from "./vault/dataClassification.js";
+export * from "./vault/metadataScrubber.js";
+export * from "./vault/invoiceFraud.js";
+export * from "./vault/dsarAutopilot.js";
+export * from "./vault/privacyBudget.js";

@@ -107,8 +107,8 @@ export function computeComponentConfidence(
       }
     }
     if (priorScores.length < 2) return "stable";
-    const recent = priorScores[priorScores.length - 1];
-    const older = priorScores[0];
+    const recent = priorScores[priorScores.length - 1] ?? 0;
+    const older = priorScores[0] ?? 0;
     const diff = recent - older;
     if (diff > 0.1) return "improving";
     if (diff < -0.1) return "degrading";

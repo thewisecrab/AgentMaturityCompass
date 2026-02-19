@@ -184,7 +184,7 @@ export function searchCapabilities(
 
     results.push({
       agentIdHash: entry.agentIdHash,
-      capability: matchingCaps[0].capability,
+      capability: matchingCaps[0]!.capability,
       maturityLevel: bestLevel || null,
       evidenceCount: matchingCaps.reduce((a, c) => a + c.evidenceEventIds.length, 0),
       platforms: entry.platformLinks.map((l) => l.platform),
