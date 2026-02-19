@@ -7,7 +7,7 @@ import { listAssurancePacks, getAssurancePack } from "../src/assurance/packs/ind
 describe("new adversarial packs registration", () => {
   test("pack list now includes 20 packs", () => {
     const packs = listAssurancePacks();
-    expect(packs.length).toBe(20);
+    expect(packs.length).toBe(29);
   });
 
   test("role-specific support fraud pack is registered", () => {

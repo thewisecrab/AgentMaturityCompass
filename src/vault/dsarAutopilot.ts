@@ -14,13 +14,17 @@ export interface DsarRequest {
 export class DsarAutopilot {
   private requests = new Map<string, DsarRequest>();
 
-  submitRequest(subject: string, type: DsarRequest['type']): DsarRequest {
-    const req: DsarRequest = { requestId: randomUUID(), subject, type, status: 'pending' };
+  submitRequest(subjectOrInput: string | { subjectId: string; type: 'access' | 'deletion' | 'portability' }, type?: DsarRequest['type']): DsarRequest {
+    const subjectId = typeof subjectOrInput === 'string' ? subjectOrInput : subjectOrInput.subjectId;
+    const reqType =
+      typeof subjectOrInput === 'string' ? (type ?? 'access') : (subjectOrInput.type === 'deletion' ? 'delete' : subjectOrInput.type);
+    const req: DsarRequest = { requestId: randomUUID(), subject: subjectId, type: reqType, status: 'pending' };
     this.requests.set(req.requestId, req);
     return req;
   }
 
-  processRequest(requestId: string): DsarRequest {
+  processRequest(request: string | DsarRequest): DsarRequest {
+    const requestId = typeof request === 'string' ? request : request.requestId;
     const req = this.requests.get(requestId);
     if (!req) throw new Error(`DSAR request not found: ${requestId}`);
     req.status = 'complete';

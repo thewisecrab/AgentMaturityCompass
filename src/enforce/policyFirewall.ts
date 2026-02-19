@@ -47,6 +47,10 @@ export class PolicyFirewall {
     return { decision, reasons, matchedRules, stepUpRequired };
   }
 
+  check(agentId: string, tool: string, action: string): PolicyResult {
+    return this.evaluate(action, { tool });
+  }
+
   listPolicies(): PolicyRule[] {
     return [...this.rules];
   }

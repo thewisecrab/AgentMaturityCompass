@@ -110,7 +110,7 @@ export function isFeatureActive(feature: "evidence" | "scoring" | "governance" |
 export function evaluateHealth(snapshot: HealthSnapshot): ModeChangeEvent | null {
   const mode = state.currentMode;
   const safeLatencyMs = Number.isFinite(snapshot.p95LatencyMs) ? Math.max(0, snapshot.p95LatencyMs) : 0;
-  const safeErrorRate = Number.isFinite(snapshot.errorRate) ? Math.min(1, Math.max(0, snapshot.errorRate)) : 0;
+  const safeErrorRate = Number.isFinite(snapshot.errorRate) ? Math.min(1, Math.max(0, snapshot.errorRate)) : 1;
 
   // Check for auto-degrade
   if (safeErrorRate > MINIMAL_ERROR_RATE_THRESHOLD && mode !== "MINIMAL") {

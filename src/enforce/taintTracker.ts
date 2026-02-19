@@ -37,6 +37,10 @@ export class TaintTracker {
     return this.registry.get(key)?.tainted ?? false;
   }
 
+  check(key: string): TaintedValue | undefined {
+    return this.registry.get(key);
+  }
+
   getAuditTrail(key: string): string[] {
     return this.registry.get(key)?.sources ?? [];
   }

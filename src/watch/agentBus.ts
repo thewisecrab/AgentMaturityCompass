@@ -4,6 +4,9 @@
 
 import { createHash, randomUUID } from 'node:crypto';
 
+type BusMessage = Record<string, unknown>;
+type Subscriber = (message: AgentMessage) => void;
+
 export interface AgentMessage {
   messageId: string;
   from: string;
@@ -15,6 +18,7 @@ export interface AgentMessage {
 
 export class AgentBus {
   private messages = new Map<string, AgentMessage[]>();
+  private subscribers = new Set<Subscriber>();
 
   send(from: string, to: string, payload: unknown): AgentMessage {
     const msg: AgentMessage = {
@@ -29,6 +33,9 @@ export class AgentBus {
     const existing = this.messages.get(to) ?? [];
     existing.push(msg);
     this.messages.set(to, existing);
+
+    for (const fn of this.subscribers) fn(msg);
+
     return msg;
   }
 
@@ -43,5 +50,20 @@ export class AgentBus {
       .update(`${message.from}:${message.to}:${JSON.stringify(message.payload)}`)
       .digest('hex');
     return expected === message.signature;
+  }
+
+  /**
+   * Compatibility API for legacy call pattern.
+   */
+  publish(message: BusMessage): void {
+    const typed = message as { type?: string; data?: unknown; to?: string; from?: string };
+    const to = typeof typed.to === 'string' ? typed.to : '*';
+    const from = typed.from ?? 'unknown';
+    const payload = typed.data ?? typed;
+    this.send(from, to, payload);
+  }
+
+  subscribe(handler: Subscriber): void {
+    this.subscribers.add(handler);
   }
 }

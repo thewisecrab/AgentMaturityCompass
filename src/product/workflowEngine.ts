@@ -31,6 +31,10 @@ export class WorkflowEngine {
     return wf;
   }
 
+  createWorkflow(name: string, steps: Omit<WorkflowStep, 'id'>[]): Workflow {
+    return this.create(name, steps);
+  }
+
   start(workflowId: string): Workflow {
     const wf = this.workflows.get(workflowId);
     if (!wf) throw new Error(`Workflow not found: ${workflowId}`);

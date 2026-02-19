@@ -13,6 +13,7 @@ export interface LintResult {
   findings: LintFinding[];
   overallRisk: 'critical' | 'high' | 'medium' | 'low' | 'safe';
   riskScore: number;
+  score: number;
 }
 
 interface LintRule {
@@ -50,5 +51,5 @@ export function lintConfig(config: Record<string, unknown>): LintResult {
   for (const f of findings) riskScore += weights[f.severity];
   riskScore = Math.min(100, riskScore);
 
-  return { passed: findings.length === 0, findings, overallRisk: computeRisk(riskScore), riskScore };
+  return { passed: findings.length === 0, findings, overallRisk: computeRisk(riskScore), riskScore, score: riskScore };
 }

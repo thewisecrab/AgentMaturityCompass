@@ -108,7 +108,7 @@ function checkThreshold(): void {
     signalActive = true;
     lastSignalTs = Date.now();
     logEvent("SIGNAL_ON", `Queue depth ${queueDepth} >= ${threshold} (${(config.warningThresholdPct * 100).toFixed(0)}% of ${config.maxQueueDepth})`);
-  } else if (signalActive && queueDepth <= clearThreshold) {
+  } else if (signalActive && queueDepth < clearThreshold) {
     signalActive = false;
     logEvent("SIGNAL_OFF", `Queue depth ${queueDepth} <= ${clearThreshold}`);
   }
