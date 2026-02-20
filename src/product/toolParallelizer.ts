@@ -1,50 +1,163 @@
+/**
+ * toolParallelizer.ts — Parallel tool execution with concurrency
+ * control (semaphore), per-task timeouts, priority ordering, and
+ * cancellation support.
+ */
+
 import { randomUUID } from 'node:crypto';
 
-export interface ParallelTask { id: string; fn: () => Promise<unknown>; label?: string; }
-export interface ParallelResult { results: unknown[]; totalMs: number; errors: string[]; }
+/* ── Interfaces ──────────────────────────────────────────────────── */
 
-export async function runParallel(tasks: ParallelTask[]): Promise<ParallelResult> {
-  const start = Date.now();
-  const settled = await Promise.allSettled(tasks.map(t => t.fn()));
-  const results: unknown[] = [];
-  const errors: string[] = [];
-  for (let i = 0; i < settled.length; i++) {
-    const s = settled[i]!;
-    if (s.status === 'fulfilled') results.push(s.value);
-    else { results.push(null); errors.push(`${tasks[i]?.label ?? tasks[i]?.id ?? i}: ${(s as PromiseRejectedResult).reason}`); }
-  }
-  return { results, totalMs: Date.now() - start, errors };
+export interface ParallelTask {
+  id: string;
+  name: string;
+  fn: () => Promise<unknown>;
+  priority: number;
+  timeout?: number;
+  group?: string;
 }
 
-export function aggregateResults(results: unknown[]): Record<string, unknown> {
-  const merged: Record<string, unknown> = {};
-  for (let i = 0; i < results.length; i++) {
-    if (results[i] && typeof results[i] === 'object') Object.assign(merged, results[i]);
-    else merged[`result_${i}`] = results[i];
-  }
-  return merged;
+export interface TaskResult {
+  id: string;
+  name: string;
+  result?: unknown;
+  error?: string;
+  durationMs: number;
+  status: 'fulfilled' | 'rejected' | 'timeout' | 'cancelled';
 }
 
-export function detectConflicts(results: unknown[]): { hasConflicts: boolean; conflicts: string[] } {
-  const conflicts: string[] = [];
-  const keys = new Map<string, unknown[]>();
-  for (const r of results) {
-    if (r && typeof r === 'object') {
-      for (const [k, v] of Object.entries(r as Record<string, unknown>)) {
-        if (!keys.has(k)) keys.set(k, []);
-        keys.get(k)!.push(v);
+/** Backward-compatible with stubs.ts ParallelResult, extended. */
+export interface ParallelResult {
+  results: unknown[];
+  totalMs: number;
+  tasks: TaskResult[];
+}
+
+/* ── Semaphore ───────────────────────────────────────────────────── */
+
+class Semaphore {
+  private queue: Array<() => void> = [];
+  private active = 0;
+  constructor(private concurrency: number) {}
+
+  async acquire(): Promise<void> {
+    if (this.active < this.concurrency) { this.active++; return; }
+    return new Promise<void>(resolve => this.queue.push(resolve));
+  }
+
+  release(): void {
+    this.active--;
+    const next = this.queue.shift();
+    if (next) { this.active++; next(); }
+  }
+}
+
+/* ── Parallelizer ────────────────────────────────────────────────── */
+
+export class ToolParallelizer {
+  private tasks: ParallelTask[] = [];
+  private concurrency = Infinity;
+  private globalTimeout?: number;
+  private cancelled = false;
+
+  addTask(name: string, fn: () => Promise<unknown>, opts?: { priority?: number; timeout?: number; group?: string }): this {
+    this.tasks.push({
+      id: randomUUID(),
+      name,
+      fn,
+      priority: opts?.priority ?? 0,
+      timeout: opts?.timeout,
+      group: opts?.group,
+    });
+    return this;
+  }
+
+  withConcurrency(n: number): this {
+    this.concurrency = Math.max(1, n);
+    return this;
+  }
+
+  withTimeout(ms: number): this {
+    this.globalTimeout = ms;
+    return this;
+  }
+
+  cancel(): void {
+    this.cancelled = true;
+  }
+
+  async run(): Promise<ParallelResult> {
+    this.cancelled = false;
+    const start = Date.now();
+
+    // Sort by priority descending (higher priority first)
+    const sorted = [...this.tasks].sort((a, b) => b.priority - a.priority);
+    const sem = new Semaphore(this.concurrency);
+    const taskResults: TaskResult[] = [];
+
+    const executeOne = async (task: ParallelTask): Promise<TaskResult> => {
+      if (this.cancelled) {
+        return { id: task.id, name: task.name, durationMs: 0, status: 'cancelled' };
       }
-    }
+
+      await sem.acquire();
+      const taskStart = Date.now();
+
+      try {
+        if (this.cancelled) {
+          return { id: task.id, name: task.name, durationMs: 0, status: 'cancelled' };
+        }
+
+        const timeout = task.timeout ?? this.globalTimeout;
+        let result: unknown;
+
+        if (timeout) {
+          result = await Promise.race([
+            task.fn(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout)),
+          ]);
+        } else {
+          result = await task.fn();
+        }
+
+        return {
+          id: task.id,
+          name: task.name,
+          result,
+          durationMs: Date.now() - taskStart,
+          status: 'fulfilled',
+        };
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        return {
+          id: task.id,
+          name: task.name,
+          error: msg,
+          durationMs: Date.now() - taskStart,
+          status: msg === 'timeout' ? 'timeout' : 'rejected',
+        };
+      } finally {
+        sem.release();
+      }
+    };
+
+    const settled = await Promise.all(sorted.map(t => executeOne(t)));
+    taskResults.push(...settled);
+
+    return {
+      results: taskResults.map(tr => tr.result ?? null),
+      totalMs: Date.now() - start,
+      tasks: taskResults,
+    };
   }
-  for (const [k, vals] of keys) {
-    const unique = new Set(vals.map(v => JSON.stringify(v)));
-    if (unique.size > 1) conflicts.push(`Conflicting values for "${k}"`);
-  }
-  return { hasConflicts: conflicts.length > 0, conflicts };
 }
 
-export async function parallelizeTools(fns: Array<() => Promise<unknown>>): Promise<{ results: unknown[]; totalMs: number }> {
-  const start = Date.now();
-  const results = await Promise.all(fns.map(fn => fn()));
-  return { results, totalMs: Date.now() - start };
+/* ── Backward-compatible free function (stubs.ts) ────────────────── */
+
+export async function parallelizeTools(
+  fns: Array<() => Promise<unknown>>,
+): Promise<ParallelResult> {
+  const p = new ToolParallelizer();
+  for (let i = 0; i < fns.length; i++) p.addTask(`task_${i}`, fns[i]!);
+  return p.run();
 }

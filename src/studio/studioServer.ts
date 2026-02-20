@@ -1673,6 +1673,13 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
         return;
       }
 
+      // ── AMC REST API v1 ─────────────────────────────────────────────
+      if (pathname.startsWith("/api/v1/")) {
+        const { handleApiRoute } = await import("../api/index.js");
+        const handled = await handleApiRoute(pathname, req.method ?? "GET", req, res);
+        if (handled) return;
+      }
+
       if (pathname === "/readyz") {
         if (!healthLimiter(`ready:${clientIp}`)) {
           json(res, 429, { error: "rate limited" });

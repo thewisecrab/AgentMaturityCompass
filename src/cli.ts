@@ -13034,6 +13034,70 @@ program
     console.log("");
   });
 
+// ── API subcommand ──────────────────────────────────────────────────────
+const apiCmd = program.command("api").description("REST API management");
+apiCmd
+  .command("status")
+  .description("Show API integration status")
+  .action(() => {
+    console.log(chalk.bold("AMC REST API v1"));
+    console.log(`  Endpoints: shield, enforce, vault, watch, score, product`);
+    console.log(`  Base path: /api/v1/`);
+    console.log(`  Integrated into Studio server at :3212`);
+    console.log(chalk.green("Run 'amc studio open' to start the server with API enabled."));
+  });
+
+// ── Agent harness subcommands ────────────────────────────────────────────
+agent
+  .command("run <type>")
+  .description("Run an AMC-governed agent (content-moderation, data-pipeline, legal-contract)")
+  .option("--input <input>", "Input text or path")
+  .action(async (type: string, opts: { input?: string }) => {
+    const input = opts.input ?? "test input";
+    if (type === "content-moderation") {
+      const { ContentModerationBot } = await import("./agents/contentModerationBot.js");
+      const bot = new ContentModerationBot();
+      const result = await bot.run(input);
+      console.log(JSON.stringify(result, null, 2));
+    } else if (type === "data-pipeline") {
+      const { DataPipelineBot } = await import("./agents/dataPipelineBot.js");
+      const bot = new DataPipelineBot();
+      const result = await bot.run({ data: [{ value: input }], transforms: [] });
+      console.log(JSON.stringify(result, null, 2));
+    } else if (type === "legal-contract") {
+      const { LegalContractBot } = await import("./agents/legalContractBot.js");
+      const bot = new LegalContractBot();
+      const result = await bot.run(input);
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.error(chalk.red(`Unknown agent type: ${type}. Use content-moderation, data-pipeline, or legal-contract.`));
+      process.exit(1);
+    }
+  });
+
+agent
+  .command("harness")
+  .description("Run the autonomous improvement harness loop")
+  .option("--type <type>", "Agent type to simulate", "general")
+  .option("--iterations <n>", "Max iterations", "10")
+  .option("--target <score>", "Target maturity score", "80")
+  .action(async (opts: { type: string; iterations: string; target: string }) => {
+    const { HarnessRunner } = await import("./agents/harnessRunner.js");
+    const runner = new HarnessRunner({
+      agentType: opts.type,
+      maxIterations: parseInt(opts.iterations, 10),
+      targetScore: parseInt(opts.target, 10),
+    });
+    console.log(chalk.bold(`Running harness for ${opts.type} agent (target: ${opts.target}, max: ${opts.iterations} iterations)...`));
+    const result = await runner.run();
+    console.log(chalk.bold(`\nResult:`));
+    console.log(`  Final score: ${result.finalScore}`);
+    console.log(`  Total improvement: +${result.totalImprovement}`);
+    console.log(`  Iterations: ${result.iterations.length}`);
+    console.log(`  Converged: ${result.converged ? chalk.green("yes") : chalk.yellow("no")}`);
+    console.log(`  Duration: ${result.durationMs}ms`);
+  });
+
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
   const unknownToken = parseUnknownCommandToken(message);

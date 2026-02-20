@@ -1270,6 +1270,12 @@ export * from "./domains/index.js";
 // ── Product modules ───────────────────────────────────────────────────
 export * from "./product/index.js";
 
+// ── Agent harnesses ───────────────────────────────────────────────────
+export * from "./agents/index.js";
+
+// ── REST API ──────────────────────────────────────────────────────────
+export { handleApiRoute } from "./api/index.js";
+
 // ── Vault extensions ──────────────────────────────────────────────────
 export * from "./vault/ragGuard.js";
 export * from "./vault/dataClassification.js";

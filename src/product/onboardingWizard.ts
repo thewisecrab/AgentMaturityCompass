@@ -1,67 +1,124 @@
+/**
+ * onboardingWizard.ts — Multi-step onboarding with configurable steps,
+ * progress tracking, and session management.
+ */
+
 import { randomUUID } from 'node:crypto';
 
-export interface OnboardingStep { step: number; title: string; complete: boolean; }
-export interface StepData { id: string; title: string; description: string; completed: boolean; data?: unknown; }
-export interface Onboarding { id: string; agentId: string; steps: StepData[]; createdAt: number; }
+/* ── Interfaces ──────────────────────────────────────────────────── */
 
-const ARCHETYPE_STEPS: Record<string, { title: string; description: string }[]> = {
-  financial: [
-    { title: 'Compliance Setup', description: 'Configure regulatory compliance rules' },
-    { title: 'Data Sources', description: 'Connect financial data feeds' },
-    { title: 'Risk Parameters', description: 'Set risk tolerance thresholds' },
-    { title: 'Audit Trail', description: 'Enable audit logging' },
-    { title: 'Testing', description: 'Run compliance test suite' },
-  ],
-  healthcare: [
-    { title: 'HIPAA Config', description: 'Configure HIPAA compliance settings' },
-    { title: 'Data Encryption', description: 'Set up PHI encryption' },
-    { title: 'Access Controls', description: 'Define role-based access' },
-    { title: 'Integration', description: 'Connect to EHR systems' },
-  ],
-  general: [
-    { title: 'Basic Config', description: 'Set agent name and description' },
-    { title: 'Tool Setup', description: 'Configure available tools' },
-    { title: 'Testing', description: 'Run initial test' },
+export interface OnboardingConfig {
+  steps: Array<{ title: string; description?: string }>;
+  metadata?: Record<string, unknown>;
+}
+
+export interface OnboardingSession {
+  sessionId: string;
+  tenantId: string;
+  currentStep: number;
+  completedSteps: number[];
+  status: 'in_progress' | 'completed' | 'abandoned';
+  config: OnboardingConfig;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** Backward-compat shape from stubs.ts */
+export interface OnboardingStep { step: number; title: string; complete: boolean; }
+
+/* ── Defaults ────────────────────────────────────────────────────── */
+
+const DEFAULT_CONFIG: OnboardingConfig = {
+  steps: [
+    { title: 'Configure agent', description: 'Set up agent identity and capabilities' },
+    { title: 'Set policies', description: 'Define guardrails and behavioral policies' },
+    { title: 'Run assessment', description: 'Execute initial maturity assessment' },
+    { title: 'Review results', description: 'Review assessment findings and recommendations' },
+    { title: 'Deploy', description: 'Deploy the configured agent to production' },
   ],
 };
 
+/* ── Class ───────────────────────────────────────────────────────── */
+
 export class OnboardingWizard {
-  private onboardings = new Map<string, Onboarding>();
+  private sessions = new Map<string, OnboardingSession>();
 
-  createOnboarding(agentId: string, archetype: string): Onboarding {
-    const templates = ARCHETYPE_STEPS[archetype] ?? ARCHETYPE_STEPS['general']!;
-    const steps: StepData[] = templates.map((t, i) => ({ id: randomUUID(), title: t.title, description: t.description, completed: false }));
-    const ob: Onboarding = { id: randomUUID(), agentId, steps, createdAt: Date.now() };
-    this.onboardings.set(ob.id, ob);
-    return ob;
+  createSession(tenantId: string, config?: OnboardingConfig): OnboardingSession {
+    const session: OnboardingSession = {
+      sessionId: randomUUID(),
+      tenantId,
+      currentStep: 0,
+      completedSteps: [],
+      status: 'in_progress',
+      config: config ?? DEFAULT_CONFIG,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    this.sessions.set(session.sessionId, session);
+    return session;
   }
 
-  getStep(onboardingId: string): StepData | undefined {
-    const ob = this.onboardings.get(onboardingId);
-    return ob?.steps.find(s => !s.completed);
+  getSession(sessionId: string): OnboardingSession | undefined {
+    return this.sessions.get(sessionId);
   }
 
-  completeStep(onboardingId: string, stepId: string, data?: unknown): boolean {
-    const ob = this.onboardings.get(onboardingId);
-    if (!ob) return false;
-    const step = ob.steps.find(s => s.id === stepId);
-    if (!step) return false;
-    step.completed = true;
-    step.data = data;
-    return true;
+  advanceStep(sessionId: string): OnboardingSession {
+    const session = this.sessions.get(sessionId);
+    if (!session) throw new Error(`Session ${sessionId} not found`);
+    if (session.status === 'completed') throw new Error('Session already completed');
+
+    const totalSteps = session.config.steps.length;
+    if (session.currentStep < totalSteps - 1) {
+      session.currentStep++;
+    } else {
+      session.status = 'completed';
+    }
+    session.updatedAt = Date.now();
+    return session;
   }
 
-  getProgress(onboardingId: string): number {
-    const ob = this.onboardings.get(onboardingId);
-    if (!ob || ob.steps.length === 0) return 0;
-    return ob.steps.filter(s => s.completed).length / ob.steps.length;
+  completeStep(sessionId: string, stepIndex: number): OnboardingSession {
+    const session = this.sessions.get(sessionId);
+    if (!session) throw new Error(`Session ${sessionId} not found`);
+    if (stepIndex < 0 || stepIndex >= session.config.steps.length) {
+      throw new Error(`Step index ${stepIndex} out of range`);
+    }
+
+    if (!session.completedSteps.includes(stepIndex)) {
+      session.completedSteps.push(stepIndex);
+      session.completedSteps.sort((a, b) => a - b);
+    }
+
+    // Auto-complete session if all steps done
+    if (session.completedSteps.length === session.config.steps.length) {
+      session.status = 'completed';
+    }
+    session.updatedAt = Date.now();
+    return session;
+  }
+
+  getProgress(sessionId: string): { completed: number; total: number; percent: number } {
+    const session = this.sessions.get(sessionId);
+    if (!session) throw new Error(`Session ${sessionId} not found`);
+    const total = session.config.steps.length;
+    const completed = session.completedSteps.length;
+    return { completed, total, percent: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  }
+
+  listSessions(tenantId?: string): OnboardingSession[] {
+    const all = [...this.sessions.values()];
+    return tenantId ? all.filter(s => s.tenantId === tenantId) : all;
   }
 }
+
+/* ── Legacy compat ───────────────────────────────────────────────── */
 
 export function getOnboardingSteps(): OnboardingStep[] {
   return [
     { step: 1, title: 'Configure agent', complete: false },
     { step: 2, title: 'Set policies', complete: false },
     { step: 3, title: 'Run assessment', complete: false },
+    { step: 4, title: 'Review results', complete: false },
+    { step: 5, title: 'Deploy', complete: false },
   ];
 }

@@ -1,36 +1,97 @@
-import { randomUUID } from 'node:crypto';
+/**
+ * reasoningCoach.ts — Reasoning quality analysis with structural checks,
+ * depth scoring, evidence detection, and actionable suggestions.
+ */
 
-export interface CoachingResult { suggestions: string[]; quality: number; issues: { type: string; description: string }[]; }
+/* ── Interfaces ──────────────────────────────────────────────────── */
 
-const FALLACY_PATTERNS: { pattern: RegExp; type: string; description: string }[] = [
-  { pattern: /everyone knows|it's obvious|clearly/i, type: 'appeal_to_common_belief', description: 'Appeal to common belief without evidence' },
-  { pattern: /experts say|studies show|research proves/i, type: 'vague_authority', description: 'Vague appeal to authority without specific citation' },
-  { pattern: /always|never|every single/i, type: 'hasty_generalization', description: 'Hasty generalization using absolute terms' },
-  { pattern: /therefore.*because.*therefore|because.*therefore.*because/i, type: 'circular_reasoning', description: 'Possible circular reasoning detected' },
-  { pattern: /if we allow.*then.*will/i, type: 'slippery_slope', description: 'Slippery slope argument without intermediate justification' },
-];
+/** Backward-compat shape from stubs.ts (extended) */
+export interface CoachingResult { suggestions: string[]; quality: number; }
 
-export function coachReasoning(output: string, criteria?: string[]): CoachingResult {
+export interface ReasoningAnalysis {
+  structure: number;
+  depth: number;
+  clarity: number;
+  evidence: number;
+  suggestions: string[];
+  quality: number;
+}
+
+/* ── Heuristic checks ────────────────────────────────────────────── */
+
+const CAUSAL = /\b(because|therefore|thus|hence|consequently|as a result|since|so that|due to|owing to)\b/gi;
+const EVIDENCE = /\b(according to|data shows?|study|research|statistics?|survey|experiment|measured|observed|reported)\b/gi;
+const CONNECTORS = /\b(however|although|moreover|furthermore|in addition|on the other hand|conversely|nevertheless|additionally|similarly)\b/gi;
+const SECTIONS = /^#{1,6}\s|^\d+[.)]\s|^[-*]\s/gm;
+const QUANTITATIVE = /\b\d+(\.\d+)?(%| percent|x| times| fold)\b/gi;
+const COUNTER = /\b(however|on the other hand|conversely|although|despite|counterargument|objection|critic|alternatively)\b/gi;
+
+function countMatches(text: string, re: RegExp): number {
+  return (text.match(re) ?? []).length;
+}
+
+function clamp01(n: number): number {
+  return Math.max(0, Math.min(1, n));
+}
+
+/* ── Analysis ────────────────────────────────────────────────────── */
+
+export function analyzeReasoning(text: string): ReasoningAnalysis {
   const suggestions: string[] = [];
-  const issues: CoachingResult['issues'] = [];
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
 
-  for (const f of FALLACY_PATTERNS) {
-    if (f.pattern.test(output)) issues.push({ type: f.type, description: f.description });
-  }
+  // Structure: presence of sections, numbered items, or bullet points
+  const sectionCount = countMatches(text, SECTIONS);
+  const structure = clamp01(sectionCount / 3);
+  if (sectionCount === 0) suggestions.push('Add structural elements (headings, bullet points, or numbered lists)');
 
-  if (output.length < 50) suggestions.push('Provide more detailed reasoning');
-  if (!output.includes('because') && !output.includes('since') && !output.includes('due to'))
-    suggestions.push('Include causal explanations (because, since, due to)');
-  if (!/\d/.test(output)) suggestions.push('Consider including quantitative evidence');
-  if (!output.includes('however') && !output.includes('although') && !output.includes('but'))
-    suggestions.push('Consider addressing counterarguments');
+  // Depth: causal explanations and logical connectors
+  const causalCount = countMatches(text, CAUSAL);
+  const connectorCount = countMatches(text, CONNECTORS);
+  const depth = clamp01((causalCount * 0.3 + connectorCount * 0.2) / Math.max(sentences, 1));
+  if (causalCount === 0) suggestions.push('Include causal explanations (because, therefore, thus)');
+  if (connectorCount === 0) suggestions.push('Use logical connectors to link ideas (however, moreover, furthermore)');
 
-  if (criteria) {
-    for (const c of criteria) {
-      if (!output.toLowerCase().includes(c.toLowerCase())) suggestions.push(`Missing criteria: ${c}`);
-    }
-  }
+  // Clarity: sentence length, word diversity
+  const avgSentenceLen = sentences > 0 ? words / sentences : words;
+  const clarity = clamp01(1 - Math.abs(avgSentenceLen - 18) / 30);
+  if (avgSentenceLen > 35) suggestions.push('Consider breaking long sentences for clarity');
+  if (words < 30) suggestions.push('Provide more detailed reasoning');
 
-  const quality = Math.max(0, 1 - issues.length * 0.15 - suggestions.length * 0.1);
-  return { suggestions, quality: Math.round(quality * 100) / 100, issues };
+  // Evidence: references to data, studies, quantitative claims
+  const evidenceCount = countMatches(text, EVIDENCE);
+  const quantCount = countMatches(text, QUANTITATIVE);
+  const evidence = clamp01((evidenceCount * 0.4 + quantCount * 0.3) / Math.max(sentences, 1));
+  if (evidenceCount === 0) suggestions.push('Reference evidence or data to support claims');
+  if (quantCount === 0) suggestions.push('Include quantitative evidence where possible');
+
+  // Counterarguments
+  const counterCount = countMatches(text, COUNTER);
+  if (counterCount === 0) suggestions.push('Address potential counterarguments');
+
+  // Overall quality: weighted average
+  const quality = Math.round(
+    (structure * 0.2 + depth * 0.3 + clarity * 0.2 + evidence * 0.3) * 100
+  ) / 100;
+
+  return {
+    structure: Math.round(structure * 100) / 100,
+    depth: Math.round(depth * 100) / 100,
+    clarity: Math.round(clarity * 100) / 100,
+    evidence: Math.round(evidence * 100) / 100,
+    suggestions,
+    quality,
+  };
+}
+
+export function batchAnalyze(texts: string[]): ReasoningAnalysis[] {
+  return texts.map(t => analyzeReasoning(t));
+}
+
+/* ── Legacy compat ───────────────────────────────────────────────── */
+
+export function coachReasoning(reasoning: string): CoachingResult {
+  const analysis = analyzeReasoning(reasoning);
+  return { suggestions: analysis.suggestions, quality: analysis.quality };
 }

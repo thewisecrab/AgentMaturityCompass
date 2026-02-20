@@ -1,38 +1,109 @@
-import { randomUUID } from 'node:crypto';
+/**
+ * outputCorrector.ts — Rule-based output correction with configurable
+ * pattern rules, batch processing, and correction statistics.
+ */
 
-export interface CorrectionResult { corrected: string; corrections: number; changes: string[]; }
-export interface ValidationRule { type: 'maxLength' | 'minLength' | 'contains' | 'regex'; value: string | number; }
+/* ── Interfaces ──────────────────────────────────────────────────── */
 
-export function correct(output: string, schema?: { type: string; fields?: string[] }): CorrectionResult {
-  let corrected = output;
-  const changes: string[] = [];
-  // Fix trailing commas in JSON
-  const trailingComma = corrected.replace(/,\s*([}\]])/g, '$1');
-  if (trailingComma !== corrected) { changes.push('Removed trailing commas'); corrected = trailingComma; }
-  // Fix unclosed braces
-  const opens = (corrected.match(/{/g) ?? []).length;
-  const closes = (corrected.match(/}/g) ?? []).length;
-  if (opens > closes) { corrected += '}'.repeat(opens - closes); changes.push(`Added ${opens - closes} closing brace(s)`); }
-  const openBrackets = (corrected.match(/\[/g) ?? []).length;
-  const closeBrackets = (corrected.match(/]/g) ?? []).length;
-  if (openBrackets > closeBrackets) { corrected += ']'.repeat(openBrackets - closeBrackets); changes.push(`Added ${openBrackets - closeBrackets} closing bracket(s)`); }
-  // Fix unquoted keys (simple heuristic)
-  corrected = corrected.replace(/{\s*(\w+)\s*:/g, '{"$1":');
-  if (corrected !== output && !changes.includes('Removed trailing commas')) changes.push('Fixed unquoted keys');
-  return { corrected, corrections: changes.length, changes };
+export interface CorrectionRule {
+  pattern: RegExp;
+  replacement: string;
+  category: string;
 }
 
-export function validate(output: string, rules: ValidationRule[]): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  for (const rule of rules) {
-    if (rule.type === 'maxLength' && output.length > (rule.value as number)) errors.push(`Exceeds max length ${rule.value}`);
-    if (rule.type === 'minLength' && output.length < (rule.value as number)) errors.push(`Below min length ${rule.value}`);
-    if (rule.type === 'contains' && !output.includes(rule.value as string)) errors.push(`Missing required: ${rule.value}`);
-    if (rule.type === 'regex' && !new RegExp(rule.value as string).test(output)) errors.push(`Doesn't match pattern: ${rule.value}`);
+/** Backward-compat shape from stubs.ts */
+export interface CorrectionResult { corrected: string; corrections: number; }
+
+export interface CorrectionReport {
+  corrected: string;
+  corrections: number;
+  rulesApplied: string[];
+  originalLength: number;
+  correctedLength: number;
+}
+
+/* ── Built-in rules ──────────────────────────────────────────────── */
+
+const BUILTIN_RULES: CorrectionRule[] = [
+  { pattern: /[ \t]+$/gm, replacement: '', category: 'whitespace' },
+  { pattern: / {2,}/g, replacement: ' ', category: 'whitespace' },
+  { pattern: /\n{3,}/g, replacement: '\n\n', category: 'whitespace' },
+  { pattern: /^(#{1,6})([^ #\n])/gm, replacement: '$1 $2', category: 'markdown' },
+  { pattern: /(\w)"(\w)/g, replacement: "$1' $2", category: 'quotes' },
+];
+
+/* ── Class ───────────────────────────────────────────────────────── */
+
+export class OutputCorrector {
+  private rules: CorrectionRule[] = [...BUILTIN_RULES];
+  private totalCorrections = 0;
+  private totalRuns = 0;
+
+  addRule(pattern: RegExp, replacement: string, category: string): number {
+    this.rules.push({ pattern, replacement, category });
+    return this.rules.length - 1;
   }
-  return { valid: errors.length === 0, errors };
+
+  removeRule(idx: number): boolean {
+    if (idx < 0 || idx >= this.rules.length) return false;
+    this.rules.splice(idx, 1);
+    return true;
+  }
+
+  listRules(): Array<{ index: number; category: string; pattern: string }> {
+    return this.rules.map((r, i) => ({
+      index: i, category: r.category, pattern: r.pattern.source,
+    }));
+  }
+
+  correct(output: string): CorrectionReport {
+    let corrected = output;
+    const rulesApplied: string[] = [];
+
+    for (const rule of this.rules) {
+      // Re-create regex to reset lastIndex for global patterns
+      const re = new RegExp(rule.pattern.source, rule.pattern.flags);
+      const before = corrected;
+      corrected = corrected.replace(re, rule.replacement);
+      if (corrected !== before) {
+        rulesApplied.push(rule.category);
+      }
+    }
+
+    const corrections = rulesApplied.length;
+    this.totalCorrections += corrections;
+    this.totalRuns++;
+
+    return {
+      corrected,
+      corrections,
+      rulesApplied: [...new Set(rulesApplied)],
+      originalLength: output.length,
+      correctedLength: corrected.length,
+    };
+  }
+
+  batchCorrect(outputs: string[]): CorrectionReport[] {
+    return outputs.map(o => this.correct(o));
+  }
+
+  getStats(): { totalRuns: number; totalCorrections: number; ruleCount: number; avgCorrectionsPerRun: number } {
+    return {
+      totalRuns: this.totalRuns,
+      totalCorrections: this.totalCorrections,
+      ruleCount: this.rules.length,
+      avgCorrectionsPerRun: this.totalRuns > 0
+        ? Math.round((this.totalCorrections / this.totalRuns) * 100) / 100
+        : 0,
+    };
+  }
 }
+
+/* ── Legacy compat ───────────────────────────────────────────────── */
+
+const defaultCorrector = new OutputCorrector();
 
 export function correctOutput(output: string): CorrectionResult {
-  return correct(output);
+  const report = defaultCorrector.correct(output);
+  return { corrected: report.corrected, corrections: report.corrections };
 }

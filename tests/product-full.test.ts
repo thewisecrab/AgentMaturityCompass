@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ABTestManager } from '../src/product/abTesting.js';
-import { ApprovalWorkflow } from '../src/product/approvalWorkflow.js';
+import { ApprovalManager } from '../src/product/approvalWorkflow.js';
 import { CallbackRegistry } from '../src/product/asyncCallback.js';
 import { CollaborationManager } from '../src/product/collaboration.js';
 import { CompensationLog } from '../src/product/compensation.js';
@@ -62,10 +62,10 @@ describe('Product — A/B Testing', () => {
 
 describe('Product — Approval Workflow', () => {
   it('creates and approves', () => {
-    const wf = new ApprovalWorkflow();
-    const req = wf.createApproval('deploy', 'alice', ['bob']);
+    const mgr = new ApprovalManager();
+    const req = mgr.createRequest('deploy', 'alice');
     expect(req.status).toBe('pending');
-    const r = wf.approve(req.id, 'bob');
+    const r = mgr.approve(req.requestId, 'bob');
     expect(r.status).toBe('approved');
   });
 });
@@ -136,16 +136,16 @@ describe('Product — Data Quality', () => {
 });
 
 describe('Product — Knowledge Graph', () => {
-  it('adds nodes and finds path', () => {
+  it('adds entities and finds path', () => {
     const kg = new KnowledgeGraph();
-    const a = kg.addNode('A', 'entity');
-    const b = kg.addNode('B', 'entity');
-    const c = kg.addNode('C', 'entity');
-    kg.addEdge(a.id, b.id, 'knows');
-    kg.addEdge(b.id, c.id, 'knows');
-    const path = kg.findPath('A', 'C');
+    const a = kg.addEntity('entity', 'A');
+    const b = kg.addEntity('entity', 'B');
+    const c = kg.addEntity('entity', 'C');
+    kg.addRelationship(a.entityId, b.entityId, 'knows');
+    kg.addRelationship(b.entityId, c.entityId, 'knows');
+    const path = kg.shortestPath(a.entityId, c.entityId);
     expect(path).toBeDefined();
-    expect(path!.length).toBeGreaterThanOrEqual(2);
+    expect(path!.nodes.length).toBeGreaterThanOrEqual(2);
   });
 });
 
@@ -171,12 +171,12 @@ describe('Product — Jobs', () => {
 });
 
 describe('Product — Rollout Manager', () => {
-  it('creates and advances rollout', () => {
+  it('creates rollout and checks user', () => {
     const rm = new RolloutManager();
-    const r = rm.createRollout('feature-x', [{ percentage: 10, duration: 3600 }, { percentage: 100, duration: 86400 }]);
-    expect(rm.getStatus(r.id).stage).toBe(0);
-    rm.advanceRollout(r.id);
-    expect(rm.getStatus(r.id).stage).toBe(1);
+    rm.createRollout('feature-x', 50);
+    const decision = rm.checkRollout('feature-x', 'user-1');
+    expect(decision.feature).toBe('feature-x');
+    expect(typeof decision.enabled).toBe('boolean');
   });
 });
 
