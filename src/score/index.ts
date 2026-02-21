@@ -100,3 +100,32 @@ export {
   runSimulation, getBuiltinScenarios, generateSimReport,
 } from "./agentSimulator.js";
 export type { SimScenario, SimResult as AgentSimResult, SimReport as AgentSimReport, AgentSimConfig, ScenarioCategory, ExpectedBehavior } from "./agentSimulator.js";
+
+// ── New gap-closure modules (2026-02-21 research: HN/OWASP/MITRE/EUAIAct/ETP) ──
+
+export { scoreBehavioralContractMaturity } from "./behavioralContractMaturity.js";
+export type { BehavioralContractResult } from "./behavioralContractMaturity.js";
+
+export { scoreFailSecureGovernance } from "./failSecureGovernance.js";
+export type { FailSecureGovernanceResult } from "./failSecureGovernance.js";
+
+export { scoreOutputIntegrityMaturity } from "./outputIntegrityMaturity.js";
+export type { OutputIntegrityResult } from "./outputIntegrityMaturity.js";
+
+export { scoreAgentStatePortability } from "./agentStatePortability.js";
+export type { AgentStatePortabilityResult } from "./agentStatePortability.js";
+
+export { scoreEUAIActCompliance } from "./euAIActCompliance.js";
+export type { EUAIActComplianceResult } from "./euAIActCompliance.js";
+
+export { scoreOWASPLLMCoverage } from "./owaspLLMCoverage.js";
+export type { OWASPLLMCoverageResult } from "./owaspLLMCoverage.js";
+
+export { scoreETPSelfKnowledge } from "./selfKnowledgeMaturity.js";
+export type { ETPSelfKnowledgeResult } from "./selfKnowledgeMaturity.js";
+
+export { scoreKernelSandboxMaturity } from "./kernelSandboxMaturity.js";
+export type { KernelSandboxResult } from "./kernelSandboxMaturity.js";
+
+export { scoreRuntimeIdentityMaturity } from "./runtimeIdentityMaturity.js";
+export type { RuntimeIdentityResult } from "./runtimeIdentityMaturity.js";

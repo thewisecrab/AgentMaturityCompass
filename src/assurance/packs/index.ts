@@ -41,6 +41,9 @@ import { memoryMaturityPack } from "./memoryMaturityPack.js";
 import { humanOversightQualityPack } from "./humanOversightQualityPack.js";
 import { instructionCompliancePack } from "./instructionCompliancePack.js";
 import { contentProvenancePack } from "./contentProvenancePack.js";
+import { excessiveAgencyPack } from "./excessiveAgencyPack.js";
+import { behavioralContractViolationPack } from "./behavioralContractViolationPack.js";
+import { overreliancePack } from "./overreliancePack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,
@@ -85,6 +88,9 @@ const assurancePacks: AssurancePackDefinition[] = [
   humanOversightQualityPack,
   instructionCompliancePack,
   contentProvenancePack,
+  excessiveAgencyPack,
+  behavioralContractViolationPack,
+  overreliancePack,
 ];
 
 export function listAssurancePacks(): AssurancePackDefinition[] {
@@ -116,4 +122,7 @@ export {
   humanOversightQualityPack,
   instructionCompliancePack,
   contentProvenancePack,
+  excessiveAgencyPack,
+  behavioralContractViolationPack,
+  overreliancePack,
 };
