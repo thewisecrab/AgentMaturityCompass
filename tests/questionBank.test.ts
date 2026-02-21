@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 import { questionBank } from "../src/diagnostic/questionBank.js";
 
 describe("question bank", () => {
-  test("has exactly 58 questions", () => {
-    expect(questionBank).toHaveLength(58);
+  test("has exactly 67 questions", () => {
+    expect(questionBank).toHaveLength(67);
   });
 
   test("has expected layer distribution 9/5/16/7/5", () => {

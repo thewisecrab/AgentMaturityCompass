@@ -541,7 +541,7 @@ describe("universal agent integration layer", () => {
         unknownReasons?: unknown[];
       };
       expect(autoPayload.measuredScores).toBeTruthy();
-      expect(Object.keys(autoPayload.measuredScores ?? {}).length).toBe(58);
+      expect(Object.keys(autoPayload.measuredScores ?? {}).length).toBe(67);
       expect(Array.isArray(autoPayload.unknownReasons)).toBe(true);
 
       const runAuto = await httpJson({

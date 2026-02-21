@@ -12683,6 +12683,182 @@ score
 
 
 
+// ── New gap-closure score commands (2026-02-21) ──────────────────────────────
+
+score
+  .command("behavioral-contract")
+  .description("Score agent behavioral contract maturity (alignment card, permitted/forbidden actions)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreBehavioralContractMaturity } = await import("./score/behavioralContractMaturity.js");
+      const result = scoreBehavioralContractMaturity();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n📋  Behavioral Contract Maturity"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Alignment card:"), result.hasAlignmentCard ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Permitted actions:"), result.hasPermittedActions ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Forbidden actions:"), result.hasForbiddenActions ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Escalation triggers:"), result.hasEscalationTriggers ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Runtime integrity:"), result.hasRuntimeIntegrityCheck ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Drift profile:"), result.hasDriftProfile ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("fail-secure")
+  .description("Score fail-secure tool governance (deny-by-default, rate limiting, anomaly detection)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreFailSecureGovernance } = await import("./score/failSecureGovernance.js");
+      const result = scoreFailSecureGovernance();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🔒  Fail-Secure Governance"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Fails closed:"), result.failsClosedByDefault ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Tool whitelist:"), result.hasToolCallWhitelist ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Rate limiting:"), result.hasRateLimiting ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Anomaly detection:"), result.hasSemanticAnomalyDetection ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Excessive agency controls:"), result.hasExcessiveAgencyControls ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("output-integrity")
+  .description("Score output integrity maturity (OWASP LLM02, confidence calibration, citation)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreOutputIntegrityMaturity } = await import("./score/outputIntegrityMaturity.js");
+      const result = scoreOutputIntegrityMaturity();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n✅  Output Integrity Maturity"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Output validation:"), result.hasOutputValidation ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Confidence calibration:"), result.hasConfidenceCalibration ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Citation requirement:"), result.hasCitationRequirement ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Code execution guard:"), result.hasCodeExecutionGuard ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("state-portability")
+  .description("Score agent state portability (vendor-neutral format, serialization, integrity on transfer)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreAgentStatePortability } = await import("./score/agentStatePortability.js");
+      const result = scoreAgentStatePortability();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n📦  Agent State Portability"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Serializable state:"), result.hasSerializableState ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Vendor-neutral format:"), result.hasVendorNeutralFormat ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("State versioning:"), result.hasStateVersioning ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Integrity on transfer:"), result.hasIntegrityOnTransfer ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("eu-ai-act")
+  .description("Score EU AI Act compliance maturity (Art. 9-17, GPAI systemic risk)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreEUAIActCompliance } = await import("./score/euAIActCompliance.js");
+      const result = scoreEUAIActCompliance();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🇪🇺  EU AI Act Compliance"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Risk class:"), result.riskClassification);
+      console.log(chalk.gray("Risk management system:"), result.hasRiskManagementSystem ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Technical documentation:"), result.hasTechnicalDocumentation ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Human oversight design:"), result.hasHumanOversightDesign ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Adversarial testing:"), result.hasAdversarialTesting ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("FRIA:"), result.hasFundamentalRightsImpactAssessment ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.slice(0, 3).join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("owasp-llm")
+  .description("Score OWASP LLM Top 10 coverage (all 10 risks)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreOWASPLLMCoverage } = await import("./score/owaspLLMCoverage.js");
+      const result = scoreOWASPLLMCoverage();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🛡️  OWASP LLM Top 10 Coverage"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Covered:"), `${result.coveredCount}/10`);
+      if (result.uncoveredRisks.length) console.log(chalk.yellow("Uncovered:"), result.uncoveredRisks.join(", "));
+      else console.log(chalk.green("All 10 OWASP LLM risks covered ✓"));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("self-knowledge")
+  .description("Score ETP self-knowledge maturity (typed attention, trace layer, confidence+citation)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreETPSelfKnowledge } = await import("./score/selfKnowledgeMaturity.js");
+      const result = scoreETPSelfKnowledge();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🔍  ETP Self-Knowledge Maturity"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Typed relationships:"), result.hasTypedRelationships ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Trace layer:"), result.hasTraceLayer ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Confidence+citation:"), result.hasConfidenceWithCitation ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Calibration:"), result.hasCalibrationMechanism ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("kernel-sandbox")
+  .description("Score kernel-level sandbox maturity (OS isolation, filesystem/network restrictions)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreKernelSandboxMaturity } = await import("./score/kernelSandboxMaturity.js");
+      const result = scoreKernelSandboxMaturity();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🏗️  Kernel Sandbox Maturity"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("OS-level isolation:"), result.hasOSLevelIsolation ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Filesystem restrictions:"), result.hasFilesystemRestrictions ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Network isolation:"), result.hasNetworkIsolation ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Secret injection:"), result.hasSecretInjection ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("runtime-identity")
+  .description("Score runtime execution identity maturity (JIT credentials, user propagation, revocation)")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const { scoreRuntimeIdentityMaturity } = await import("./score/runtimeIdentityMaturity.js");
+      const result = scoreRuntimeIdentityMaturity();
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold.hex("#FF6600")("\n🪪  Runtime Identity Maturity"));
+      console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Agent identity binding:"), result.hasAgentIdentityBinding ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("User identity propagation:"), result.hasUserIdentityPropagation ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("JIT credentials:"), result.hasJITCredentials ? chalk.green("yes") : chalk.red("no"));
+      console.log(chalk.gray("Identity revocation:"), result.hasIdentityRevocation ? chalk.green("yes") : chalk.red("no"));
+      if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
+    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
 // Memory commands
 const memory = program.command("memory").description("Memory maturity assessment and management");
 memory.command("assess <agentId>").description("Full memory maturity assessment").option("--json", "JSON output").action(async (agentId: string, opts: { json?: boolean }) => {
