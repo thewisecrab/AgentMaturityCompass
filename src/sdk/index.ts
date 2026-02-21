@@ -11,3 +11,10 @@ export { createVercelAIFetchBridge } from "./integrations/vercelAiSdk.js";
 export { createLangChainJsBridge } from "./integrations/langchainJs.js";
 export { createLangGraphJsBridge } from "./integrations/langgraphJs.js";
 export { instrumentOpenAIAgentsSdk } from "./integrations/openaiAgentsSdk.js";
+
+// ── Framework adapters ────────────────────────────────────────────
+export { FrameworkAdapter, LangChainAdapter, CrewAIAdapter, OpenAIAgentsAdapter, createAdapter } from "./frameworkAdapters.js";
+export type {
+  FrameworkType, AdapterConfig, AdapterEvent, AdapterSession,
+  AdapterCallbacks,
+} from "./frameworkAdapters.js";

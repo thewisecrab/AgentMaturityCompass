@@ -47,3 +47,34 @@ export { ProductionMonitor } from './monitor.js';
 export type {
   MonitorConfig, MonitorSample, MonitorAlert, MonitorStatus, MonitorDashboard,
 } from './monitor.js';
+
+// ── Gap closure modules ───────────────────────────────────────────
+
+export { LLMJudge } from './llmJudge.js';
+export type {
+  JudgeTemplate, JudgeRubric, JudgeResult, PairwiseResult,
+  JudgeConfig,
+} from './llmJudge.js';
+
+export { Playground } from './playground.js';
+export type {
+  PlaygroundPrompt, PlaygroundTestcase,
+  PlaygroundVariant, PlaygroundSummary,
+} from './playground.js';
+
+export { TraceIngestionPipeline } from './traceIngestion.js';
+export type {
+  ProductionTrace, IngestionConfig, ScoredTrace, IngestionStats,
+} from './traceIngestion.js';
+
+export { AutoTestGenerator } from './autoTestGen.js';
+export type {
+  FailureSignal, GeneratedTestCase, TestAssertion, TestGenConfig,
+  TestGenResult, FailureCluster, FailureSource, AssertionType,
+} from './autoTestGen.js';
+
+export { SessionEvaluator } from './sessionEval.js';
+export type {
+  SessionTurn, SessionGoal, SessionEvalConfig, SessionEvalResult,
+  GoalEvaluation, LoopDetection, EscalationAnalysis, TurnRole,
+} from './sessionEval.js';

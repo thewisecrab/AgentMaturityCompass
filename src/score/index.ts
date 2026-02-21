@@ -78,3 +78,25 @@ export type { IdentityContinuityProfile } from "./identityContinuity.js";
 
 export { assessReputationPortability } from "./reputationPortability.js";
 export type { ReputationPortabilityProfile } from "./reputationPortability.js";
+
+// ── Gap-closure modules (2026-02-21) ─────────────────────────────────
+
+export {
+  createClaim, promoteClaim, quarantineClaim, isPromotionValid,
+  ClaimProvenanceRegistry, CLAIM_TIER_WEIGHTS, CLAIM_TIER_TO_EVIDENCE_KIND,
+} from "./claimProvenance.js";
+export type { Claim, ClaimTier, ClaimProvenanceStore, PromotionResult } from "./claimProvenance.js";
+
+export { KnowledgeGraph as AMCKnowledgeGraph } from "./knowledgeGraph.js";
+export type { KnowledgeNode as AMCKnowledgeNode, KnowledgeEdge, EdgeType, NodeType, ImpactReport, ConflictReport } from "./knowledgeGraph.js";
+
+export {
+  detectModelDrift, tagEvidenceWithModel, extractModelFromEvidence,
+  buildSnapshot, parseModelVersion,
+} from "./modelDrift.js";
+export type { ModelVersion, ModelTaggedEvidence, EvidenceSnapshot, DriftSignal, DriftReport } from "./modelDrift.js";
+
+export {
+  runSimulation, getBuiltinScenarios, generateSimReport,
+} from "./agentSimulator.js";
+export type { SimScenario, SimResult as AgentSimResult, SimReport as AgentSimReport, AgentSimConfig, ScenarioCategory, ExpectedBehavior } from "./agentSimulator.js";

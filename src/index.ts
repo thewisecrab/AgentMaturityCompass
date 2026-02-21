@@ -1276,6 +1276,20 @@ export * from "./agents/index.js";
 // ── REST API ──────────────────────────────────────────────────────────
 export { handleApiRoute } from "./api/index.js";
 
+// ── OpenTelemetry export ──────────────────────────────────────────
+export { OTELExporter, createTraceparent, parseTraceparent } from "./ops/otelExporter.js";
+export type {
+  OTELExporterConfig, OTLPSpan, OTLPResource,
+  TraceContext as OTELTraceContext,
+} from "./ops/otelExporter.js";
+
+// ── Multi-provider model routing ─────────────────────────────────
+export { ModelRouter } from "./ops/modelRouter.js";
+export type {
+  ModelProvider, ModelSpec, RoutingStrategy, RoutingRequest,
+  RoutingDecision, RoutingStats,
+} from "./ops/modelRouter.js";
+
 // ── Vault extensions ──────────────────────────────────────────────────
 export * from "./vault/ragGuard.js";
 export * from "./vault/dataClassification.js";
@@ -1283,3 +1297,7 @@ export * from "./vault/metadataScrubber.js";
 export * from "./vault/invoiceFraud.js";
 export * from "./vault/dsarAutopilot.js";
 export * from "./vault/privacyBudget.js";
+
+// ── NL Policy authoring (2026-02-21) ─────────────────────────────────
+export { parseNLPolicy, validateParsedPolicy, POLICY_TEMPLATES } from "./governor/nlPolicy.js";
+export type { NLPolicyInput, ParsedPolicy, PolicyRule, PolicyValidationResult } from "./governor/nlPolicy.js";

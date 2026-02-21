@@ -18,3 +18,12 @@ export { fingerprint } from './uiFingerprint.js';
 export type { FingerprintResult } from './uiFingerprint.js';
 export { validateManifest, checkRegistry, checkIngress, sanitize, detect, checkOAuthScopes } from './stubs.js';
 export type { ManifestResult, RegistryCheckResult, IngressResult, SanitizeResult, DetectorResult, OAuthScopeResult } from './stubs.js';
+
+// ── Validator library (2026-02-21) ────────────────────────────────────
+export {
+  validatePII, validateSecretLeakage, validatePromptInjection,
+  validateMedicalAdvice, validateFinancialAdvice, validateToxicity,
+  validateCompetitorMention, validateCustomBlocklist,
+  runAllValidators, aggregateValidationResults,
+} from "./validators/index.js";
+export type { ValidationResult as ShieldValidationResult, ValidationViolation, ValidatorConfig } from "./validators/index.js";

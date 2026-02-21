@@ -32,3 +32,18 @@ export type {
   EvidenceContract, TemporalResult, GeoFenceResult,
   ClipboardResult, TemplateResult,
 } from './stubs.js';
+
+// ── AgentSpec-style declarative safety DSL ────────────────────────
+export { SafetyEngine, parseDSLRule, parseDSLRules } from './safetyDSL.js';
+export type {
+  SafetyConstraint, ConstraintAction, Condition,
+  SafetyEvalResult, ConstraintEvalResult, ParsedRule,
+} from './safetyDSL.js';
+
+// ── Semantic guardrails ───────────────────────────────────────────
+export { SemanticGuardrails } from './semanticGuardrails.js';
+export type {
+  TopicRule, ToneRule, ContentBoundary, SteeringRule,
+  GuardrailConfig, GuardrailViolation, GuardrailResult,
+  GuardrailAction, TopicCategory,
+} from './semanticGuardrails.js';
