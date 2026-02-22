@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { join, resolve } from "node:path";
-import Database from "better-sqlite3";
+import type Database from "better-sqlite3";
 import { ensureDir } from "../utils/fs.js";
+import { closeSqlitePool, getOrCreateSqlitePool } from "../storage/sqlitePool.js";
 
 export interface DiagAnswerRecord {
   value: number;
@@ -16,7 +17,7 @@ export interface DiagSession {
   completedAt?: string;
 }
 
-const stores = new Map<string, Database.Database>();
+const poolKeys = new Map<string, string>();
 
 function normalizedWorkspace(workspace?: string): string {
   const raw = workspace && workspace.trim().length > 0 ? workspace : process.cwd();
@@ -27,31 +28,58 @@ function scoreDbPath(workspace: string): string {
   return join(workspace, ".amc", "score_sessions.sqlite");
 }
 
-function openDb(workspace?: string): Database.Database {
-  const root = normalizedWorkspace(workspace);
-  const existing = stores.get(root);
-  if (existing) {
-    return existing;
+function parsePoolSize(raw: string | undefined, fallback: number): number {
+  if (!raw) {
+    return fallback;
   }
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+function scorePoolSize(): number {
+  return parsePoolSize(process.env.AMC_SCORE_SQLITE_POOL_SIZE ?? process.env.AMC_SQLITE_POOL_SIZE, 4);
+}
+
+function scorePoolKey(workspace: string): string {
+  return `score:${workspace}:${scoreDbPath(workspace)}`;
+}
+
+function scorePool(workspace?: string) {
+  const root = normalizedWorkspace(workspace);
+  const key = scorePoolKey(root);
+  poolKeys.set(root, key);
 
   ensureDir(join(root, ".amc"));
-  const db = new Database(scoreDbPath(root));
-  db.pragma("journal_mode = WAL");
-  db.pragma("synchronous = NORMAL");
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS score_sessions (
-      session_id TEXT PRIMARY KEY,
-      agent_id TEXT NOT NULL,
-      answers_json TEXT NOT NULL DEFAULT '{}',
-      created_at TEXT NOT NULL,
-      completed_at TEXT
-    );
-    CREATE INDEX IF NOT EXISTS idx_score_sessions_created_at ON score_sessions(created_at);
-    CREATE INDEX IF NOT EXISTS idx_score_sessions_completed_at ON score_sessions(completed_at);
-  `);
+  return getOrCreateSqlitePool({
+    key,
+    dbPath: scoreDbPath(root),
+    maxSize: scorePoolSize(),
+    configureConnection: (db) => {
+      db.pragma("journal_mode = WAL");
+      db.pragma("synchronous = NORMAL");
+      db.pragma("busy_timeout = 5000");
+    },
+    initialize: (db) => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS score_sessions (
+          session_id TEXT PRIMARY KEY,
+          agent_id TEXT NOT NULL,
+          answers_json TEXT NOT NULL DEFAULT '{}',
+          created_at TEXT NOT NULL,
+          completed_at TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_score_sessions_created_at ON score_sessions(created_at);
+        CREATE INDEX IF NOT EXISTS idx_score_sessions_completed_at ON score_sessions(completed_at);
+      `);
+    }
+  });
+}
 
-  stores.set(root, db);
-  return db;
+function withScoreDb<T>(workspace: string | undefined, fn: (db: Database.Database) => T): T {
+  return scorePool(workspace).withLease((db) => fn(db));
 }
 
 function parseAnswers(raw: string): Record<string, DiagAnswerRecord> {
@@ -94,7 +122,6 @@ function hydrateSession(row: {
 }
 
 export function createScoreSession(workspace: string | undefined, agentId: string): DiagSession {
-  const db = openDb(workspace);
   const nowIso = new Date().toISOString();
   const session: DiagSession = {
     id: randomUUID(),
@@ -102,39 +129,42 @@ export function createScoreSession(workspace: string | undefined, agentId: strin
     answers: {},
     createdAt: nowIso
   };
-  db.prepare(
-    `INSERT INTO score_sessions(session_id, agent_id, answers_json, created_at, completed_at)
-     VALUES(@sessionId, @agentId, @answersJson, @createdAt, NULL)`
-  ).run({
-    sessionId: session.id,
-    agentId: session.agentId,
-    answersJson: JSON.stringify(session.answers),
-    createdAt: session.createdAt
+  withScoreDb(workspace, (db) => {
+    db.prepare(
+      `INSERT INTO score_sessions(session_id, agent_id, answers_json, created_at, completed_at)
+       VALUES(@sessionId, @agentId, @answersJson, @createdAt, NULL)`
+    ).run({
+      sessionId: session.id,
+      agentId: session.agentId,
+      answersJson: JSON.stringify(session.answers),
+      createdAt: session.createdAt
+    });
   });
   return session;
 }
 
 export function getScoreSession(workspace: string | undefined, sessionId: string): DiagSession | null {
-  const db = openDb(workspace);
-  const row = db
-    .prepare(
-      `SELECT session_id, agent_id, answers_json, created_at, completed_at
-       FROM score_sessions
-       WHERE session_id = ?`
-    )
-    .get(sessionId) as
-    | {
-        session_id: string;
-        agent_id: string;
-        answers_json: string;
-        created_at: string;
-        completed_at: string | null;
-      }
-    | undefined;
-  if (!row) {
-    return null;
-  }
-  return hydrateSession(row);
+  return withScoreDb(workspace, (db) => {
+    const row = db
+      .prepare(
+        `SELECT session_id, agent_id, answers_json, created_at, completed_at
+         FROM score_sessions
+         WHERE session_id = ?`
+      )
+      .get(sessionId) as
+      | {
+          session_id: string;
+          agent_id: string;
+          answers_json: string;
+          created_at: string;
+          completed_at: string | null;
+        }
+      | undefined;
+    if (!row) {
+      return null;
+    }
+    return hydrateSession(row);
+  });
 }
 
 export function recordScoreAnswer(params: {
@@ -144,51 +174,72 @@ export function recordScoreAnswer(params: {
   value: number;
   notes?: string;
 }): DiagSession | null {
-  const session = getScoreSession(params.workspace, params.sessionId);
-  if (!session) {
-    return null;
-  }
-  session.answers[params.questionId] = {
-    value: params.value,
-    notes: params.notes
-  };
-  const db = openDb(params.workspace);
-  db.prepare(
-    `UPDATE score_sessions
-     SET answers_json = @answersJson
-     WHERE session_id = @sessionId`
-  ).run({
-    sessionId: session.id,
-    answersJson: JSON.stringify(session.answers)
+  return withScoreDb(params.workspace, (db) => {
+    const row = db
+      .prepare(
+        `SELECT session_id, agent_id, answers_json, created_at, completed_at
+         FROM score_sessions
+         WHERE session_id = ?`
+      )
+      .get(params.sessionId) as
+      | {
+          session_id: string;
+          agent_id: string;
+          answers_json: string;
+          created_at: string;
+          completed_at: string | null;
+        }
+      | undefined;
+    if (!row) {
+      return null;
+    }
+
+    const session = hydrateSession(row);
+    session.answers[params.questionId] = {
+      value: params.value,
+      notes: params.notes
+    };
+
+    db.prepare(
+      `UPDATE score_sessions
+       SET answers_json = @answersJson
+       WHERE session_id = @sessionId`
+    ).run({
+      sessionId: session.id,
+      answersJson: JSON.stringify(session.answers)
+    });
+    return session;
   });
-  return session;
 }
 
 export function markScoreSessionCompleted(workspace: string | undefined, sessionId: string): void {
-  const db = openDb(workspace);
-  db.prepare(
-    `UPDATE score_sessions
-     SET completed_at = COALESCE(completed_at, @completedAt)
-     WHERE session_id = @sessionId`
-  ).run({
-    sessionId,
-    completedAt: new Date().toISOString()
+  withScoreDb(workspace, (db) => {
+    db.prepare(
+      `UPDATE score_sessions
+       SET completed_at = COALESCE(completed_at, @completedAt)
+       WHERE session_id = @sessionId`
+    ).run({
+      sessionId,
+      completedAt: new Date().toISOString()
+    });
   });
 }
 
 export function countActiveScoreSessions(workspace: string | undefined): number {
-  const db = openDb(workspace);
-  const row = db
-    .prepare("SELECT COUNT(*) AS c FROM score_sessions WHERE completed_at IS NULL")
-    .get() as { c: number };
-  return Number(row.c ?? 0);
+  return withScoreDb(workspace, (db) => {
+    const row = db
+      .prepare("SELECT COUNT(*) AS c FROM score_sessions WHERE completed_at IS NULL")
+      .get() as { c: number };
+    return Number(row.c ?? 0);
+  });
 }
 
 export function scoreDbHealthy(workspace: string | undefined): boolean {
   try {
-    const db = openDb(workspace);
-    db.prepare("SELECT 1").get();
-    return true;
+    return withScoreDb(workspace, (db) => {
+      db.prepare("SELECT 1").get();
+      return true;
+    });
   } catch {
     return false;
   }
@@ -197,15 +248,15 @@ export function scoreDbHealthy(workspace: string | undefined): boolean {
 export function closeScoreSessionStores(workspace?: string): void {
   if (workspace && workspace.trim().length > 0) {
     const root = normalizedWorkspace(workspace);
-    const db = stores.get(root);
-    if (db) {
-      db.close();
-      stores.delete(root);
+    const key = poolKeys.get(root);
+    if (key) {
+      closeSqlitePool(key);
+      poolKeys.delete(root);
     }
     return;
   }
-  for (const [root, db] of stores.entries()) {
-    db.close();
-    stores.delete(root);
+  for (const [root, key] of poolKeys.entries()) {
+    closeSqlitePool(key);
+    poolKeys.delete(root);
   }
 }
