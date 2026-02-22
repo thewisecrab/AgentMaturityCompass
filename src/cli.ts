@@ -5934,18 +5934,21 @@ notary
       workspace: opts.workspace ?? process.cwd()
     });
     console.log(chalk.green(`AMC Notary running at ${runtime.url}`));
-    const stop = async (): Promise<void> => {
-      await runtime.close();
-      process.exit(0);
-    };
-    process.on("SIGINT", () => {
-      void stop();
-    });
-    process.on("SIGTERM", () => {
-      void stop();
-    });
-    await new Promise<void>(() => {
-      // hold foreground process
+    await new Promise<void>((resolvePromise, rejectPromise) => {
+      let stopping = false;
+      const shutdown = (): void => {
+        if (stopping) {
+          return;
+        }
+        stopping = true;
+        process.off("SIGINT", shutdown);
+        process.off("SIGTERM", shutdown);
+        runtime.close()
+          .then(() => resolvePromise())
+          .catch((error) => rejectPromise(error));
+      };
+      process.on("SIGINT", shutdown);
+      process.on("SIGTERM", shutdown);
     });
   });
 
