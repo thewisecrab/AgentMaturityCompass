@@ -62,7 +62,7 @@ const STATIC_MISTAKE_RULES: PatternRule[] = [
     category: "Code Injection",
     description: "Dynamic code execution on user-influenced input.",
     recommendation: "Remove eval/exec for untrusted input and use a strict parser or allowlist.",
-    pattern: /(?:eval|Function|exec)\s*\([^)]*(?:req\.|request\.|query|params|body|input|argv|user)/i
+    pattern: /(?:^|[^a-zA-Z])(?:eval|exec)\s*\([^)]+\)/im
   },
   {
     severity: "high",
