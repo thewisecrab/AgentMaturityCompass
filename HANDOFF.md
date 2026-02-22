@@ -1,83 +1,39 @@
-# FIX-6 HANDOFF
+# FIX-7 Handoff
 
-## Completed Scope
+## Scope Completed
+Expanded test coverage for the 6 requested priority modules:
+- `src/incidents/*`
+- `src/corrections/*` (including broken verification path)
+- `src/claims/claimExpiry.ts`
+- `src/enforce/*` policy engine (`policyFirewall`, `safetyDSL`)
+- `src/shield/validators/index.ts`
+- `src/score/crossFrameworkMapping.ts`
 
-### 1) Unified SDK default bridge URLs to 3212
-- Updated Python SDK default bridge URL to `http://localhost:3212`:
-  - `src/sdk/python/amc_client.py`
-  - `src/sdk/python/amc_middleware.py` examples
-  - `src/sdk/python/test_amc_client.py`
-- Updated Go SDK default bridge URL to `http://localhost:3212`:
-  - `src/sdk/go/amc_client.go`
-  - `src/sdk/go/amc_middleware.go` examples
-  - `src/sdk/go/amc_client_test.go`
-- Updated SDK doc default note:
-  - `docs/SDK.md`
+## New Test Suites
+- `tests/incidentsSubsystem.test.ts` (20 tests)
+- `tests/correctionsCoverage.test.ts` (21 tests)
+- `tests/claimsClaimExpiry.test.ts` (18 tests)
+- `tests/enforcePolicyEngine.test.ts` (21 tests)
+- `tests/shieldValidatorsCoverage.test.ts` (19 tests)
+- `tests/scoreCrossFrameworkMapping.test.ts` (17 tests)
 
-### 2) Fixed Go SDK lease endpoints to live routes
-- Repointed lease calls from non-existent bridge lease paths to live Studio lease routes:
-  - `RequestLease`: `/leases/issue`
-  - `RevokeLease`: `/leases/revoke`
-- Updated lease request payload shaping to match runtime expectations (`ttl` + comma-delimited `scopes`).
-- Added test coverage for both lease routes:
-  - `src/sdk/go/amc_client_test.go`
+Total new tests added: **116**
 
-### 3) Extended OpenAI SDK instrumentation coverage
-- Added AMC client methods for:
-  - `/bridge/openai/v1/embeddings`
-  - `/bridge/openai/v1/images/generations`
-  - `/bridge/openai/v1/audio/speech`
-  - File: `src/sdk/amcClient.ts`
-- Extended OpenAI instrumentation proxy to route:
-  - `chat.completions.create`
-  - `responses.create`
-  - `embeddings.create`
-  - `images.generate`
-  - `audio.speech.create`
-  - File: `src/sdk/integrations/openai.ts`
-- Extended OpenAI fetch transport routing for embeddings/images/audio paths.
-- Added bridge routing support for those OpenAI paths:
-  - `src/bridge/bridgeModelRouter.ts`
-- Added/updated unit tests:
-  - `tests/amcClientSdk.test.ts`
+## Coverage Delta (Requested Areas)
+- `incidents`: previously no dedicated tests -> **20 direct tests**
+- `corrections`: broken `updateCorrectionVerification` path untested -> **21 direct tests** including append-only failure regression
+- `claims/claimExpiry`: previously untested -> **18 direct tests**
+- `enforce` policy engine: previously untested engine paths -> **21 direct tests**
+- `shield` validators: previously untested validator library -> **19 direct tests**
+- `score/crossFrameworkMapping`: previously untested -> **17 direct tests**
 
-### 4) Fixed onboarding docs commands
-- `docs/INTEGRATIONS.md`
-  - Replaced invalid `amc provider add --name ... --key-from-stdin` with valid `amc provider add --agent ...`
-  - Replaced invalid `amc python-sdk --out ...` with valid `amc python-sdk`
-- `docs/ADAPTERS.md`
-  - Fixed `amc adapters configure` example to include required `--route` and `--model`
-  - Fixed invalid adapter id/flag in `init-project` example (`openai-agents-sdk`, removed unsupported `--out`)
-- `docs/QUICKSTART.md`
-  - Clarified bridge runs under `amc up` (no separate `amc bridge start` command)
+## Verification Runs
+- Focused new suites:
+  - Command:
+    - `npm test -- tests/incidentsSubsystem.test.ts tests/correctionsCoverage.test.ts tests/claimsClaimExpiry.test.ts tests/enforcePolicyEngine.test.ts tests/shieldValidatorsCoverage.test.ts tests/scoreCrossFrameworkMapping.test.ts --reporter=verbose`
+  - Result: **PASS** (`6` files, `116` tests)
 
-### 5) Fixed integration scaffolds to live `/bridge/*` endpoints
-- Replaced deprecated scaffold endpoint usage:
-  - `/api/v1/evidence` -> `/bridge/telemetry`
-  - Removed `/api/v1/lease/verify` dependency in scaffold flow
-- Updated scaffold defaults to `http://localhost:3212`
-- Updated generated contract tests and generated OpenAPI spec to live routes:
-  - health: `/healthz`
-  - telemetry: `/bridge/telemetry`
-  - bridge model paths: `/bridge/openai/v1/...`
-- Files:
-  - `src/setup/integrationScaffold.ts`
-  - `tests/integrationScaffold.test.ts`
+- Requested full-suite command:
+  - `npm test -- --reporter=verbose 2>&1 | tail -50`
+  - Behavior in this sandbox: command did not complete in bounded time (pipeline hung; timeout reached when wrapped with a guard). No stable final `tail -50` block was produced before timeout.
 
-### 6) Updated website onboarding copy accuracy
-- Removed inaccurate “Install in 10 seconds / Zero config” messaging.
-- Updated install section text to reflect setup credentials + vault passphrase requirement.
-- File: `website/index.html`
-
-## Test Execution
-
-### Requested command
-- Executed: `npm test -- --reporter=verbose 2>&1 | tail -30`
-- Result in this environment: command did not complete within interactive polling windows (tail emits only on full suite exit).
-
-### Focused validation run (for changed surface)
-- Executed: `npx vitest run tests/amcClientSdk.test.ts tests/integrationScaffold.test.ts --reporter=verbose 2>&1 | tail -30`
-- Result: **PASS** (`2` files, `34` tests).
-
-## Notes
-- Repository showed an unrelated tracked deletion in `.amc/guard_events.sqlite` during status inspection; this handoff work does not include that file.
