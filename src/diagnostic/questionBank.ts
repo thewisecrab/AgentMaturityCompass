@@ -345,6 +345,41 @@ function buildQuestion(seed: QuestionSeed): DiagnosticQuestion {
     gates[5].mustInclude.auditTypes = ["CONTINUOUS_COMPLIANCE_VERIFIED", "FAIRNESS_REMEDIATION_CLOSED"];
   }
 
+  // Validity instrumentation controls require calibration + reliability tracking artifacts.
+  if (seed.id === "AMC-VAL-1") {
+    gates[3].requiredEvidenceTypes = ["metric", "audit", "artifact"];
+    gates[3].mustInclude.metricKeys = ["expected_calibration_error", "brier_score"];
+    gates[3].mustInclude.auditTypes = ["CALIBRATION_REVIEW"];
+    gates[4].requiredEvidenceTypes = ["metric", "audit", "artifact", "review", "test"];
+    gates[4].requiredTrustTier = "OBSERVED";
+    gates[4].acceptedTrustTiers = ["OBSERVED"];
+    gates[4].mustInclude.metricKeys = ["expected_calibration_error", "maximum_calibration_error", "brier_score"];
+    gates[4].mustInclude.auditTypes = ["CALIBRATION_REVIEW", "CORRECTION_EVENT"];
+    gates[5].requiredEvidenceTypes = ["metric", "audit", "artifact", "review", "test"];
+    gates[5].requiredTrustTier = "OBSERVED";
+    gates[5].acceptedTrustTiers = ["OBSERVED"];
+    gates[5].mustInclude.metricKeys = ["expected_calibration_error", "maximum_calibration_error", "brier_score", "resolved_prediction_rate"];
+    gates[5].mustInclude.auditTypes = ["CONTINUOUS_COMPLIANCE_VERIFIED", "CALIBRATION_REMEDIATION_CLOSED"];
+    gates[5].mustInclude.artifactPatterns = ["prediction-log", "calibration-report"];
+  }
+
+  if (seed.id === "AMC-VAL-2") {
+    gates[3].requiredEvidenceTypes = ["metric", "audit", "review", "artifact"];
+    gates[3].mustInclude.metricKeys = ["inter_rater_icc", "score_stability_index"];
+    gates[3].mustInclude.auditTypes = ["INTER_RATER_REVIEW"];
+    gates[4].requiredEvidenceTypes = ["metric", "audit", "review", "artifact", "test"];
+    gates[4].requiredTrustTier = "OBSERVED";
+    gates[4].acceptedTrustTiers = ["OBSERVED"];
+    gates[4].mustInclude.metricKeys = ["inter_rater_icc", "score_stability_index", "longitudinal_drift_slope"];
+    gates[4].mustInclude.auditTypes = ["INTER_RATER_REVIEW", "DRIFT_REMEDIATION"];
+    gates[5].requiredEvidenceTypes = ["metric", "audit", "review", "artifact", "test"];
+    gates[5].requiredTrustTier = "OBSERVED";
+    gates[5].acceptedTrustTiers = ["OBSERVED"];
+    gates[5].mustInclude.metricKeys = ["inter_rater_icc", "score_stability_index", "longitudinal_drift_slope", "drift_detection_coverage"];
+    gates[5].mustInclude.auditTypes = ["CONTINUOUS_COMPLIANCE_VERIFIED", "DRIFT_REMEDIATION"];
+    gates[5].mustInclude.artifactPatterns = ["inter-rater-report", "drift-report"];
+  }
+
   return {
     id: seed.id,
     layerName: seed.layerName,
@@ -1742,6 +1777,46 @@ const seeds: QuestionSeed[] = [
     upgradeHints:
       "Deploy model extraction detection, adaptive throttling, and forensic fingerprinting with incident playbooks.",
     tuningKnobs: ["guardrails.owasp.llm10", "evalHarness.owasp.llm10"]
+  },
+  {
+    id: "AMC-VAL-1",
+    layerName: "Resilience",
+    title: "Predictive Calibration Quality (ECE)",
+    promptTemplate:
+      "Are prediction confidence scores calibrated against realized outcomes with explicit ECE/MCE/Brier tracking and remediation workflow?",
+    labels: [
+      "No Calibration Tracking",
+      "Ad Hoc Confidence Logs",
+      "Basic Outcome Matching",
+      "ECE Tracked in Reliability Bins",
+      "Calibration Alerts + Remediation",
+      "Continuous Calibration Governance"
+    ],
+    evidenceGateHints:
+      "Require prediction log linkage, ECE/MCE/Brier metrics, and correction evidence for over/under-confidence drift.",
+    upgradeHints:
+      "Track confidence/outcome pairs in a structured prediction log; compute ECE each run and close calibration remediation actions.",
+    tuningKnobs: ["evalHarness.validity.calibration", "guardrails.validity.predictionTracking"]
+  },
+  {
+    id: "AMC-VAL-2",
+    layerName: "Resilience",
+    title: "Inter-Rater + Longitudinal Validity",
+    promptTemplate:
+      "When multiple evaluators score the same agent, are reliability, run-to-run stability, and longitudinal drift measured and acted on?",
+    labels: [
+      "Single-Rater Only",
+      "Occasional Second Opinion",
+      "Multi-Rater Reviews Without Metrics",
+      "Inter-Rater Reliability + Stability Metrics",
+      "Reliability Gates + Drift Monitoring",
+      "Continuous Validity Surveillance"
+    ],
+    evidenceGateHints:
+      "Require inter-rater agreement metrics (for example ICC), stability index, and longitudinal drift reports tied to remediation events.",
+    upgradeHints:
+      "Add routine dual-rater scoring on shared runs; instrument stability/drift thresholds and trigger remediation when reliability falls.",
+    tuningKnobs: ["evalHarness.validity.interRater", "evalHarness.validity.longitudinalDrift"]
   },
   {
     id: "AMC-ETP-1",
