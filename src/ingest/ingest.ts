@@ -70,15 +70,13 @@ export function ingestEvidence(params: {
       binarySha256: hashBinaryOrPath("ingest", "1")
     });
 
-    const eventIds: string[] = [];
-    for (const file of files) {
-      const payload = toIngestPayload(file, params.type);
-      const eventId = ledger.appendEvidence({
+    const batchResults = ledger.appendEvidenceBatch(
+      files.map((file) => ({
         sessionId: ingestSessionId,
-        runtime: "unknown",
-        eventType: "review",
-        payload,
-        payloadExt: file.endsWith(".json") ? "json" : "txt",
+        runtime: "unknown" as const,
+        eventType: "review" as const,
+        payload: toIngestPayload(file, params.type),
+        payloadExt: file.endsWith(".json") ? ("json" as const) : ("txt" as const),
         meta: {
           trustTier: "SELF_REPORTED",
           source: params.type,
@@ -86,9 +84,9 @@ export function ingestEvidence(params: {
           ingestSessionId,
           filePath: file
         }
-      });
-      eventIds.push(eventId);
-    }
+      }))
+    );
+    const eventIds = batchResults.map((row) => row.id);
     ledger.sealSession(ingestSessionId);
     return {
       ingestSessionId,
@@ -192,4 +190,3 @@ export function attestIngestSession(params: {
     ledger.close();
   }
 }
-

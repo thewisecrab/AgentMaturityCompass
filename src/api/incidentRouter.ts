@@ -49,17 +49,6 @@ function parseIncidentState(value: string): IncidentState {
   return normalized as IncidentState;
 }
 
-function deriveIncidentState(
-  store: ReturnType<typeof createIncidentStore>,
-  incident: { incidentId: string; state: IncidentState }
-): IncidentState {
-  const transitions = store.getIncidentTransitions(incident.incidentId);
-  if (transitions.length === 0) {
-    return incident.state;
-  }
-  return transitions[transitions.length - 1]!.toState;
-}
-
 function currentAgentFromReqUrl(req: IncomingMessage): string {
   return queryParam(req.url ?? "", "agent") ?? process.env.AMC_AGENT_ID ?? "default";
 }
@@ -89,9 +78,10 @@ export async function handleIncidentRoute(
       const store = createIncidentStore(ledger.db);
       store.initTables();
       const agentId = currentAgentFromReqUrl(req);
-      const incidents = store
-        .getIncidentsByAgent(agentId)
-        .map((row) => ({ ...row, state: deriveIncidentState(store, row) }))
+      const incidentRows = store.getIncidentsByAgent(agentId);
+      const latestStates = store.getLatestIncidentStates(incidentRows.map((row) => row.incidentId));
+      const incidents = incidentRows
+        .map((row) => ({ ...row, state: latestStates.get(row.incidentId) ?? row.state }))
         .filter((row) => {
           if (!statusParam) {
             return true;
@@ -265,7 +255,8 @@ export async function handleIncidentRoute(
         }
 
         if (body.state || body.resolution) {
-          const fromState = deriveIncidentState(store, incident);
+          const transitions = store.getIncidentTransitions(incidentId);
+          const fromState = transitions.length > 0 ? transitions[transitions.length - 1]!.toState : incident.state;
           const targetState = body.state ? parseIncidentState(body.state) : "RESOLVED";
           if (targetState !== fromState) {
             const ts = Date.now();
