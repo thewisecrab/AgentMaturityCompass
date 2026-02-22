@@ -14243,6 +14243,42 @@ program
     console.log("");
   });
 
+// ── Structured Debug Mode ────────────────────────────────────────────────
+program
+  .command("debug")
+  .description("Structured evidence debug stream for an agent")
+  .requiredOption("--agent <id>", "agent ID")
+  .option("--follow", "follow new evidence events in real-time", false)
+  .option("--dimension <dimension>", "filter by dimension (dimensionId)")
+  .option("--question <questionId>", "filter by AMC question ID")
+  .option("--event-type <eventType>", "filter by evidence event type")
+  .option("--limit <n>", "initial event limit", "100")
+  .option("--poll-ms <ms>", "follow polling interval in ms", "1000")
+  .option("--no-color", "disable ANSI color output")
+  .action(async (opts: {
+    agent: string;
+    follow?: boolean;
+    dimension?: string;
+    question?: string;
+    eventType?: string;
+    limit: string;
+    pollMs: string;
+    color?: boolean;
+  }) => {
+    const { runDebugModeCli } = await import("./observability/debugMode.js");
+    await runDebugModeCli({
+      workspace: process.cwd(),
+      agentId: opts.agent,
+      follow: Boolean(opts.follow),
+      dimension: opts.dimension,
+      questionId: opts.question,
+      eventType: opts.eventType,
+      limit: Number.parseInt(opts.limit, 10),
+      pollIntervalMs: Number.parseInt(opts.pollMs, 10),
+      color: opts.color
+    });
+  });
+
 // ── API subcommand ──────────────────────────────────────────────────────
 const apiCmd = program.command("api").description("REST API management");
 apiCmd
@@ -14250,7 +14286,7 @@ apiCmd
   .description("Show API integration status")
   .action(() => {
     console.log(chalk.bold("AMC REST API v1"));
-    console.log(`  Endpoints: shield, enforce, vault, watch, score, product`);
+    console.log(`  Endpoints: shield, enforce, vault, watch, score, product, agents`);
     console.log(`  Base path: /api/v1/`);
     console.log(`  Integrated into Studio server at :3212`);
     console.log(chalk.green("Run 'amc studio open' to start the server with API enabled."));

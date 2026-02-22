@@ -28,6 +28,7 @@ import { loadBlobMetadata, storeEncryptedBlob } from "../storage/blobs/blobStore
 import { getOrCreateSqlitePool, type SqliteConnectionLease } from "../storage/sqlitePool.js";
 import { createIncidentStore } from "../incidents/incidentStore.js";
 import type { Incident, CausalRelationship } from "../incidents/incidentTypes.js";
+import { queueEvidenceEventSpan } from "../observability/otelExporter.js";
 
 export interface AppendEvidenceInput {
   sessionId: string;
@@ -1022,6 +1023,7 @@ export class Ledger {
       prevHash: this.latestEventHash()
     });
     this.db.prepare(EVIDENCE_EVENT_INSERT_SQL).run(prepared.row);
+    queueEvidenceEventSpan(prepared.row as EvidenceEvent);
 
     this.autoLinkEvidenceToOpenIncidents({
       eventId: prepared.result.id,
@@ -1065,6 +1067,7 @@ export class Ledger {
           prevHash: previousHash
         });
         insert.run(prepared.row);
+        queueEvidenceEventSpan(prepared.row as EvidenceEvent);
         previousHash = prepared.result.eventHash;
         results.push(prepared.result);
         if (autoLink) {
@@ -1204,6 +1207,28 @@ export class Ledger {
         payload_pruned: 0,
         payload_pruned_ts: null
       });
+    queueEvidenceEventSpan({
+      id,
+      ts,
+      session_id: input.sessionId,
+      runtime: input.runtime,
+      event_type: input.eventType,
+      payload_path: payloadPath,
+      payload_inline: payloadInline,
+      payload_sha256: payloadSha256,
+      meta_json: metaJson,
+      prev_event_hash: prevHash,
+      event_hash: recalculated,
+      writer_sig: writerSig,
+      canonical_payload_path: canonicalPayloadPath,
+      canonical_payload_inline: canonicalPayloadInline,
+      blob_ref: blobRef,
+      archived: 0,
+      archive_segment_id: null,
+      archive_manifest_sha256: null,
+      payload_pruned: 0,
+      payload_pruned_ts: null
+    });
 
     this.autoLinkEvidenceToOpenIncidents({
       eventId: id,

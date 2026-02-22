@@ -1477,6 +1477,57 @@ export type {
   OTELExporterConfig, OTLPSpan, OTLPResource,
   TraceContext as OTELTraceContext,
 } from "./ops/otelExporter.js";
+export {
+  ObservabilityOTELExporter,
+  createObservabilityOTELExporterFromEnv,
+  getSharedObservabilityExporter,
+  resetSharedObservabilityExporterForTests,
+  queueEvidenceEventSpan,
+  queueScoreComputationMetric,
+  queueIncidentLog
+} from "./observability/otelExporter.js";
+export type {
+  ObservabilityOTELConfig,
+  ObservabilityExporterKind,
+  ObservabilityExporterTarget,
+  ObservabilitySignal,
+  ScoreComputationMetric,
+  IncidentLogInput
+} from "./observability/otelExporter.js";
+export {
+  detectEvidenceRateDrop,
+  detectTrustTierRegression,
+  detectScoreVolatilitySpike,
+  detectEvidenceStreamAnomalies
+} from "./observability/anomalyDetector.js";
+export type {
+  ObservabilityAnomaly,
+  ObservabilityAnomalyType,
+  ObservabilityAnomalySeverity,
+  EvidenceSignalPoint,
+  ScoreSignalPoint
+} from "./observability/anomalyDetector.js";
+export {
+  listEvidenceDebugEvents,
+  streamEvidenceDebugEvents,
+  formatDebugEventLine,
+  formatAnomalyLine,
+  runDebugModeCli
+} from "./observability/debugMode.js";
+export type {
+  EvidenceDebugEvent,
+  DebugEventFilter,
+  ListDebugEventsOptions,
+  StreamDebugEventsOptions,
+  RunDebugCliOptions
+} from "./observability/debugMode.js";
+export { buildAgentTimelineData, evidenceEventToSignalPoint } from "./observability/timeline.js";
+export type {
+  AgentTimelineData,
+  TimelineEvent,
+  TimelineEvidencePoint,
+  TimelineScorePoint
+} from "./observability/timeline.js";
 
 // ── Multi-provider model routing ─────────────────────────────────
 export { ModelRouter } from "./ops/modelRouter.js";

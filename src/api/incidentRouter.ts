@@ -8,6 +8,7 @@ import { getPrivateKeyPem, signHexDigest } from "../crypto/keys.js";
 import { createIncidentStore, computeIncidentHash } from "../incidents/incidentStore.js";
 import type { Incident, IncidentSeverity, IncidentState } from "../incidents/incidentTypes.js";
 import { openLedger } from "../ledger/ledger.js";
+import { queueIncidentLog } from "../observability/otelExporter.js";
 import { sha256Hex } from "../utils/hash.js";
 import { canonicalize } from "../utils/json.js";
 import { apiError, apiSuccess, bodyJson, pathParam, queryParam } from "./apiHelpers.js";
@@ -170,6 +171,7 @@ export async function handleIncidentRoute(
           signature
         };
         store.insertIncident(incident);
+        queueIncidentLog(incident);
         apiSuccess(res, incident, 201);
       } finally {
         ledger.close();
@@ -299,6 +301,17 @@ export async function handleIncidentRoute(
         const transitions = store.getIncidentTransitions(incidentId);
         const causalEdges = store.getCausalEdges(incidentId);
         const state = transitions.length > 0 ? transitions[transitions.length - 1]!.toState : incident.state;
+        queueIncidentLog({
+          incidentId,
+          agentId: incident.agentId,
+          severity: incident.severity,
+          state,
+          title: incident.title,
+          description: body.resolution ?? incident.description,
+          triggerType: incident.triggerType,
+          triggerId: incident.triggerId,
+          ts: Date.now()
+        });
         apiSuccess(res, {
           incidentId,
           state,
