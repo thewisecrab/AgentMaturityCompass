@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
+import type { Socket } from "node:net";
 import { URL } from "node:url";
 import { join } from "node:path";
 import { readdirSync } from "node:fs";
@@ -272,6 +273,8 @@ import { verifyForecastPolicySignature } from "../forecast/forecastStore.js";
 import { renderForecastMarkdown } from "../forecast/forecastReports.js";
 import { handleBridgeRequest } from "../bridge/bridgeServer.js";
 import { createBridgePairingCode, redeemBridgePairingCode } from "../bridge/bridgeAuth.js";
+import { buildHealthPayload } from "../api/health.js";
+import { closeScoreSessionStores } from "../api/scoreStore.js";
 import { canonApplyForApi, canonGetForApi, canonVerifyForApi } from "../canon/canonApi.js";
 import { verifyCanonSignature } from "../canon/canonLoader.js";
 import {
@@ -1482,6 +1485,7 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
   const authLimiter = makeRateLimiter(20, 60_000);
   const writeLimiter = makeRateLimiter(180, 60_000);
   const pairRedeemLimiter = makeRateLimiter(40, 60_000);
+  const apiLimiter = makeRateLimiter(240, 60_000);
 
   const emitOrgEvent = (type: Parameters<OrgSseHub["emit"]>[0]["type"], nodeIds?: string[]): void => {
     const config = (() => {
@@ -1621,7 +1625,29 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
     }
   }, 60_000);
 
+  let shuttingDown = false;
+  let inFlightRequests = 0;
+  const openSockets = new Set<Socket>();
+
   const server = createServer(async (req, res) => {
+    if (shuttingDown) {
+      res.setHeader("connection", "close");
+      json(res, 503, { error: "server shutting down" });
+      return;
+    }
+
+    inFlightRequests += 1;
+    let requestReleased = false;
+    const releaseRequest = () => {
+      if (requestReleased) {
+        return;
+      }
+      requestReleased = true;
+      inFlightRequests = Math.max(0, inFlightRequests - 1);
+    };
+    res.once("finish", releaseRequest);
+    res.once("close", releaseRequest);
+
     const requestStartedAt = Date.now();
     let metricRoute = "/unknown";
     const metricMethod = (req.method ?? "GET").toUpperCase();
@@ -1669,14 +1695,18 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
           json(res, 429, { error: "rate limited" });
           return;
         }
-        json(res, 200, { ok: true });
+        json(res, 200, buildHealthPayload(options.workspace));
         return;
       }
 
       // ── AMC REST API v1 ─────────────────────────────────────────────
       if (pathname.startsWith("/api/v1/")) {
+        if (!apiLimiter(`api:${clientIp}`)) {
+          json(res, 429, { error: "API rate limit exceeded" });
+          return;
+        }
         const { handleApiRoute } = await import("../api/index.js");
-        const handled = await handleApiRoute(pathname, req.method ?? "GET", req, res);
+        const handled = await handleApiRoute(pathname, req.method ?? "GET", req, res, options.workspace);
         if (handled) return;
       }
 
@@ -8356,6 +8386,16 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
     }
   });
 
+  server.on("connection", (socket: Socket) => {
+    openSockets.add(socket);
+    socket.on("close", () => {
+      openSockets.delete(socket);
+    });
+    if (shuttingDown) {
+      socket.end();
+    }
+  });
+
   await new Promise<void>((resolvePromise, rejectPromise) => {
     server.once("error", rejectPromise);
     server.listen(options.port, options.host, () => resolvePromise());
@@ -8364,11 +8404,30 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
   return {
     server,
     url: `http://${options.host}:${options.port}`,
-    close: () =>
-      new Promise((resolvePromise) => {
+    close: async () => {
+      shuttingDown = true;
+      for (const socket of openSockets) {
+        socket.setKeepAlive(false);
+      }
+      await new Promise<void>((resolvePromise) => {
         clearInterval(schedulerTimer);
         orgSse.close();
-        server.close(() => resolvePromise());
-      })
+        const forceCloseTimer = setTimeout(() => {
+          for (const socket of openSockets) {
+            socket.destroy();
+          }
+          resolvePromise();
+        }, 8_000);
+        server.close(() => {
+          clearTimeout(forceCloseTimer);
+          resolvePromise();
+        });
+      });
+      const waitUntil = Date.now() + 2_000;
+      while (inFlightRequests > 0 && Date.now() < waitUntil) {
+        await new Promise((resolvePromise) => setTimeout(resolvePromise, 50));
+      }
+      closeScoreSessionStores(options.workspace);
+    }
   };
 }

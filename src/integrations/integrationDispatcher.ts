@@ -35,7 +35,7 @@ function requestImpl(url: URL) {
 
 const WEBHOOK_TIMEOUT_MS = 10_000;
 
-async function postWebhook(urlRaw: string, body: string, secret: string): Promise<number> {
+async function postJson(urlRaw: string, body: string, headers: Record<string, string> = {}): Promise<number> {
   const url = new URL(urlRaw);
   return new Promise<number>((resolvePromise, rejectPromise) => {
     const req = requestImpl(url)(
@@ -45,7 +45,7 @@ async function postWebhook(urlRaw: string, body: string, secret: string): Promis
         headers: {
           "content-type": "application/json",
           "content-length": Buffer.byteLength(body),
-          "x-amc-integration-secret": secret
+          ...headers
         }
       },
       (res) => {
@@ -60,6 +60,39 @@ async function postWebhook(urlRaw: string, body: string, secret: string): Promis
     req.on("error", rejectPromise);
     req.write(body);
     req.end();
+  });
+}
+
+function slackWebhookPayload(body: IntegrationDispatchPayload, channel?: string): string {
+  const summary = body.summary.trim().length > 0 ? body.summary.trim() : body.eventName;
+  const detailsJson = JSON.stringify(body.details, null, 2);
+  const detailsSection = detailsJson === "{}" ? "None" : detailsJson.slice(0, 3000);
+  return canonicalize({
+    text: `[AMC] ${body.eventName}: ${summary}`,
+    channel,
+    blocks: [
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: `AMC Incident: ${body.eventName}`
+        }
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*Agent:* \`${body.agentId}\`\n*Summary:* ${summary}`
+        }
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*Details:*\n\`\`\`${detailsSection}\`\`\``
+        }
+      }
+    ]
   });
 }
 
@@ -141,33 +174,53 @@ export async function dispatchIntegrationEvent(params: {
     : config.integrations.routing[params.eventName] ?? [];
   const routedSet = new Set(routed);
   const channels = config.integrations.channels.filter((channel) => routedSet.has(channel.id));
+  const payload: IntegrationDispatchPayload = {
+    type: "AMC_OPS_EVENT",
+    eventName: params.eventName,
+    ts: Date.now(),
+    agentId: params.agentId,
+    summary: params.summary,
+    details: params.details ?? {}
+  };
+  const standardPayloadBody = canonicalize(payload);
   const skipped: string[] = [];
   const dispatched: IntegrationDispatchResult[] = [];
   for (const channel of channels) {
+    const channelId = channel.id;
     if (!channel.enabled) {
-      skipped.push(`${channel.id}:disabled`);
+      skipped.push(`${channelId}:disabled`);
       continue;
     }
-    const secret = resolveSecretRef(params.workspace, channel.secretRef);
-    if (!secret) {
-      skipped.push(`${channel.id}:missing-secret`);
-      continue;
-    }
-    const payload: IntegrationDispatchPayload = {
-      type: "AMC_OPS_EVENT",
-      eventName: params.eventName,
-      ts: Date.now(),
-      agentId: params.agentId,
-      summary: params.summary,
-      details: params.details ?? {}
-    };
-    const payloadBody = canonicalize(payload);
-    const payloadSha256 = sha256Hex(Buffer.from(payloadBody, "utf8"));
     try {
-      const httpStatus = await postWebhook(channel.url, payloadBody, secret);
+      let payloadBody = standardPayloadBody;
+      let httpStatus = 0;
+
+      if (channel.type === "webhook") {
+        const secret = resolveSecretRef(params.workspace, channel.secretRef);
+        if (!secret) {
+          skipped.push(`${channelId}:missing-secret`);
+          continue;
+        }
+        httpStatus = await postJson(channel.url, payloadBody, {
+          "x-amc-integration-secret": secret
+        });
+      } else if (channel.type === "slack_webhook") {
+        const webhookUrl = resolveSecretRef(params.workspace, channel.webhookUrlRef);
+        if (!webhookUrl) {
+          skipped.push(`${channelId}:missing-slack-webhook-url`);
+          continue;
+        }
+        payloadBody = slackWebhookPayload(payload, channel.channel);
+        httpStatus = await postJson(webhookUrl, payloadBody);
+      } else {
+        skipped.push(`${channelId}:unsupported-channel-type`);
+        continue;
+      }
+
+      const payloadSha256 = sha256Hex(Buffer.from(payloadBody, "utf8"));
       const evidence = writeIntegrationEvidence({
         workspace: params.workspace,
-        channelId: channel.id,
+        channelId,
         eventName: params.eventName,
         agentId: params.agentId,
         payloadBody,
@@ -175,7 +228,7 @@ export async function dispatchIntegrationEvent(params: {
         httpStatus
       });
       dispatched.push({
-        channelId: channel.id,
+        channelId,
         eventName: params.eventName,
         payloadSha256,
         httpStatus,
@@ -185,7 +238,7 @@ export async function dispatchIntegrationEvent(params: {
       });
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      skipped.push(`${channel.id}:dispatch-failed:${reason}`);
+      skipped.push(`${channelId}:dispatch-failed:${reason}`);
     }
   }
   return {

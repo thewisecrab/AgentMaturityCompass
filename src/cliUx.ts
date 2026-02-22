@@ -99,6 +99,12 @@ export function cliDiscoverabilityFooter(): string {
     "Discoverability:",
     "  • Use 'amc help <command>' for detailed subcommand docs",
     "  • Use '--help' after any command path (for example: 'amc run --help')",
+    "  • Namespace shortcuts:",
+    "      - evidence  → verify, bundle, transparency, receipts",
+    "      - score     → score, diagnostic, compare",
+    "      - incidents → assurance, drift, integrations dispatch",
+    "      - audit     → audit binder, policy, scheduler",
+    "      - admin     → user, identity, vault, trust, ops",
     "  • Start with common entry points: setup, up, run, verify, adapters run",
   ].join("\n");
 }
