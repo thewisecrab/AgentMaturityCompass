@@ -31,3 +31,4 @@ Legacy bridge-style paths under `/api/v1/*` are deprecated and redirected to `/b
 
 Use `/bridge/*` directly for all new integrations.
 
+Deprecation timeline and notice guarantees: `docs/SDK_VERSIONING.md`.

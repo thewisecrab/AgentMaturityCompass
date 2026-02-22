@@ -1,9 +1,13 @@
 import { randomUUID } from "node:crypto";
+import { amcVersion } from "../version.js";
 import { assertNoSelfScoring, requireBridgeUrl } from "./amcGuards.js";
 import { hashSdkValue, redactSdkText } from "./amcEvidence.js";
 import { sendBridgeTelemetry } from "./amcTelemetry.js";
 
 const DEFAULT_BRIDGE_URL = "http://127.0.0.1:3212";
+const NODE_SDK_NAME = "amc-node-sdk";
+const NODE_SDK_VERSION = amcVersion;
+const seenDeprecationNotices = new Set<string>();
 
 export interface AMCClientConfig {
   bridgeUrl?: string;
@@ -18,12 +22,35 @@ export interface AMCBridgeResponse<T = unknown> {
   requestId: string | null;
   receipt: string | null;
   correlationId: string | null;
+  deprecated: boolean;
+  sunset: string | null;
+  warning: string | null;
 }
 
 function resolveClientConfig(config: AMCClientConfig): Required<Pick<AMCClientConfig, "bridgeUrl" | "token">> & AMCClientConfig {
   const bridgeUrl = config.bridgeUrl ?? process.env.AMC_BRIDGE_URL ?? DEFAULT_BRIDGE_URL;
   const token = config.token ?? process.env.AMC_TOKEN ?? "";
   return { ...config, bridgeUrl, token };
+}
+
+function maybeWarnDeprecated(path: string, deprecation: string | null, warning: string | null, sunset: string | null): void {
+  if (deprecation !== "true" && !warning && !sunset) {
+    return;
+  }
+  const key = `${path}|${deprecation ?? ""}|${warning ?? ""}|${sunset ?? ""}`;
+  if (seenDeprecationNotices.has(key)) {
+    return;
+  }
+  seenDeprecationNotices.add(key);
+  const parts = [`[AMC SDK] Bridge endpoint may be deprecated: ${path}`];
+  if (warning) {
+    parts.push(`warning=${warning}`);
+  }
+  if (sunset) {
+    parts.push(`sunset=${sunset}`);
+  }
+  // eslint-disable-next-line no-console
+  console.warn(parts.join(" | "));
 }
 
 export class AMCClient {
@@ -48,7 +75,9 @@ export class AMCClient {
       headers: {
         "content-type": "application/json",
         authorization: `Bearer ${this.token}`,
-        "x-amc-correlation-id": correlationId
+        "x-amc-correlation-id": correlationId,
+        "x-amc-sdk-name": NODE_SDK_NAME,
+        "x-amc-sdk-version": NODE_SDK_VERSION
       },
       body: JSON.stringify(payload)
     });
@@ -60,12 +89,19 @@ export class AMCClient {
         return ({ raw: bodyText } as unknown) as T;
       }
     })();
+    const deprecation = response.headers.get("deprecation");
+    const sunset = response.headers.get("sunset");
+    const warning = response.headers.get("warning");
+    maybeWarnDeprecated(path, deprecation, warning, sunset);
     return {
       status: response.status,
       body: parsed,
       requestId: response.headers.get("x-amc-bridge-request-id"),
       receipt: response.headers.get("x-amc-receipt"),
-      correlationId: response.headers.get("x-amc-correlation-id")
+      correlationId: response.headers.get("x-amc-correlation-id"),
+      deprecated: deprecation === "true",
+      sunset,
+      warning
     };
   }
 
@@ -75,6 +111,10 @@ export class AMCClient {
 
   async openaiResponses(payload: Record<string, unknown>): Promise<AMCBridgeResponse> {
     return this.callBridge("/bridge/openai/v1/responses", payload);
+  }
+
+  async openaiBatches(payload: Record<string, unknown>): Promise<AMCBridgeResponse> {
+    return this.callBridge("/bridge/openai/v1/batches", payload);
   }
 
   async openaiEmbeddings(payload: Record<string, unknown>): Promise<AMCBridgeResponse> {
