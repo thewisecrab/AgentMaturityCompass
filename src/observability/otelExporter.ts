@@ -669,6 +669,7 @@ export class ObservabilityOTELExporter {
       spans.push({
         traceId: generateTraceId(metric.metricName),
         id: generateSpanId(`${metric.metricName}-${metric.ts}`),
+        parentId: undefined,
         name: `amc.metric.${metric.metricName}`,
         timestamp: metric.ts * 1000,
         duration: 1,
@@ -692,12 +693,12 @@ export class ObservabilityOTELExporter {
       spans.push({
         traceId: generateTraceId(entry.body),
         id: generateSpanId(`${entry.ts}`),
+        parentId: undefined,
         name: "amc.incident.log",
         timestamp: entry.ts * 1000,
         duration: 1,
         localEndpoint,
-        tags,
-        annotations: [{ timestamp: entry.ts * 1000, value: entry.body }]
+        tags
       });
     }
 

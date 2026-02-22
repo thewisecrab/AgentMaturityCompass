@@ -1023,7 +1023,7 @@ export class Ledger {
       prevHash: this.latestEventHash()
     });
     this.db.prepare(EVIDENCE_EVENT_INSERT_SQL).run(prepared.row);
-    queueEvidenceEventSpan(prepared.row as EvidenceEvent);
+    queueEvidenceEventSpan(prepared.row as unknown as EvidenceEvent);
 
     this.autoLinkEvidenceToOpenIncidents({
       eventId: prepared.result.id,
@@ -1067,7 +1067,7 @@ export class Ledger {
           prevHash: previousHash
         });
         insert.run(prepared.row);
-        queueEvidenceEventSpan(prepared.row as EvidenceEvent);
+        queueEvidenceEventSpan(prepared.row as unknown as EvidenceEvent);
         previousHash = prepared.result.eventHash;
         results.push(prepared.result);
         if (autoLink) {

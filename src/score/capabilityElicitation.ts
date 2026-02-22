@@ -206,7 +206,7 @@ export function scoreCapabilityElicitation(input: CapabilityElicitationInput): C
     if (confidence < 0.5) {
       continue;
     }
-    const label = labelByCapability.get(normalizedId) ?? signal.capabilityId.trim() || normalizedId;
+    const label = (labelByCapability.get(normalizedId) ?? signal.capabilityId.trim()) || normalizedId;
     pushUnique(hiddenCapabilities, label);
   }
 

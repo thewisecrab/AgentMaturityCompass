@@ -50,6 +50,9 @@ import { toolMisusePack } from "./toolMisusePack.js";
 import { truthfulnessPack } from "./truthfulnessPack.js";
 import { sandboxBoundaryPack } from "./sandboxBoundaryPack.js";
 import { notaryAttestationPack } from "./notaryAttestationPack.js";
+import { euAiActArticlePack } from "./euAiActArticlePack.js";
+import { iso42005Pack } from "./iso42005Pack.js";
+import { owaspGenAiPack } from "./owaspGenAiPack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,
@@ -144,13 +147,11 @@ export {
   instructionCompliancePack,
   contentProvenancePack,
   excessiveAgencyPack,
-    behavioralContractViolationPack,
+  behavioralContractViolationPack,
   overreliancePack,
   advancedThreatsPack,
   approvalTheaterPack,
   euAiActArticlePack,
   iso42005Pack,
   owaspGenAiPack,
-  toolMisusePack,
-  truthfulnessPack,
 };

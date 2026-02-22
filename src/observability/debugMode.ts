@@ -160,14 +160,14 @@ function toDebugEvent(row: EvidenceDebugRow): EvidenceDebugEvent {
   };
 }
 
-function trustColor(tier: TrustTier): chalk.Chalk {
+function trustColor(tier: TrustTier) {
   if (tier === "OBSERVED_HARDENED") return chalk.greenBright;
   if (tier === "OBSERVED") return chalk.green;
   if (tier === "ATTESTED") return chalk.cyan;
   return chalk.yellow;
 }
 
-function severityColor(severity: string): chalk.Chalk {
+function severityColor(severity: string) {
   const value = severity.toUpperCase();
   if (value === "CRITICAL") return chalk.redBright;
   if (value === "HIGH" || value === "ERROR") return chalk.red;
