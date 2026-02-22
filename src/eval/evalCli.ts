@@ -1,13 +1,13 @@
 import type { TrustTier } from "../types.js";
-import { importEvalResults, type EvalImportFormat } from "./evalImporters.js";
+import { evalImportCoverageStatus, importEvalResults, type EvalImportFormat } from "./evalImporters.js";
 
-const FORMAT_SET = new Set<EvalImportFormat>(["openai", "langsmith", "deepeval", "promptfoo"]);
+const FORMAT_SET = new Set<EvalImportFormat>(["openai", "langsmith", "deepeval", "promptfoo", "wandb", "langfuse"]);
 const TRUST_SET = new Set<TrustTier>(["OBSERVED", "OBSERVED_HARDENED", "ATTESTED", "SELF_REPORTED"]);
 
 export function parseEvalImportFormat(value: string): EvalImportFormat {
   const normalized = value.trim().toLowerCase() as EvalImportFormat;
   if (!FORMAT_SET.has(normalized)) {
-    throw new Error(`Unsupported eval import format '${value}'. Expected one of: openai, langsmith, deepeval, promptfoo`);
+    throw new Error(`Unsupported eval import format '${value}'. Expected one of: openai, langsmith, deepeval, promptfoo, wandb, langfuse`);
   }
   return normalized;
 }
@@ -41,5 +41,17 @@ export function evalImportCli(params: {
         : typeof params.trustTier === "string"
           ? parseEvalImportTrustTier(params.trustTier)
           : params.trustTier
+  });
+}
+
+export function evalStatusCli(params: {
+  workspace: string;
+  agentId?: string;
+  sinceTs?: number;
+}) {
+  return evalImportCoverageStatus({
+    workspace: params.workspace,
+    agentId: params.agentId,
+    sinceTs: params.sinceTs
   });
 }

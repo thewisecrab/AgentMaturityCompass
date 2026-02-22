@@ -114,17 +114,23 @@ export { runSandboxCommand, buildSandboxDockerArgs } from "./sandbox/sandbox.js"
 export { ingestEvidence, attestIngestSession } from "./ingest/ingest.js";
 export {
   importEvalResults,
+  evalImportCoverageStatus,
   parseEvalImport,
   parseOpenAIEvalResults,
   parseLangSmithEvalResults,
   parseDeepEvalResults,
   parsePromptfooEvalResults,
+  parseWandbEvalResults,
+  parseLangfuseEvalResults,
   type EvalImportFormat,
   type EvalImportCase,
   type ParsedEvalImport,
-  type EvalImportResult
+  type EvalImportResult,
+  type EvalFrameworkStatus,
+  type EvalDimensionCoverage,
+  type EvalCoverageStatus
 } from "./eval/evalImporters.js";
-export { evalImportCli, parseEvalImportFormat, parseEvalImportTrustTier } from "./eval/evalCli.js";
+export { evalImportCli, evalStatusCli, parseEvalImportFormat, parseEvalImportTrustTier } from "./eval/evalCli.js";
 export {
   exportEvidenceBundle,
   verifyEvidenceBundle,

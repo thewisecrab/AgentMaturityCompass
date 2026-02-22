@@ -1,59 +1,62 @@
-# W3-9 Handoff — Enterprise Integrations
+# W3-5 Handoff — Eval Interop Importers
 
 ## Scope Completed
-Implemented enterprise-focused integration scaffolding and security controls in `/tmp/amc-wave3/agent-9`:
+Implemented production-quality eval import interoperability to convert external evaluator outputs into signed AMC evidence:
 
-1. SCIM/SSO scaffold:
-   - New SCIM 2.0 adapter with `POST /scim/v2/Users` handling.
-   - New SSO configuration model supporting OIDC/SAML and enterprise role resolution.
-   - Role mapping support for `admin`, `auditor`, `developer`, `viewer`.
-2. Enterprise audit export:
-   - New exporter for `splunk` (HEC-style events), `datadog` (JSON logs), `cloudtrail` (AWS-style `Records`), and `azure` (Azure Monitor-style JSON).
-   - New CLI command:
-     - `amc audit export --format splunk|datadog|cloudtrail|azure --output audit.json`
-3. Reliable webhook delivery:
-   - Exponential backoff with configurable attempts/backoff/jitter.
-   - HMAC-SHA256 webhook signing and signature verification helpers.
-   - Delivery receipt model + in-memory receipt tracker.
-4. Enterprise API key management:
-   - Scoped keys: `read-only`, `write`, `admin`.
-   - Rotation with grace period.
-   - Per-key usage tracking and summary reporting.
+1. Upgraded Wave 2 eval importers with framework-specific AMC mappings:
+   - LangSmith: eval-score signal mapping to concrete AMC QIDs.
+   - DeepEval: metric-to-QID mapping + confidence calibration evidence.
+   - Promptfoo: red-team mapping to OWASP LLM Top 10 AMC questions (`AMC-5.8` .. `AMC-5.17`).
+   - OpenAI Evals: pass/fail mapping to behavioral-contract AMC questions (centered on `AMC-BCON-1`).
+2. Added new adapters/importers:
+   - Weights & Biases (`wandb`) run results -> AMC performance evidence.
+   - Langfuse (`langfuse`) traces -> AMC observability evidence.
+3. Hardened evidence emission:
+   - Per-case `test` evidence now includes mapped `questionIds`.
+   - Added per-question `metric` evidence (`metricKey=external_eval_score`).
+   - Added failure `audit` evidence (`auditType=EXTERNAL_EVAL_FAILURE`).
+   - Added DeepEval calibration metrics (`metricKey=confidence_calibration_error`).
+   - Default trust tier now derives from framework policy (`ATTESTED` unless overridden).
+4. Added unified eval coverage dashboard API + CLI:
+   - New status aggregator computes imported coverage per AMC dimension.
+   - New command: `amc eval status`.
+   - New command: `amc eval import` (formats now include `wandb` and `langfuse`).
 
 ## Key File Changes
-- New auth modules:
-  - `src/auth/ssoConfig.ts`
-  - `src/auth/apiKeyManager.ts`
-- New integration modules:
-  - `src/integrations/scimAdapter.ts`
-  - `src/integrations/webhookDelivery.ts`
-- New audit exporter:
-  - `src/audit/enterpriseAuditExport.ts`
-- CLI and export wiring:
-  - `src/audit/auditCli.ts`
-  - `src/cli.ts`
-  - `src/integrations/index.ts`
-  - `src/index.ts`
-- Tests:
-  - `tests/enterpriseIntegrations.test.ts` (23 tests)
+- `src/eval/evalImporters.ts`
+  - Extended `EvalImportFormat` with `wandb`, `langfuse`.
+  - Added framework-specific mapping engines.
+  - Added `parseWandbEvalResults`, `parseLangfuseEvalResults`.
+  - Added richer signed evidence writes during import.
+  - Added `evalImportCoverageStatus()` and related status types.
+- `src/eval/evalCli.ts`
+  - Added new formats to parser.
+  - Added `evalStatusCli()`.
+- `src/cli.ts`
+  - Added `eval` command group with:
+    - `amc eval import`
+    - `amc eval status`
+- `src/index.ts`
+  - Exported new importer/status functions and types.
+- `tests/evalImportersInterop.test.ts`
+  - Added 18 tests covering mappings, new adapters, evidence writes, and status dashboard.
 
 ## Verification
-Executed and passed:
+Executed successfully:
 
-- `npm test -- tests/enterpriseIntegrations.test.ts`
-  - Passed: `1` file, `23` tests.
+- `npm test -- tests/evalImportersInterop.test.ts`
+  - Passed: `18` tests.
+- `npm test -- tests/releaseBundlesArchetypesGate.test.ts`
+  - Passed: `5` tests.
 
-Executed (environment-constrained failure):
+Executed but not fully passing due existing environment-bound failures unrelated to eval importer changes:
 
 - `npm test`
-  - Fails in this sandbox due broad pre-existing integration/network constraints (multiple `listen EPERM` server-bind failures and long-running timeout failures across existing suites), not isolated to the new modules.
-
-Additional check:
-
-- `npm run typecheck -- --pretty false`
-  - Fails on pre-existing duplicate declarations in `src/cli.ts`:
-    - `Cannot redeclare block-scoped variable 'evidence'`.
+  - Many pre-existing test timeouts and `listen EPERM` socket-binding failures in network/server-heavy suites.
+  - Eval interop suite itself passed inside full run (`tests/evalImportersInterop.test.ts` passed).
 
 ## Notes
-- The new `audit export` command is wired under the existing `audit` command tree and emits JSON payloads tailored by `--format`.
-- New enterprise modules are exported through both `src/integrations/index.ts` and top-level `src/index.ts` for SDK/consumer access.
+- Source strategy references read and applied:
+  - `SIGNAL3_COMPETITOR_ANALYSIS.md`
+  - `SIGNAL5_100X_MASTER_PLAN.md` (IMP-04/IMP-06 interop context)
+- Existing CLI file still contains legacy duplicated command declarations in unrelated areas; untouched here except eval command additions.
