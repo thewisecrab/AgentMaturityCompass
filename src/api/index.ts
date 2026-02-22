@@ -63,7 +63,7 @@ export async function handleApiRoute(
     apiError(res, 404, `API route not found: ${method} ${pathname}`);
     return true;
   } catch (err) {
-    apiError(res, 500, err instanceof Error ? err.message : 'Internal server error');
+    apiError(res, 500, 'Internal server error');
     return true;
   }
 }
