@@ -285,7 +285,8 @@ export function assessOversightQuality(input: Record<string, number> | Oversight
   const escalationPathVerified =
     escalationEvents.length > 0 ? escalationVerificationRate >= 0.8 : hoq4 >= 4;
 
-  const theaterResilienceScore = clamp01(1 - approvalTheaterPenalty);
+  const theaterResilienceScore =
+    highRiskHumanApprovals.length > 0 ? clamp01(1 - approvalTheaterPenalty) : clamp01(hoq1 / 5);
   const approvalQuality = clamp01(
     contextCompleteness * 0.4 + theaterResilienceScore * 0.35 + reviewerCompetenceScore * 0.25
   );

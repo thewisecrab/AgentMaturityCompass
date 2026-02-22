@@ -705,6 +705,7 @@ export class Ledger {
 
     this.dbLease = pool.acquire();
     this.db = this.dbLease.db;
+    reconcileLegacyMigrationState(this.db);
   }
 
   close(): void {

@@ -391,7 +391,7 @@ function detectEntryAnomaly(
     signals.push("High symbol density");
   }
 
-  if (/^(always|never|ignore|disable|allow|grant)\b/i.test(content)) {
+  if (/^(always|never|ignore|disable|allow|grant|bypass|skip)\b/i.test(content)) {
     score += 0.15;
     signals.push("Imperative override phrasing");
   }

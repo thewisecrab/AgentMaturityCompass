@@ -138,6 +138,7 @@ import {
   auditVerifyPolicyCli,
   auditVerifyWorkspaceCli
 } from "./audit/auditCli.js";
+import { auditVibeCode } from "./score/vibeCodeAudit.js";
 import { parseWindowToMs } from "./utils/time.js";
 import { buildDashboard } from "./dashboard/build.js";
 import { serveDashboard } from "./dashboard/serve.js";
@@ -13688,6 +13689,37 @@ dashboard
       process.on("SIGINT", shutdown);
       process.on("SIGTERM", shutdown);
     });
+  });
+
+program
+  .command("vibe-audit")
+  .description("Run static safety checks for AI-generated code")
+  .requiredOption("--file <path>", "file path to audit")
+  .option("--json", "emit JSON output", false)
+  .action((opts: { file: string; json?: boolean }) => {
+    const filePath = resolve(opts.file);
+    const code = readFileSync(filePath, "utf8");
+    const result = auditVibeCode(code, filePath);
+
+    if (opts.json) {
+      console.log(JSON.stringify(result));
+    } else {
+      console.log(result.summary);
+      console.log(`score=${result.score} grade=${result.grade}`);
+      if (result.quickFixes.length > 0) {
+        console.log("quick_fixes:");
+        for (const fix of result.quickFixes) {
+          console.log(`- ${fix}`);
+        }
+      }
+    }
+
+    if (result.criticalCount > 0) {
+      process.exit(2);
+    }
+    if (!result.deploymentReady) {
+      process.exit(1);
+    }
   });
 
 // ── quickstart: one-command simplicity onboarding ─────────────────────────────
