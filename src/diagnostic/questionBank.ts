@@ -345,42 +345,6 @@ function buildQuestion(seed: QuestionSeed): DiagnosticQuestion {
     gates[5].mustInclude.auditTypes = ["CONTINUOUS_COMPLIANCE_VERIFIED", "FAIRNESS_REMEDIATION_CLOSED"];
   }
 
-  // Provenance controls require cryptographic artifact lineage and tamper checks.
-  if (seed.id === "AMC-PROV-1" || seed.id === "AMC-PROV-2") {
-    gates[3].requiredEvidenceTypes = ["artifact", "audit", "metric"];
-    gates[3].acceptedTrustTiers = ["OBSERVED", "ATTESTED"];
-    gates[3].mustInclude.metaKeys = ["provenance", "agentId"];
-    gates[3].mustInclude.auditTypes = ["CONTENT_PROVENANCE_LINKED"];
-    gates[4].requiredEvidenceTypes = ["artifact", "audit", "metric", "test"];
-    gates[4].requiredTrustTier = "OBSERVED";
-    gates[4].acceptedTrustTiers = ["OBSERVED"];
-    gates[4].mustInclude.metaKeys = ["provenance", "agentId", "modelId"];
-    gates[4].mustInclude.auditTypes = ["CONTENT_PROVENANCE_LINKED", "ARTIFACT_SIGNATURE_VERIFIED"];
-    gates[5].requiredEvidenceTypes = ["artifact", "audit", "metric", "test", "review"];
-    gates[5].requiredTrustTier = "OBSERVED";
-    gates[5].acceptedTrustTiers = ["OBSERVED"];
-    gates[5].mustInclude.metaKeys = ["provenance", "agentId", "modelId", "promptSha256"];
-    gates[5].mustInclude.auditTypes = ["ARTIFACT_SIGNATURE_VERIFIED", "PROVENANCE_CHAIN_VERIFIED"];
-    gates[5].mustInclude.metricKeys = ["artifact_signature_coverage", "provenance_verification_pass_rate"];
-  }
-
-  if (seed.id === "AMC-PROV-2") {
-    gates[4].mustInclude.auditTypes = [
-      ...(gates[4].mustInclude.auditTypes ?? []),
-      "ARTIFACT_TAMPER_DETECTED"
-    ];
-    gates[5].mustInclude.auditTypes = [
-      ...(gates[5].mustInclude.auditTypes ?? []),
-      "ARTIFACT_TAMPER_DETECTED",
-      "ARTIFACT_TAMPER_CONTAINED"
-    ];
-    gates[5].mustInclude.metricKeys = [
-      ...(gates[5].mustInclude.metricKeys ?? []),
-      "artifact_tamper_detection_mttd",
-      "artifact_tamper_false_positive_rate"
-    ];
-  }
-
   return {
     id: seed.id,
     layerName: seed.layerName,
@@ -1375,40 +1339,6 @@ const seeds: QuestionSeed[] = [
     tuningKnobs: ["guardrails.costEfficiency", "promptAddendum.modelRouting", "evalHarness.costOptimization"]
   },
   {
-    id: "AMC-SLO-1",
-    layerName: "Strategic Agent Operations",
-    title: "Governance SLO Compliance",
-    promptTemplate: "Are governance SLOs defined with measurable objectives (for example, high-risk review within one hour) and continuously tracked with alerts?",
-    labels: [
-      "No Governance SLOs",
-      "SLOs Documented Only",
-      "Periodic Manual SLO Checks",
-      "Automated SLO Tracking",
-      "Alerting + Incident Workflow",
-      "Predictive SLO Governance with Auto-Remediation"
-    ],
-    evidenceGateHints: "Require governance SLO report, compliance trend snapshots, and alert audit evidence.",
-    upgradeHints: "Define explicit SLO targets for high-risk review and policy latency; attach alerting and remediation playbooks.",
-    tuningKnobs: ["guardrails.governanceSlo", "evalHarness.governanceSloCompliance", "ops.governanceAlerting"]
-  },
-  {
-    id: "AMC-SLO-2",
-    layerName: "Strategic Agent Operations",
-    title: "Cost-of-Trust and ROI Governance",
-    promptTemplate: "Does the system quantify cost-of-trust overhead (latency/cost per decision) and compare it to risk-reduction value using trust ROI?",
-    labels: [
-      "No Cost-of-Trust Tracking",
-      "Manual Cost Estimates",
-      "Latency or Cost Tracked in Isolation",
-      "Cost-per-Decision Tracked",
-      "Trust ROI Reported with Risk Reduction",
-      "Portfolio-Level Trust ROI Optimization with Guardrails"
-    ],
-    evidenceGateHints: "Require cost-of-trust analytics output, per-decision cost records, and trust ROI trend evidence.",
-    upgradeHints: "Track governance latency + cost per decision and calculate ROI from avoided-risk value versus governance cost.",
-    tuningKnobs: ["guardrails.trustEconomics", "evalHarness.trustRoi", "ops.costOfTrust"]
-  },
-  {
     id: "AMC-RES-1",
     layerName: "Resilience",
     title: "Model Switching Resilience",
@@ -1814,64 +1744,30 @@ const seeds: QuestionSeed[] = [
     tuningKnobs: ["guardrails.owasp.llm10", "evalHarness.owasp.llm10"]
   },
   {
-    id: "AMC-ARCH-1",
+    id: "AMC-VIBE-1",
     layerName: "Skills",
-    title: "Architecture-Task Fit Scoring",
+    title: "Vibe-Code Static Safety Audit",
     promptTemplate:
-      "Does the system score whether architecture complexity is proportional to task complexity and risk before execution?",
-    labels: [
-      "No Fit Model",
-      "Ad Hoc Fit Judgement",
-      "Coarse Fit Bands",
-      "Measured Fit Score",
-      "Adaptive Fit Routing",
-      "Continuous Fit Optimization"
-    ],
+      "Do AI-generated code artifacts pass static safety checks for common LLM coding mistakes before merge/deploy?",
+    labels: OWASP_PROGRESS_LABELS,
     evidenceGateHints:
-      "Require task-complexity features, architecture-fit score logs, and pre-execution route decisions.",
+      "Require static-analysis findings on generated code, severity trend metrics, and CI gate outcomes for L3+.",
     upgradeHints:
-      "Implement deterministic architecture-task fit scoring and block mismatched routes for high-risk tasks.",
-    tuningKnobs: ["guardrails.architectureTaskFit", "evalHarness.architectureTaskFit"]
+      "Run vibe-code static analysis in CI, enforce severity thresholds, and require remediation evidence before release.",
+    tuningKnobs: ["guardrails.vibeAudit.static", "evalHarness.vibeAudit.static"]
   },
   {
-    id: "AMC-ARCH-2",
+    id: "AMC-VIBE-2",
     layerName: "Skills",
-    title: "Error Amplification Containment",
+    title: "Vibe-Code Secret & Injection Hygiene",
     promptTemplate:
-      "Does the architecture detect and contain error amplification across multi-step pipelines before errors cascade?",
-    labels: [
-      "No Amplification Visibility",
-      "Incident-Only Awareness",
-      "Stage Error Logging",
-      "Amplification Detection + Gates",
-      "Automated Containment",
-      "Bounded Error Propagation Verified"
-    ],
+      "Are AI-generated code artifacts scanned for secret leakage, dependency-injection risk, and prompt-injection comments before deployment?",
+    labels: OWASP_PROGRESS_LABELS,
     evidenceGateHints:
-      "Require stage-level error telemetry, propagation ratio metrics, and rollback/checkpoint evidence.",
+      "Require secret scan reports, dependency-injection risk findings, prompt-injection comment checks, and blocked deployment evidence for high severity findings.",
     upgradeHints:
-      "Add propagation-aware checkpoints, per-stage rollback, and hard gates on amplification ratio breaches.",
-    tuningKnobs: ["guardrails.errorAmplification", "evalHarness.pipelineErrorPropagation"]
-  },
-  {
-    id: "AMC-ARCH-3",
-    layerName: "Skills",
-    title: "Complexity Tax and Redundancy Balance",
-    promptTemplate:
-      "Does the architecture continuously score complexity tax, failure modes, and redundancy so resilience improves without unnecessary overhead?",
-    labels: [
-      "No Tax or Redundancy Scoring",
-      "Aware but Unmanaged",
-      "Periodic Review",
-      "Scored with Mitigation Actions",
-      "Continuously Optimized",
-      "Minimal Complexity with Verified Resilience"
-    ],
-    evidenceGateHints:
-      "Require complexity-tax reports, ranked failure-mode analysis, and fallback drill outcomes.",
-    upgradeHints:
-      "Track complexity tax per task class and enforce redundancy thresholds for critical-path dependencies.",
-    tuningKnobs: ["guardrails.complexityTax", "evalHarness.redundancyDrills"]
+      "Add automated secret scanning and injection-risk detectors for generated code; fail closed on critical/high findings.",
+    tuningKnobs: ["guardrails.vibeAudit.secrets", "guardrails.vibeAudit.injection", "evalHarness.vibeAudit.hygiene"]
   },
   {
     id: "AMC-ETP-1",
@@ -1923,46 +1819,6 @@ const seeds: QuestionSeed[] = [
     evidenceGateHints: "Require identity audit trail, JIT credential evidence, revocation list.",
     upgradeHints: "Propagate user identity through all tool calls; replace static API keys with JIT tokens; implement revocation.",
     tuningKnobs: ["guardrails.runtimeIdentity", "evalHarness.identityAudit"]
-  },
-  {
-    id: "AMC-PROV-1",
-    layerName: "Resilience",
-    title: "Artifact Provenance Chain Completeness",
-    promptTemplate:
-      "Does every agent-generated artifact carry a complete cryptographic provenance chain (artifact -> agent -> model -> prompt -> evidence) that can be independently verified?",
-    labels: [
-      "No Provenance",
-      "Manual Notes Only",
-      "Partial Metadata",
-      "Signed Artifacts + Basic Chain",
-      "Complete Chain + Deterministic Verification",
-      "Continuously Verified Provenance at Scale"
-    ],
-    evidenceGateHints:
-      "Require signed artifact manifests, chain edge completeness, and verified evidence event references.",
-    upgradeHints:
-      "Adopt mandatory sidecar provenance manifests, enforce chain completeness gates, and verify on every release/output path.",
-    tuningKnobs: ["guardrails.provenance", "evalHarness.provenanceChain"]
-  },
-  {
-    id: "AMC-PROV-2",
-    layerName: "Resilience",
-    title: "Signed Artifact Tamper Detection & Response",
-    promptTemplate:
-      "Can the system detect and contain tampering of signed agent artifacts (content, manifest, signature, or evidence links) with low detection latency and clear remediation?",
-    labels: [
-      "No Tamper Detection",
-      "Manual Integrity Checks",
-      "Periodic Hash Spot-Checks",
-      "Automated Signature Verification",
-      "Real-Time Tamper Alerts + Quarantine",
-      "Tamper-Resilient Supply Chain with Closed-Loop Response"
-    ],
-    evidenceGateHints:
-      "Require tamper simulation tests, signature verification outcomes, and containment/remediation audit evidence.",
-    upgradeHints:
-      "Run routine tamper drills, enforce verify-before-use controls, and track detection/response metrics with post-incident closure.",
-    tuningKnobs: ["guardrails.provenanceTamper", "evalHarness.tamperSimulation"]
   }
 ];
 
