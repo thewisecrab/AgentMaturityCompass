@@ -235,6 +235,8 @@ export const BUILT_IN_POLICY_PACKS: PolicyPack[] = [
       "AMC-MCP-1": 5,
       "AMC-MCP-2": 5,
       "AMC-MCP-3": 5,
+      "AMC-MCP-4": 5,
+      "AMC-MCP-5": 5,
       "AMC-1.5": 5,
       "AMC-1.8": 5,
       "AMC-3.2.3": 5,
