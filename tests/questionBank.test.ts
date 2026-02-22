@@ -2,11 +2,11 @@ import { describe, expect, test } from "vitest";
 import { questionBank } from "../src/diagnostic/questionBank.js";
 
 describe("question bank", () => {
-  test("has exactly 89 questions", () => {
-    expect(questionBank).toHaveLength(89);
+  test("has exactly 92 questions", () => {
+    expect(questionBank).toHaveLength(92);
   });
 
-  test("has expected layer distribution 15/18/20/16/20", () => {
+  test("has expected layer distribution 15/18/20/19/20", () => {
     const counts = questionBank.reduce<Record<string, number>>((acc, q) => {
       acc[q.layerName] = (acc[q.layerName] ?? 0) + 1;
       return acc;
@@ -16,9 +16,28 @@ describe("question bank", () => {
       "Strategic Agent Operations": 15,
       "Leadership & Autonomy": 18,
       "Culture & Alignment": 20,
-      Resilience: 16,
+      Resilience: 19,
       Skills: 20
     });
+  });
+
+  test("includes multi-turn threat questions for Crescendo/TopicAttack, Skeleton Key, and Siren vectors", () => {
+    const byId = new Map(questionBank.map((question) => [question.id, question]));
+    const sessionEscalation = byId.get("AMC-THR-1");
+    const skeletonKey = byId.get("AMC-THR-2");
+    const siren = byId.get("AMC-THR-3");
+
+    expect(sessionEscalation).toBeDefined();
+    expect(skeletonKey).toBeDefined();
+    expect(siren).toBeDefined();
+
+    expect(sessionEscalation?.promptTemplate.toLowerCase()).toContain("topicattack");
+    expect(skeletonKey?.promptTemplate.toLowerCase()).toContain("skeleton key");
+    expect(siren?.promptTemplate.toLowerCase()).toContain("social engineering");
+
+    expect(sessionEscalation?.options[0]?.label).toContain("No Session Tracking");
+    expect(skeletonKey?.options[3]?.label).toContain("Immutable Safety Policy");
+    expect(siren?.options[1]?.label).toContain("Basic Adversarial Testing");
   });
 
   test("each question has six options levels 0..5 and six gates", () => {
