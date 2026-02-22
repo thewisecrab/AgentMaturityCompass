@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { AMCClient, type AMCClientConfig } from "./amcClient.js";
 import { runSpan, type AMCSpanRecord } from "./amcSpan.js";
-import { sendBridgeTelemetry } from "./amcTelemetry.js";
 import { instrumentOpenAIClient } from "./integrations/openai.js";
 import { instrumentAnthropicClient } from "./integrations/anthropic.js";
 import { instrumentGeminiClient } from "./integrations/gemini.js";
@@ -47,27 +46,19 @@ export class AMCAgent {
 
   async span<T>(name: string, fn: () => Promise<T> | T): Promise<{ result: T; span: AMCSpanRecord }> {
     const sessionId = `sdk_${Date.now()}_${randomUUID().slice(0, 8)}`;
-    await sendBridgeTelemetry({
-      bridgeUrl: this.client.bridgeUrl,
-      token: this.client.token,
-      event: {
-        sessionId,
-        eventType: "agent_process_started",
-        payload: { name }
-      }
+    await this.client.sendTelemetry({
+      sessionId,
+      eventType: "agent_process_started",
+      payload: { name }
     }).catch(() => {});
     const out = await runSpan(name, fn);
-    await sendBridgeTelemetry({
-      bridgeUrl: this.client.bridgeUrl,
-      token: this.client.token,
-      event: {
-        sessionId,
-        eventType: "agent_process_exited",
-        payload: {
-          spanId: out.span.spanId,
-          ok: out.span.ok,
-          durationMs: out.span.durationMs
-        }
+    await this.client.sendTelemetry({
+      sessionId,
+      eventType: "agent_process_exited",
+      payload: {
+        spanId: out.span.spanId,
+        ok: out.span.ok,
+        durationMs: out.span.durationMs
       }
     }).catch(() => {});
     return out;

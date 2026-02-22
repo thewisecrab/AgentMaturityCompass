@@ -31,7 +31,31 @@ const response = await openai.chat.completions.create({
 ### Node ergonomic options
 
 - `createAMCClient({ ... })` for explicit config
-- `createAMCClientFromEnv()` for env-first setup
+- `createAMCClientFromEnv({ ...overrides })` for env-first setup with explicit overrides when needed
+
+### Node error handling
+
+SDK runtime failures throw `AMCSDKError` with stable codes:
+
+- `INVALID_BRIDGE_URL`
+- `SELF_SCORING_BLOCKED`
+- `NETWORK_ERROR`
+- `HTTP_ERROR`
+- `INVALID_JSON`
+
+Example:
+
+```ts
+import { AMCSDKError } from "agent-maturity-compass";
+
+try {
+  await amc.openaiChat({ model: "gpt-4o-mini", messages: [] });
+} catch (error) {
+  if (error instanceof AMCSDKError) {
+    console.error(error.code, error.message, error.details);
+  }
+}
+```
 
 ---
 

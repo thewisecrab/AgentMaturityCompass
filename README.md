@@ -78,6 +78,8 @@ amc run --agent demo-agent --window 14d
 amc status --agent demo-agent
 ```
 
+Non-interactive shells/CI: export `AMC_VAULT_PASSPHRASE` before `amc up`.
+
 → [Full Quickstart](docs/QUICKSTART.md) · [Solo User Guide](docs/SOLO_USER.md)
 
 ---
@@ -483,7 +485,7 @@ Every AMC export is signed, offline-verifiable, and tamper-evident:
 
 ## AMC Studio Console
 
-`amc up` starts the full local control plane at `http://localhost:3212`:
+`amc up` starts the full local control plane at `http://localhost:3212` (and prompts to unlock vault unless `AMC_VAULT_PASSPHRASE` is set):
 
 **Dashboard pages:** home, agent, compass, equalizer, governor, toolhub, approvals, users, leases, budgets, drift, workorders, benchmarks, benchCompare, benchRegistry, benchPortfolio, transparency, trust, compliance, northstar, diagnosticView, contextGraph, forecast, forecastAgent, advisories, assurance, assuranceCert, assuranceRun, value, valueAgent, outcomes, experiments, mechanic, simulator, upgradeWizard, org, compare, systemic, passport, standard, audit, auditBinder, plugins, policypacks, integrations, ops, portfolioForecast
 

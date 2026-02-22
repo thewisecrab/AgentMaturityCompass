@@ -1,4 +1,5 @@
 import type { AMCClient } from "../amcClient.js";
+import { AMCSDKError } from "../errors.js";
 
 type AnyRecord = Record<string, unknown>;
 type OpenAIBridgeRoute = "chat_completions" | "responses" | "embeddings" | "images_generations" | "audio_speech";
@@ -45,8 +46,13 @@ function parseRequestBody(init?: RequestInit): AnyRecord {
   if (typeof init.body === "string") {
     try {
       return asRecord(JSON.parse(init.body));
-    } catch {
-      return {};
+    } catch (error) {
+      throw new AMCSDKError({
+        code: "INVALID_JSON",
+        message: "createOpenAIFetchTransport expected a JSON string request body.",
+        details: "Pass a JSON-serialized object body when routing through AMC fetch transport.",
+        cause: error
+      });
     }
   }
   if (init.body instanceof URLSearchParams) {

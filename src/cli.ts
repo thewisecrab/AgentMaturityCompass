@@ -968,6 +968,49 @@ function loadTemporalDecayRuns(workspace: string, agentId: string, lookbackDays:
   return rows;
 }
 
+function isWorkspaceInitialized(workspace: string): boolean {
+  return pathExists(join(workspace, ".amc"));
+}
+
+function workspaceInitHint(workspace: string, reason: string): string {
+  return [
+    reason,
+    `Workspace: ${workspace}`,
+    "Run one of the following first:",
+    "  amc setup --demo",
+    "  amc init"
+  ].join("\n");
+}
+
+function ensureWorkspaceReadyForAgent(workspace: string, agentId?: string): void {
+  if (!isWorkspaceInitialized(workspace)) {
+    throw new Error(workspaceInitHint(workspace, "AMC workspace is not initialized."));
+  }
+  const paths = getAgentPaths(workspace, agentId);
+  const contextGraph = paths.contextGraph;
+  if (!pathExists(contextGraph)) {
+    throw new Error(
+      workspaceInitHint(
+        workspace,
+        `Missing context graph for agent '${paths.agentId}' at ${contextGraph}.`
+      )
+    );
+  }
+}
+
+function normalizeCliErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/User force closed the prompt/i.test(message)) {
+    return [
+      "Interactive prompt aborted.",
+      "If you are running in a non-interactive shell, set AMC_VAULT_PASSPHRASE and run:",
+      "  amc setup --non-interactive",
+      "  amc up"
+    ].join("\n");
+  }
+  return message;
+}
+
 const program = new Command();
 program
   .name("amc")
@@ -1267,6 +1310,16 @@ program
   .description("Start AMC control plane in one command (studio + gateway + bridge)")
   .action(async () => {
     const workspace = process.cwd();
+    if (!process.stdin.isTTY && !process.env.AMC_VAULT_PASSPHRASE) {
+      throw new Error(
+        [
+          "amc up requires a vault passphrase in non-interactive shells.",
+          "Set AMC_VAULT_PASSPHRASE, then run:",
+          "  amc setup --non-interactive",
+          "  amc up"
+        ].join("\n")
+      );
+    }
     initWorkspace({ workspacePath: workspace, trustBoundaryMode: "isolated" });
     const actionPolicyFile = join(workspace, ".amc", "action-policy.yaml");
     if (!pathExists(actionPolicyFile)) {
@@ -1566,6 +1619,10 @@ program
   .description("Show AMC Studio and vault status")
   .action(async () => {
     const workspace = process.cwd();
+    if (!isWorkspaceInitialized(workspace)) {
+      console.log(workspaceInitHint(workspace, "AMC workspace is not initialized."));
+      return;
+    }
     const studio = studioStatus(workspace);
     const vault = vaultStatusNow(workspace);
     console.log(`Studio running: ${studio.running ? "YES" : "NO"}`);
@@ -2630,6 +2687,7 @@ program
       harnessRuntime?: "claude" | "gemini" | "openclaw";
     }) => {
       const agentId = activeAgent(program);
+      ensureWorkspaceReadyForAgent(process.cwd(), agentId);
       const output = opts.output ? join(process.cwd(), opts.output) : undefined;
       const resolvedOutput = output ? resolve(output) : undefined;
       const report = await runDiagnostic(
@@ -14452,7 +14510,7 @@ agent
   });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = normalizeCliErrorMessage(error);
   const unknownToken = parseUnknownCommandToken(message);
   if (unknownToken) {
     console.error(chalk.red(message));
