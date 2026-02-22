@@ -40,7 +40,7 @@ export async function handleApiRoute(
     if (pathname.startsWith('/api/v1/agents/'))  return await handleAgentTimelineRoute(pathname, method, req, res, workspace);
     if (pathname.startsWith('/api/v1/assurance/') || pathname === '/api/v1/assurance') return await handleAssuranceRoute(pathname, method, req, res, workspace);
     if (pathname.startsWith('/api/v1/fleet/'))    return await handleFleetRoute(pathname, method, req, res, workspace);
-    if (pathname.startsWith('/api/v1/passport') ) return await handlePassportRoute(pathname, method, req, res, workspace);
+    if (pathname.startsWith('/api/v1/passport') ) return await handlePassportRoute(pathname, method, req, res, workspace, apiToken);
 
     // Legacy bridge endpoint redirects — 308 permanent redirect with deprecation headers
     const deprecated = deprecatedBridgeRoute(pathname);

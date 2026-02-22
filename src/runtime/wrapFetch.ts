@@ -235,7 +235,7 @@ export function wrapFetch(originalFetch: FetchLike, opts: WrapFetchOptions): Fet
           () =>
             originalFetch(finalUrl as RequestInfo | URL, {
               ...nextInit,
-              signal: combineSignals(nextInit.signal, timeoutSignal)
+              signal: combineSignals(nextInit.signal ?? undefined, timeoutSignal)
             }),
           { timeoutMs: timeoutMs + 1000 }
         );

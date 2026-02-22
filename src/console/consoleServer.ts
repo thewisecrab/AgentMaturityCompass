@@ -50,6 +50,10 @@ export function serveConsolePath(pathname: string, res: ServerResponse): boolean
   if (!pathname.startsWith("/console")) {
     return false;
   }
+  // /console/snapshot is handled by the auth-protected API handler
+  if (pathname === "/console/snapshot") {
+    return false;
+  }
   const file = resolveConsolePath(pathname);
   if (!file || !pathExists(file)) {
     res.statusCode = 404;

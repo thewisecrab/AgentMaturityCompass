@@ -96,7 +96,8 @@ describe("integration dispatcher failure handling", () => {
           type: "webhook",
           url: "http://127.0.0.1:1/unreachable",
           secretRef: "vault:integrations/fail-webhook",
-          enabled: true
+          enabled: true,
+          delivery: { retry: { maxAttempts: 1, timeoutMs: 500 }, maxRounds: 1 }
         }
       ];
       cfg.integrations.routing.INTEGRATION_TEST = ["ok-webhook", "fail-webhook"];

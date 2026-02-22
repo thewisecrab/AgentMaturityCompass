@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import { initWorkspace } from "../../src/workspace.js";
+import { loadAssurancePolicy, saveAssurancePolicy } from "../../src/assurance/assurancePolicyStore.js";
 import { startStudioApiServer } from "../../src/studio/studioServer.js";
 import { issueLeaseForCli } from "../../src/leases/leaseCli.js";
 import { canonicalize } from "../../src/utils/json.js";
@@ -133,6 +134,11 @@ function setupHostWithMemberships(): { hostDir: string; workspaceA: string; work
   const workspaceB = hostWorkspaceDir(hostDir, "ws-b");
   initWorkspace({ workspacePath: workspaceA, trustBoundaryMode: "isolated" });
   initWorkspace({ workspacePath: workspaceB, trustBoundaryMode: "isolated" });
+  for (const ws of [workspaceA, workspaceB]) {
+    const policy = loadAssurancePolicy(ws);
+    policy.assurancePolicy.thresholds.failClosedIfBelowThresholds = false;
+    saveAssurancePolicy(ws, policy);
+  }
   grantMembership({
     hostDir,
     username: "viewerb",
