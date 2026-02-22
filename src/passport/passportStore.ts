@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { readdirSync } from "node:fs";
 import YAML from "yaml";
+import { z } from "zod";
 import { ensureDir, pathExists, readUtf8, writeFileAtomic } from "../utils/fs.js";
 import { verifySignedFileWithAuditor, signFileWithAuditor } from "../org/orgSigner.js";
 import { defaultPassportPolicy, passportPolicySchema, type PassportPolicy } from "./passportPolicySchema.js";
@@ -32,6 +33,10 @@ export function passportCacheDir(workspace: string): string {
   return join(passportRoot(workspace), "cache");
 }
 
+export function passportRevocationsPath(workspace: string): string {
+  return join(passportRoot(workspace), "revocations.json");
+}
+
 export function passportLatestCachePath(
   workspace: string,
   scopeType: "WORKSPACE" | "NODE" | "AGENT",
@@ -60,6 +65,64 @@ export function ensurePassportDirs(workspace: string): void {
   ensureDir(passportRoot(workspace));
   ensureDir(passportExportsDir(workspace));
   ensureDir(passportCacheDir(workspace));
+}
+
+const passportRevocationEntrySchema = z.object({
+  passportId: z.string().min(1),
+  revokedTs: z.number().int(),
+  reason: z.string().min(1).nullable(),
+  revokedBy: z.string().min(1).nullable()
+});
+
+const passportRevocationFileSchema = z.object({
+  v: z.literal(1),
+  revocations: z.record(passportRevocationEntrySchema)
+});
+
+export type PassportRevocationEntry = z.infer<typeof passportRevocationEntrySchema>;
+
+function loadPassportRevocationFile(workspace: string): z.infer<typeof passportRevocationFileSchema> {
+  const path = passportRevocationsPath(workspace);
+  if (!pathExists(path)) {
+    return {
+      v: 1,
+      revocations: {}
+    };
+  }
+  return passportRevocationFileSchema.parse(JSON.parse(readUtf8(path)) as unknown);
+}
+
+function savePassportRevocationFile(workspace: string, data: z.infer<typeof passportRevocationFileSchema>): string {
+  ensurePassportDirs(workspace);
+  const path = passportRevocationsPath(workspace);
+  writeFileAtomic(path, JSON.stringify(passportRevocationFileSchema.parse(data), null, 2), 0o644);
+  return path;
+}
+
+export function getPassportRevocation(workspace: string, passportId: string): PassportRevocationEntry | null {
+  const file = loadPassportRevocationFile(workspace);
+  return file.revocations[passportId] ?? null;
+}
+
+export function revokePassport(params: {
+  workspace: string;
+  passportId: string;
+  reason?: string | null;
+  revokedBy?: string | null;
+}): PassportRevocationEntry {
+  const file = loadPassportRevocationFile(params.workspace);
+  const reason = (params.reason ?? "").trim();
+  const revokedBy = (params.revokedBy ?? "").trim();
+  const current = file.revocations[params.passportId];
+  const entry: PassportRevocationEntry = {
+    passportId: params.passportId,
+    revokedTs: current?.revokedTs ?? Date.now(),
+    reason: reason.length > 0 ? reason : (current?.reason ?? null),
+    revokedBy: revokedBy.length > 0 ? revokedBy : (current?.revokedBy ?? null)
+  };
+  file.revocations[params.passportId] = passportRevocationEntrySchema.parse(entry);
+  savePassportRevocationFile(params.workspace, file);
+  return entry;
 }
 
 export function savePassportPolicy(workspace: string, policy: PassportPolicy): {

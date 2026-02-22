@@ -14,7 +14,15 @@ import {
   inspectPassportArtifact,
   listExportedPassportArtifacts
 } from "./passportArtifact.js";
-import { loadPassportCache, loadPassportPolicy, savePassportPolicy, verifyPassportPolicySignature } from "./passportStore.js";
+import {
+  loadPassportCache,
+  loadPassportPolicy,
+  savePassportPolicy,
+  verifyPassportPolicySignature,
+  getPassportRevocation,
+  revokePassport
+} from "./passportStore.js";
+import { computePassportExpiresTs } from "./passportConstants.js";
 import { verifyPassportArtifactFile, verifyPassportWorkspace } from "./passportVerifier.js";
 
 const pendingExportSchema = z.object({
@@ -96,6 +104,62 @@ function riskSummary(passport: ReturnType<typeof inspectPassportArtifact>["passp
   if (avg >= 60) return "ELEVATED";
   return "MODERATE";
 }
+
+function resolveBaseUrl(baseUrl?: string | null): string {
+  const trimmed = (baseUrl ?? "").trim();
+  return (trimmed.length > 0 ? trimmed : "http://localhost:8787").replace(/\/+$/, "");
+}
+
+function encodePath(value: string): string {
+  return encodeURIComponent(value);
+}
+
+export function passportPublicUrlForApi(params: {
+  passportId: string;
+  baseUrl?: string | null;
+}): string {
+  return `${resolveBaseUrl(params.baseUrl)}/api/v1/passport/${encodePath(params.passportId)}`;
+}
+
+export function passportVerifyUrlForApi(params: {
+  passportId: string;
+  baseUrl?: string | null;
+}): string {
+  return `${resolveBaseUrl(params.baseUrl)}/api/v1/passport/${encodePath(params.passportId)}/verify`;
+}
+
+export function passportQrForApi(params: {
+  passportId: string;
+  baseUrl?: string | null;
+  size?: number;
+}) {
+  const verifyUrl = passportVerifyUrlForApi(params);
+  const size = Number.isFinite(params.size) ? Math.max(128, Math.min(1024, Math.trunc(params.size!))) : 256;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(verifyUrl)}`;
+  return {
+    verificationUrl: verifyUrl,
+    qrCodeUrl
+  };
+}
+
+function findPassportExportById(workspace: string, passportId: string): {
+  file: string;
+  sha256: string;
+  generatedTs: number;
+  scopeType: "WORKSPACE" | "NODE" | "AGENT";
+  status: "VERIFIED" | "INFORMATIONAL" | "UNTRUSTED";
+} | null {
+  return listExportedPassportArtifacts(workspace).find((row) => row.passportId === passportId) ?? null;
+}
+
+function passportExpiresTs(passport: ReturnType<typeof inspectPassportArtifact>["passport"]): number {
+  return typeof passport.expiresTs === "number" ? passport.expiresTs : computePassportExpiresTs(passport.generatedTs);
+}
+
+type PublicVerifyError = {
+  code: string;
+  message: string;
+};
 
 export function passportInitForApi(workspace: string) {
   if (pathExists(join(workspace, ".amc", "passport", "policy.yaml"))) {
@@ -391,4 +455,182 @@ export function passportExportExecuteForApi(params: {
   });
   removePendingExport(params.workspace, pending.approvalRequestId);
   return out;
+}
+
+export function passportPublicForApi(params: {
+  workspace: string;
+  passportId: string;
+  baseUrl?: string | null;
+}) {
+  const found = findPassportExportById(params.workspace, params.passportId);
+  if (!found) {
+    return null;
+  }
+  const inspected = inspectPassportArtifact(found.file);
+  const revocation = getPassportRevocation(params.workspace, inspected.passport.passportId);
+  const expiresTs = passportExpiresTs(inspected.passport);
+  const nowTs = Date.now();
+  const qr = passportQrForApi({
+    passportId: inspected.passport.passportId,
+    baseUrl: params.baseUrl
+  });
+  return {
+    passportId: inspected.passport.passportId,
+    generatedTs: inspected.passport.generatedTs,
+    expiresTs,
+    expired: nowTs > expiresTs,
+    revoked: revocation !== null,
+    revocation,
+    scopeType: inspected.passport.scope.type,
+    status: inspected.passport.status.label,
+    fileSha256: found.sha256,
+    verificationUrl: qr.verificationUrl,
+    publicUrl: passportPublicUrlForApi({
+      passportId: inspected.passport.passportId,
+      baseUrl: params.baseUrl
+    }),
+    qrCodeUrl: qr.qrCodeUrl,
+    passport: inspected.passport
+  };
+}
+
+export function passportVerifyPublicForApi(params: {
+  workspace: string;
+  passportId: string;
+  baseUrl?: string | null;
+}) {
+  const found = findPassportExportById(params.workspace, params.passportId);
+  if (!found) {
+    return null;
+  }
+  const verified = passportVerifyForApi({
+    workspace: params.workspace,
+    file: found.file
+  });
+  const passport = verified.passport ?? inspectPassportArtifact(found.file).passport;
+  const revocation = getPassportRevocation(params.workspace, passport.passportId);
+  const expiresTs = passportExpiresTs(passport);
+  const nowTs = Date.now();
+  const expired = nowTs > expiresTs;
+  const revoked = revocation !== null;
+  const runtimeErrors: PublicVerifyError[] = verified.errors.map((error) => ({
+    code: error.code,
+    message: error.message
+  }));
+  if (expired && !runtimeErrors.some((error) => error.code === "PASSPORT_EXPIRED")) {
+    runtimeErrors.push({
+      code: "PASSPORT_EXPIRED",
+      message: `passport expired at ${new Date(expiresTs).toISOString()}`
+    });
+  }
+  if (revoked && !runtimeErrors.some((error) => error.code === "PASSPORT_REVOKED")) {
+    runtimeErrors.push({
+      code: "PASSPORT_REVOKED",
+      message: `passport revoked at ${new Date(revocation!.revokedTs).toISOString()}`
+    });
+  }
+  const qr = passportQrForApi({
+    passportId: passport.passportId,
+    baseUrl: params.baseUrl
+  });
+  return {
+    ok: verified.ok && !expired && !revoked,
+    passportId: passport.passportId,
+    verifiedTs: nowTs,
+    fileSha256: verified.fileSha256,
+    expired,
+    expiresTs,
+    revoked,
+    revocation,
+    verificationUrl: qr.verificationUrl,
+    publicUrl: passportPublicUrlForApi({
+      passportId: passport.passportId,
+      baseUrl: params.baseUrl
+    }),
+    qrCodeUrl: qr.qrCodeUrl,
+    errors: runtimeErrors,
+    passport
+  };
+}
+
+export function passportRevokeForApi(params: {
+  workspace: string;
+  passportId: string;
+  reason?: string | null;
+  revokedBy?: string | null;
+}) {
+  const found = findPassportExportById(params.workspace, params.passportId);
+  if (!found) {
+    return null;
+  }
+  const entry = revokePassport({
+    workspace: params.workspace,
+    passportId: params.passportId,
+    reason: params.reason,
+    revokedBy: params.revokedBy
+  });
+  appendTransparencyEntry({
+    workspace: params.workspace,
+    type: "PASSPORT_REVOKED",
+    agentId: "workspace",
+    artifact: {
+      kind: "amcpass",
+      sha256: found.sha256,
+      id: params.passportId
+    }
+  });
+  return {
+    revoked: true,
+    passportId: params.passportId,
+    revokedTs: entry.revokedTs,
+    reason: entry.reason,
+    revokedBy: entry.revokedBy
+  };
+}
+
+export function passportRegistryForApi(params: {
+  workspace: string;
+  page?: number | null;
+  pageSize?: number | null;
+  baseUrl?: string | null;
+}) {
+  const all = listExportedPassportArtifacts(params.workspace);
+  const nowTs = Date.now();
+  const pageSize = Math.max(1, Math.min(100, Math.trunc(params.pageSize ?? 20)));
+  const page = Math.max(1, Math.trunc(params.page ?? 1));
+  const total = all.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const start = (page - 1) * pageSize;
+  const items = all.slice(start, start + pageSize).map((row) => {
+    const revocation = getPassportRevocation(params.workspace, row.passportId);
+    const expiresTs = computePassportExpiresTs(row.generatedTs);
+    const qr = passportQrForApi({
+      passportId: row.passportId,
+      baseUrl: params.baseUrl
+    });
+    return {
+      passportId: row.passportId,
+      generatedTs: row.generatedTs,
+      expiresTs,
+      expired: nowTs > expiresTs,
+      revoked: revocation !== null,
+      revocation,
+      scopeType: row.scopeType,
+      status: row.status,
+      fileSha256: row.sha256,
+      verificationUrl: qr.verificationUrl,
+      publicUrl: passportPublicUrlForApi({
+        passportId: row.passportId,
+        baseUrl: params.baseUrl
+      }),
+      qrCodeUrl: qr.qrCodeUrl
+    };
+  });
+  return {
+    page,
+    pageSize,
+    total,
+    totalPages,
+    items
+  };
 }

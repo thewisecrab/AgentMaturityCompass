@@ -1707,7 +1707,7 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
           return;
         }
         const { handleApiRoute } = await import("../api/index.js");
-        const handled = await handleApiRoute(pathname, req.method ?? "GET", req, res, options.workspace);
+        const handled = await handleApiRoute(pathname, req.method ?? "GET", req, res, options.workspace, options.token);
         if (handled) return;
       }
 

@@ -24,6 +24,7 @@ import { questionBank } from "../diagnostic/questionBank.js";
 import { hashPassportId } from "./passportRedaction.js";
 import type { PassportPolicy } from "./passportPolicySchema.js";
 import { passportJsonSchema, type PassportJson } from "./passportSchema.js";
+import { computePassportExpiresTs } from "./passportConstants.js";
 
 function fileSha(path: string): string {
   if (!pathExists(path)) {
@@ -357,10 +358,12 @@ export function collectPassportData(params: {
     ? fileSha(mechanicTargetsPath(params.workspace))
     : null;
 
+  const generatedTs = Date.now();
   const passport = passportJsonSchema.parse({
     v: 1,
-    passportId: `pass_${hashPassportId(`${scope.type}:${scope.id}:${Date.now()}`, 16)}`,
-    generatedTs: Date.now(),
+    passportId: `pass_${hashPassportId(`${scope.type}:${scope.id}:${generatedTs}`, 16)}`,
+    generatedTs,
+    expiresTs: computePassportExpiresTs(generatedTs),
     scope: {
       type: scope.type,
       idHash: scopeIdHash
@@ -496,7 +499,7 @@ export function collectPassportData(params: {
     },
     reportRunId: report?.runId ?? null,
     forecastGeneratedTs: loadLatestForecastArtifact(params.workspace, { type: scope.type, id: scope.id })?.generatedTs ?? null,
-    generatedTs: passport.generatedTs
+    generatedTs
   };
 
   return {

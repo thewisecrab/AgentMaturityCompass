@@ -8,7 +8,13 @@ import { canonicalize } from "../utils/json.js";
 import { passportJsonSchema, passportPiiScanSchema, passportSignatureSchema, type PassportJson } from "./passportSchema.js";
 import { digestFile, verifyPassportDigestSignature } from "./passportSigner.js";
 import { verifyPassportProofBundle } from "./passportProofs.js";
-import { verifyPassportPolicySignature, listPassportExportFiles, verifyPassportCacheSignature } from "./passportStore.js";
+import {
+  verifyPassportPolicySignature,
+  listPassportExportFiles,
+  verifyPassportCacheSignature,
+  getPassportRevocation
+} from "./passportStore.js";
+import { computePassportExpiresTs } from "./passportConstants.js";
 
 interface PassportVerifyError {
   code: string;
@@ -106,6 +112,24 @@ export function verifyPassportArtifactFile(params: {
 
     passport = passportJsonSchema.parse(JSON.parse(readUtf8(passportPath)) as unknown);
     const signature = passportSignatureSchema.parse(JSON.parse(readUtf8(sigPath)) as unknown);
+    const expiresTs = typeof passport.expiresTs === "number"
+      ? passport.expiresTs
+      : computePassportExpiresTs(passport.generatedTs);
+    if (Date.now() > expiresTs) {
+      errors.push({
+        code: "PASSPORT_EXPIRED",
+        message: `passport expired at ${new Date(expiresTs).toISOString()}`
+      });
+    }
+    if (params.workspace) {
+      const revocation = getPassportRevocation(params.workspace, passport.passportId);
+      if (revocation) {
+        errors.push({
+          code: "PASSPORT_REVOKED",
+          message: `passport revoked at ${new Date(revocation.revokedTs).toISOString()}`
+        });
+      }
+    }
     const digest = sha256Hex(Buffer.from(canonicalize(passport), "utf8"));
     if (digest !== signature.digestSha256) {
       errors.push({ code: "DIGEST_MISMATCH", message: "passport.json digest mismatch with passport.sig" });

@@ -533,11 +533,13 @@ import {
 } from "./prompt/promptPackCli.js";
 import {
   passportBadgeCli,
+  passportCompareCli,
   passportCreateCli,
   passportExportLatestCli,
   passportInitCli,
   passportPolicyApplyCli,
   passportPolicyPrintCli,
+  passportShareCli,
   passportShowCli,
   passportVerifyCli,
   passportVerifyPolicyCli
@@ -4128,6 +4130,76 @@ passport
     console.log(`File: ${out.outFile}`);
     console.log(`sha256: ${out.sha256}`);
     console.log(`passportId: ${out.passport.passportId}`);
+  });
+
+passport
+  .command("share")
+  .description("Generate shareable passport material")
+  .requiredOption("--agent <id>", "agent id")
+  .requiredOption("--format <format>", "url|qr|json|pdf")
+  .option("--base-url <url>", "public base URL", "http://localhost:8787")
+  .option("--out <path>", "output file path for pdf format")
+  .action((opts: { agent: string; format: string; baseUrl: string; out?: string }) => {
+    const format = opts.format.toLowerCase();
+    if (format !== "url" && format !== "qr" && format !== "json" && format !== "pdf") {
+      throw new Error("format must be url|qr|json|pdf");
+    }
+    const out = passportShareCli({
+      workspace: process.cwd(),
+      agentId: resolveAgentId(process.cwd(), opts.agent),
+      format: format as "url" | "qr" | "json" | "pdf",
+      baseUrl: opts.baseUrl,
+      outFile: opts.out
+    });
+    if (format === "url") {
+      console.log(`publicUrl: ${out.publicUrl}`);
+      console.log(`verificationUrl: ${out.verificationUrl}`);
+      return;
+    }
+    if (format === "qr") {
+      console.log(`verificationUrl: ${out.verificationUrl}`);
+      console.log(`qrCodeUrl: ${out.qrCodeUrl}`);
+      return;
+    }
+    if (format === "pdf") {
+      console.log(chalk.green("Passport share PDF created"));
+      console.log(`File: ${out.file}`);
+      console.log(`publicUrl: ${out.publicUrl}`);
+      console.log(`verificationUrl: ${out.verificationUrl}`);
+      return;
+    }
+    console.log(JSON.stringify(out, null, 2));
+  });
+
+passport
+  .command("compare")
+  .description("Compare two agents by passport maturity dimensions")
+  .argument("<agentIdA>")
+  .argument("<agentIdB>")
+  .action((agentIdA: string, agentIdB: string) => {
+    const first = resolveAgentId(process.cwd(), agentIdA);
+    const second = resolveAgentId(process.cwd(), agentIdB);
+    const out = passportCompareCli({
+      workspace: process.cwd(),
+      agentA: first,
+      agentB: second
+    });
+    console.log(`Compared at ${new Date(out.comparedTs).toISOString()}`);
+    console.log(`Agent ${first}: passport ${out.agents[first]?.passportId ?? "unknown"} (${out.agents[first]?.status ?? "UNKNOWN"})`);
+    console.log(`Agent ${second}: passport ${out.agents[second]?.passportId ?? "unknown"} (${out.agents[second]?.status ?? "UNKNOWN"})`);
+    const dimLabelWidth = Math.max("dimension".length, ...out.dimensions.map((row) => row.dimension.length));
+    const aLabelWidth = Math.max(first.length, 8);
+    const bLabelWidth = Math.max(second.length, 8);
+    console.log(`${"dimension".padEnd(dimLabelWidth)}  ${first.padEnd(aLabelWidth)}  ${second.padEnd(bLabelWidth)}  delta`);
+    for (const row of out.dimensions) {
+      const aVal = row[first];
+      const bVal = row[second];
+      const delta = row.delta;
+      const aText = typeof aVal === "number" ? aVal.toFixed(2) : "n/a";
+      const bText = typeof bVal === "number" ? bVal.toFixed(2) : "n/a";
+      const deltaText = typeof delta === "number" ? delta.toFixed(2) : "n/a";
+      console.log(`${row.dimension.padEnd(dimLabelWidth)}  ${aText.padEnd(aLabelWidth)}  ${bText.padEnd(bLabelWidth)}  ${deltaText}`);
+    }
   });
 
 standard
