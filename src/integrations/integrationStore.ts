@@ -39,15 +39,22 @@ function defaultIntegrationsConfig(): IntegrationsConfig {
           url: "http://127.0.0.1:9999/amc",
           secretRef: "vault:integrations/ops-webhook",
           enabled: true
+        },
+        {
+          id: "ops-slack",
+          type: "slack_webhook",
+          webhookUrlRef: "vault:integrations/ops-slack-webhook",
+          channel: "#amc-alerts",
+          enabled: false
         }
       ],
       routing: {
         APPROVAL_REQUEST_CREATED: ["ops-webhook"],
         APPROVAL_QUORUM_MET: ["ops-webhook"],
-        INCIDENT_CREATED: ["ops-webhook"],
+        INCIDENT_CREATED: ["ops-webhook", "ops-slack"],
         FREEZE_APPLIED: ["ops-webhook"],
-        DRIFT_REGRESSION_DETECTED: ["ops-webhook"],
-        BUDGET_EXCEEDED: ["ops-webhook"],
+        DRIFT_REGRESSION_DETECTED: ["ops-webhook", "ops-slack"],
+        BUDGET_EXCEEDED: ["ops-webhook", "ops-slack"],
         CI_GATE_FAILED: ["ops-webhook"],
         CI_GATE_PASSED: ["ops-webhook"],
         VALUE_REGRESSION_DETECTED: ["ops-webhook"],

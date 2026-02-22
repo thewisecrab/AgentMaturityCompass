@@ -239,6 +239,7 @@ import {
   userRoleSetCli,
   userVerifyCli
 } from "./auth/authCli.js";
+import { verifyUsersConfigSignature } from "./auth/authApi.js";
 import {
   identityInitCli,
   identityMappingAddCli,
@@ -1137,7 +1138,7 @@ program
 
 program
   .command("up")
-  .description("Start AMC Studio local control plane (gateway, proxy, dashboard, API)")
+  .description("Start AMC control plane in one command (studio + gateway + bridge)")
   .action(async () => {
     const workspace = process.cwd();
     initWorkspace({ workspacePath: workspace, trustBoundaryMode: "isolated" });
@@ -1224,6 +1225,7 @@ program
     }
     console.log(`Dashboard: http://${state.host}:${state.dashboardPort}`);
     console.log(`Studio API: http://${state.host}:${state.apiPort}`);
+    console.log(`Bridge: http://${state.host}:${state.apiPort}/bridge`);
     console.log(`Compass Console: http://${state.host}:${state.apiPort}/console`);
     if (latest) {
       console.log(`Latest run: ${latest.runId} | IntegrityIndex ${latest.integrityIndex.toFixed(3)} (${latest.trustLabel})`);
@@ -2587,6 +2589,8 @@ verifyCmd
   });
 
 const target = program.command("target").description("Target profile operations");
+const evidence = program.command("evidence").description("Evidence lifecycle workflows");
+const incidents = program.command("incidents").description("Incident operations and dispatch workflows");
 const policy = program.command("policy").description("Policy-as-code operations");
 const governor = program.command("governor").description("Autonomy Governor checks");
 const tools = program.command("tools").description("ToolHub tools config");
@@ -2677,6 +2681,7 @@ const integrations = program.command("integrations").description("Integration hu
 const outcomes = program.command("outcomes").description("Outcome contracts, value signals, and reports");
 const value = program.command("value").description("Value realization engine (contracts, scoring, ROI)");
 const audit = program.command("audit").description("Audit binder and compliance maps");
+const admin = program.command("admin").description("Administrative controls, identity, and trust operations");
 const passport = program.command("passport").description("Agent Passport (shareable maturity credential)");
 const standard = program.command("standard").description("Open Compass Standard schema bundle and validation");
 const forecast = program.command("forecast").description("Deterministic evidence-gated forecasting and planning");
@@ -2695,6 +2700,129 @@ const transparencyMerkle = transparency.command("merkle").description("Merkle tr
 const policyAction = policy.command("action").description("Signed autonomy action policy");
 const policyApproval = policy.command("approval").description("Signed dual-control approval policy");
 const policyPack = policy.command("pack").description("Policy packs by archetype and risk tier");
+
+evidence
+  .command("help")
+  .description("Show high-signal evidence command groups")
+  .action(() => {
+    console.log(chalk.bold("Evidence namespace"));
+    console.log("  amc evidence verify                  Run full integrity verification");
+    console.log("  amc verify all                       Full trust/policy/plugin verification");
+    console.log("  amc bundle export --out <file>       Export signed evidence bundle");
+    console.log("  amc transparency verify              Verify append-only transparency log");
+    console.log("  amc audit binder create              Build external-facing audit binder");
+  });
+
+evidence
+  .command("verify")
+  .description("Run full workspace verification suite")
+  .option("--json", "emit JSON output", false)
+  .action(async (opts: { json: boolean }) => {
+    const out = await verifyAll({
+      workspace: process.cwd()
+    });
+    if (opts.json) {
+      console.log(JSON.stringify(out, null, 2));
+    } else {
+      console.log(`status: ${out.status}`);
+      for (const check of out.checks) {
+        console.log(`- ${check.id}: ${check.status}${check.critical ? " [CRITICAL]" : ""}`);
+      }
+      if (out.criticalFail) {
+        console.log(chalk.red("Critical verification failures detected."));
+        for (const reason of verifyAllTopReasons(out)) {
+          console.log(`- ${reason}`);
+        }
+      }
+    }
+    if (out.status !== "PASS") {
+      process.exit(1);
+    }
+  });
+
+incidents
+  .command("help")
+  .description("Show incident-focused command groups")
+  .action(() => {
+    console.log(chalk.bold("Incidents namespace"));
+    console.log("  amc incidents alert --agent <id>     Dispatch INCIDENT_CREATED integration event");
+    console.log("  amc assurance run --agent <id>       Run assurance packs and incident triggers");
+    console.log("  amc drift check --agent <id>         Detect regressions that can open incidents");
+    console.log("  amc forecast refresh --agent <id>    Recompute advisories and risk alerts");
+  });
+
+incidents
+  .command("alert")
+  .description("Dispatch INCIDENT_CREATED to configured integration channels")
+  .requiredOption("--agent <agentId>", "agent ID")
+  .option("--summary <text>", "incident summary", "Incident reported via CLI")
+  .option("--details <json>", "JSON object payload for incident details", "{}")
+  .action(async (opts: { agent: string; summary: string; details: string }) => {
+    let details: Record<string, unknown> = {};
+    try {
+      const parsed = JSON.parse(opts.details) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        details = parsed as Record<string, unknown>;
+      } else {
+        throw new Error("details must be a JSON object");
+      }
+    } catch (error) {
+      throw new Error(`Invalid --details JSON: ${String(error)}`);
+    }
+
+    const out = await integrationsDispatchCli({
+      workspace: process.cwd(),
+      eventName: "INCIDENT_CREATED",
+      agentId: opts.agent,
+      summary: opts.summary,
+      details
+    });
+    console.log(JSON.stringify(out, null, 2));
+    if (out.dispatched.length === 0) {
+      process.exit(1);
+    }
+  });
+
+admin
+  .command("help")
+  .description("Show admin-focused command groups")
+  .action(() => {
+    console.log(chalk.bold("Admin namespace"));
+    console.log("  amc admin status                     Runtime + signature + trust status");
+    console.log("  amc user <subcommand>               RBAC user lifecycle");
+    console.log("  amc identity <subcommand>           OIDC/SAML/SCIM identity controls");
+    console.log("  amc trust status                    Trust mode and notary enforcement");
+    console.log("  amc vault <subcommand>              Vault key lifecycle");
+  });
+
+admin
+  .command("status")
+  .description("Show operational admin status for control-plane services")
+  .action(async () => {
+    const workspace = process.cwd();
+    const studio = studioStatus(workspace);
+    const gatewaySig = verifyGatewayConfigSignature(workspace);
+    const usersSig = verifyUsersConfigSignature(workspace);
+    const trustSig = verifyTrustConfigSignature(workspace);
+    const opsSig = verifyOpsPolicySignature(workspace);
+    const notary = await checkNotaryTrust(workspace).catch(() => null);
+
+    console.log(`Studio: ${studio.running ? "RUNNING" : "STOPPED"}`);
+    if (studio.state) {
+      console.log(`  API: http://${studio.state.host}:${studio.state.apiPort}`);
+      console.log(`  Gateway: http://${studio.state.host}:${studio.state.gatewayPort}`);
+      console.log(`  Bridge: http://${studio.state.host}:${studio.state.apiPort}/bridge`);
+    }
+    console.log(`Gateway signature: ${gatewaySig.valid ? "VALID" : `INVALID (${gatewaySig.reason ?? "unknown"})`}`);
+    console.log(`Users signature: ${usersSig.valid ? "VALID" : `INVALID (${usersSig.reason ?? "unknown"})`}`);
+    console.log(`Trust signature: ${trustSig.valid ? "VALID" : `INVALID (${trustSig.reason ?? "unknown"})`}`);
+    console.log(`Ops policy signature: ${opsSig.valid ? "VALID" : `INVALID (${opsSig.reason ?? "unknown"})`}`);
+    if (notary) {
+      console.log(`Notary trust: ${notary.ok ? "OK" : `FAILED (${notary.reasons.join("; ")})`}`);
+    } else {
+      console.log("Notary trust: unavailable");
+    }
+  });
 
 policyAction
   .command("init")

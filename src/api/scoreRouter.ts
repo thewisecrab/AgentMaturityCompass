@@ -4,28 +4,23 @@
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { bodyJson, apiSuccess, apiError, pathParam } from './apiHelpers.js';
-import { randomUUID } from 'node:crypto';
-
-/* ── In-memory session store ─────────────────────────────────────── */
-
-interface DiagSession {
-  id: string;
-  agentId: string;
-  answers: Record<string, { value: number; notes?: string }>;
-  createdAt: string;
-  completedAt?: string;
-}
-
-const sessions = new Map<string, DiagSession>();
+import {
+  countActiveScoreSessions,
+  createScoreSession,
+  getScoreSession,
+  markScoreSessionCompleted,
+  recordScoreAnswer,
+} from './scoreStore.js';
 
 export async function handleScoreRoute(
   pathname: string,
   method: string,
   req: IncomingMessage,
   res: ServerResponse,
+  workspace = process.cwd(),
 ): Promise<boolean> {
   if (pathname === '/api/v1/score/status' && method === 'GET') {
-    apiSuccess(res, { status: 'operational', module: 'score', activeSessions: sessions.size });
+    apiSuccess(res, { status: 'operational', module: 'score', activeSessions: countActiveScoreSessions(workspace) });
     return true;
   }
 
@@ -34,13 +29,7 @@ export async function handleScoreRoute(
     try {
       const body = await bodyJson<{ agentId: string }>(req);
       if (!body.agentId) { apiError(res, 400, 'Missing required field: agentId'); return true; }
-      const session: DiagSession = {
-        id: randomUUID(),
-        agentId: body.agentId,
-        answers: {},
-        createdAt: new Date().toISOString(),
-      };
-      sessions.set(session.id, session);
+      const session = createScoreSession(workspace, body.agentId);
       apiSuccess(res, { sessionId: session.id, agentId: session.agentId }, 201);
     } catch (err) {
       apiError(res, 500, err instanceof Error ? err.message : 'Internal error');
@@ -51,7 +40,7 @@ export async function handleScoreRoute(
   // GET /api/v1/score/question/:sessionId
   const qParams = pathParam(pathname, '/api/v1/score/question/:sessionId');
   if (qParams && method === 'GET') {
-    const session = sessions.get(qParams.sessionId!);
+    const session = getScoreSession(workspace, qParams.sessionId!);
     if (!session) { apiError(res, 404, 'Session not found'); return true; }
     try {
       const { questionBank } = await import('../diagnostic/questionBank.js');
@@ -76,9 +65,14 @@ export async function handleScoreRoute(
         apiError(res, 400, 'Missing required fields: sessionId, questionId, value');
         return true;
       }
-      const session = sessions.get(body.sessionId);
+      const session = recordScoreAnswer({
+        workspace,
+        sessionId: body.sessionId,
+        questionId: body.questionId,
+        value: body.value,
+        notes: body.notes,
+      });
       if (!session) { apiError(res, 404, 'Session not found'); return true; }
-      session.answers[body.questionId] = { value: body.value, notes: body.notes };
       apiSuccess(res, { recorded: true, answeredCount: Object.keys(session.answers).length });
     } catch (err) {
       apiError(res, 500, err instanceof Error ? err.message : 'Internal error');
@@ -89,7 +83,7 @@ export async function handleScoreRoute(
   // GET /api/v1/score/result/:sessionId
   const rParams = pathParam(pathname, '/api/v1/score/result/:sessionId');
   if (rParams && method === 'GET') {
-    const session = sessions.get(rParams.sessionId!);
+    const session = getScoreSession(workspace, rParams.sessionId!);
     if (!session) { apiError(res, 404, 'Session not found'); return true; }
     const answeredCount = Object.keys(session.answers).length;
     const totalScore = Object.values(session.answers).reduce((s, a) => s + a.value, 0);
@@ -107,6 +101,7 @@ export async function handleScoreRoute(
       level,
       createdAt: session.createdAt,
     });
+    markScoreSessionCompleted(workspace, session.id);
     return true;
   }
 

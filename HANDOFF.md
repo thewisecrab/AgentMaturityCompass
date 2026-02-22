@@ -1,62 +1,57 @@
-# FIX-9 Handoff: Evidence Export & Audit Trail
+# FIX-10 Handoff — Production Readiness & Integration
 
 ## Scope Completed
-- Audited and patched ledger/evidence export gaps for verifier-readiness.
-- Added full `amc evidence export` surface with `json|csv|pdf` support and optional `--include-chain` / `--include-rationale`.
-- Added top-level `amc audit-packet` generator producing an external-auditor ZIP packet.
-- Wired incident auto-linking at evidence write time for open incidents.
-- Added correction-loop closure marking to link verified corrections back to evidence.
+Implemented production-readiness improvements in `/tmp/amc-wave1/agent-10` for:
 
-## New CLI Commands
-- `amc evidence export --format json|pdf|csv --include-chain --include-rationale [--agent <id>] [--out <file>]`
-- `amc audit-packet --output ./audit-YYYY-MM-DD.zip [--agent <id>] [--no-include-chain] [--no-include-rationale]`
+1. Persistent storage for score/session APIs (TypeScript + Python) using SQLite.
+2. Native Slack webhook integration support for incidents/alerts.
+3. Health endpoint payload upgrade: `GET /health -> { status, version, uptime, dbStatus }`.
+4. Graceful shutdown hardening (in-flight request draining + DB close on shutdown).
+5. Basic API endpoint rate limiting in Studio API middleware path.
+6. `amc up` startup UX upgrade to explicitly include Bridge endpoint and one-command control-plane description.
+7. CLI help reorganization with logical namespace grouping (`evidence`, `score`, `incidents`, `audit`, `admin`).
 
-## Key Implementation Details
-- New `src/evidence/` module:
-  - `exporter.ts`: verifier dataset collection + JSON/CSV/PDF rendering + export writer.
-  - `auditPacket.ts`: packet assembly with manifest/signature, ledger verify result, incidents/corrections snapshots, keys, and raw ledger DB.
-  - `zip.ts`: deterministic local ZIP builder (no external zip dependency).
-- Ledger migration `v7` adds append-only tables:
-  - `evidence_incident_links`
-  - `evidence_corrections`
-- Evidence append now auto-links to open incidents (agent + trigger/question/fallback heuristics) and writes causal edge linkage.
-- Correction verification path fixed:
-  - Removed delete/reinsert behavior that violated immutability triggers.
-  - Now updates only verification/mutable fields.
-  - On verified status, marks linked evidence in `evidence_corrections`.
+## Key File Changes
+- TypeScript score/session persistence:
+  - `src/api/scoreStore.ts` (new SQLite store)
+  - `src/api/scoreRouter.ts`
+  - `src/api/index.ts`
+  - `src/api/health.ts` (new)
+- Studio health/rate-limit/shutdown:
+  - `src/studio/studioServer.ts`
+- Integrations (Slack native channel):
+  - `src/integrations/integrationSchema.ts`
+  - `src/integrations/integrationStore.ts`
+  - `src/integrations/integrationDispatcher.ts`
+- CLI UX and namespace grouping:
+  - `src/cli.ts`
+  - `src/cliUx.ts`
+- Python API persistence + health + shutdown:
+  - `platform/python/amc/api/routers/score.py`
+  - `platform/python/amc/api/main.py`
+- Tests added:
+  - `tests/scoreStorePersistence.test.ts`
+  - `tests/integrationSlackWebhook.test.ts`
 
-## Exported Verifier Fields
-Each evidence record now includes (for verifier outputs):
-- hash chain fields (`prevEventHash`, `eventHash`, optional chain verification fields)
-- signature (`writerSignature`)
-- rationale and rationale chain (when requested)
-- timestamp (`ts`, `isoTs`)
-- actor ID (`actorId`)
-- incident links and correction-closure links
+## Verification
+### Typecheck
+- `npm run typecheck` passed.
 
-## Files Added
-- `src/evidence/zip.ts`
-- `src/evidence/exporter.ts`
-- `src/evidence/auditPacket.ts`
-- `src/evidence/index.ts`
-- `tests/evidenceAuditTrail.test.ts`
-- `HANDOFF.md`
+### Requested test command
+Executed requested command pattern:
+- `npm test -- --reporter=verbose 2>&1 | tail -30`
 
-## Files Updated
-- `src/ledger/ledger.ts`
-- `src/corrections/correctionStore.ts`
-- `src/corrections/correctionTracker.ts`
-- `src/corrections/index.ts`
-- `src/cli.ts`
-- `src/index.ts`
+Observed in this sandbox:
+- Command does not complete in allotted runtime and times out before yielding tail output.
+- Local test runs that bind `127.0.0.1` can fail in this environment with `listen EPERM` (sandbox constraint), so full suite completion is environment-limited here.
 
-## Validation
-- Targeted test suite:
-  - `npm test -- tests/evidenceAuditTrail.test.ts --reporter=verbose`
-  - Result: PASS (3/3)
-- Typecheck:
-  - `npm run typecheck`
-  - Result: PASS
-- Required full test command:
-  - `npm test -- --reporter=verbose 2>&1 | tail -30`
-  - Result: FAIL in sandbox due `listen EPERM` integration tests binding `127.0.0.1` (known environment restriction).
+## Commit Status
+Requested commit message:
+- `feat(production): persistent storage, health check, graceful shutdown, rate limiting, amc up command`
+
+Could not create commit in this sandbox because git index lock creation is denied for the worktree metadata path:
+- `fatal: Unable to create '.../.git/worktrees/agent-10/index.lock': Operation not permitted`
+
+## Notes
+- No changes were made outside `/tmp/amc-wave1/agent-10`.
+- Slack channel support is native via `type: slack_webhook` with `webhookUrlRef` vault secret.

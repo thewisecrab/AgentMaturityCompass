@@ -29,6 +29,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 log = structlog.get_logger(__name__)
+_STARTED_MONOTONIC = time.monotonic()
 
 
 # ---------------------------------------------------------------------------
@@ -143,6 +144,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     log.info("amc_api.started")
     yield
+    try:
+        from amc.api.routers.score import close_score_store
+
+        close_score_store()
+        log.info("amc_api.score_store_closed")
+    except Exception as exc:
+        log.warning("amc_api.score_store_close_failed", error=str(exc))
     log.info("amc_api.shutdown")
 
 
@@ -270,9 +278,22 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 # ---------------------------------------------------------------------------
 
 @app.get("/health", tags=["system"])
-async def health() -> dict[str, str]:
+async def health() -> dict[str, Any]:
     """Liveness probe endpoint."""
-    return {"status": "healthy", "service": "amc-platform"}
+    db_status = "degraded"
+    try:
+        from amc.api.routers.score import score_db_status
+
+        db_status = score_db_status()
+    except Exception as exc:
+        log.warning("amc_api.health_db_status_failed", error=str(exc))
+
+    return {
+        "status": "ok" if db_status == "ok" else "degraded",
+        "version": app.version,
+        "uptime": round(time.monotonic() - _STARTED_MONOTONIC, 3),
+        "dbStatus": db_status,
+    }
 
 
 # ---------------------------------------------------------------------------

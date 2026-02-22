@@ -11,15 +11,15 @@ import { handleVaultRoute } from './vaultRouter.js';
 import { handleWatchRoute } from './watchRouter.js';
 import { handleScoreRoute } from './scoreRouter.js';
 import { handleProductRoute } from './productRouter.js';
-import { handleIncidentRoute } from './incidentRouter.js';
 import { apiError } from './apiHelpers.js';
+import { buildHealthPayload } from './health.js';
 
 export async function handleApiRoute(
   pathname: string,
   method: string,
   req: IncomingMessage,
   res: ServerResponse,
-  workspace?: string,
+  workspace = process.cwd(),
 ): Promise<boolean> {
   if (!pathname.startsWith('/api/v1/')) return false;
 
@@ -28,17 +28,14 @@ export async function handleApiRoute(
     if (pathname.startsWith('/api/v1/shield/'))  return await handleShieldRoute(pathname, method, req, res);
     if (pathname.startsWith('/api/v1/enforce/')) return await handleEnforceRoute(pathname, method, req, res);
     if (pathname.startsWith('/api/v1/vault/'))   return await handleVaultRoute(pathname, method, req, res);
-    if (pathname.startsWith('/api/v1/watch/'))   return await handleWatchRoute(pathname, method, req, res, { workspace });
-    if (pathname.startsWith('/api/v1/score/'))   return await handleScoreRoute(pathname, method, req, res);
+    if (pathname.startsWith('/api/v1/watch/'))   return await handleWatchRoute(pathname, method, req, res);
+    if (pathname.startsWith('/api/v1/score/'))   return await handleScoreRoute(pathname, method, req, res, workspace);
     if (pathname.startsWith('/api/v1/product/')) return await handleProductRoute(pathname, method, req, res);
-    if (pathname === '/api/v1/incidents' || pathname.startsWith('/api/v1/incidents/')) {
-      return await handleIncidentRoute(pathname, method, req, res);
-    }
 
     // API health check
     if (pathname === '/api/v1/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true, version: '1.0.0', timestamp: new Date().toISOString() }));
+      res.end(JSON.stringify(buildHealthPayload(workspace)));
       return true;
     }
 
