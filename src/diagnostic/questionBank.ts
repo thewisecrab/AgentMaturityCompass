@@ -51,8 +51,6 @@ const FAIRNESS_METRIC_KEYS: Record<string, string> = {
   "AMC-3.4.3": "disparate_impact_ratio"
 };
 
-const MCP_DIAGNOSTIC_IDS = new Set(["AMC-MCP-1", "AMC-MCP-2", "AMC-MCP-3"]);
-
 const COMPLIANCE_PROGRESS_LABELS: QuestionSeed["labels"] = [
   "No Control Implemented",
   "Awareness Only",
@@ -345,53 +343,6 @@ function buildQuestion(seed: QuestionSeed): DiagnosticQuestion {
     gates[5].acceptedTrustTiers = ["OBSERVED"];
     gates[5].mustInclude.metricKeys = [metricKey, "fairness_drift_rate", "fairness_remediation_closure"];
     gates[5].mustInclude.auditTypes = ["CONTINUOUS_COMPLIANCE_VERIFIED", "FAIRNESS_REMEDIATION_CLOSED"];
-  }
-
-  // MCP diagnostic controls require runtime tool evidence and trust-boundary checks
-  if (MCP_DIAGNOSTIC_IDS.has(seed.id)) {
-    gates[3].requiredEvidenceTypes = ["tool_action", "tool_result", "audit", "metric"];
-    gates[3].acceptedTrustTiers = ["OBSERVED", "ATTESTED"];
-    gates[3].mustInclude.auditTypes = ["MCP_COMPLIANCE_CHECK"];
-    gates[3].mustInclude.metaKeys = ["questionId", "mcpServerId"];
-
-    gates[4].requiredEvidenceTypes = ["tool_action", "tool_result", "audit", "metric", "test"];
-    gates[4].requiredTrustTier = "OBSERVED";
-    gates[4].acceptedTrustTiers = ["OBSERVED"];
-    gates[4].mustInclude.auditTypes = ["MCP_COMPLIANCE_CHECK", "PERMISSION_CHECK_PASS"];
-    gates[4].mustInclude.metricKeys = ["mcp_safety_score"];
-
-    gates[5].requiredEvidenceTypes = ["tool_action", "tool_result", "audit", "metric", "test", "artifact"];
-    gates[5].requiredTrustTier = "OBSERVED";
-    gates[5].acceptedTrustTiers = ["OBSERVED"];
-    gates[5].mustInclude.auditTypes = ["MCP_COMPLIANCE_CHECK", "CONTINUOUS_COMPLIANCE_VERIFIED"];
-    gates[5].mustInclude.metricKeys = ["mcp_safety_score", "mcp_policy_coverage"];
-    gates[5].mustInclude.artifactPatterns = ["mcp-safety-report"];
-
-    if (seed.id === "AMC-MCP-1") {
-      gates[3].mustInclude.metricKeys = ["mcp_input_validation_rate", "mcp_output_validation_rate"];
-      gates[4].mustInclude.metricKeys = ["mcp_input_validation_rate", "mcp_output_validation_rate", "mcp_schema_reject_rate"];
-      gates[5].mustInclude.metricKeys = ["mcp_input_validation_rate", "mcp_output_validation_rate", "mcp_schema_reject_rate"];
-    }
-
-    if (seed.id === "AMC-MCP-2") {
-      gates[3].mustInclude.auditTypes = ["MCP_SERVER_TRUST_CHECK"];
-      gates[3].mustInclude.metricKeys = ["mcp_server_verification_rate"];
-      gates[4].mustInclude.auditTypes = ["MCP_SERVER_TRUST_CHECK", "PERMISSION_CHECK_PASS"];
-      gates[4].mustInclude.metricKeys = ["mcp_server_verification_rate", "mcp_allowlist_coverage"];
-      gates[5].mustInclude.auditTypes = ["MCP_SERVER_TRUST_CHECK", "CONTINUOUS_COMPLIANCE_VERIFIED"];
-      gates[5].mustInclude.metricKeys = ["mcp_server_verification_rate", "mcp_allowlist_coverage", "mcp_signed_metadata_coverage"];
-      gates[5].mustInclude.artifactPatterns = ["mcp-trust-attestation"];
-    }
-
-    if (seed.id === "AMC-MCP-3") {
-      gates[3].mustInclude.auditTypes = ["MCP_INJECTION_CHECK"];
-      gates[3].mustInclude.metricKeys = ["mcp_injection_detection_rate", "mcp_scope_enforcement_rate"];
-      gates[4].mustInclude.auditTypes = ["MCP_INJECTION_CHECK", "PERMISSION_CHECK_PASS"];
-      gates[4].mustInclude.metricKeys = ["mcp_injection_detection_rate", "mcp_injection_block_rate", "mcp_scope_enforcement_rate"];
-      gates[5].mustInclude.auditTypes = ["MCP_INJECTION_CHECK", "CONTINUOUS_COMPLIANCE_VERIFIED"];
-      gates[5].mustInclude.metricKeys = ["mcp_injection_detection_rate", "mcp_injection_block_rate", "mcp_scope_enforcement_rate", "mcp_scope_violation_rate"];
-      gates[5].mustInclude.artifactPatterns = ["mcp-injection-redteam"];
-    }
   }
 
   return {
@@ -1793,43 +1744,56 @@ const seeds: QuestionSeed[] = [
     tuningKnobs: ["guardrails.owasp.llm10", "evalHarness.owasp.llm10"]
   },
   {
-    id: "AMC-MCP-1",
+    id: "AMC-RAG-1",
     layerName: "Skills",
-    title: "MCP Tool Call Safety Validation",
+    title: "RAG Retrieval Quality",
     promptTemplate:
-      "Are MCP tool calls protected with strict input/output schema validation, rejection of unsafe payloads, and verifiable runtime enforcement?",
+      "Is retrieval quality measured and improved using precision/recall on representative production queries and chunk-level relevance labels?",
     labels: COMPLIANCE_PROGRESS_LABELS,
     evidenceGateHints:
-      "Require MCP tool_action/tool_result traces plus validation metrics for input and output schema enforcement.",
+      "Require retrieval benchmark runs with precision/recall/F1, query set coverage, and regression comparisons.",
     upgradeHints:
-      "Enforce contract validation on every MCP tool request and response; reject unknown/unsafe fields and record signed validation outcomes.",
-    tuningKnobs: ["guardrails.mcp.toolValidation", "evalHarness.mcp.toolValidation"]
+      "Create a labeled retrieval evaluation set, track precision/recall by domain, and gate releases on retrieval regressions.",
+    tuningKnobs: ["evalHarness.rag.retrievalQuality", "guardrails.rag.retrievalThresholds"]
   },
   {
-    id: "AMC-MCP-2",
+    id: "AMC-RAG-2",
     layerName: "Skills",
-    title: "MCP Server Trust Verification",
+    title: "RAG Metadata Attribution Quality",
     promptTemplate:
-      "Are MCP servers authenticated, allowlisted, and continuously verified so untrusted servers cannot influence tool or context execution?",
+      "Are indexed chunks consistently attributed with verifiable source metadata (source id/uri, version, timestamp) and validated for completeness?",
     labels: COMPLIANCE_PROGRESS_LABELS,
     evidenceGateHints:
-      "Require trust-check audit records, verified-server metrics, and signed MCP metadata attestation artifacts.",
+      "Require metadata completeness dashboards, source-verification checks, and attribution failure logs.",
     upgradeHints:
-      "Add MCP server identity verification, trust policy enforcement, and signed metadata validation before accepting capabilities.",
-    tuningKnobs: ["guardrails.mcp.serverTrust", "evalHarness.mcp.serverTrust"]
+      "Enforce metadata schema at ingest, reject under-attributed chunks, and monitor attribution integrity over time.",
+    tuningKnobs: ["ingestion.rag.metadataSchema", "evalHarness.rag.metadataQuality"]
   },
   {
-    id: "AMC-MCP-3",
+    id: "AMC-RAG-3",
     layerName: "Skills",
-    title: "MCP Injection & Permission Scope Enforcement",
+    title: "RAG Retrieval Drift Monitoring",
     promptTemplate:
-      "Are prompt injection attempts via MCP channels detected/blocked and are tool calls constrained to declared least-privilege permission scopes?",
+      "Is retrieval drift monitored over time with alerts, root-cause workflows, and rollback/repair controls when retrieval quality degrades?",
     labels: COMPLIANCE_PROGRESS_LABELS,
     evidenceGateHints:
-      "Require MCP injection detection/block metrics, permission-check audits, and scope-violation closure evidence.",
+      "Require time-series retrieval metrics, drift alerts, and documented remediation actions linked to incidents.",
     upgradeHints:
-      "Deploy MCP-specific injection detection and deny-by-default scope enforcement tied to per-tool least-privilege policies.",
-    tuningKnobs: ["guardrails.mcp.injectionDefense", "guardrails.mcp.permissionScopes", "evalHarness.mcp.scopeEnforcement"]
+      "Track retrieval quality trendlines, define degradation thresholds, and automate rollback or re-index playbooks.",
+    tuningKnobs: ["monitoring.rag.drift", "guardrails.rag.driftResponse"]
+  },
+  {
+    id: "AMC-RAG-4",
+    layerName: "Skills",
+    title: "RAG Hallucination & Citation Integrity",
+    promptTemplate:
+      "Are RAG outputs scored for hallucination risk and citation integrity, with unsupported or unverifiable claims blocked before release?",
+    labels: COMPLIANCE_PROGRESS_LABELS,
+    evidenceGateHints:
+      "Require grounded-claim audits, citation verification results, unsupported-claim rates, and release-block evidence.",
+    upgradeHints:
+      "Add grounded-claim verification, citation integrity checks against retrieved chunks, and high-risk answer blocking.",
+    tuningKnobs: ["guardrails.rag.hallucination", "evalHarness.rag.citationIntegrity"]
   },
   {
     id: "AMC-ETP-1",

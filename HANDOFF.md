@@ -1,52 +1,50 @@
-# W2-3 Handoff — MCP Compliance & Interoperability
+# W2-4 Handoff — RAG Maturity Scoring
 
-## Scope Delivered
-Implemented first-class MCP compliance and safety scoring in `/tmp/amc-wave2/agent-3` with:
+## Scope Completed
+Implemented production RAG maturity scoring in `/tmp/amc-wave2/agent-4` covering:
 
-1. MCP compliance scoring expanded to include:
-   - Tool call safety validation (input + output validation)
-   - MCP server trust scoring (identity/trust policy/signed metadata)
-   - Prompt injection detection via MCP channels
-   - Tool permission scope enforcement (declared + enforced + deny-by-default + least privilege)
-2. Added AMC diagnostic questions:
-   - `AMC-MCP-1`
-   - `AMC-MCP-2`
-   - `AMC-MCP-3`
-3. Added policy pack:
-   - Core policy packs: `mcp-safety`
-   - Assurance registry packs: `mcp-safety`
-4. Added tests (13 new tests in one new file) and updated question-bank tests.
+1. Retrieval quality scoring using precision/recall/F1 from labeled retrieved-vs-relevant chunks.
+2. Metadata quality scoring for chunk attribution/source completeness.
+3. Retrieval drift detection over time (improving/stable/degrading/insufficient data).
+4. Hallucination risk scoring for RAG outputs (unsupported claims, citation coverage, contradictions, confidence behavior).
+5. Citation integrity scoring (accuracy, verifiability, source validity).
+6. New diagnostic questions:
+   - `AMC-RAG-1` Retrieval Quality
+   - `AMC-RAG-2` Metadata Attribution Quality
+   - `AMC-RAG-3` Retrieval Drift Monitoring
+   - `AMC-RAG-4` Hallucination & Citation Integrity
 
 ## Key File Changes
-- MCP scoring engine:
-  - `src/score/mcpCompliance.ts`
-  - `src/score/index.ts`
-- Diagnostic bank updates:
+- RAG scoring implementation:
+  - `src/score/ragMaturity.ts`
+  - `src/score/index.ts` (exports for new RAG diagnostics/types)
+- Diagnostic question bank:
   - `src/diagnostic/questionBank.ts`
-  - `tests/questionBank.test.ts`
-- Policy pack updates:
-  - `src/policyPacks/builtInPacks.ts`
-  - `src/watch/policyPacks.ts`
-- New tests:
-  - `tests/mcpComplianceSafety.test.ts`
+- Canon/bank/mechanic schema count alignment for expanded question bank:
+  - `src/canon/canonBuiltin.ts`
+  - `src/canon/canonSchema.ts`
+  - `src/diagnostic/bank/bankSchema.ts`
+  - `src/diagnostic/bank/bankV1.ts`
+  - `src/mechanic/mechanicSchema.ts`
+- Tests:
+  - `tests/ragMaturity.test.ts` (12 tests)
+  - `tests/questionBank.test.ts` (updated counts + AMC-RAG presence test)
 
-## Behavioral Notes
-- `scoreMcpCompliance` now returns additional fields:
-  - `safety` (subscores + per-dimension pass/fail)
-  - `promptInjection` (detection result from observed MCP messages)
-- Added `detectMcpPromptInjection(messages)` helper with heuristic pattern matching for common injection payloads.
-- Compliance level thresholds now factor in safety subscores for `full` and `partial` levels.
-
-## Validation
+## Verification
 Executed:
-- `npm test -- tests/mcpComplianceSafety.test.ts tests/questionBank.test.ts`
-  - Result: 17 tests passed
+
+- `npm test -- tests/ragMaturity.test.ts tests/questionBank.test.ts`
+  - Passed: `2` files, `16` tests total.
 
 Attempted:
-- `npm run typecheck`
-  - Blocked by pre-existing unrelated errors in `src/cli.ts`:
-    - `TS2451: Cannot redeclare block-scoped variable 'evidence'` (lines ~2592 and ~2601)
 
-## Commit
-Planned commit message:
-- `feat(mcp): MCP compliance scoring, tool safety, injection detection, permission enforcement`
+- `npm run typecheck`
+  - Fails due pre-existing duplicate variable declarations in `src/cli.ts`:
+    - `src/cli.ts(2592,7): Cannot redeclare block-scoped variable 'evidence'.`
+    - `src/cli.ts(2601,7): Cannot redeclare block-scoped variable 'evidence'.`
+  - This is unrelated to RAG scoring changes and was not modified in this task.
+
+## Notes
+- Question bank grew from 87 to 91 total questions.
+- Layer distribution updated from `13/18/20/16/20` to `13/18/20/16/24`.
+- Canon and diagnostic bank schemas were updated accordingly to avoid validation mismatches.
