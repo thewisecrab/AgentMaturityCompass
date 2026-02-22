@@ -144,6 +144,34 @@ function json(res: ServerResponse, status: number, payload: unknown): void {
   res.end(JSON.stringify(payload));
 }
 
+function extractClientIp(req: IncomingMessage): string {
+  const remote = req.socket.remoteAddress ?? "127.0.0.1";
+  if (remote.startsWith("::ffff:")) {
+    return remote.slice("::ffff:".length);
+  }
+  return remote;
+}
+
+function makeRateLimiter(limit: number, intervalMs: number): (key: string) => boolean {
+  const buckets = new Map<string, { count: number; resetTs: number }>();
+  return (key: string): boolean => {
+    const now = Date.now();
+    const existing = buckets.get(key);
+    if (!existing || existing.resetTs <= now) {
+      buckets.set(key, {
+        count: 1,
+        resetTs: now + intervalMs
+      });
+      return true;
+    }
+    existing.count += 1;
+    if (existing.count > limit) {
+      return false;
+    }
+    return true;
+  };
+}
+
 function hostSessionCookiePath(): string {
   return "/host";
 }
@@ -567,8 +595,8 @@ async function proxyToWorkspace(
       upstreamRes.pipe(res);
     }
   );
-  upstream.on("error", (error) => {
-    json(res, 502, { error: `workspace proxy failure: ${String(error)}` });
+  upstream.on("error", () => {
+    json(res, 502, { error: "workspace proxy failure" });
   });
   req.pipe(upstream);
 }
@@ -581,6 +609,8 @@ export async function startWorkspaceRouter(options: StartWorkspaceRouterOptions)
   });
   const workspaceApis = new Map<string, WorkspaceApiRuntime>();
   const hostEvents = new HostSseHub();
+  const hostLoginLimiter = makeRateLimiter(20, 60_000);
+  const workspaceLoginLimiter = makeRateLimiter(20, 60_000);
 
   const ensureWorkspaceApi = async (workspaceId: string): Promise<WorkspaceApiRuntime> => {
     const normalized = manager.resolveWorkspaceId(workspaceId);
@@ -621,6 +651,7 @@ export async function startWorkspaceRouter(options: StartWorkspaceRouterOptions)
     try {
       const url = new URL(req.url ?? "/", `http://${options.host}:${options.port}`);
       const pathname = url.pathname;
+      const clientIp = extractClientIp(req);
 
       if (pathname === "/host/healthz") {
         json(res, 200, { ok: true, mode: "host" });
@@ -681,6 +712,10 @@ export async function startWorkspaceRouter(options: StartWorkspaceRouterOptions)
       }
 
       if ((pathname === "/host/api/login" || pathname === "/host/api/auth/login") && req.method === "POST") {
+        if (!hostLoginLimiter(`host-login:${clientIp}`)) {
+          json(res, 429, { error: "too many login attempts" });
+          return;
+        }
         const body = JSON.parse(await readBody(req, options.maxRequestBytes ?? 1_048_576)) as {
           username?: unknown;
           password?: unknown;
@@ -1322,6 +1357,10 @@ export async function startWorkspaceRouter(options: StartWorkspaceRouterOptions)
       }
 
       if ((workspacePath === "/login" || workspacePath === "/api/login" || workspacePath === "/auth/login") && req.method === "POST") {
+        if (!workspaceLoginLimiter(`workspace-login:${urlWorkspaceId}:${clientIp}`)) {
+          json(res, 429, { error: "too many login attempts" });
+          return;
+        }
         const hostAccess = resolveHostAccess(req, options.hostDir);
         let userId = "";
         let username = "";
@@ -1471,7 +1510,16 @@ export async function startWorkspaceRouter(options: StartWorkspaceRouterOptions)
       const runtime = await ensureWorkspaceApi(effectiveWorkspaceId);
       await proxyToWorkspace(req, res, runtime, workspacePath);
     } catch (error) {
-      json(res, 500, { error: String(error) });
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("PAYLOAD_TOO_LARGE")) {
+        json(res, 413, { error: "payload too large" });
+        return;
+      }
+      if (error instanceof SyntaxError) {
+        json(res, 400, { error: "invalid JSON body" });
+        return;
+      }
+      json(res, 500, { error: "internal server error" });
     }
   });
 

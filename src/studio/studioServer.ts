@@ -865,6 +865,17 @@ function normalizeMetricRoute(pathname: string): string {
   return `/${normalized.join("/")}`;
 }
 
+const PUBLIC_API_V1_PATHS = new Set<string>([
+  "/api/v1/health",
+  "/api/v1/chat/completions",
+  "/api/v1/completions",
+  "/api/v1/embeddings"
+]);
+
+function isPublicApiV1Path(pathname: string): boolean {
+  return PUBLIC_API_V1_PATHS.has(pathname);
+}
+
 function backupStatusSummary(workspace: string): {
   lastBackupTs: number | null;
   backupAgeDays: number | null;
@@ -1706,6 +1717,27 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
           json(res, 429, { error: "API rate limit exceeded" });
           return;
         }
+        if (!isPublicApiV1Path(pathname)) {
+          const apiAuth = authenticate(req, options.workspace, options.token);
+          if (!apiAuth) {
+            json(res, 401, { error: "missing or invalid token" });
+            return;
+          }
+          if (!apiAuth.isAdmin && apiAuth.agentId) {
+            json(res, 403, { error: "agent or lease auth cannot access internal /api/v1 routes" });
+            return;
+          }
+          if (
+            !requireRoles({
+              auth: apiAuth,
+              res,
+              workspace: options.workspace,
+              roles: ["VIEWER", "OPERATOR", "APPROVER", "AUDITOR", "OWNER"]
+            })
+          ) {
+            return;
+          }
+        }
         const { handleApiRoute } = await import("../api/index.js");
         const handled = await handleApiRoute(pathname, req.method ?? "GET", req, res, options.workspace, options.token);
         if (handled) return;
@@ -1740,6 +1772,14 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
       }
 
       if (pathname === "/console/snapshot" && req.method === "GET") {
+        const auth = authenticate(req, options.workspace, options.token);
+        if (!auth) {
+          json(res, 401, { error: "missing or invalid token" });
+          return;
+        }
+        if (!requireRoles({ auth, res, workspace: options.workspace, roles: ["VIEWER", "OPERATOR", "APPROVER", "AUDITOR", "OWNER"] })) {
+          return;
+        }
         const snapshot = writeConsoleSnapshot(options.workspace);
         json(res, 200, {
           ...snapshot.payload,
@@ -8381,12 +8421,16 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
 
       json(res, 404, { error: "not found" });
     } catch (error) {
-      const message = String(error);
+      const message = error instanceof Error ? error.message : String(error);
       if (message.includes("PAYLOAD_TOO_LARGE")) {
         json(res, 413, { error: "payload too large" });
         return;
       }
-      json(res, 500, { error: message });
+      if (error instanceof SyntaxError) {
+        json(res, 400, { error: "invalid JSON body" });
+        return;
+      }
+      json(res, 500, { error: "internal server error" });
     }
   });
 
