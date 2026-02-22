@@ -46,6 +46,7 @@ import { behavioralContractViolationPack } from "./behavioralContractViolationPa
 import { overreliancePack } from "./overreliancePack.js";
 import { advancedThreatsPack } from "./advancedThreatsPack.js";
 import { approvalTheaterPack } from "./approvalTheaterPack.js";
+import { operationalDisciplinePack } from "./operational-discipline.js";
 import { toolMisusePack } from "./toolMisusePack.js";
 import { truthfulnessPack } from "./truthfulnessPack.js";
 import { sandboxBoundaryPack } from "./sandboxBoundaryPack.js";
@@ -106,6 +107,7 @@ const assurancePacks: AssurancePackDefinition[] = [
   overreliancePack,
   advancedThreatsPack,
   approvalTheaterPack,
+  operationalDisciplinePack,
   euAiActArticlePack,
   iso42005Pack,
   owaspGenAiPack,
@@ -151,6 +153,7 @@ export {
   overreliancePack,
   advancedThreatsPack,
   approvalTheaterPack,
+  operationalDisciplinePack,
   euAiActArticlePack,
   iso42005Pack,
   owaspGenAiPack,

@@ -2,23 +2,40 @@ import { describe, expect, test } from "vitest";
 import { questionBank } from "../src/diagnostic/questionBank.js";
 
 describe("question bank", () => {
-  test("has exactly 89 questions", () => {
-    expect(questionBank).toHaveLength(89);
+  test("has exactly 97 questions", () => {
+    expect(questionBank).toHaveLength(97);
   });
 
-  test("has expected layer distribution 15/18/20/16/20", () => {
+  test("has expected layer distribution 17/21/20/17/22", () => {
     const counts = questionBank.reduce<Record<string, number>>((acc, q) => {
       acc[q.layerName] = (acc[q.layerName] ?? 0) + 1;
       return acc;
     }, {});
 
     expect(counts).toEqual({
-      "Strategic Agent Operations": 15,
-      "Leadership & Autonomy": 18,
+      "Strategic Agent Operations": 17,
+      "Leadership & Autonomy": 21,
       "Culture & Alignment": 20,
-      Resilience: 16,
-      Skills: 20
+      Resilience: 17,
+      Skills: 22
     });
+  });
+
+  test("includes operational discipline question set", () => {
+    const opDisc = questionBank.filter((question) => question.id.startsWith("AMC-OPDISC-"));
+    expect(opDisc).toHaveLength(8);
+    expect(new Set(opDisc.map((question) => question.id))).toEqual(
+      new Set([
+        "AMC-OPDISC-1",
+        "AMC-OPDISC-2",
+        "AMC-OPDISC-3",
+        "AMC-OPDISC-4",
+        "AMC-OPDISC-5",
+        "AMC-OPDISC-6",
+        "AMC-OPDISC-7",
+        "AMC-OPDISC-8"
+      ])
+    );
   });
 
   test("each question has six options levels 0..5 and six gates", () => {
