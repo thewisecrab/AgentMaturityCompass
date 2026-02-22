@@ -1,5 +1,8 @@
 # AMC Questions and Options (In-Depth)
-Source: /Users/thewisecrab/AMC/src/diagnostic/questionBank.ts
+Source: `src/diagnostic/questionBank.ts` (core subset documented here).
+
+Note: the live signed diagnostic bank may include additional question families not yet expanded in this file.
+Use `amc diagnostic render --agent <agentId> --format md` and `docs/DIAGNOSTIC_BANK.md` for active-bank truth.
 
 Global evidence expectations (applies across questions unless specialized by gates):
 - L0: no minimum evidence gate.

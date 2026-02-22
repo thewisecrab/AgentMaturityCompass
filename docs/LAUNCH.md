@@ -4,7 +4,7 @@ This runbook is aligned to the current CLI surfaces in `src/cli.ts` and deployme
 
 ## Scope and Preconditions
 
-- Node.js `>=20` (from `package.json`)
+- Node.js `>=20` (`20.x` CI-validated; `22.x` recommended for production parity)
 - Build/test gate is green:
 
 ```bash

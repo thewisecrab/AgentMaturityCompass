@@ -46,20 +46,21 @@ For organizations managing multiple workspaces:
 
 ```bash
 # Initialize host mode
-amc host init --host-dir /var/amc-host
+amc host init --dir /var/amc-host
 
-# Bootstrap admin + default workspace
+# Bootstrap host admin + default workspace (reads secret file paths from env)
+export AMC_BOOTSTRAP_HOST_ADMIN_USERNAME_FILE=/secure/admin-user.txt
+export AMC_BOOTSTRAP_HOST_ADMIN_PASSWORD_FILE=/secure/admin-pass.txt
+export AMC_VAULT_PASSPHRASE_FILE=/secure/vault-passphrase.txt
 amc host bootstrap \
-  --host-dir /var/amc-host \
-  --admin-password-file /secure/admin-pass.txt \
-  --owner-password-file /secure/owner-pass.txt
+  --dir /var/amc-host
 
 # Create additional workspaces
-amc host workspace create --host-dir /var/amc-host --name "team-platform"
-amc host workspace create --host-dir /var/amc-host --name "team-ml"
+amc host workspace create --dir /var/amc-host --id team-platform --name "Platform Team"
+amc host workspace create --dir /var/amc-host --id team-ml --name "ML Team"
 
 # Migrate existing single-workspace
-amc host migrate --host-dir /var/amc-host --from /path/to/existing/.amc
+amc host migrate --from /path/to/existing --to-host /var/amc-host --workspace-id legacy
 ```
 
 ## RBAC Setup
@@ -132,14 +133,14 @@ amc scim token create \
   --out /secure/scim-token.txt
 ```
 
-Configure your IdP's SCIM connector to point at `https://amc.example.com/host/api/scim/v2` with the generated token.
+Configure your IdP's SCIM connector to point at `https://amc.example.com/host/scim/v2` with the generated token.
 
 ## Docker Compose (Production)
 
 ```bash
 cd deploy/compose
 cp .env.example .env
-# Edit .env: set AMC_VAULT_KEY, AMC_ADMIN_PASSWORD, TLS settings
+# Edit .env ports/notary/network settings and provide required files in deploy/compose/secrets/
 
 # Standard deployment
 docker compose up -d --build
@@ -155,11 +156,11 @@ docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d --build
 helm install amc deploy/helm/amc \
   --namespace amc \
   --create-namespace \
-  --set studio.replicas=2 \
-  --set gateway.replicas=3 \
-  --set persistence.size=50Gi \
+  --set replicaCount=2 \
+  --set workspace.persistence.size=50Gi \
   --set ingress.enabled=true \
-  --set ingress.host=amc.example.com
+  --set ingress.hosts[0].host=amc.example.com \
+  --set ingress.hosts[0].paths[0].path=/
 
 # Validate
 helm lint deploy/helm/amc
