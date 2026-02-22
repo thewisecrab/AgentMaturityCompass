@@ -6,7 +6,7 @@ describe("question bank", () => {
     expect(questionBank).toHaveLength(111);
   });
 
-  test("has expected layer distribution 17/21/20/20/25", () => {
+  test("has expected layer distribution 17/21/20/20/33", () => {
     const counts = questionBank.reduce<Record<string, number>>((acc, q) => {
       acc[q.layerName] = (acc[q.layerName] ?? 0) + 1;
       return acc;

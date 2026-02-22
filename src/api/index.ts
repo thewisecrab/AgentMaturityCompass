@@ -15,6 +15,7 @@ import { handleAgentTimelineRoute } from './agentTimelineRouter.js';
 import { handleAssuranceRoute } from './assuranceRouter.js';
 import { handleFleetRoute } from './fleetRouter.js';
 import { handlePassportRoute } from './passportRouter.js';
+import { handleIncidentRoute } from './incidentRouter.js';
 import { apiError } from './apiHelpers.js';
 import { buildHealthPayload } from './health.js';
 import { deprecatedBridgeRoute, sdkVersionPolicy } from '../sdk/versioning.js';
@@ -41,6 +42,7 @@ export async function handleApiRoute(
     if (pathname.startsWith('/api/v1/assurance/') || pathname === '/api/v1/assurance') return await handleAssuranceRoute(pathname, method, req, res, workspace);
     if (pathname.startsWith('/api/v1/fleet/'))    return await handleFleetRoute(pathname, method, req, res, workspace);
     if (pathname.startsWith('/api/v1/passport') ) return await handlePassportRoute(pathname, method, req, res, workspace, apiToken);
+    if (pathname.startsWith('/api/v1/incidents/') || pathname === '/api/v1/incidents') return await handleIncidentRoute(pathname, method, req, res);
 
     // Legacy bridge endpoint redirects — 308 permanent redirect with deprecation headers
     const deprecated = deprecatedBridgeRoute(pathname);

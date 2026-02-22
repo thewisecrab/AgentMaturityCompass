@@ -195,7 +195,7 @@ describe("incident API routes", () => {
     expect(out.json.data.incidents[0].state).toBe("RESOLVED");
   });
 
-  test("handleApiRoute returns 404 for incidents when incident router is not registered", async () => {
+  test("handleApiRoute dispatches to incident router when registered", async () => {
     const workspace = newWorkspace();
     process.chdir(workspace);
 
@@ -203,8 +203,7 @@ describe("incident API routes", () => {
     const { res, state } = mockRes();
     const handled = await handleApiRoute("/api/v1/incidents", "GET", req, res);
     expect(handled).toBe(true);
-    expect(state.statusCode).toBe(404);
-    const body = JSON.parse(state.body);
-    expect(body.error).toContain("API route not found");
+    // Incident router is now wired — should return 200 with incidents list
+    expect(state.statusCode).toBe(200);
   });
 });
