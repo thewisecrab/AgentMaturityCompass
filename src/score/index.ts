@@ -26,7 +26,21 @@ export { scoreMcpCompliance, getMcpComplianceGuide } from "./mcpCompliance.js";
 export type { MCPComplianceResult, MCPCapabilityDeclaration } from "./mcpCompliance.js";
 
 export { scoreRAGMaturity } from "./ragMaturity.js";
-export type { RAGMaturityResult, RAGCapabilityProfile } from "./ragMaturity.js";
+export type {
+  RAGMaturityResult,
+  RAGCapabilityProfile,
+  RAGMaturityDiagnostics,
+  RetrievalQualityDiagnostics,
+  MetadataQualityDiagnostics,
+  RetrievalDriftDiagnostics,
+  HallucinationRiskDiagnostics,
+  CitationIntegrityDiagnostics,
+  RAGRetrievalEvaluation,
+  RAGChunkMetadataSample,
+  RAGRetrievalQualitySnapshot,
+  RAGOutputEvaluation,
+  RAGCitationEvaluation,
+} from "./ragMaturity.js";
 
 export { scoreMultiAgentDimension } from "./multiAgentDimension.js";
 export type { MultiAgentDimensionScore, MultiAgentProfile } from "./multiAgentDimension.js";

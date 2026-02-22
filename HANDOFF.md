@@ -1,57 +1,50 @@
-# FIX-10 Handoff — Production Readiness & Integration
+# W2-4 Handoff — RAG Maturity Scoring
 
 ## Scope Completed
-Implemented production-readiness improvements in `/tmp/amc-wave1/agent-10` for:
+Implemented production RAG maturity scoring in `/tmp/amc-wave2/agent-4` covering:
 
-1. Persistent storage for score/session APIs (TypeScript + Python) using SQLite.
-2. Native Slack webhook integration support for incidents/alerts.
-3. Health endpoint payload upgrade: `GET /health -> { status, version, uptime, dbStatus }`.
-4. Graceful shutdown hardening (in-flight request draining + DB close on shutdown).
-5. Basic API endpoint rate limiting in Studio API middleware path.
-6. `amc up` startup UX upgrade to explicitly include Bridge endpoint and one-command control-plane description.
-7. CLI help reorganization with logical namespace grouping (`evidence`, `score`, `incidents`, `audit`, `admin`).
+1. Retrieval quality scoring using precision/recall/F1 from labeled retrieved-vs-relevant chunks.
+2. Metadata quality scoring for chunk attribution/source completeness.
+3. Retrieval drift detection over time (improving/stable/degrading/insufficient data).
+4. Hallucination risk scoring for RAG outputs (unsupported claims, citation coverage, contradictions, confidence behavior).
+5. Citation integrity scoring (accuracy, verifiability, source validity).
+6. New diagnostic questions:
+   - `AMC-RAG-1` Retrieval Quality
+   - `AMC-RAG-2` Metadata Attribution Quality
+   - `AMC-RAG-3` Retrieval Drift Monitoring
+   - `AMC-RAG-4` Hallucination & Citation Integrity
 
 ## Key File Changes
-- TypeScript score/session persistence:
-  - `src/api/scoreStore.ts` (new SQLite store)
-  - `src/api/scoreRouter.ts`
-  - `src/api/index.ts`
-  - `src/api/health.ts` (new)
-- Studio health/rate-limit/shutdown:
-  - `src/studio/studioServer.ts`
-- Integrations (Slack native channel):
-  - `src/integrations/integrationSchema.ts`
-  - `src/integrations/integrationStore.ts`
-  - `src/integrations/integrationDispatcher.ts`
-- CLI UX and namespace grouping:
-  - `src/cli.ts`
-  - `src/cliUx.ts`
-- Python API persistence + health + shutdown:
-  - `platform/python/amc/api/routers/score.py`
-  - `platform/python/amc/api/main.py`
-- Tests added:
-  - `tests/scoreStorePersistence.test.ts`
-  - `tests/integrationSlackWebhook.test.ts`
+- RAG scoring implementation:
+  - `src/score/ragMaturity.ts`
+  - `src/score/index.ts` (exports for new RAG diagnostics/types)
+- Diagnostic question bank:
+  - `src/diagnostic/questionBank.ts`
+- Canon/bank/mechanic schema count alignment for expanded question bank:
+  - `src/canon/canonBuiltin.ts`
+  - `src/canon/canonSchema.ts`
+  - `src/diagnostic/bank/bankSchema.ts`
+  - `src/diagnostic/bank/bankV1.ts`
+  - `src/mechanic/mechanicSchema.ts`
+- Tests:
+  - `tests/ragMaturity.test.ts` (12 tests)
+  - `tests/questionBank.test.ts` (updated counts + AMC-RAG presence test)
 
 ## Verification
-### Typecheck
-- `npm run typecheck` passed.
+Executed:
 
-### Requested test command
-Executed requested command pattern:
-- `npm test -- --reporter=verbose 2>&1 | tail -30`
+- `npm test -- tests/ragMaturity.test.ts tests/questionBank.test.ts`
+  - Passed: `2` files, `16` tests total.
 
-Observed in this sandbox:
-- Command does not complete in allotted runtime and times out before yielding tail output.
-- Local test runs that bind `127.0.0.1` can fail in this environment with `listen EPERM` (sandbox constraint), so full suite completion is environment-limited here.
+Attempted:
 
-## Commit Status
-Requested commit message:
-- `feat(production): persistent storage, health check, graceful shutdown, rate limiting, amc up command`
-
-Could not create commit in this sandbox because git index lock creation is denied for the worktree metadata path:
-- `fatal: Unable to create '.../.git/worktrees/agent-10/index.lock': Operation not permitted`
+- `npm run typecheck`
+  - Fails due pre-existing duplicate variable declarations in `src/cli.ts`:
+    - `src/cli.ts(2592,7): Cannot redeclare block-scoped variable 'evidence'.`
+    - `src/cli.ts(2601,7): Cannot redeclare block-scoped variable 'evidence'.`
+  - This is unrelated to RAG scoring changes and was not modified in this task.
 
 ## Notes
-- No changes were made outside `/tmp/amc-wave1/agent-10`.
-- Slack channel support is native via `type: slack_webhook` with `webhookUrlRef` vault secret.
+- Question bank grew from 87 to 91 total questions.
+- Layer distribution updated from `13/18/20/16/20` to `13/18/20/16/24`.
+- Canon and diagnostic bank schemas were updated accordingly to avoid validation mismatches.

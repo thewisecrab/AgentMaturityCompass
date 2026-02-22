@@ -2,11 +2,11 @@ import { describe, expect, test } from "vitest";
 import { questionBank } from "../src/diagnostic/questionBank.js";
 
 describe("question bank", () => {
-  test("has exactly 87 questions", () => {
-    expect(questionBank).toHaveLength(87);
+  test("has exactly 91 questions", () => {
+    expect(questionBank).toHaveLength(91);
   });
 
-  test("has expected layer distribution 13/18/20/16/20", () => {
+  test("has expected layer distribution 13/18/20/16/24", () => {
     const counts = questionBank.reduce<Record<string, number>>((acc, q) => {
       acc[q.layerName] = (acc[q.layerName] ?? 0) + 1;
       return acc;
@@ -17,7 +17,7 @@ describe("question bank", () => {
       "Leadership & Autonomy": 18,
       "Culture & Alignment": 20,
       Resilience: 16,
-      Skills: 20
+      Skills: 24
     });
   });
 
@@ -44,6 +44,14 @@ describe("question bank", () => {
           expect(gate.requiredTrustTier).toBe("OBSERVED");
         }
       }
+    }
+  });
+
+  test("includes AMC-RAG-1 through AMC-RAG-4 in Skills layer", () => {
+    for (const id of ["AMC-RAG-1", "AMC-RAG-2", "AMC-RAG-3", "AMC-RAG-4"]) {
+      const question = questionBank.find((row) => row.id === id);
+      expect(question).toBeDefined();
+      expect(question?.layerName).toBe("Skills");
     }
   });
 });

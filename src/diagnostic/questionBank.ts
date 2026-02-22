@@ -1744,6 +1744,58 @@ const seeds: QuestionSeed[] = [
     tuningKnobs: ["guardrails.owasp.llm10", "evalHarness.owasp.llm10"]
   },
   {
+    id: "AMC-RAG-1",
+    layerName: "Skills",
+    title: "RAG Retrieval Quality",
+    promptTemplate:
+      "Is retrieval quality measured and improved using precision/recall on representative production queries and chunk-level relevance labels?",
+    labels: COMPLIANCE_PROGRESS_LABELS,
+    evidenceGateHints:
+      "Require retrieval benchmark runs with precision/recall/F1, query set coverage, and regression comparisons.",
+    upgradeHints:
+      "Create a labeled retrieval evaluation set, track precision/recall by domain, and gate releases on retrieval regressions.",
+    tuningKnobs: ["evalHarness.rag.retrievalQuality", "guardrails.rag.retrievalThresholds"]
+  },
+  {
+    id: "AMC-RAG-2",
+    layerName: "Skills",
+    title: "RAG Metadata Attribution Quality",
+    promptTemplate:
+      "Are indexed chunks consistently attributed with verifiable source metadata (source id/uri, version, timestamp) and validated for completeness?",
+    labels: COMPLIANCE_PROGRESS_LABELS,
+    evidenceGateHints:
+      "Require metadata completeness dashboards, source-verification checks, and attribution failure logs.",
+    upgradeHints:
+      "Enforce metadata schema at ingest, reject under-attributed chunks, and monitor attribution integrity over time.",
+    tuningKnobs: ["ingestion.rag.metadataSchema", "evalHarness.rag.metadataQuality"]
+  },
+  {
+    id: "AMC-RAG-3",
+    layerName: "Skills",
+    title: "RAG Retrieval Drift Monitoring",
+    promptTemplate:
+      "Is retrieval drift monitored over time with alerts, root-cause workflows, and rollback/repair controls when retrieval quality degrades?",
+    labels: COMPLIANCE_PROGRESS_LABELS,
+    evidenceGateHints:
+      "Require time-series retrieval metrics, drift alerts, and documented remediation actions linked to incidents.",
+    upgradeHints:
+      "Track retrieval quality trendlines, define degradation thresholds, and automate rollback or re-index playbooks.",
+    tuningKnobs: ["monitoring.rag.drift", "guardrails.rag.driftResponse"]
+  },
+  {
+    id: "AMC-RAG-4",
+    layerName: "Skills",
+    title: "RAG Hallucination & Citation Integrity",
+    promptTemplate:
+      "Are RAG outputs scored for hallucination risk and citation integrity, with unsupported or unverifiable claims blocked before release?",
+    labels: COMPLIANCE_PROGRESS_LABELS,
+    evidenceGateHints:
+      "Require grounded-claim audits, citation verification results, unsupported-claim rates, and release-block evidence.",
+    upgradeHints:
+      "Add grounded-claim verification, citation integrity checks against retrieved chunks, and high-risk answer blocking.",
+    tuningKnobs: ["guardrails.rag.hallucination", "evalHarness.rag.citationIntegrity"]
+  },
+  {
     id: "AMC-ETP-1",
     layerName: "Resilience",
     title: "ETP Self-Knowledge Maturity",
