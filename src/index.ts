@@ -66,12 +66,19 @@ export {
   setTrustInheritanceMode,
   computeInheritedTrust,
   renderTrustInheritanceMarkdown,
+  computeTrustInheritanceGraph,
+  renderTrustInheritanceGraphMarkdown,
 } from "./fleet/trustInheritance.js";
 export type {
   TrustInheritancePolicyMode,
   TrustInheritancePolicy,
   AgentTrustInput,
   InheritedTrustResult,
+  TrustInheritanceGraphNode,
+  TrustInheritanceGraphEdge,
+  TrustInheritanceGraphBound,
+  TrustInheritanceGraphNodeResult,
+  TrustInheritanceGraphResult,
 } from "./fleet/trustInheritance.js";
 
 // Handoff Packets
@@ -189,11 +196,34 @@ export {
   verifyRevocation
 } from "./assurance/certificate.js";
 export {
+  generateTrustCertificate,
+  verifyTrustCertificateEnvelope
+} from "./cert/trustCertificate.js";
+export type {
+  TrustCertificateEvidenceHashChain,
+  TrustCertificatePayload,
+  TrustCertificateEnvelope,
+  GenerateTrustCertificateInput,
+  GeneratedTrustCertificate,
+  TrustCertificateVerificationResult
+} from "./cert/trustCertificate.js";
+export {
   computeFailureRiskIndices,
   renderFailureRiskMarkdown,
   runIndicesForAgent,
   runFleetIndices
 } from "./assurance/indices.js";
+export {
+  startTrustDriftMonitor
+} from "./monitor/trustDriftMonitor.js";
+export type {
+  TrustDriftSeverity,
+  TrustDriftPoint,
+  TrustDriftAlert,
+  TrustDriftMonitorState,
+  StartTrustDriftMonitorInput,
+  TrustDriftMonitorResult
+} from "./monitor/trustDriftMonitor.js";
 
 export {
   loadContextGraph,

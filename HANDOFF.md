@@ -1,50 +1,55 @@
-# W2-4 Handoff — RAG Maturity Scoring
+# W3-8 Handoff — Differentiation Features
 
-## Scope Completed
-Implemented production RAG maturity scoring in `/tmp/amc-wave2/agent-4` covering:
+## Completed Scope
+Implemented the four requested whitespace features in `/tmp/amc-wave3/agent-8`:
 
-1. Retrieval quality scoring using precision/recall/F1 from labeled retrieved-vs-relevant chunks.
-2. Metadata quality scoring for chunk attribution/source completeness.
-3. Retrieval drift detection over time (improving/stable/degrading/insufficient data).
-4. Hallucination risk scoring for RAG outputs (unsupported claims, citation coverage, contradictions, confidence behavior).
-5. Citation integrity scoring (accuracy, verifiability, source validity).
-6. New diagnostic questions:
-   - `AMC-RAG-1` Retrieval Quality
-   - `AMC-RAG-2` Metadata Attribution Quality
-   - `AMC-RAG-3` Retrieval Drift Monitoring
-   - `AMC-RAG-4` Hallucination & Citation Integrity
+1. Execution-proof trust certificates
+- Added signed trust certificate generator with tamper-evident payload hashing.
+- Supports `.json` and `.pdf` outputs (`.pdf` also emits JSON sidecar for machine verification).
+- Includes score, evidence hash chain summary, signing key fingerprint/public key, validity window.
 
-## Key File Changes
-- RAG scoring implementation:
-  - `src/score/ragMaturity.ts`
-  - `src/score/index.ts` (exports for new RAG diagnostics/types)
-- Diagnostic question bank:
-  - `src/diagnostic/questionBank.ts`
-- Canon/bank/mechanic schema count alignment for expanded question bank:
-  - `src/canon/canonBuiltin.ts`
-  - `src/canon/canonSchema.ts`
-  - `src/diagnostic/bank/bankSchema.ts`
-  - `src/diagnostic/bank/bankV1.ts`
-  - `src/mechanic/mechanicSchema.ts`
-- Tests:
-  - `tests/ragMaturity.test.ts` (12 tests)
-  - `tests/questionBank.test.ts` (updated counts + AMC-RAG presence test)
+2. Continuous trust monitoring
+- Added trust drift monitor that tracks run-to-run trust score degradation.
+- Persists monitor state per agent and raises threshold-based alerts on regressions.
 
-## Verification
-Executed:
+3. Multi-agent trust inheritance graph
+- Extended trust inheritance with graph-based computation.
+- Child effective trust is bounded by parent effective trust (supports multi-parent + weighted edges).
+- Includes cycle detection and markdown rendering.
 
-- `npm test -- tests/ragMaturity.test.ts tests/questionBank.test.ts`
-  - Passed: `2` files, `16` tests total.
+4. Regulatory readiness score
+- Added single-number regulatory readiness score.
+- Weighted composite of EU AI Act, ISO 42001-style control coverage, and OWASP LLM coverage.
+- Includes agent-specific evidence modifier from latest run integrity.
 
-Attempted:
+## New CLI Commands
+- `amc cert generate --agent <id> --output cert.pdf`
+- `amc monitor start --agent <id> --alert-threshold 10`
+- `amc score regulatory-readiness --agent <id>`
 
+## Key Files
+- `src/cert/trustCertificate.ts`
+- `src/monitor/trustDriftMonitor.ts`
+- `src/fleet/trustInheritance.ts`
+- `src/score/regulatoryReadiness.ts`
+- `src/cli.ts`
+- `src/index.ts`
+- `src/score/index.ts`
+
+## Tests Added (21)
+- `tests/trustCertificate.test.ts` (5)
+- `tests/trustDriftMonitor.test.ts` (5)
+- `tests/trustInheritanceGraph.test.ts` (6)
+- `tests/regulatoryReadiness.test.ts` (5)
+
+## Verification Run
+Passed:
 - `npm run typecheck`
-  - Fails due pre-existing duplicate variable declarations in `src/cli.ts`:
-    - `src/cli.ts(2592,7): Cannot redeclare block-scoped variable 'evidence'.`
-    - `src/cli.ts(2601,7): Cannot redeclare block-scoped variable 'evidence'.`
-  - This is unrelated to RAG scoring changes and was not modified in this task.
+- `npm test -- tests/trustCertificate.test.ts tests/trustDriftMonitor.test.ts tests/trustInheritanceGraph.test.ts tests/regulatoryReadiness.test.ts`
+
+Attempted full suite:
+- `npm test`
+- Result: fails in this sandbox due many pre-existing/integration tests requiring loopback server bind and longer runtime (frequent `listen EPERM 127.0.0.1` and timeout failures). New feature tests pass.
 
 ## Notes
-- Question bank grew from 87 to 91 total questions.
-- Layer distribution updated from `13/18/20/16/20` to `13/18/20/16/24`.
-- Canon and diagnostic bank schemas were updated accordingly to avoid validation mismatches.
+- Removed duplicate `const evidence` declaration in `src/cli.ts` to restore typecheck.

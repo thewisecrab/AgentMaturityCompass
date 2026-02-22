@@ -95,6 +95,7 @@ import { exportBadge, exportPolicyPack } from "./exports/policyExport.js";
 import { applyAssurancePatchKit, listAssuranceHistory, runAssurance, verifyAssuranceRun } from "./assurance/assuranceRunner.js";
 import { getAssurancePack, listAssurancePacks } from "./assurance/packs/index.js";
 import { issueCertificate, inspectCertificate, revokeCertificate, verifyCertificate, verifyRevocation } from "./assurance/certificate.js";
+import { generateTrustCertificate } from "./cert/trustCertificate.js";
 import { renderFailureRiskMarkdown, runFleetIndices, runIndicesForAgent } from "./assurance/indices.js";
 import {
   assuranceApplyPolicyCli,
@@ -139,6 +140,7 @@ import {
   auditVerifyWorkspaceCli
 } from "./audit/auditCli.js";
 import { auditVibeCode } from "./score/vibeCodeAudit.js";
+import { scoreRegulatoryReadiness } from "./score/regulatoryReadiness.js";
 import { parseWindowToMs } from "./utils/time.js";
 import { buildDashboard } from "./dashboard/build.js";
 import { serveDashboard } from "./dashboard/serve.js";
@@ -176,6 +178,7 @@ import { ensureLeaseRevocationStore, issueLeaseForCli, revokeLeaseForCli, verify
 import { evaluateBudgetStatus, initBudgets, resetBudgetDay, verifyBudgetsConfigSignature } from "./budgets/budgets.js";
 import { driftCheckCli, driftReportCli, freezeLiftCli, freezeStatusCli } from "./drift/driftCli.js";
 import { initAlertsConfig, sendTestAlert, verifyAlertsConfigSignature } from "./drift/alerts.js";
+import { startTrustDriftMonitor } from "./monitor/trustDriftMonitor.js";
 import { generateBom } from "./bom/bomGenerator.js";
 import { signBomFile, verifyBomSignature } from "./bom/bomVerifier.js";
 import { listApprovals, loadApproval } from "./approvals/approvalStore.js";
@@ -2432,12 +2435,52 @@ program
     console.log(chalk.green(`Supervised session sealed: ${sessionId}`));
   });
 
-program
-  .command("monitor")
-  .description("Record stdin stream as evidence")
-  .requiredOption("--runtime <name>", "runtime name")
+const monitor = program.command("monitor").description("Runtime evidence capture and trust drift monitoring");
+
+monitor
+  .command("start")
+  .description("Start continuous trust drift monitoring and alert on trust degradation")
+  .requiredOption("--agent <agentId>", "agent ID")
+  .requiredOption("--alert-threshold <n>", "minimum drop in trust score (0-100) that triggers an alert")
+  .action((opts: { agent: string; alertThreshold: string }) => {
+    const threshold = Number(opts.alertThreshold);
+    if (!Number.isFinite(threshold) || threshold <= 0) {
+      throw new Error("--alert-threshold must be a positive number.");
+    }
+    const result = startTrustDriftMonitor({
+      workspace: process.cwd(),
+      agentId: opts.agent,
+      alertThreshold: threshold
+    });
+    console.log(chalk.green(`Trust drift monitor active for agent ${result.agentId}`));
+    console.log(`Analyzed runs: ${result.analyzedRuns}`);
+    if (result.latestPoint) {
+      console.log(`Latest score: ${result.latestPoint.score0to100.toFixed(2)} (${result.latestPoint.runId})`);
+    } else {
+      console.log("Latest score: N/A (no runs found)");
+    }
+    console.log(`State: ${result.statePath}`);
+    if (result.alerts.length === 0) {
+      console.log(chalk.green("No trust degradation alerts triggered."));
+      return;
+    }
+    console.log(chalk.red(`Alerts triggered: ${result.alerts.length}`));
+    for (const alert of result.alerts) {
+      console.log(
+        `- [${alert.severity}] ${alert.currentRunId} drop=${alert.drop.toFixed(2)} threshold=${alert.threshold.toFixed(2)}`
+      );
+    }
+    process.exit(2);
+  });
+
+// Backward-compatible monitor mode: record runtime stdin as evidence.
+monitor
+  .option("--runtime <name>", "runtime name")
   .option("--stdin", "capture stdin stream", false)
-  .action(async (opts: { runtime: string; stdin: boolean }) => {
+  .action(async (opts: { runtime?: string; stdin?: boolean }) => {
+    if (!opts.runtime) {
+      throw new Error("Legacy monitor mode requires --runtime. For trust drift alerts use `amc monitor start`.");
+    }
     const agentId = activeAgent(program);
     const sessionId = await startMonitor({
       workspace: process.cwd(),
@@ -2599,7 +2642,6 @@ const workorder = program.command("workorder").description("Signed work order op
 const ticket = program.command("ticket").description("Execution ticket operations");
 const gateway = program.command("gateway").description("AMC universal LLM proxy gateway");
 const bundle = program.command("bundle").description("Portable evidence bundle operations");
-const evidence = program.command("evidence").description("Verifier-ready evidence export operations");
 const ci = program.command("ci").description("CI/CD release gate helpers");
 const archetype = program.command("archetype").description("Archetype packs");
 const exportGroup = program.command("export").description("Export policy packs and badges");
@@ -5439,6 +5481,33 @@ program
     });
     console.log(chalk.green(`Certificate issued: ${issued.outFile}`));
     console.log(`certId=${issued.certId}`);
+  });
+
+cert
+  .command("generate")
+  .description("Generate execution-proof trust certificate (signed PDF or JSON)")
+  .requiredOption("--agent <id>", "agent ID")
+  .requiredOption("--output <path>", "output certificate path (.pdf or .json)")
+  .option("--valid-days <n>", "certificate validity period in days", "30")
+  .action((opts: { agent: string; output: string; validDays: string }) => {
+    const validDays = Number(opts.validDays);
+    if (!Number.isFinite(validDays) || validDays <= 0) {
+      throw new Error("--valid-days must be a positive number.");
+    }
+    const generated = generateTrustCertificate({
+      workspace: process.cwd(),
+      agentId: opts.agent,
+      outputPath: opts.output,
+      validityDays: validDays
+    });
+    console.log(chalk.green(`Trust certificate generated: ${generated.outputPath}`));
+    console.log(`format=${generated.format}`);
+    console.log(`certId=${generated.envelope.payload.certificateId}`);
+    console.log(`score=${generated.envelope.payload.score.toFixed(2)}`);
+    console.log(`headHash=${generated.envelope.payload.evidenceHashChain.headHash}`);
+    if (generated.sidecarJsonPath) {
+      console.log(`sidecar=${generated.sidecarJsonPath}`);
+    }
   });
 
 cert
@@ -13343,6 +13412,38 @@ score
       if (result.uncoveredRisks.length) console.log(chalk.yellow("Uncovered:"), result.uncoveredRisks.join(", "));
       else console.log(chalk.green("All 10 OWASP LLM risks covered ✓"));
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+  });
+
+score
+  .command("regulatory-readiness")
+  .description("Compute weighted regulatory readiness score (EU AI Act + ISO + OWASP)")
+  .requiredOption("--agent <id>", "agent ID")
+  .option("--json", "Output as JSON")
+  .action(async (opts: { agent: string; json?: boolean }) => {
+    try {
+      const result = scoreRegulatoryReadiness({
+        workspace: process.cwd(),
+        agentId: opts.agent
+      });
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+        return;
+      }
+      console.log(chalk.bold.hex("#FF6600")("\n🏛️  Regulatory Readiness"));
+      console.log(chalk.gray("Agent:"), result.agentId);
+      console.log(chalk.gray("Score:"), `${result.score}/100`, chalk.gray(`(L${result.level})`));
+      console.log(chalk.gray("Weighted composite:"), result.weightedComposite.toFixed(2));
+      console.log(chalk.gray("Components:"), `EU=${result.components.euAiAct} ISO=${result.components.iso42001} OWASP=${result.components.owaspLLM}`);
+      console.log(chalk.gray("Weights:"), `EU=${result.weights.euAiAct.toFixed(2)} ISO=${result.weights.iso42001.toFixed(2)} OWASP=${result.weights.owaspLLM.toFixed(2)}`);
+      console.log(chalk.gray("Agent evidence modifier:"), result.agentEvidenceModifier.toFixed(2));
+      console.log(chalk.gray("Latest run:"), result.latestRunId ?? "none");
+      if (result.gaps.length > 0) {
+        console.log(chalk.yellow("Top gaps:"), result.gaps.slice(0, 4).join("; "));
+      }
+    } catch (e: any) {
+      console.error(chalk.red(e.message));
+      process.exit(1);
+    }
   });
 
 score
