@@ -2,12 +2,51 @@ import Database from "better-sqlite3";
 import { randomUUID } from "node:crypto";
 import { sha256Hex } from "../utils/hash.js";
 import { canonicalize } from "../utils/json.js";
-import { signHexDigest, verifyHexDigestAny, getPublicKeyHistory } from "../crypto/keys.js";
+import { getPrivateKeyPem, signHexDigest } from "../crypto/keys.js";
 import type { CorrectionEvent, CorrectionStatus } from "./correctionTypes.js";
 
 /**
  * SQLite store for corrections and effectiveness tracking
  */
+
+function tableExists(db: Database.Database, tableName: string): boolean {
+  const row = db
+    .prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1")
+    .get(tableName) as { 1: number } | undefined;
+  return row !== undefined;
+}
+
+function ensureEvidenceCorrectionTables(db: Database.Database): void {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS evidence_corrections (
+      link_id TEXT PRIMARY KEY,
+      evidence_event_id TEXT NOT NULL,
+      correction_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      verified_ts INTEGER,
+      verified_by TEXT,
+      source TEXT NOT NULL,
+      created_ts INTEGER NOT NULL,
+      signature TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_evidence_corrections_event ON evidence_corrections(evidence_event_id, created_ts);
+    CREATE INDEX IF NOT EXISTS idx_evidence_corrections_correction ON evidence_corrections(correction_id, created_ts);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_evidence_corrections_unique ON evidence_corrections(evidence_event_id, correction_id, status);
+
+    CREATE TRIGGER IF NOT EXISTS protect_evidence_corrections_immutable
+    BEFORE UPDATE ON evidence_corrections
+    BEGIN
+      SELECT RAISE(ABORT, 'evidence_corrections are append-only');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS no_delete_evidence_corrections
+    BEFORE DELETE ON evidence_corrections
+    BEGIN
+      SELECT RAISE(ABORT, 'evidence_corrections cannot be deleted');
+    END;
+  `);
+}
 
 export function initCorrectionTables(db: Database.Database): void {
   db.exec(`
@@ -39,10 +78,23 @@ export function initCorrectionTables(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_corrections_trigger ON corrections(trigger_type);
     CREATE INDEX IF NOT EXISTS idx_corrections_created_ts ON corrections(created_ts);
 
+    DROP TRIGGER IF EXISTS protect_corrections_immutable;
     CREATE TRIGGER IF NOT EXISTS protect_corrections_immutable
     BEFORE UPDATE ON corrections
+    WHEN
+      OLD.correction_id != NEW.correction_id OR
+      OLD.agent_id != NEW.agent_id OR
+      OLD.trigger_type != NEW.trigger_type OR
+      OLD.trigger_id != NEW.trigger_id OR
+      COALESCE(OLD.question_ids_json, '') != COALESCE(NEW.question_ids_json, '') OR
+      COALESCE(OLD.correction_description, '') != COALESCE(NEW.correction_description, '') OR
+      COALESCE(OLD.applied_action, '') != COALESCE(NEW.applied_action, '') OR
+      COALESCE(OLD.baseline_run_id, '') != COALESCE(NEW.baseline_run_id, '') OR
+      COALESCE(OLD.baseline_levels_json, '') != COALESCE(NEW.baseline_levels_json, '') OR
+      COALESCE(OLD.prev_correction_hash, '') != COALESCE(NEW.prev_correction_hash, '') OR
+      OLD.created_ts != NEW.created_ts
     BEGIN
-      SELECT RAISE(ABORT, 'corrections are append-only');
+      SELECT RAISE(ABORT, 'corrections immutable fields changed');
     END;
 
     CREATE TRIGGER IF NOT EXISTS no_delete_corrections
@@ -104,7 +156,7 @@ export function insertCorrection(db: Database.Database, correction: CorrectionEv
 }
 
 /**
- * Update a correction with verification results (append-only via insert of updated record)
+ * Update verification fields for a correction while preserving immutable fields.
  */
 export function updateCorrectionVerification(
   db: Database.Database,
@@ -116,68 +168,174 @@ export function updateCorrectionVerification(
   verifiedTs: number,
   verifiedBy: string,
   correctionHash: string,
-  signature: string
+  signature: string,
+  opts?: { workspace?: string }
 ): void {
-  // Get existing correction
-  const existing = db
-    .prepare("SELECT * FROM corrections WHERE correction_id = ?")
-    .get(correctionId) as Record<string, unknown> | undefined;
+  const updatedTs = Date.now();
+  const updated = db
+    .prepare(
+      `UPDATE corrections
+       SET status = ?,
+           verification_run_id = ?,
+           verification_levels_json = ?,
+           effectiveness_score = ?,
+           verified_ts = ?,
+           verified_by = ?,
+           updated_ts = ?,
+           correction_hash = ?,
+           signature = ?
+       WHERE correction_id = ?`
+    )
+    .run(
+      status,
+      verificationRunId,
+      JSON.stringify(verificationLevels),
+      effectivenessScore,
+      verifiedTs,
+      verifiedBy,
+      updatedTs,
+      correctionHash,
+      signature,
+      correctionId
+    );
 
-  if (!existing) {
+  if ((updated.changes ?? 0) <= 0) {
     throw new Error(`Correction not found: ${correctionId}`);
   }
 
-  // Delete the old record (this violates append-only but is necessary for verification updates)
-  // We'll use a workaround: re-insert with the same ID but updated fields
-  db.prepare("DELETE FROM corrections WHERE correction_id = ?").run(correctionId);
-
-  const stmt = db.prepare(`
-    INSERT INTO corrections (
-      correction_id,
-      agent_id,
-      trigger_type,
-      trigger_id,
-      question_ids_json,
-      correction_description,
-      applied_action,
+  if (
+    opts?.workspace &&
+    (status === "VERIFIED_EFFECTIVE" || status === "VERIFIED_INEFFECTIVE")
+  ) {
+    markLinkedEvidenceAsCorrected(db, {
+      correctionId,
       status,
-      baseline_run_id,
-      baseline_levels_json,
-      verification_run_id,
-      verification_levels_json,
-      effectiveness_score,
-      verified_ts,
-      verified_by,
-      created_ts,
-      updated_ts,
-      prev_correction_hash,
-      correction_hash,
-      signature
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+      verifiedTs,
+      verifiedBy,
+      workspace: opts.workspace
+    });
+  }
+}
 
-  stmt.run(
-    correctionId,
-    existing.agent_id,
-    existing.trigger_type,
-    existing.trigger_id,
-    existing.question_ids_json,
-    existing.correction_description,
-    existing.applied_action,
-    status,
-    existing.baseline_run_id,
-    existing.baseline_levels_json,
-    verificationRunId,
-    JSON.stringify(verificationLevels),
-    effectivenessScore,
-    verifiedTs,
-    verifiedBy,
-    existing.created_ts,
-    Date.now(),
-    existing.prev_correction_hash,
-    correctionHash,
-    signature
+function linkedEvidenceIdsForCorrection(db: Database.Database, correction: CorrectionEvent): string[] {
+  const linked = new Set<string>();
+  if (!tableExists(db, "evidence_events")) {
+    return [];
+  }
+
+  const eventExists = db.prepare("SELECT 1 FROM evidence_events WHERE id = ? LIMIT 1");
+  if (eventExists.get(correction.triggerId)) {
+    linked.add(correction.triggerId);
+  }
+
+  if (tableExists(db, "evidence_incident_links")) {
+    const rows = db
+      .prepare("SELECT event_id FROM evidence_incident_links WHERE incident_id = ? ORDER BY created_ts ASC")
+      .all(correction.triggerId) as Array<{ event_id: string }>;
+    for (const row of rows) {
+      if (row.event_id && row.event_id.length > 0) {
+        linked.add(row.event_id);
+      }
+    }
+  }
+
+  if (tableExists(db, "causal_edges")) {
+    const rows = db
+      .prepare("SELECT from_event_id, to_event_id FROM causal_edges WHERE incident_id = ? ORDER BY added_ts ASC")
+      .all(correction.triggerId) as Array<{ from_event_id: string; to_event_id: string }>;
+    for (const row of rows) {
+      if (row.from_event_id && eventExists.get(row.from_event_id)) {
+        linked.add(row.from_event_id);
+      }
+      if (row.to_event_id && eventExists.get(row.to_event_id)) {
+        linked.add(row.to_event_id);
+      }
+    }
+  }
+
+  return [...linked].sort((a, b) => a.localeCompare(b));
+}
+
+export interface MarkLinkedEvidenceResult {
+  correctionId: string;
+  linkedEvidenceIds: string[];
+  markedCount: number;
+}
+
+export function markLinkedEvidenceAsCorrected(
+  db: Database.Database,
+  params: {
+    correctionId: string;
+    status: CorrectionStatus;
+    verifiedTs: number;
+    verifiedBy: string;
+    workspace: string;
+  }
+): MarkLinkedEvidenceResult {
+  if (params.status !== "VERIFIED_EFFECTIVE" && params.status !== "VERIFIED_INEFFECTIVE") {
+    return {
+      correctionId: params.correctionId,
+      linkedEvidenceIds: [],
+      markedCount: 0
+    };
+  }
+
+  const correction = getCorrectionById(db, params.correctionId);
+  if (!correction) {
+    throw new Error(`Correction not found: ${params.correctionId}`);
+  }
+
+  ensureEvidenceCorrectionTables(db);
+  const linkedEvidenceIds = linkedEvidenceIdsForCorrection(db, correction);
+  if (linkedEvidenceIds.length === 0) {
+    return {
+      correctionId: params.correctionId,
+      linkedEvidenceIds,
+      markedCount: 0
+    };
+  }
+
+  const privateKey = getPrivateKeyPem(params.workspace, "monitor");
+  const insert = db.prepare(
+    `INSERT OR IGNORE INTO evidence_corrections
+     (link_id, evidence_event_id, correction_id, status, verified_ts, verified_by, source, created_ts, signature)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   );
+
+  let markedCount = 0;
+  for (const evidenceEventId of linkedEvidenceIds) {
+    const createdTs = Date.now();
+    const linkId = `evcorr_${randomUUID().replace(/-/g, "")}`;
+    const payload = canonicalize({
+      link_id: linkId,
+      evidence_event_id: evidenceEventId,
+      correction_id: params.correctionId,
+      status: params.status,
+      verified_ts: params.verifiedTs,
+      verified_by: params.verifiedBy,
+      source: "CORRECTION_VERIFICATION",
+      created_ts: createdTs
+    });
+    const signature = signHexDigest(sha256Hex(payload), privateKey);
+    const result = insert.run(
+      linkId,
+      evidenceEventId,
+      params.correctionId,
+      params.status,
+      params.verifiedTs,
+      params.verifiedBy,
+      "CORRECTION_VERIFICATION",
+      createdTs,
+      signature
+    );
+    markedCount += Number(result.changes ?? 0);
+  }
+
+  return {
+    correctionId: params.correctionId,
+    linkedEvidenceIds,
+    markedCount
+  };
 }
 
 function rowToCorrection(row: Record<string, unknown>): CorrectionEvent {
