@@ -189,6 +189,30 @@ export function applyGlobalCherryPickDefense(level: number, events: ParsedEviden
 const STRICT_EVIDENCE_BINDING_FALSY = new Set(["0", "false", "off", "no"]);
 const STRICT_EVIDENCE_BINDING_LEVEL = 3;
 
+function eventQuestionId(event: ParsedEvidenceEvent): string | null {
+  if (typeof event.meta.questionId === "string" && event.meta.questionId.trim().length > 0) {
+    return event.meta.questionId.trim();
+  }
+  if (typeof event.meta.question_id === "string" && event.meta.question_id.trim().length > 0) {
+    return event.meta.question_id.trim();
+  }
+  return null;
+}
+
+function buildQuestionEventIndex(events: ParsedEvidenceEvent[]): Map<string, ParsedEvidenceEvent[]> {
+  const byQuestion = new Map<string, ParsedEvidenceEvent[]>();
+  for (const event of events) {
+    const questionId = eventQuestionId(event);
+    if (!questionId) {
+      continue;
+    }
+    const rows = byQuestion.get(questionId) ?? [];
+    rows.push(event);
+    byQuestion.set(questionId, rows);
+  }
+  return byQuestion;
+}
+
 export function isStrictEvidenceBindingEnabled(): boolean {
   const raw = process.env.STRICT_EVIDENCE_BINDING;
   if (raw === undefined) {
@@ -201,11 +225,11 @@ export function selectRelevantEvents(
   questionId: string,
   events: ParsedEvidenceEvent[],
   level: number,
-  warningState?: Set<string>
+  warningState?: Set<string>,
+  eventsByQuestionId?: Map<string, ParsedEvidenceEvent[]>
 ): ParsedEvidenceEvent[] {
-  const tagged = events.filter(
-    (event) => typeof event.meta.questionId === "string" && event.meta.questionId === questionId
-  );
+  const tagged = eventsByQuestionId?.get(questionId)
+    ?? events.filter((event) => eventQuestionId(event) === questionId);
   if (tagged.length > 0) {
     return tagged;
   }
@@ -262,10 +286,13 @@ function summarizeNarrative(questionId: string, supported: number, claimed: numb
 }
 
 function computeLayerScores(questionScores: QuestionScore[]): LayerScore[] {
+  const scoreByQuestionId = new Map<string, QuestionScore>(
+    questionScores.map((score) => [score.questionId, score])
+  );
   const byLayer = new Map<LayerName, QuestionScore[]>();
   for (const question of questionBank) {
     const rows = byLayer.get(question.layerName) ?? [];
-    const score = questionScores.find((item) => item.questionId === question.id);
+    const score = scoreByQuestionId.get(question.id);
     if (score) {
       rows.push(score);
     }
@@ -652,9 +679,10 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
     const unsupportedClaimFindings: AuditFinding[] = [];
     const assuranceMissingQuestions = new Set<string>();
     const relevanceWarnings = new Set<string>();
+    const eventsByQuestionId = buildQuestionEventIndex(events);
 
     for (const question of questionBank) {
-      let relevant = selectRelevantEvents(question.id, events, 0, relevanceWarnings);
+      let relevant = selectRelevantEvents(question.id, events, 0, relevanceWarnings, eventsByQuestionId);
 
       let supportedMaxLevel = 0;
       let matchedIds: string[] = [];
@@ -662,7 +690,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       let gateEvidenceTypes: EvidenceEventType[] = [];
       let missingLlmCapApplied = false;
       for (let level = 5; level >= 0; level -= 1) {
-        const levelRelevant = selectRelevantEvents(question.id, events, level, relevanceWarnings);
+        const levelRelevant = selectRelevantEvents(question.id, events, level, relevanceWarnings, eventsByQuestionId);
         const gate = question.gates[level]!;
         if (level === 5 && gate.requiredTrustTier === undefined) {
           gate.requiredTrustTier = mandatoryTier;

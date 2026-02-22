@@ -55,9 +55,11 @@ function initIncidentTables(db: Database.Database): void {
     );
 
     CREATE INDEX IF NOT EXISTS idx_incidents_agent ON incidents(agent_id);
+    CREATE INDEX IF NOT EXISTS idx_incidents_agent_created_ts ON incidents(agent_id, created_ts DESC);
     CREATE INDEX IF NOT EXISTS idx_incidents_state ON incidents(state);
     CREATE INDEX IF NOT EXISTS idx_incidents_severity ON incidents(severity);
     CREATE INDEX IF NOT EXISTS idx_incident_transitions_incident ON incident_transitions(incident_id);
+    CREATE INDEX IF NOT EXISTS idx_incident_transitions_incident_ts ON incident_transitions(incident_id, ts DESC);
     CREATE INDEX IF NOT EXISTS idx_incident_transitions_ts ON incident_transitions(ts);
     CREATE INDEX IF NOT EXISTS idx_causal_edges_incident ON causal_edges(incident_id);
     CREATE INDEX IF NOT EXISTS idx_causal_edges_from_event ON causal_edges(from_event_id);
@@ -288,6 +290,33 @@ function getIncidentTransitions(db: Database.Database, incidentId: string): Inci
   }));
 }
 
+function getLatestIncidentStates(db: Database.Database, incidentIds: string[]): Map<string, IncidentState> {
+  if (incidentIds.length === 0) {
+    return new Map();
+  }
+  const placeholders = incidentIds.map(() => "?").join(", ");
+  const rows = db
+    .prepare(
+      `SELECT incident_id, to_state, ts
+       FROM incident_transitions
+       WHERE incident_id IN (${placeholders})
+       ORDER BY incident_id ASC, ts DESC`
+    )
+    .all(...incidentIds) as Array<{
+    incident_id: string;
+    to_state: IncidentState;
+    ts: number;
+  }>;
+
+  const latestByIncident = new Map<string, IncidentState>();
+  for (const row of rows) {
+    if (!latestByIncident.has(row.incident_id)) {
+      latestByIncident.set(row.incident_id, row.to_state);
+    }
+  }
+  return latestByIncident;
+}
+
 function getCausalEdges(db: Database.Database, incidentId: string): CausalEdge[] {
   const rows = db
     .prepare("SELECT * FROM causal_edges WHERE incident_id = ? ORDER BY added_ts ASC")
@@ -329,6 +358,7 @@ export interface IncidentStoreInstance {
   getIncidentsByAgent: (agentId: string, state?: IncidentState) => Incident[];
   getOpenIncidents: (agentId: string) => Incident[];
   getIncidentTransitions: (incidentId: string) => IncidentTransition[];
+  getLatestIncidentStates: (incidentIds: string[]) => Map<string, IncidentState>;
   getCausalEdges: (incidentId: string) => CausalEdge[];
   getLastIncidentHash: (agentId: string) => string;
 }
@@ -343,6 +373,7 @@ export function createIncidentStore(db: Database.Database): IncidentStoreInstanc
     getIncidentsByAgent: (agentId: string, state?: IncidentState) => getIncidentsByAgent(db, agentId, state),
     getOpenIncidents: (agentId: string) => getOpenIncidents(db, agentId),
     getIncidentTransitions: (incidentId: string) => getIncidentTransitions(db, incidentId),
+    getLatestIncidentStates: (incidentIds: string[]) => getLatestIncidentStates(db, incidentIds),
     getCausalEdges: (incidentId: string) => getCausalEdges(db, incidentId),
     getLastIncidentHash: (agentId: string) => getLastIncidentHash(db, agentId)
   };
