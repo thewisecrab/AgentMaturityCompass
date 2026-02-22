@@ -140,6 +140,7 @@ import {
 } from "./audit/auditCli.js";
 import { auditVibeCode } from "./score/vibeCodeAudit.js";
 import { parseWindowToMs } from "./utils/time.js";
+import { evalImportCli, evalStatusCli } from "./eval/evalCli.js";
 import { buildDashboard } from "./dashboard/build.js";
 import { serveDashboard } from "./dashboard/serve.js";
 import { assignOwnership, createCommitmentPlan, learnQuestion } from "./eoc/flows.js";
@@ -2590,6 +2591,7 @@ verifyCmd
   });
 
 const target = program.command("target").description("Target profile operations");
+const evalCmd = program.command("eval").description("Eval interop import and coverage status");
 const evidence = program.command("evidence").description("Evidence lifecycle workflows");
 const incidents = program.command("incidents").description("Incident operations and dispatch workflows");
 const policy = program.command("policy").description("Policy-as-code operations");
@@ -2720,6 +2722,69 @@ const transparencyMerkle = transparency.command("merkle").description("Merkle tr
 const policyAction = policy.command("action").description("Signed autonomy action policy");
 const policyApproval = policy.command("approval").description("Signed dual-control approval policy");
 const policyPack = policy.command("pack").description("Policy packs by archetype and risk tier");
+
+evalCmd
+  .command("import")
+  .description("Import eval outputs (LangSmith, DeepEval, Promptfoo, OpenAI Evals, W&B, Langfuse) into signed AMC evidence")
+  .requiredOption("--format <format>", "eval format: openai|langsmith|deepeval|promptfoo|wandb|langfuse")
+  .requiredOption("--file <path>", "path to JSON/JSONL eval export file")
+  .option("--agent <agentId>", "agent ID (defaults to active agent)")
+  .option("--trust-tier <tier>", "override trust tier: OBSERVED|OBSERVED_HARDENED|ATTESTED|SELF_REPORTED")
+  .option("--json", "emit JSON output", false)
+  .action((opts: { format: string; file: string; agent?: string; trustTier?: string; json: boolean }) => {
+    const result = evalImportCli({
+      workspace: process.cwd(),
+      format: opts.format,
+      file: opts.file,
+      agentId: opts.agent,
+      trustTier: opts.trustTier
+    });
+    if (opts.json) {
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+    console.log(`framework: ${result.format}`);
+    console.log(`file: ${result.file}`);
+    console.log(`session: ${result.sessionId}`);
+    console.log(`cases: ${result.caseCount} (pass=${result.passedCount}, fail=${result.failedCount})`);
+    console.log(`question coverage: ${Object.keys(result.questionCoverage).length} mapped question(s)`);
+  });
+
+evalCmd
+  .command("status")
+  .description("Show imported eval coverage per AMC dimension")
+  .option("--agent <agentId>", "agent ID filter")
+  .option("--window <window>", "window filter (e.g., 30d, 12h, 90m)")
+  .option("--json", "emit JSON output", false)
+  .action((opts: { agent?: string; window?: string; json: boolean }) => {
+    const sinceTs = opts.window ? Date.now() - parseWindowToMs(opts.window) : undefined;
+    const status = evalStatusCli({
+      workspace: process.cwd(),
+      agentId: opts.agent,
+      sinceTs
+    });
+    if (opts.json) {
+      console.log(JSON.stringify(status, null, 2));
+      return;
+    }
+    console.log(`overall mapped coverage: ${status.mappedQuestionCount}/${status.totalQuestionCount} (${status.overallCoveragePct.toFixed(2)}%)`);
+    console.log(`imported events: ${status.totalImportedEvents}`);
+    console.log(`imported cases: ${status.totalImportedCases}`);
+    console.log("");
+    console.log("coverage by AMC dimension:");
+    for (const dimension of status.dimensions) {
+      console.log(
+        `- ${dimension.layerName}: ${dimension.coveredQuestions}/${dimension.totalQuestions} (${dimension.coveragePct.toFixed(2)}%)`
+      );
+    }
+    console.log("");
+    console.log("framework summary:");
+    for (const framework of status.frameworks) {
+      console.log(
+        `- ${framework.framework}: events=${framework.importedEvents}, cases=${framework.importedCases}, pass=${framework.passedCases}, fail=${framework.failedCases}, mappedQuestions=${framework.mappedQuestions.length}`
+      );
+    }
+  });
 
 lifecycle
   .command("status")
