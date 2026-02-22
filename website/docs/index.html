@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMC Docs — Agent Maturity Compass</title>
+  <meta name="description" content="Complete documentation for Agent Maturity Compass — installation, CLI, Studio UI, API, troubleshooting.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<div class="topbar">
+  <button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle menu">☰</button>
+  <a href="/docs/" class="topbar-logo"><span>A</span> AMC Docs</a>
+  <div class="topbar-search"><input type="text" placeholder="Search docs… (Ctrl+K)" id="search-input" aria-label="Search documentation"></div>
+  <div class="topbar-links">
+    <a href="/">Home</a>
+    <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub</a>
+    <a href="https://www.npmjs.com/package/agent-maturity-compass" target="_blank">npm</a>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️</button>
+  </div>
+</div>
+
+<nav class="sidebar" id="sidebar"></nav>
+
+<main class="main" id="content"></main>
+
+<script src="docs.js"></script>
+</body>
+</html>
