@@ -11,6 +11,27 @@ function qids(): string[] {
   return [...questionBank].map((q) => q.id).sort((a, b) => a.localeCompare(b));
 }
 
+function qidDimension(qid: string): 1 | 2 | 3 | 4 | 5 {
+  if (qid.startsWith("AMC-1.")) return 1;
+  if (qid.startsWith("AMC-COST-")) return 1;
+  if (qid.startsWith("AMC-SPORT-")) return 1;
+  if (qid.startsWith("AMC-OPS-")) return 1;
+  if (qid.startsWith("AMC-OINT-")) return 1;
+  if (qid.startsWith("AMC-2.")) return 2;
+  if (qid.startsWith("AMC-HOQ-")) return 2;
+  if (qid.startsWith("AMC-GOV-PROACTIVE-")) return 2;
+  if (qid.startsWith("AMC-BCON-")) return 2;
+  if (qid.startsWith("AMC-EUAI-")) return 2;
+  if (qid.startsWith("AMC-3.")) return 3;
+  if (qid.startsWith("AMC-SOCIAL-")) return 3;
+  if (qid.startsWith("AMC-4.")) return 4;
+  if (qid.startsWith("AMC-MEM-")) return 4;
+  if (qid.startsWith("AMC-RES-")) return 4;
+  if (qid.startsWith("AMC-ETP-")) return 4;
+  if (qid.startsWith("AMC-THR-")) return 4;
+  return 5;
+}
+
 function targetsForProfile(levels: {
   dim1: number;
   dim2: number;
@@ -20,10 +41,11 @@ function targetsForProfile(levels: {
 }): Record<string, number> {
   const out: Record<string, number> = {};
   for (const q of qids()) {
-    if (q.startsWith("AMC-1.")) out[q] = levels.dim1;
-    else if (q.startsWith("AMC-2.")) out[q] = levels.dim2;
-    else if (q.startsWith("AMC-3.")) out[q] = levels.dim3;
-    else if (q.startsWith("AMC-4.")) out[q] = levels.dim4;
+    const dim = qidDimension(q);
+    if (dim === 1) out[q] = levels.dim1;
+    else if (dim === 2) out[q] = levels.dim2;
+    else if (dim === 3) out[q] = levels.dim3;
+    else if (dim === 4) out[q] = levels.dim4;
     else out[q] = levels.dim5;
   }
   return out;

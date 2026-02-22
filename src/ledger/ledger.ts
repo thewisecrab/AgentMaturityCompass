@@ -1087,10 +1087,6 @@ export class Ledger {
     return results;
   }
 
-  appendEvidenceDetailed(input: AppendEvidenceInput): AppendEvidenceResult {
-    return this.appendEvidenceDetailed(input);
-  }
-
   appendEvidence(input: AppendEvidenceInput): string {
     return this.appendEvidenceDetailed(input).id;
   }

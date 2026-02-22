@@ -96,11 +96,11 @@ export const diagnosticBankSchema = z
     }
 
     const expectedCounts: Record<number, number> = {
-      1: 13,
+      1: 15,
       2: 18,
       3: 20,
       4: 16,
-      5: 22
+      5: 20
     };
 
     const actualCounts: Record<number, number> = {

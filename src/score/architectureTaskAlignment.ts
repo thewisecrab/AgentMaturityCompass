@@ -188,7 +188,7 @@ export function scoreArchitectureTaskFit(
   );
 
   const complexityGap = round2(providedComplexity - requiredComplexity);
-  let score = 100 - Math.abs(complexityGap) * 14;
+  let score = 100 - Math.abs(complexityGap) * 10;
   const risk = riskWeight(task.riskTier);
   const validationCoverage = normalizeRate(architecture.validationCoverage);
 
@@ -198,7 +198,7 @@ export function scoreArchitectureTaskFit(
   if (risk >= 3 && validationCoverage < 0.6) {
     score -= 10;
   }
-  if (risk <= 2 && complexityGap > 2) {
+  if (risk <= 2 && complexityGap > 3) {
     score -= 6;
   }
 
@@ -207,7 +207,7 @@ export function scoreArchitectureTaskFit(
   let classification: ArchitectureTaskFitScore["classification"];
   if (complexityGap < -1.25) {
     classification = "under-architected";
-  } else if (complexityGap > 1.5) {
+  } else if (complexityGap > 3.2) {
     classification = "over-architected";
   } else {
     classification = "aligned";
