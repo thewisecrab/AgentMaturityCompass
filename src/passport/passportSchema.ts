@@ -13,6 +13,7 @@ export const passportJsonSchema = z.object({
   v: z.literal(1),
   passportId: z.string().regex(/^pass_[A-Za-z0-9_-]{8,}$/),
   generatedTs: z.number().int(),
+  expiresTs: z.number().int().optional(),
   scope: z.object({
     type: passportScopeTypeSchema,
     idHash: z.string().regex(/^[a-f0-9]{8,64}$/)

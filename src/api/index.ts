@@ -11,6 +11,7 @@ import { handleVaultRoute } from './vaultRouter.js';
 import { handleWatchRoute } from './watchRouter.js';
 import { handleScoreRoute } from './scoreRouter.js';
 import { handleProductRoute } from './productRouter.js';
+import { handlePassportRoute } from "./passportRouter.js";
 import { apiError } from './apiHelpers.js';
 import { buildHealthPayload } from './health.js';
 
@@ -20,6 +21,7 @@ export async function handleApiRoute(
   req: IncomingMessage,
   res: ServerResponse,
   workspace = process.cwd(),
+  apiToken?: string
 ): Promise<boolean> {
   if (!pathname.startsWith('/api/v1/')) return false;
 
@@ -31,6 +33,9 @@ export async function handleApiRoute(
     if (pathname.startsWith('/api/v1/watch/'))   return await handleWatchRoute(pathname, method, req, res);
     if (pathname.startsWith('/api/v1/score/'))   return await handleScoreRoute(pathname, method, req, res, workspace);
     if (pathname.startsWith('/api/v1/product/')) return await handleProductRoute(pathname, method, req, res);
+    if (pathname.startsWith("/api/v1/passport/") || pathname === "/api/v1/passports") {
+      return await handlePassportRoute(pathname, method, req, res, workspace, apiToken);
+    }
 
     // Legacy bridge endpoint redirects — 308 permanent redirect with deprecation headers
     const LEGACY_BRIDGE_REDIRECTS: Record<string, string> = {
