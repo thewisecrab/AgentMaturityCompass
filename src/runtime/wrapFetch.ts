@@ -90,7 +90,10 @@ export function wrapFetch(originalFetch: FetchLike, opts: WrapFetchOptions): Fet
     });
 
     const response = await originalFetch(finalUrl as RequestInfo | URL, nextInit);
-    const requestId = response.headers.get("x-amc-request-id") ?? undefined;
+    const requestId =
+      response.headers.get("x-amc-request-id")
+      ?? response.headers.get("x-amc-bridge-request-id")
+      ?? undefined;
     const receipt = response.headers.get("x-amc-receipt") ?? undefined;
 
     logTrace({

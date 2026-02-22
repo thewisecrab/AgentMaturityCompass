@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { AMCClient, createAMCClientFromEnv } from "../src/sdk/amcClient.js";
+import { AMCSDKError } from "../src/sdk/errors.js";
 import { createOpenAIFetchTransport, instrumentOpenAIClient } from "../src/sdk/integrations/openai.js";
 
 describe("AMCClient SDK ergonomics", () => {
@@ -29,6 +30,46 @@ describe("AMCClient SDK ergonomics", () => {
     } finally {
       process.env.AMC_BRIDGE_URL = prevUrl;
     }
+  });
+
+  test("createAMCClientFromEnv allows explicit overrides", () => {
+    const client = createAMCClientFromEnv({
+      bridgeUrl: "http://override-bridge:1234",
+      token: "override-token"
+    });
+    expect(client.bridgeUrl).toBe("http://override-bridge:1234");
+    expect(client.token).toBe("override-token");
+  });
+
+  test("surfaces actionable network errors", async () => {
+    const client = new AMCClient({
+      bridgeUrl: "http://localhost:3212",
+      fetchImpl: (async () => {
+        throw new TypeError("connect ECONNREFUSED");
+      }) as typeof fetch
+    });
+    await expect(client.openaiChat({ model: "gpt-4o-mini", messages: [] })).rejects.toBeInstanceOf(AMCSDKError);
+    await expect(client.openaiChat({ model: "gpt-4o-mini", messages: [] })).rejects.toMatchObject({
+      code: "NETWORK_ERROR"
+    });
+  });
+
+  test("blocks nested self-scoring payload keys", async () => {
+    const client = new AMCClient({
+      bridgeUrl: "http://localhost:3212",
+      fetchImpl: (async () => new Response(JSON.stringify({ ok: true }), { status: 200 })) as typeof fetch
+    });
+    await expect(
+      client.openaiChat({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: "hello" }],
+        metadata: {
+          maturityScore: 5
+        }
+      })
+    ).rejects.toMatchObject({
+      code: "SELF_SCORING_BLOCKED"
+    });
   });
 });
 

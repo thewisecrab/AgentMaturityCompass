@@ -35,9 +35,25 @@ export const contextGraphSchema = z.object({
 export type ContextGraph = z.infer<typeof contextGraphSchema>;
 
 export function loadContextGraph(workspace = process.cwd(), agentId?: string): ContextGraph {
-  const file = getAgentPaths(workspace, agentId).contextGraph;
-  const raw = JSON.parse(readFileSync(file, "utf8")) as unknown;
-  return contextGraphSchema.parse(raw);
+  const paths = getAgentPaths(workspace, agentId);
+  const file = paths.contextGraph;
+  try {
+    const raw = JSON.parse(readFileSync(file, "utf8")) as unknown;
+    return contextGraphSchema.parse(raw);
+  } catch (error) {
+    if ((error as { code?: string })?.code === "ENOENT") {
+      throw new Error(
+        [
+          `Context graph not found for agent '${paths.agentId}'.`,
+          `Expected file: ${file}`,
+          "Run one of the following first:",
+          "  amc setup --demo",
+          "  amc init"
+        ].join("\n")
+      );
+    }
+    throw error;
+  }
 }
 
 export function validateContextGraph(input: unknown): ContextGraph {

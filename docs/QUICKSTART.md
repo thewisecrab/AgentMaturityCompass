@@ -24,17 +24,24 @@ amc setup --demo
 This creates a `.amc/` workspace with demo agents, sample evidence, and default targets. You'll see:
 
 ```
-✔ Workspace initialized
-✔ Demo agent "demo-agent" created
-✔ Sample evidence ingested
-✔ Gateway config written
-✔ Vault initialized (dev mode)
+AMC setup complete
+Mode: single
+Workspace: <your-path>
+Bootstrap report: <your-path>/.amc/bootstrap/bootstrap_<timestamp>.json
+Console: http://127.0.0.1:3212/console
+Gateway: http://127.0.0.1:3210
 ```
 
 ## 3. Start AMC Studio
 
 ```bash
 amc up
+```
+
+If you are running without a TTY (CI/non-interactive shell), set:
+
+```bash
+export AMC_VAULT_PASSPHRASE='<your-passphrase>'
 ```
 
 Studio starts the full local control plane:
@@ -105,3 +112,5 @@ Confirms ledger integrity, signature chains, policy compliance, and artifact has
 **Node.js version too old** — AMC requires Node.js ≥ 20. Check with `node --version`.
 
 **Vault locked** — Run `amc vault unlock` before operations that need secrets.
+
+**`User force closed the prompt`** — You ran an interactive command in a non-interactive shell. Set `AMC_VAULT_PASSPHRASE` and re-run `amc up`.

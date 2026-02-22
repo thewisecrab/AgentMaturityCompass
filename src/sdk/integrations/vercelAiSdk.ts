@@ -1,4 +1,5 @@
 import type { AMCClient } from "../amcClient.js";
+import { AMCSDKError } from "../errors.js";
 
 type BridgeProvider = "openai" | "anthropic" | "gemini" | "openrouter" | "xai" | "local";
 
@@ -7,7 +8,16 @@ function bodyToObject(body: RequestInit["body"]): Record<string, unknown> {
     return {};
   }
   if (typeof body === "string") {
-    return JSON.parse(body) as Record<string, unknown>;
+    try {
+      return JSON.parse(body) as Record<string, unknown>;
+    } catch (error) {
+      throw new AMCSDKError({
+        code: "INVALID_JSON",
+        message: "createVercelAIFetchBridge expected JSON request body string.",
+        details: "Pass a JSON-serialized object body from your fetch transport.",
+        cause: error
+      });
+    }
   }
   return {};
 }
