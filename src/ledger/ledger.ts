@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import { randomUUID } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import type {
   AMCConfig,
   AssuranceRunRecord,
@@ -25,6 +25,7 @@ import { canonicalize } from "../utils/json.js";
 import { mintReceipt, verifyReceipt, type ReceiptKind } from "../receipts/receipt.js";
 import { loadOpsPolicy } from "../ops/policy.js";
 import { loadBlobMetadata, storeEncryptedBlob } from "../storage/blobs/blobStore.js";
+import { getOrCreateSqlitePool, type SqliteConnectionLease } from "../storage/sqlitePool.js";
 import { createIncidentStore } from "../incidents/incidentStore.js";
 import type { Incident, CausalRelationship } from "../incidents/incidentTypes.js";
 
@@ -92,6 +93,25 @@ function targetsDir(workspace: string): string {
 
 function runsDir(workspace: string): string {
   return join(workspace, ".amc", "runs");
+}
+
+function parsePoolSize(raw: string | undefined, fallback: number): number {
+  if (!raw) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+function ledgerPoolSize(): number {
+  return parsePoolSize(process.env.AMC_LEDGER_SQLITE_POOL_SIZE ?? process.env.AMC_SQLITE_POOL_SIZE, 4);
+}
+
+function ledgerPoolKey(workspace: string): string {
+  return `ledger:${resolve(workspace)}:${ledgerPath(workspace)}`;
 }
 
 interface Migration {
@@ -473,6 +493,17 @@ const migrations: Migration[] = [
         SELECT RAISE(ABORT, 'evidence_corrections cannot be deleted');
       END;
     `
+  },
+  {
+    version: 8,
+    sql: `
+      CREATE INDEX IF NOT EXISTS idx_events_ts ON evidence_events(ts);
+      CREATE INDEX IF NOT EXISTS idx_events_id_ts ON evidence_events(id, ts);
+      CREATE INDEX IF NOT EXISTS idx_runs_ts ON runs(ts);
+      CREATE INDEX IF NOT EXISTS idx_outcome_events_agent_ts_desc ON outcome_events(agent_id, ts DESC);
+      CREATE INDEX IF NOT EXISTS idx_claims_agent_state_created_ts ON claims(agent_id, lifecycle_state, created_ts DESC);
+      CREATE INDEX IF NOT EXISTS idx_claims_state_last_verified_ts ON claims(lifecycle_state, last_verified_ts DESC);
+    `
   }
 ];
 
@@ -637,9 +668,16 @@ const AUTO_INCIDENT_FALLBACK_EVENT_TYPES = new Set<EvidenceEventType>([
   "outcome"
 ]);
 
+const EVIDENCE_EVENT_INSERT_SQL = `
+  INSERT INTO evidence_events
+  (id, ts, session_id, runtime, event_type, payload_path, payload_inline, payload_sha256, meta_json, prev_event_hash, event_hash, writer_sig, canonical_payload_path, canonical_payload_inline, blob_ref, archived, archive_segment_id, archive_manifest_sha256, payload_pruned, payload_pruned_ts)
+  VALUES (@id, @ts, @session_id, @runtime, @event_type, @payload_path, @payload_inline, @payload_sha256, @meta_json, @prev_event_hash, @event_hash, @writer_sig, @canonical_payload_path, @canonical_payload_inline, @blob_ref, @archived, @archive_segment_id, @archive_manifest_sha256, @payload_pruned, @payload_pruned_ts)
+`;
+
 export class Ledger {
   readonly workspace: string;
   readonly db: Database.Database;
+  private readonly dbLease: SqliteConnectionLease;
   private incidentStoreInitialized = false;
 
   constructor(workspace: string) {
@@ -650,15 +688,27 @@ export class Ledger {
     ensureDir(runsDir(workspace));
     ensureSigningKeys(workspace);
 
-    this.db = new Database(ledgerPath(workspace));
-    this.db.pragma("journal_mode = WAL");
-    this.db.pragma("foreign_keys = ON");
-    this.db.pragma("busy_timeout = 5000");
-    runMigrations(this.db);
+    const pool = getOrCreateSqlitePool({
+      key: ledgerPoolKey(workspace),
+      dbPath: ledgerPath(workspace),
+      maxSize: ledgerPoolSize(),
+      configureConnection: (db) => {
+        db.pragma("journal_mode = WAL");
+        db.pragma("foreign_keys = ON");
+        db.pragma("busy_timeout = 5000");
+        db.pragma("synchronous = NORMAL");
+      },
+      initialize: (db) => {
+        runMigrations(db);
+      }
+    });
+
+    this.dbLease = pool.acquire();
+    this.db = this.dbLease.db;
   }
 
   close(): void {
-    this.db.close();
+    this.dbLease.release();
   }
 
   private monitorPrivateKey(): string {
@@ -876,10 +926,17 @@ export class Ledger {
     }
   }
 
-  appendEvidenceDetailed(input: AppendEvidenceInput): AppendEvidenceResult {
-    this.assertTrustedWriter();
-    const id = input.id ?? randomUUID();
-    const ts = input.ts ?? Date.now();
+  private buildEvidenceInsert(params: {
+    input: AppendEvidenceInput;
+    id: string;
+    ts: number;
+    prevHash: string;
+  }): {
+    row: Record<string, unknown>;
+    meta: Record<string, unknown>;
+    result: AppendEvidenceResult;
+  } {
+    const { input, id, ts, prevHash } = params;
     const policy = loadOpsPolicy(this.workspace);
     const payload = input.payload;
     let payloadPath: string | null = null;
@@ -904,11 +961,8 @@ export class Ledger {
       }
     }
 
-    const canonicalPayloadPath = payloadPath;
-    const canonicalPayloadInline = payloadInline;
-
-    const metaJson = JSON.stringify(input.meta ?? {});
-    const prevHash = this.latestEventHash();
+    const meta = input.meta ?? {};
+    const metaJson = JSON.stringify(meta);
     const canonicalMetadata = canonicalMetadataForHash({
       id,
       ts,
@@ -922,13 +976,8 @@ export class Ledger {
     const eventHash = sha256Hex(`${prevHash}${canonicalMetadata}${payloadSha256}`);
     const writerSig = signHexDigest(eventHash, this.monitorPrivateKey());
 
-    this.db
-      .prepare(
-        `INSERT INTO evidence_events
-        (id, ts, session_id, runtime, event_type, payload_path, payload_inline, payload_sha256, meta_json, prev_event_hash, event_hash, writer_sig, canonical_payload_path, canonical_payload_inline, blob_ref, archived, archive_segment_id, archive_manifest_sha256, payload_pruned, payload_pruned_ts)
-        VALUES (@id, @ts, @session_id, @runtime, @event_type, @payload_path, @payload_inline, @payload_sha256, @meta_json, @prev_event_hash, @event_hash, @writer_sig, @canonical_payload_path, @canonical_payload_inline, @blob_ref, @archived, @archive_segment_id, @archive_manifest_sha256, @payload_pruned, @payload_pruned_ts)`
-      )
-      .run({
+    return {
+      row: {
         id,
         ts,
         session_id: input.sessionId,
@@ -941,30 +990,105 @@ export class Ledger {
         prev_event_hash: prevHash,
         event_hash: eventHash,
         writer_sig: writerSig,
-        canonical_payload_path: canonicalPayloadPath,
-        canonical_payload_inline: canonicalPayloadInline,
+        canonical_payload_path: payloadPath,
+        canonical_payload_inline: payloadInline,
         blob_ref: blobRef,
         archived: 0,
         archive_segment_id: null,
         archive_manifest_sha256: null,
         payload_pruned: 0,
         payload_pruned_ts: null
-      });
+      },
+      meta,
+      result: {
+        id,
+        ts,
+        payloadSha256,
+        eventHash,
+        writerSig
+      }
+    };
+  }
 
-    this.autoLinkEvidenceToOpenIncidents({
-      eventId: id,
-      eventType: input.eventType,
-      meta: input.meta ?? {},
-      ts
-    });
-
-    return {
+  appendEvidenceDetailed(input: AppendEvidenceInput): AppendEvidenceResult {
+    this.assertTrustedWriter();
+    const id = input.id ?? randomUUID();
+    const ts = input.ts ?? Date.now();
+    const prepared = this.buildEvidenceInsert({
+      input,
       id,
       ts,
-      payloadSha256: payloadSha256,
-      eventHash,
-      writerSig
-    };
+      prevHash: this.latestEventHash()
+    });
+    this.db.prepare(EVIDENCE_EVENT_INSERT_SQL).run(prepared.row);
+
+    this.autoLinkEvidenceToOpenIncidents({
+      eventId: prepared.result.id,
+      eventType: input.eventType,
+      meta: prepared.meta,
+      ts: prepared.result.ts
+    });
+
+    return prepared.result;
+  }
+
+  appendEvidenceBatch(
+    inputs: AppendEvidenceInput[],
+    options: {
+      autoLink?: boolean;
+    } = {}
+  ): AppendEvidenceResult[] {
+    this.assertTrustedWriter();
+    if (inputs.length === 0) {
+      return [];
+    }
+    const autoLink = options.autoLink ?? true;
+    const results: AppendEvidenceResult[] = [];
+    const autoLinkRows: Array<{
+      eventId: string;
+      eventType: EvidenceEventType;
+      meta: Record<string, unknown>;
+      ts: number;
+    }> = [];
+    const insert = this.db.prepare(EVIDENCE_EVENT_INSERT_SQL);
+    let previousHash = this.latestEventHash();
+
+    const tx = this.db.transaction((rows: AppendEvidenceInput[]) => {
+      for (const input of rows) {
+        const id = input.id ?? randomUUID();
+        const ts = input.ts ?? Date.now();
+        const prepared = this.buildEvidenceInsert({
+          input,
+          id,
+          ts,
+          prevHash: previousHash
+        });
+        insert.run(prepared.row);
+        previousHash = prepared.result.eventHash;
+        results.push(prepared.result);
+        if (autoLink) {
+          autoLinkRows.push({
+            eventId: prepared.result.id,
+            eventType: input.eventType,
+            meta: prepared.meta,
+            ts: prepared.result.ts
+          });
+        }
+      }
+    });
+    tx(inputs);
+
+    if (autoLink) {
+      for (const row of autoLinkRows) {
+        this.autoLinkEvidenceToOpenIncidents(row);
+      }
+    }
+
+    return results;
+  }
+
+  appendEvidenceDetailed(input: AppendEvidenceInput): AppendEvidenceResult {
+    return this.appendEvidenceDetailed(input);
   }
 
   appendEvidence(input: AppendEvidenceInput): string {
