@@ -211,23 +211,25 @@ describe("corrections coverage", () => {
     db.close();
   });
 
-  test("updateCorrectionVerification fails on append-only delete trigger (known broken path)", () => {
+  test("updateCorrectionVerification succeeds with append-only delete trigger present", () => {
     const db = freshDb();
     insertCorrection(db, makeCorrection({ correctionId: "corr-broken", status: "PENDING_VERIFICATION" }));
-    expect(() =>
-      updateCorrectionVerification(
-        db,
-        "corr-broken",
-        "run-2",
-        { "AMC-2.1": 4 },
-        0.8,
-        "VERIFIED_EFFECTIVE",
-        Date.now(),
-        "run-2",
-        "hash-2",
-        "sig-2"
-      )
-    ).toThrow(/corrections cannot be deleted/);
+    updateCorrectionVerification(
+      db,
+      "corr-broken",
+      "run-2",
+      { "AMC-2.1": 4 },
+      0.8,
+      "VERIFIED_EFFECTIVE",
+      Date.now(),
+      "run-2",
+      "hash-2",
+      "sig-2"
+    );
+    const updated = getCorrectionById(db, "corr-broken");
+    expect(updated?.status).toBe("VERIFIED_EFFECTIVE");
+    expect(updated?.verificationRunId).toBe("run-2");
+    expect(updated?.effectivenessScore).toBe(0.8);
     db.close();
   });
 

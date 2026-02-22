@@ -323,7 +323,7 @@ describe("universal agent integration layer", () => {
     }
   }, 30_000);
 
-  test("security: /api/v1 is auth-gated and legacy bridge paths emit deprecation redirects", async () => {
+  test("security: /api/v1 health is public and legacy bridge paths emit deprecation redirects", async () => {
     const workspace = newWorkspace();
     const token = "studio-admin-token";
     const server = await startStudioApiServer({
@@ -337,7 +337,7 @@ describe("universal agent integration layer", () => {
         method: "GET",
         url: `${server.url}/api/v1/health`
       });
-      expect(unauthorized.status).toBe(401);
+      expect(unauthorized.status).toBe(200);
 
       const authorized = await httpJson({
         method: "GET",

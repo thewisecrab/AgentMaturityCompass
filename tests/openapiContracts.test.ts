@@ -11,7 +11,8 @@ describe("full OpenAPI contract", () => {
     const spec = generateFullOpenApiSpec();
 
     expect(spec.openapi).toBe("3.1.0");
-    expect(spec.paths).toHaveProperty("/bridge/health"); // bridge
+    expect(spec.paths).toHaveProperty("/bridge/telemetry"); // bridge
+    expect(spec.paths).toHaveProperty("/bridge/openai/v1/chat/completions"); // bridge
     expect(spec.paths).toHaveProperty("/api/readyz"); // studio
     expect(spec.paths).toHaveProperty("/gateway/{provider}/{path}"); // gateway
   });

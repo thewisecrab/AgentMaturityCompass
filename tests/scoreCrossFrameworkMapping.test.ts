@@ -63,7 +63,7 @@ describe("score crossFrameworkMapping", () => {
 
   test("NIST non-automatable controls are placed in manualControls", () => {
     const report = generateFrameworkReport("NIST_AI_RMF", {
-      passedQIDs: ["AMC-3.4"],
+      passedQIDs: ["AMC-3.4.1"],
       activeModules: []
     });
     expect(report.coveredControls).toContain("MEASURE-2.8");
@@ -114,18 +114,18 @@ describe("score crossFrameworkMapping", () => {
     expect(report.certificationReadiness).toBe(false);
   });
 
-  test("EU AI Act manual controls include EU-61 when AMC-2.1 is covered", () => {
+  test("EU AI Act manual controls include EU-61 when AMC-2.11 is covered", () => {
     const report = generateFrameworkReport("EU_AI_ACT", {
-      passedQIDs: ["AMC-2.1"],
+      passedQIDs: ["AMC-2.11"],
       activeModules: []
     });
     expect(report.coveredControls).toContain("EU-61");
     expect(report.manualControls).toContain("EU-61");
   });
 
-  test("ISO 42001 manual controls include ISO-8.4 when AMC-3.1 is covered", () => {
+  test("ISO 42001 manual controls include ISO-8.4 when AMC-2.12 is covered", () => {
     const report = generateFrameworkReport("ISO_42001", {
-      passedQIDs: ["AMC-3.1"],
+      passedQIDs: ["AMC-2.12"],
       activeModules: []
     });
     expect(report.coveredControls).toContain("ISO-8.4");

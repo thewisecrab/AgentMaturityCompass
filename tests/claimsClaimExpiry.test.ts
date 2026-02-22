@@ -174,7 +174,7 @@ describe("claims claimExpiry", () => {
     db.close();
   });
 
-  test("sweepStaleClaims demotes non-provisional stale claims and records transition", () => {
+  test("sweepStaleClaims appends EXPIRED claim records for non-provisional stale claims", () => {
     const db = freshDb();
     const now = Date.now();
     insertClaim(
@@ -191,14 +191,20 @@ describe("claims claimExpiry", () => {
     expect(result.demoted).toEqual(["claim-demote"]);
     expect(result.errors).toHaveLength(0);
 
-    const updated = getClaimById(db, "claim-demote");
-    expect(updated?.lifecycleState).toBe("PROVISIONAL");
-    expect(updated?.lastVerifiedTs).toBe(now);
+    const original = getClaimById(db, "claim-demote");
+    expect(original?.lifecycleState).toBe("PROMOTED");
+
+    const expiredRows = db
+      .prepare("SELECT claim_id, lifecycle_state, promoted_from_claim_id FROM claims WHERE promoted_from_claim_id = ?")
+      .all("claim-demote") as Array<{ claim_id: string; lifecycle_state: string; promoted_from_claim_id: string | null }>;
+    expect(expiredRows).toHaveLength(1);
+    expect(expiredRows[0]?.lifecycle_state).toBe("EXPIRED");
+    expect(expiredRows[0]?.promoted_from_claim_id).toBe("claim-demote");
 
     const transitions = getClaimTransitions(db, "claim-demote");
     expect(transitions).toHaveLength(1);
-    expect(transitions[0]?.toState).toBe("PROVISIONAL");
-    expect(transitions[0]?.reason).toContain("Auto-demoted");
+    expect(transitions[0]?.toState).toBe("EXPIRED");
+    expect(transitions[0]?.reason).toContain("Auto-expired");
     db.close();
   });
 
@@ -222,7 +228,7 @@ describe("claims claimExpiry", () => {
     db.close();
   });
 
-  test("sweepStaleClaims captures update failures when claims table is immutable", () => {
+  test("sweepStaleClaims is unaffected by immutable update trigger (append-only insert path)", () => {
     const db = freshDb(true);
     const now = Date.now();
     insertClaim(
@@ -236,9 +242,8 @@ describe("claims claimExpiry", () => {
     );
 
     const result = sweepStaleClaims(db, "agent-1", ".", now);
-    expect(result.demoted).toHaveLength(0);
-    expect(result.errors).toHaveLength(1);
-    expect(result.errors[0]).toContain("claims are append-only");
+    expect(result.demoted).toEqual(["claim-immutable"]);
+    expect(result.errors).toHaveLength(0);
     db.close();
   });
 
@@ -290,7 +295,7 @@ describe("claims claimExpiry", () => {
     expect(md).toContain("Reason:");
   });
 
-  test("renderSweepResultMarkdown includes demoted and errors sections", () => {
+  test("renderSweepResultMarkdown includes append-only expired section and errors", () => {
     const md = renderSweepResultMarkdown(
       {
         demoted: ["c1", "c2"],
@@ -301,7 +306,7 @@ describe("claims claimExpiry", () => {
       "agent-1"
     );
     expect(md).toContain("Demoted: 2");
-    expect(md).toContain("## Demoted to PROVISIONAL");
+    expect(md).toContain("## Expired via append-only events");
     expect(md).toContain("## Errors");
   });
 

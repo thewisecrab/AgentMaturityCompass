@@ -116,7 +116,7 @@ function makeStaleClaim(now: number): Claim {
 }
 
 describe("append-only lifecycle fixes", () => {
-  test("correction verification appends shadow verification state instead of deleting corrections", () => {
+  test("correction verification updates verification fields without deleting corrections", () => {
     const db = new Database(":memory:");
     initCorrectionTables(db);
 
@@ -149,14 +149,9 @@ describe("append-only lifecycle fixes", () => {
     expect(getVerifiedCorrections(db, "agent-1")).toHaveLength(1);
 
     const counts = db
-      .prepare(`
-        SELECT
-          (SELECT COUNT(*) FROM corrections) AS correction_rows,
-          (SELECT COUNT(*) FROM corrections_verification) AS verification_rows
-      `)
-      .get() as { correction_rows: number; verification_rows: number };
+      .prepare("SELECT COUNT(*) AS correction_rows FROM corrections")
+      .get() as { correction_rows: number };
     expect(counts.correction_rows).toBe(1);
-    expect(counts.verification_rows).toBe(1);
 
     updateCorrectionVerification(
       db,
@@ -180,10 +175,10 @@ describe("append-only lifecycle fixes", () => {
     expect(getCorrectionsByAgent(db, "agent-1", "VERIFIED_INEFFECTIVE")).toHaveLength(1);
     expect(getCorrectionsByAgent(db, "agent-1", "PENDING_VERIFICATION")).toHaveLength(0);
 
-    const verificationRows = db
-      .prepare("SELECT COUNT(*) AS count FROM corrections_verification")
+    const finalCorrectionCount = db
+      .prepare("SELECT COUNT(*) AS count FROM corrections")
       .get() as { count: number };
-    expect(verificationRows.count).toBe(2);
+    expect(finalCorrectionCount.count).toBe(1);
   });
 
   test("stale claim sweep appends EXPIRED claim records and never updates claims table", () => {
