@@ -43,6 +43,7 @@ import { memoryMaturityPack } from "./memoryMaturityPack.js";
 import { humanOversightQualityPack } from "./humanOversightQualityPack.js";
 import { instructionCompliancePack } from "./instructionCompliancePack.js";
 import { contentProvenancePack } from "./contentProvenancePack.js";
+import { contextLeakagePack } from "./context-leakage.js";
 import { excessiveAgencyPack } from "./excessiveAgencyPack.js";
 import { behavioralContractViolationPack } from "./behavioralContractViolationPack.js";
 import { overreliancePack } from "./overreliancePack.js";
@@ -106,6 +107,7 @@ const assurancePacks: AssurancePackDefinition[] = [
   humanOversightQualityPack,
   instructionCompliancePack,
   contentProvenancePack,
+  contextLeakagePack,
   excessiveAgencyPack,
   behavioralContractViolationPack,
   overreliancePack,
@@ -150,6 +152,7 @@ export {
   humanOversightQualityPack,
   instructionCompliancePack,
   contentProvenancePack,
+  contextLeakagePack,
   excessiveAgencyPack,
   behavioralContractViolationPack,
   overreliancePack,
