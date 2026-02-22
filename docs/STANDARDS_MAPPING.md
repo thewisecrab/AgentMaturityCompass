@@ -17,7 +17,60 @@ AMC is a **superset** of existing AI and software maturity standards. Each major
 | **Microsoft Responsible AI** | Principles-based guidelines | Operational enforcement modules, not just principles |
 | **Google/HF Model Cards** | Single-model documentation | Org-level agent maturity, multi-model environments, operating model coverage |
 
-**Bottom line:** AMC operationalizes these standards into 7 dimensions, 42 scored questions, and executable evidence modules. It is the only framework that combines *assessment*, *evidence*, *improvement*, and *certification* in a single automated system.
+**Bottom line:** AMC operationalizes these standards into 5 dimensions, 87 scored questions, and executable evidence modules. It is the only framework that combines *assessment*, *evidence*, *improvement*, and *certification* in a single automated system.
+
+---
+
+## Compliance Decomposition Update (2026-02-22)
+
+This section supersedes legacy rollup mappings for `AMC-EUAI-1` and `AMC-OWASP-1`.
+
+### EU AI Act: Decomposed Control Mapping
+
+| Legacy Rollup | New AMC QID | Requirement Focus |
+|---|---|---|
+| AMC-EUAI-1 | **AMC-2.6** | FRIA completion and refresh governance |
+| AMC-EUAI-1 | **AMC-2.7** | Serious incident lifecycle and reporting readiness |
+| AMC-EUAI-1 | **AMC-2.8** | Post-market monitoring execution |
+| AMC-EUAI-1 | **AMC-2.9** | Technical documentation lifecycle governance |
+| AMC-EUAI-1 | **AMC-2.10** | Human oversight implementation in runtime operations |
+| AMC-EUAI-1 | **AMC-2.11** | Conformity assessment readiness |
+
+### OWASP LLM Top 10: One Question Per Risk Class
+
+| Legacy Rollup | New AMC QID | OWASP Risk Class |
+|---|---|---|
+| AMC-OWASP-1 | **AMC-5.8** | LLM01 Prompt Injection |
+| AMC-OWASP-1 | **AMC-5.9** | LLM02 Insecure Output Handling |
+| AMC-OWASP-1 | **AMC-5.10** | LLM03 Training Data Poisoning |
+| AMC-OWASP-1 | **AMC-5.11** | LLM04 Model Denial of Service |
+| AMC-OWASP-1 | **AMC-5.12** | LLM05 Supply Chain Vulnerabilities |
+| AMC-OWASP-1 | **AMC-5.13** | LLM06 Sensitive Information Disclosure |
+| AMC-OWASP-1 | **AMC-5.14** | LLM07 Insecure Plugin Design |
+| AMC-OWASP-1 | **AMC-5.15** | LLM08 Excessive Agency |
+| AMC-OWASP-1 | **AMC-5.16** | LLM09 Overreliance |
+| AMC-OWASP-1 | **AMC-5.17** | LLM10 Model Theft |
+
+### ISO/IEC 42005 and 42006 Linkage
+
+| Standard | New AMC QID | Mapping Intent |
+|---|---|---|
+| ISO/IEC 42005:2025 | **AMC-2.12** | Impact assessment scope + stakeholder boundary definition |
+| ISO/IEC 42005:2025 | **AMC-2.13** | Impact severity/likelihood quantification and uncertainty handling |
+| ISO/IEC 42005:2025 | **AMC-2.14** | Harm-to-mitigation traceability and closure evidence |
+| ISO/IEC 42006:2025 | **AMC-2.11** | Certification body readiness and conformity evidence packaging |
+
+### Bias and Fairness Sub-Controls
+
+| Control Family | New AMC QID | Metric Focus |
+|---|---|---|
+| Fairness | **AMC-3.4.1** | Demographic parity |
+| Fairness | **AMC-3.4.2** | Counterfactual fairness |
+| Fairness | **AMC-3.4.3** | Disparate impact |
+
+### Evidence Gate Requirement (All New Controls)
+
+All new controls require L3+ question-scoped compliance evidence and L4/L5 observed-trust evidence with audit, metric, test, and artifact traces.
 
 ---
 
