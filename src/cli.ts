@@ -28,6 +28,8 @@ import {
 import { gatewayStatus, startGateway } from "./gateway/server.js";
 import { sha256Hex } from "./utils/hash.js";
 import { canonicalize } from "./utils/json.js";
+import { getPrivateKeyPem, signHexDigest } from "./crypto/keys.js";
+import { computeIncidentHash, createIncidentStore } from "./incidents/incidentStore.js";
 import {
   addAgentInteractive,
   buildAgentConfig,
@@ -2678,6 +2680,7 @@ const standard = program.command("standard").description("Open Compass Standard 
 const forecast = program.command("forecast").description("Deterministic evidence-gated forecasting and planning");
 const advisory = program.command("advisory").description("Forecast advisories (list/show/ack)");
 const casebook = program.command("casebook").description("Signed casebook operations");
+const incident = program.command("incident").description("Incident tracking and response operations");
 const experiment = program.command("experiment").description("Deterministic baseline vs candidate experiments");
 const release = program.command("release").description("Deterministic release engineering and offline verification");
 const ops = program.command("ops").description("Operational hardening policy controls");
@@ -2803,6 +2806,259 @@ policyPack
     console.log(`targetProfileId=${applied.targetProfileId}`);
     console.log(`transparencyHash=${applied.transparencyHash}`);
     console.log(`auditEventId=${applied.auditEventId}`);
+  });
+
+const CLOSED_INCIDENT_STATES = new Set(["RESOLVED", "POSTMORTEM"]);
+
+function deriveIncidentState(
+  store: ReturnType<typeof createIncidentStore>,
+  incident: { incidentId: string; state: string }
+): string {
+  const transitions = store.getIncidentTransitions(incident.incidentId);
+  if (transitions.length === 0) {
+    return incident.state;
+  }
+  return transitions[transitions.length - 1]!.toState;
+}
+
+function mapCliIncidentSeverity(input: string): "INFO" | "WARN" | "CRITICAL" {
+  const value = input.toLowerCase();
+  if (value === "low") {
+    return "INFO";
+  }
+  if (value === "medium") {
+    return "WARN";
+  }
+  if (value === "high" || value === "critical") {
+    return "CRITICAL";
+  }
+  throw new Error("severity must be low|medium|high|critical");
+}
+
+incident
+  .command("list")
+  .description("List incidents for an agent")
+  .option("--status <status>", "open|closed")
+  .option("--limit <n>", "max incidents to return", "50")
+  .option("--agent <agentId>", "agent ID (overrides global --agent)")
+  .action((opts: { status?: string; limit: string; agent?: string }) => {
+    const status = opts.status ? opts.status.toLowerCase() : undefined;
+    if (status && status !== "open" && status !== "closed") {
+      throw new Error("status must be open|closed");
+    }
+    const limit = Number.parseInt(opts.limit, 10);
+    if (!Number.isFinite(limit) || limit <= 0) {
+      throw new Error("limit must be a positive integer");
+    }
+
+    const agentId = opts.agent ?? activeAgent(program) ?? "default";
+    const ledger = openLedger(process.cwd());
+    try {
+      const store = createIncidentStore(ledger.db);
+      store.initTables();
+      const incidents = store
+        .getIncidentsByAgent(agentId)
+        .map((row) => ({ ...row, state: deriveIncidentState(store, row) }))
+        .filter((row) => {
+          if (!status) {
+            return true;
+          }
+          const isClosed = CLOSED_INCIDENT_STATES.has(row.state);
+          return status === "closed" ? isClosed : !isClosed;
+        })
+        .slice(0, limit);
+
+      if (incidents.length === 0) {
+        console.log(`No incidents found for agent '${agentId}'.`);
+        return;
+      }
+
+      for (const row of incidents) {
+        console.log(`${row.incidentId}  [${row.severity}/${row.state}]  ${row.title}`);
+      }
+    } finally {
+      ledger.close();
+    }
+  });
+
+incident
+  .command("show <id>")
+  .description("Show incident details")
+  .action((id: string) => {
+    const ledger = openLedger(process.cwd());
+    try {
+      const store = createIncidentStore(ledger.db);
+      store.initTables();
+      const found = store.getIncident(id);
+      if (!found) {
+        console.log(chalk.red(`Incident not found: ${id}`));
+        process.exit(1);
+        return;
+      }
+      const transitions = store.getIncidentTransitions(id);
+      const edges = store.getCausalEdges(id);
+      const state = transitions.length > 0 ? transitions[transitions.length - 1]!.toState : found.state;
+      console.log(JSON.stringify({ ...found, state, transitions, causalEdges: edges }, null, 2));
+    } finally {
+      ledger.close();
+    }
+  });
+
+incident
+  .command("create")
+  .description("Create a manual incident")
+  .requiredOption("--title <title>", "incident title")
+  .requiredOption("--severity <severity>", "low|medium|high|critical")
+  .option("--agent <agentId>", "agent ID (overrides global --agent)")
+  .action((opts: { title: string; severity: string; agent?: string }) => {
+    const severity = mapCliIncidentSeverity(opts.severity);
+    const workspace = process.cwd();
+    const agentId = opts.agent ?? activeAgent(program) ?? "default";
+    const now = Date.now();
+
+    const ledger = openLedger(workspace);
+    try {
+      const store = createIncidentStore(ledger.db);
+      store.initTables();
+
+      const incidentId = `incident_${randomUUID().replace(/-/g, "")}`;
+      const incidentBase = {
+        incidentId,
+        agentId,
+        severity,
+        state: "OPEN" as const,
+        title: opts.title,
+        description: opts.title,
+        triggerType: "MANUAL" as const,
+        triggerId: `manual_${incidentId}`,
+        rootCauseClaimIds: [] as string[],
+        affectedQuestionIds: [] as string[],
+        causalEdges: [] as unknown[],
+        timelineEventIds: [] as string[],
+        createdTs: now,
+        updatedTs: now,
+        resolvedTs: null as number | null,
+        postmortemRef: null as string | null,
+        prev_incident_hash: store.getLastIncidentHash(agentId)
+      };
+
+      const incidentHash = computeIncidentHash(incidentBase as any);
+      const signatureDigest = sha256Hex(canonicalize({ ...incidentBase, incident_hash: incidentHash }));
+      const signature = signHexDigest(signatureDigest, getPrivateKeyPem(workspace, "monitor"));
+
+      store.insertIncident({
+        ...incidentBase,
+        incident_hash: incidentHash,
+        signature
+      } as any);
+
+      console.log(chalk.green(`Incident created: ${incidentId}`));
+      console.log(`agent=${agentId}`);
+      console.log(`severity=${opts.severity.toLowerCase()}`);
+    } finally {
+      ledger.close();
+    }
+  });
+
+incident
+  .command("link <incidentId>")
+  .description("Link evidence to an incident")
+  .requiredOption("--evidence <evidenceId>", "evidence event ID")
+  .action((incidentId: string, opts: { evidence: string }) => {
+    const workspace = process.cwd();
+    const ledger = openLedger(workspace);
+    try {
+      const store = createIncidentStore(ledger.db);
+      store.initTables();
+      const found = store.getIncident(incidentId);
+      if (!found) {
+        console.log(chalk.red(`Incident not found: ${incidentId}`));
+        process.exit(1);
+        return;
+      }
+
+      const now = Date.now();
+      const edgeId = `edge_${randomUUID().replace(/-/g, "")}`;
+      const edgeDigest = sha256Hex(
+        canonicalize({
+          edge_id: edgeId,
+          from_event_id: opts.evidence,
+          to_event_id: incidentId,
+          relationship: "CAUSED",
+          confidence: 0.9,
+          evidence: [opts.evidence],
+          added_ts: now,
+          added_by: "OWNER"
+        })
+      );
+      store.insertCausalEdge(incidentId, {
+        edgeId,
+        fromEventId: opts.evidence,
+        toEventId: incidentId,
+        relationship: "CAUSED",
+        confidence: 0.9,
+        evidence: [opts.evidence],
+        addedTs: now,
+        addedBy: "OWNER",
+        signature: signHexDigest(edgeDigest, getPrivateKeyPem(workspace, "monitor"))
+      });
+
+      console.log(chalk.green(`Linked evidence ${opts.evidence} to incident ${incidentId}`));
+    } finally {
+      ledger.close();
+    }
+  });
+
+incident
+  .command("close <id>")
+  .description("Close an incident with a resolution summary")
+  .requiredOption("--resolution <text>", "resolution summary")
+  .action((id: string, opts: { resolution: string }) => {
+    const workspace = process.cwd();
+    const ledger = openLedger(workspace);
+    try {
+      const store = createIncidentStore(ledger.db);
+      store.initTables();
+      const found = store.getIncident(id);
+      if (!found) {
+        console.log(chalk.red(`Incident not found: ${id}`));
+        process.exit(1);
+        return;
+      }
+
+      const currentState = deriveIncidentState(store, found);
+      if (CLOSED_INCIDENT_STATES.has(currentState)) {
+        console.log(chalk.yellow(`Incident already closed (${currentState}): ${id}`));
+        return;
+      }
+
+      const now = Date.now();
+      const transitionId = `itr_${randomUUID().replace(/-/g, "")}`;
+      const transitionDigest = sha256Hex(
+        canonicalize({
+          transition_id: transitionId,
+          incident_id: id,
+          from_state: currentState,
+          to_state: "RESOLVED",
+          reason: opts.resolution,
+          ts: now
+        })
+      );
+
+      store.insertIncidentTransition({
+        transitionId,
+        incidentId: id,
+        fromState: currentState as any,
+        toState: "RESOLVED",
+        reason: opts.resolution,
+        ts: now,
+        signature: signHexDigest(transitionDigest, getPrivateKeyPem(workspace, "monitor"))
+      });
+
+      console.log(chalk.green(`Incident closed: ${id}`));
+    } finally {
+      ledger.close();
+    }
   });
 
 ops
