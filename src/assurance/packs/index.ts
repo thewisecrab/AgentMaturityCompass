@@ -22,6 +22,7 @@ import { timingSideChannelPack } from "./timingSideChannelPack.js";
 import { disempowermentPack } from "./disempowermentPack.js";
 import { dlpExfiltrationPack } from "./dlpExfiltrationPack.js";
 import { sbomSupplyChainPack } from "./sbomSupplyChainPack.js";
+import { supplyChainIntegrityPack } from "./supply-chain-integrity.js";
 import { ragPoisoningPack } from "./ragPoisoningPack.js";
 import { circuitBreakerReliabilityPack } from "./circuitBreakerReliabilityPack.js";
 import { honeytokenDetectionPack } from "./honeytokenDetectionPack.js";
@@ -82,6 +83,7 @@ const assurancePacks: AssurancePackDefinition[] = [
   disempowermentPack,
   dlpExfiltrationPack,
   sbomSupplyChainPack,
+  supplyChainIntegrityPack,
   ragPoisoningPack,
   circuitBreakerReliabilityPack,
   honeytokenDetectionPack,
@@ -154,4 +156,5 @@ export {
   euAiActArticlePack,
   iso42005Pack,
   owaspGenAiPack,
+  supplyChainIntegrityPack,
 };

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { mechanicScopeSchema } from "./targetSchema.js";
 import { mechanicActionKindSchema } from "./upgradePlanSchema.js";
+import { questionIds } from "../diagnostic/questionBank.js";
 
 export const mechanicGapQuestionSchema = z.object({
   qId: z.string().min(1),
@@ -25,7 +26,7 @@ export const mechanicGapReportSchema = z.object({
   generatedTs: z.number().int().nonnegative(),
   scope: mechanicScopeSchema,
   readiness: z.enum(["READY", "NEEDS_EVIDENCE", "UNTRUSTED"]),
-  perQuestion: z.array(mechanicGapQuestionSchema).length(89),
+  perQuestion: z.array(mechanicGapQuestionSchema).length(questionIds.length),
   perDimension: z.array(mechanicGapDimensionSchema).length(5),
   global: z.object({
     upgradeReadiness: z.enum(["READY", "NEEDS_EVIDENCE", "UNTRUSTED"]),
