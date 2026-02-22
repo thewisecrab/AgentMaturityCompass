@@ -32,6 +32,24 @@ export async function handleApiRoute(
     if (pathname.startsWith('/api/v1/score/'))   return await handleScoreRoute(pathname, method, req, res, workspace);
     if (pathname.startsWith('/api/v1/product/')) return await handleProductRoute(pathname, method, req, res);
 
+    // Legacy bridge endpoint redirects — 308 permanent redirect with deprecation headers
+    const LEGACY_BRIDGE_REDIRECTS: Record<string, string> = {
+      '/api/v1/chat/completions': '/bridge/openai/v1/chat/completions',
+      '/api/v1/completions': '/bridge/openai/v1/completions',
+      '/api/v1/embeddings': '/bridge/openai/v1/embeddings',
+    };
+    if (pathname in LEGACY_BRIDGE_REDIRECTS) {
+      const target = LEGACY_BRIDGE_REDIRECTS[pathname];
+      res.writeHead(308, {
+        'Location': target,
+        'Deprecation': 'true',
+        'Warning': '299 - "Deprecated bridge endpoint; use ' + target + ' instead"',
+        'Content-Type': 'application/json',
+      });
+      res.end(JSON.stringify({ error: 'Deprecated endpoint', redirect: target }));
+      return true;
+    }
+
     // API health check
     if (pathname === '/api/v1/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
