@@ -88,9 +88,11 @@ describe("wave4 critical auth paths", () => {
       roles: ["OWNER"]
     });
     const [payloadPart, sigPart] = issued.token.split(".");
-    const last = sigPart!.at(-1);
-    const replacement = last === "A" ? "B" : "A";
-    const tampered = `${payloadPart}.${sigPart!.slice(0, -1)}${replacement}`;
+    // Flip a character in the middle of the signature for a reliable tamper
+    const mid = Math.floor(sigPart!.length / 2);
+    const midChar = sigPart!.charAt(mid);
+    const replacement = midChar === "A" ? "B" : "A";
+    const tampered = `${payloadPart}.${sigPart!.slice(0, mid)}${replacement}${sigPart!.slice(mid + 1)}`;
     const verified = verifySessionToken({ workspace, token: tampered });
 
     expect(verified.ok).toBe(false);
@@ -144,7 +146,10 @@ describe("wave4 critical auth paths", () => {
       isHostAdmin: true
     });
     const [payloadPart, sigPart] = issued.token.split(".");
-    const tampered = `${payloadPart}.${sigPart!.slice(0, -1)}A`;
+    const mid = Math.floor(sigPart!.length / 2);
+    const midChar = sigPart!.charAt(mid);
+    const replacement = midChar === "A" ? "B" : "A";
+    const tampered = `${payloadPart}.${sigPart!.slice(0, mid)}${replacement}${sigPart!.slice(mid + 1)}`;
     const verified = verifyHostSessionToken({ hostDir, token: tampered });
 
     expect(verified.ok).toBe(false);

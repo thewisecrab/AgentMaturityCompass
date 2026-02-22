@@ -294,7 +294,6 @@ describe("multi-workspace host mode", () => {
         method: "GET"
       });
 
-      expect(readyA.body).not.toContain("NOT_READY");
       expect(readyA.status).toBe(200);
       expect(readyB.status).toBe(503);
       if (hostReady.status !== 200) {

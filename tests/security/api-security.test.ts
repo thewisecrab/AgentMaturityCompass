@@ -113,6 +113,9 @@ function buildExpiredSessionToken(params: {
 }
 
 function setupHostWithMemberships(): { hostDir: string; workspaceA: string; workspaceB: string } {
+  if (!process.env.AMC_VAULT_PASSPHRASE) {
+    process.env.AMC_VAULT_PASSPHRASE = "api-security-test-passphrase";
+  }
   const hostDir = mkdtempSync(join(tmpdir(), "amc-host-sec-"));
   roots.push(hostDir);
   initHostDb(hostDir);

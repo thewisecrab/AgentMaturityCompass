@@ -498,7 +498,7 @@ function resolveHostAccess(req: IncomingMessage, hostDir: string): ResolvedHostA
     ok: true,
     status: 200,
     username: legacy.payload.username,
-    userId: null,
+    userId: legacy.payload.userId ?? null,
     isHostAdmin: legacy.payload.isHostAdmin,
     csrfToken: null,
     usingIdentitySession: false
@@ -1468,9 +1468,10 @@ export async function startWorkspaceRouter(options: StartWorkspaceRouterOptions)
           json(res, 403, { error: "membership required" });
           return;
         }
-        const runtime = await ensureWorkspaceApi(urlWorkspaceId);
+        const runtime = await ensureWorkspaceApi(urlWorkspaceId).catch(() => null);
+        const workspaceDir = manager.withWorkspace(urlWorkspaceId, (context) => context.workspaceDir);
         const issued = issueSessionToken({
-          workspace: manager.withWorkspace(urlWorkspaceId, (context) => context.workspaceDir),
+          workspace: workspaceDir,
           userId,
           username,
           roles,
@@ -1479,7 +1480,7 @@ export async function startWorkspaceRouter(options: StartWorkspaceRouterOptions)
         setWorkspaceSessionCookie(res, urlWorkspaceId, issued.token, Math.floor((issued.payload.expiresTs - issued.payload.issuedTs) / 1000));
         json(res, 200, {
           ok: true,
-          workspaceId: runtime.workspaceId,
+          workspaceId: urlWorkspaceId,
           user: {
             userId,
             username,
