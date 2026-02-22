@@ -1,71 +1,83 @@
-# FIX-5 Handoff
+# FIX-6 HANDOFF
 
-## Scope completed
-Implemented API auth/security and bridge routing fixes in `/tmp/amc-wave1/agent-5`.
+## Completed Scope
 
-## What was fixed
+### 1) Unified SDK default bridge URLs to 3212
+- Updated Python SDK default bridge URL to `http://localhost:3212`:
+  - `src/sdk/python/amc_client.py`
+  - `src/sdk/python/amc_middleware.py` examples
+  - `src/sdk/python/test_amc_client.py`
+- Updated Go SDK default bridge URL to `http://localhost:3212`:
+  - `src/sdk/go/amc_client.go`
+  - `src/sdk/go/amc_middleware.go` examples
+  - `src/sdk/go/amc_client_test.go`
+- Updated SDK doc default note:
+  - `docs/SDK.md`
 
-1. `/api/v1/*` auth gap in Studio
-- Moved `/api/v1/*` handling behind auth in `src/studio/studioServer.ts`.
-- Added RBAC enforcement for internal `/api/v1/*` routes (VIEWER/OPERATOR/APPROVER/AUDITOR/OWNER).
-- Added authenticated deprecation redirects (308 + headers) for legacy bridge-style endpoints:
-  - `/api/v1/chat/completions` -> `/bridge/openai/v1/chat/completions`
-  - `/api/v1/evidence` -> `/bridge/evidence`
-  - `/api/v1/lease/verify` -> `/bridge/lease/verify`
+### 2) Fixed Go SDK lease endpoints to live routes
+- Repointed lease calls from non-existent bridge lease paths to live Studio lease routes:
+  - `RequestLease`: `/leases/issue`
+  - `RevokeLease`: `/leases/revoke`
+- Updated lease request payload shaping to match runtime expectations (`ttl` + comma-delimited `scopes`).
+- Added test coverage for both lease routes:
+  - `src/sdk/go/amc_client_test.go`
 
-2. Single live OpenAPI generation command
-- Removed deprecated CLI command `openapi-spec` from `src/cli.ts`.
-- Kept `openapi-generate` as the canonical command.
-- Updated CLI/OpenAPI comments in `src/studio/openapi.ts`.
+### 3) Extended OpenAI SDK instrumentation coverage
+- Added AMC client methods for:
+  - `/bridge/openai/v1/embeddings`
+  - `/bridge/openai/v1/images/generations`
+  - `/bridge/openai/v1/audio/speech`
+  - File: `src/sdk/amcClient.ts`
+- Extended OpenAI instrumentation proxy to route:
+  - `chat.completions.create`
+  - `responses.create`
+  - `embeddings.create`
+  - `images.generate`
+  - `audio.speech.create`
+  - File: `src/sdk/integrations/openai.ts`
+- Extended OpenAI fetch transport routing for embeddings/images/audio paths.
+- Added bridge routing support for those OpenAI paths:
+  - `src/bridge/bridgeModelRouter.ts`
+- Added/updated unit tests:
+  - `tests/amcClientSdk.test.ts`
 
-3. Bridge streaming passthrough
-- Replaced upstream buffering (`response.arrayBuffer()`) with stream-reader passthrough in `src/bridge/bridgeServer.ts`.
-- Added chunked passthrough path for streaming requests (`stream: true` or `Accept: text/event-stream`).
-- Added trailer receipt mode for streamed responses:
-  - `x-amc-receipt-mode: trailer`
-  - trailer `x-amc-receipt-trailer`
-- Kept buffered path for non-stream responses where output-contract enforcement can still block/transform.
+### 4) Fixed onboarding docs commands
+- `docs/INTEGRATIONS.md`
+  - Replaced invalid `amc provider add --name ... --key-from-stdin` with valid `amc provider add --agent ...`
+  - Replaced invalid `amc python-sdk --out ...` with valid `amc python-sdk`
+- `docs/ADAPTERS.md`
+  - Fixed `amc adapters configure` example to include required `--route` and `--model`
+  - Fixed invalid adapter id/flag in `init-project` example (`openai-agents-sdk`, removed unsupported `--out`)
+- `docs/QUICKSTART.md`
+  - Clarified bridge runs under `amc up` (no separate `amc bridge start` command)
 
-4. Bridge endpoint deprecation + live replacements
-- Added live bridge routes in `src/bridge/bridgeServer.ts`:
-  - `GET /bridge/health`
-  - `POST /bridge/evidence`
-  - `POST /bridge/lease/verify`
-- Legacy `/api/v1/*` bridge-style calls now redirect to these `/bridge/*` routes with deprecation headers.
+### 5) Fixed integration scaffolds to live `/bridge/*` endpoints
+- Replaced deprecated scaffold endpoint usage:
+  - `/api/v1/evidence` -> `/bridge/telemetry`
+  - Removed `/api/v1/lease/verify` dependency in scaffold flow
+- Updated scaffold defaults to `http://localhost:3212`
+- Updated generated contract tests and generated OpenAPI spec to live routes:
+  - health: `/healthz`
+  - telemetry: `/bridge/telemetry`
+  - bridge model paths: `/bridge/openai/v1/...`
+- Files:
+  - `src/setup/integrationScaffold.ts`
+  - `tests/integrationScaffold.test.ts`
 
-5. API surface documentation
-- Added `docs/API_SURFACES.md` clarifying:
-  - Internal-only surface: `/api/v1/*` (RBAC-gated Studio control plane)
-  - Public surface: `/bridge/*` (lease-auth integrations)
-  - Legacy deprecation mapping
-- Linked from `docs/STUDIO.md` and `docs/BRIDGE.md`.
-- Updated command reference in `docs/AMC_MASTER_REFERENCE.md`.
+### 6) Updated website onboarding copy accuracy
+- Removed inaccurate “Install in 10 seconds / Zero config” messaging.
+- Updated install section text to reflect setup credentials + vault passphrase requirement.
+- File: `website/index.html`
 
-## OpenAPI + scaffold alignment changes
-- Updated `src/setup/integrationScaffold.ts` so generated snippets, contract tests, and bridge OpenAPI spec use live `/bridge/*` endpoints only.
-- `generateBridgeOpenApiSpec()` now emits live bridge routes (health, evidence, lease verify, telemetry, provider routes).
+## Test Execution
 
-## Tests/validation
+### Requested command
+- Executed: `npm test -- --reporter=verbose 2>&1 | tail -30`
+- Result in this environment: command did not complete within interactive polling windows (tail emits only on full suite exit).
 
-Targeted checks run:
-- `npm run typecheck` -> pass
-- `npm test -- tests/integrationScaffold.test.ts tests/openapiContracts.test.ts --reporter=verbose` -> pass (35 tests)
+### Focused validation run (for changed surface)
+- Executed: `npx vitest run tests/amcClientSdk.test.ts tests/integrationScaffold.test.ts --reporter=verbose 2>&1 | tail -30`
+- Result: **PASS** (`2` files, `34` tests).
 
-Required full-suite command requested by task (captured via capped log run):
-- `npm test -- --reporter=verbose 2>&1 | tail -30`
-- Tail output (last lines) showed multiple environment-related failures/timeouts in this sandbox, including `listen EPERM: operation not permitted 127.0.0.1` and test timeouts in long integration suites.
-
-## Files changed
-- `src/studio/studioServer.ts`
-- `src/bridge/bridgeServer.ts`
-- `src/setup/integrationScaffold.ts`
-- `src/cli.ts`
-- `src/studio/openapi.ts`
-- `docs/API_SURFACES.md` (new)
-- `docs/STUDIO.md`
-- `docs/BRIDGE.md`
-- `docs/AMC_MASTER_REFERENCE.md`
-- `tests/integrationScaffold.test.ts`
-- `tests/openapiContracts.test.ts`
-- `tests/universalAgentIntegrationLayer.test.ts`
-
+## Notes
+- Repository showed an unrelated tracked deletion in `.amc/guard_events.sqlite` during status inspection; this handoff work does not include that file.
