@@ -11,6 +11,7 @@ import { handleVaultRoute } from './vaultRouter.js';
 import { handleWatchRoute } from './watchRouter.js';
 import { handleScoreRoute } from './scoreRouter.js';
 import { handleProductRoute } from './productRouter.js';
+import { handleIncidentRoute } from './incidentRouter.js';
 import { apiError } from './apiHelpers.js';
 
 export async function handleApiRoute(
@@ -30,6 +31,9 @@ export async function handleApiRoute(
     if (pathname.startsWith('/api/v1/watch/'))   return await handleWatchRoute(pathname, method, req, res, { workspace });
     if (pathname.startsWith('/api/v1/score/'))   return await handleScoreRoute(pathname, method, req, res);
     if (pathname.startsWith('/api/v1/product/')) return await handleProductRoute(pathname, method, req, res);
+    if (pathname === '/api/v1/incidents' || pathname.startsWith('/api/v1/incidents/')) {
+      return await handleIncidentRoute(pathname, method, req, res);
+    }
 
     // API health check
     if (pathname === '/api/v1/health') {

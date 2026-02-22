@@ -712,6 +712,34 @@ export type {
   ClaimConfidenceReport
 } from "./claims/claimConfidence.js";
 
+// Incident Management (Store/Model/Graph/Timeline/Auto-Assembly)
+export * as IncidentStore from "./incidents/incidentStore.js";
+export * as IncidentModel from "./incidents/incidentTypes.js";
+export * as IncidentAutoAssembly from "./incidents/autoAssembly.js";
+export { IncidentGraph } from "./incidents/incidentGraph.js";
+export { IncidentTimeline } from "./incidents/incidentTimeline.js";
+export type { IncidentStoreInstance } from "./incidents/incidentStore.js";
+export {
+  createIncidentStore,
+  verifyIncidentSignature,
+  computeIncidentHash
+} from "./incidents/incidentStore.js";
+export type {
+  IncidentSeverity,
+  IncidentState,
+  CausalRelationship,
+  CausalEdge,
+  Incident,
+  IncidentTransition
+} from "./incidents/incidentTypes.js";
+export {
+  assembleFromDrift,
+  assembleFromAssuranceFailure,
+  assembleFromFreeze,
+  assembleFromBudgetExceed,
+  autoDetectAndAssemble
+} from "./incidents/autoAssembly.js";
+
 // Enhanced CGX Edge Semantics & Risk Propagation
 export {
   semanticEdgeTypeSchema,
@@ -838,7 +866,7 @@ export type {
   NarrativeDiffEntry,
   NarrativeDiff,
   IncidentTimelineEntry,
-  IncidentTimeline,
+  IncidentTimeline as OperatorIncidentTimeline,
   TrustSummary,
   RolePreset,
   OperatorDashboard,
