@@ -46,6 +46,9 @@ import { behavioralContractViolationPack } from "./behavioralContractViolationPa
 import { overreliancePack } from "./overreliancePack.js";
 import { advancedThreatsPack } from "./advancedThreatsPack.js";
 import { approvalTheaterPack } from "./approvalTheaterPack.js";
+import { euAiActArticlePack } from "./euAiActArticlePack.js";
+import { iso42005Pack } from "./iso42005Pack.js";
+import { owaspGenAiPack } from "./owaspGenAiPack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,
@@ -95,6 +98,9 @@ const assurancePacks: AssurancePackDefinition[] = [
   overreliancePack,
   advancedThreatsPack,
   approvalTheaterPack,
+  euAiActArticlePack,
+  iso42005Pack,
+  owaspGenAiPack,
 ];
 
 export function listAssurancePacks(): AssurancePackDefinition[] {
@@ -131,4 +137,7 @@ export {
   overreliancePack,
   advancedThreatsPack,
   approvalTheaterPack,
+  euAiActArticlePack,
+  iso42005Pack,
+  owaspGenAiPack,
 };
