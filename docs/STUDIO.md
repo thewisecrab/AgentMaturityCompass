@@ -25,7 +25,8 @@ Logs:
 
 ## Local API
 
-Studio API binds to localhost (`127.0.0.1`) and uses admin token auth.
+Studio host/port come from runtime config (`AMC_BIND`, `AMC_STUDIO_PORT`).
+`amc up` defaults to localhost in local workflows.
 
 Token file:
 - `.amc/studio/admin.token`
@@ -34,9 +35,13 @@ Header required for protected endpoints:
 - `x-amc-admin-token: <token>`
 
 API surface boundaries:
-- Internal control plane: `/api/v1/*` (RBAC-gated, internal-only surface)
+- Lightweight module API: `/api/v1/*` (operational surface, not RBAC-gated today)
+- Studio control plane API: `/*` (session/admin-token auth with RBAC on protected routes)
 - Public bridge surface: `/bridge/*` (lease-auth integration surface)
 - Reference: [API_SURFACES.md](./API_SURFACES.md)
+
+Security note:
+- Keep Studio network-restricted; do not expose `/api/v1/*` to untrusted networks.
 
 CLI helper:
 

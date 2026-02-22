@@ -65,9 +65,9 @@ Complete reference for every `amc` command organized by category.
 | Command | Description |
 |---------|-------------|
 | `amc run --agent <id> --window <days>` | Run maturity diagnostic |
-| `amc report --run <runId>` | Render report for a run |
+| `amc report <runId>` | Render report for a run |
 | `amc history` | List diagnostic run history |
-| `amc compare --run-a <id> --run-b <id>` | Compare two runs |
+| `amc compare <runIdA> <runIdB>` | Compare two runs |
 | `amc verify` | Verify integrity across AMC artifacts |
 | `amc verify all --json` | Full verification in one pass |
 | `amc snapshot --agent <id>` | Generate Unified Clarity Snapshot |
@@ -350,7 +350,7 @@ Complete reference for every `amc` command organized by category.
 |---------|-------------|
 | `amc canon init\|verify` | Compass Canon signed content |
 | `amc cgx init\|build` | Context Graph build/verify |
-| `amc diagnostic render` | Contextualized 67-question view |
+| `amc diagnostic render` | Contextualized 89-question view |
 | `amc truthguard` | Deterministic output truth validator |
 
 ## Prompt Engine
@@ -469,7 +469,7 @@ Complete reference for every `amc` command organized by category.
 | `amc role-presets` | Dashboard role presets |
 | `amc wiring-status` | Production wiring status |
 | `amc python-sdk` | Generate Python SDK package |
-| `amc openapi-generate` | Live OpenAPI spec (Studio + Bridge + Gateway) |
+| `amc openapi-generate` | OpenAPI generator for bridge + documented Studio/Gateway surfaces |
 | `amc integrate --framework <name>` | Integration scaffold |
 | `amc integrate-list` | Available integration frameworks |
 | `amc contract-tests` | Contract test suite for bridge API |

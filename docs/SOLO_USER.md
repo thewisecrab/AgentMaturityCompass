@@ -38,7 +38,7 @@ After one or more sessions:
 amc run --agent my-claude --window 7d
 ```
 
-This produces a maturity score across AMC's 5 layers and 67 questions.
+This produces a maturity score across AMC's 5 layers and the signed evidence-gated diagnostic bank.
 
 ## Understanding Your Score
 
@@ -97,8 +97,9 @@ amc whatif equalizer --agent my-claude --set AMC-1.1=3 --set AMC-3.3.1=5
 
 ```bash
 # Compare two runs
-amc history --agent my-claude
-amc compare --agent my-claude --run-a <runId1> --run-b <runId2>
+amc agent use my-claude
+amc history
+amc compare <runId1> <runId2>
 
 # Continuous loop (weekly)
 amc loop init

@@ -4,7 +4,7 @@
 
 | Component | Minimum |
 |-----------|---------|
-| Node.js | ≥ 20 |
+| Node.js | ≥ 20 (20/22 LTS recommended) |
 | RAM | 512 MB |
 | Disk | 100 MB + evidence storage |
 | OS | macOS, Linux (Ubuntu/Debian, RHEL/CentOS), Windows (WSL2) |
@@ -17,6 +17,8 @@ amc setup --demo    # demo workspace with sample data
 # or
 amc init            # empty production workspace
 ```
+
+Note: CI validates Node 20.x. Newer major releases can require native rebuilds for `better-sqlite3`; if install fails on very new Node versions, use Node 20 or 22 LTS.
 
 ## Option B: From GitHub (Development)
 
@@ -56,9 +58,9 @@ docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d --build
 
 ```bash
 helm install amc deploy/helm/amc \
-  --set studio.replicas=2 \
-  --set gateway.replicas=3 \
-  --set persistence.size=10Gi
+  --set replicaCount=2 \
+  --set workspace.persistence.size=10Gi \
+  --set ingress.enabled=true
 ```
 
 Validate the chart first:

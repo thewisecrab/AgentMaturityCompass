@@ -37,7 +37,7 @@ AMC wraps your AI agent with an observer that writes **execution-proof evidence*
 ```
 Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed, hash-chained)
                                                              ↓
-                                               Scoring Engine (42 questions, 5 layers)
+                                               Scoring Engine (89 questions, 5 layers)
                                                              ↓
                                               AMC Studio (localhost:3212)
 ```
@@ -75,7 +75,7 @@ amc setup --demo          # bootstrap workspace + demo agent
 amc up                    # Studio: http://localhost:3212 | Gateway: http://localhost:3210
 amc adapters run --agent demo-agent --adapter claude-cli -- claude
 amc run --agent demo-agent --window 14d
-amc status --agent demo-agent
+amc status
 ```
 
 Non-interactive shells/CI: export `AMC_VAULT_PASSPHRASE` before `amc up`.
@@ -100,7 +100,7 @@ AMC does that for AI agents.
 
 ## What AMC Does (Full Platform)
 
-AMC is a **25-module trust and safety platform** covering the full agent lifecycle:
+AMC is a **multi-module trust and safety platform** covering the full agent lifecycle:
 
 ### 1. Evidence Capture — Connect Any Agent
 
@@ -109,15 +109,15 @@ AMC is a **25-module trust and safety platform** covering the full agent lifecyc
 amc adapters run --agent my-agent --adapter claude-cli      -- claude
 amc adapters run --agent my-agent --adapter gemini-cli      -- gemini
 amc adapters run --agent my-agent --adapter openclaw-cli    -- openclaw run
-amc adapters run --agent my-agent --adapter openai-sdk      -- node ./gpt-agent.js
-amc adapters run --agent my-agent --adapter xai-grok        -- node ./grok-agent.js
-amc adapters run --agent my-agent --adapter openrouter      -- node ./my-agent.js
-amc adapters run --agent my-agent --adapter ollama          -- ollama run mistral
+amc adapters run --agent my-agent --adapter openai-agents-sdk -- node ./gpt-agent.js
 amc adapters run --agent my-agent --adapter langchain-node  -- node ./lc-agent.js
 amc adapters run --agent my-agent --adapter langchain-python -- python agent.py
+amc adapters run --agent my-agent --adapter langgraph-python -- python graph_agent.py
+amc adapters run --agent my-agent --adapter llamaindex-python -- python llamaindex_agent.py
 amc adapters run --agent my-agent --adapter autogen-cli     -- python autogen_agent.py
 amc adapters run --agent my-agent --adapter crewai-cli      -- python crew.py
 amc adapters run --agent my-agent --adapter semantic-kernel -- dotnet run
+amc adapters run --agent my-agent --adapter python-amc-sdk  -- python sdk_agent.py
 amc adapters run --agent my-agent --adapter generic-cli     -- ./my-bot
 
 # SDK — wrap fetch for automatic evidence capture
@@ -139,24 +139,26 @@ amc pair create --agent-name "prod-agent" --ttl-min 60
 
 ---
 
-### 2. Scoring — 42 Questions, 5 Layers, 6 Levels
+### 2. Scoring — Evidence-Gated Question Bank, 5 Layers, 6 Levels
 
 ```bash
 amc run --agent my-agent --window 14d   # score
-amc report                               # detailed report
-amc compare                              # compare runs
-amc history --agent my-agent            # score history
+amc report <runId>                       # detailed report
+amc compare <runIdA> <runIdB>            # compare runs
+amc history                              # score history
 ```
 
 **5 Maturity Layers:**
 
 | Layer | Questions | What It Measures |
 |---|---|---|
-| L1: Strategic Operations | 9 | Charter, channels, tools, governance, observability |
-| L2: Leadership & Autonomy | 5 | Aspiration surfacing, agility, verified outcomes, risk anticipation, truthfulness |
-| L3: Culture & Alignment | 15 | Values (6), positioning (5), enablers (5) |
-| L4: Resilience | 7 | Accountability, learning, inquiry, empathy, risk assurance, sensemaking |
-| L5: Skills | 5 | Design thinking, interaction design, architecture, domain mastery, digital mastery |
+| L1: Strategic Agent Operations | 15 | Charter, channels, tools, governance, observability |
+| L2: Leadership & Autonomy | 18 | Aspiration surfacing, agility, verified outcomes, risk anticipation, truthfulness |
+| L3: Culture & Alignment | 20 | Values, positioning, enablers, and behavioral controls |
+| L4: Resilience | 16 | Accountability, learning, incident resilience, and risk assurance |
+| L5: Skills | 20 | Design, interaction quality, architecture, domain, and digital mastery |
+
+Current implementation total: **89 questions**.
 
 **Evidence Gates** (must be passed before level unlocks):
 
@@ -170,7 +172,7 @@ amc history --agent my-agent            # score history
 
 Agents cannot submit scores. Missing evidence → `UNKNOWN`. Self-reported evidence capped at 0.4× weight and cannot unlock levels.
 
-→ [Full 42-Question Reference](docs/AMC_QUESTIONS_IN_DEPTH.md) · [Master Reference](docs/AMC_MASTER_REFERENCE.md)
+→ [Questions In Depth (legacy core set)](docs/AMC_QUESTIONS_IN_DEPTH.md) · [Diagnostic Bank (implementation-aligned)](docs/DIAGNOSTIC_BANK.md) · [Master Reference](docs/AMC_MASTER_REFERENCE.md)
 
 ---
 
@@ -532,7 +534,7 @@ Every AMC export is signed, offline-verifiable, and tamper-evident:
 | Zero-key agent model | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Deterministic (no LLM judge) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Offline-verifiable artifacts | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Multi-layer governance (42 QIDs) | ✅ | 🔶 | 🔶 | 🔶 | 🔶 | ❌ |
+| Multi-layer governance (evidence-gated QIDs) | ✅ | 🔶 | 🔶 | 🔶 | 🔶 | ❌ |
 | Self-improvement loop | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Fleet + multi-org | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Free tier | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
@@ -580,7 +582,6 @@ amc verify all --json
 | `amc verify all` | Verify evidence chain integrity |
 | `amc adapters run` | Wrap an AI agent |
 | `amc gateway` | Manage LLM gateway proxy |
-| `amc ledger` | Evidence ledger operations |
 | `amc notary` | Signing boundary management |
 | `amc shield` | S1–S16: injection, SBOM, supply chain |
 | `amc enforce` | E1–E35: policy, exec guard, ATO, taint |
@@ -593,7 +594,7 @@ amc verify all --json
 | `amc ticket` | Short-lived execute tokens |
 | `amc approvals` | Dual-control approvals |
 | `amc lease` | Scoped gateway leases |
-| `amc budget` | Usage limit management |
+| `amc budgets` | Usage limit management |
 | `amc mechanic` | Upgrade plans, targets, what-if |
 | `amc learn` | Per-question improvement guidance |
 | `amc assurance` | Red-team packs + certs |
@@ -618,7 +619,7 @@ amc verify all --json
 | `amc release` | Sign + verify release bundles |
 | `amc e2e` | End-to-end smoke tests |
 | `amc transparency` | Merkle transparency log |
-| `amc northstar` | Prompt enforcement |
+| `amc prompt` | Prompt policy + pack enforcement |
 | `amc whatif` | Score impact simulator |
 | `amc snapshot` | Agent state snapshot |
 | `amc loop` | Continuous improvement loop |
@@ -641,7 +642,7 @@ Covers:
 - Empirical benchmark: +84pt keyword inflation vs execution-verified scoring
 - Autonomous self-improvement loop: L1→L4 (94/100 human-guided), L1→L4 (80/100 autonomous)
 - Comparison to NIST AI RMF, ISO/IEC 42001, CMMI v2.0
-- 42 rubric questions, full scoring methodology
+- Initial 42-question core rubric and full scoring methodology (v1 baseline)
 
 ---
 
@@ -679,7 +680,7 @@ Covers:
 [Enterprise Guide](docs/ENTERPRISE.md) · [Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md) · [Compliance](docs/COMPLIANCE.md) · [RBAC](docs/RBAC.md) · [SSO/OIDC](docs/SSO_OIDC.md) · [SSO/SAML](docs/SSO_SAML.md) · [SCIM](docs/SCIM.md)
 
 ### Reference
-[Master CLI Reference](docs/AMC_MASTER_REFERENCE.md) · [Architecture](docs/ARCHITECTURE_MAP.md) · [42 Questions](docs/AMC_QUESTIONS_IN_DEPTH.md) · [Full Module Roadmap](docs/FULL_MODULE_ROADMAP.md) · [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
+[Master CLI Reference](docs/AMC_MASTER_REFERENCE.md) · [Architecture](docs/ARCHITECTURE_MAP.md) · [Questions In Depth (legacy core set)](docs/AMC_QUESTIONS_IN_DEPTH.md) · [Diagnostic Bank (implementation-aligned)](docs/DIAGNOSTIC_BANK.md) · [Full Module Roadmap](docs/FULL_MODULE_ROADMAP.md) · [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
 
 ### Research
 [Whitepaper](whitepaper/AMC_WHITEPAPER_v1.md) · [Evidence Trust](docs/EVIDENCE_TRUST.md) · [Benchmarks](docs/BENCHMARKS.md)
