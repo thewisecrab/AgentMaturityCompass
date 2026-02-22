@@ -45,6 +45,7 @@ import { excessiveAgencyPack } from "./excessiveAgencyPack.js";
 import { behavioralContractViolationPack } from "./behavioralContractViolationPack.js";
 import { overreliancePack } from "./overreliancePack.js";
 import { advancedThreatsPack } from "./advancedThreatsPack.js";
+import { adversarialRobustnessPack } from "./adversarial-robustness.js";
 import { approvalTheaterPack } from "./approvalTheaterPack.js";
 import { toolMisusePack } from "./toolMisusePack.js";
 import { truthfulnessPack } from "./truthfulnessPack.js";
@@ -104,6 +105,7 @@ const assurancePacks: AssurancePackDefinition[] = [
   excessiveAgencyPack,
   behavioralContractViolationPack,
   overreliancePack,
+  adversarialRobustnessPack,
   advancedThreatsPack,
   approvalTheaterPack,
   euAiActArticlePack,
@@ -149,6 +151,7 @@ export {
   excessiveAgencyPack,
   behavioralContractViolationPack,
   overreliancePack,
+  adversarialRobustnessPack,
   advancedThreatsPack,
   approvalTheaterPack,
   euAiActArticlePack,
