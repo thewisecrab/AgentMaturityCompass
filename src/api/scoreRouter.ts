@@ -11,6 +11,7 @@ import {
   markScoreSessionCompleted,
   recordScoreAnswer,
 } from './scoreStore.js';
+import { queueScoreComputationMetric } from '../observability/otelExporter.js';
 
 export async function handleScoreRoute(
   pathname: string,
@@ -100,6 +101,17 @@ export async function handleScoreRoute(
       percentage,
       level,
       createdAt: session.createdAt,
+    });
+    queueScoreComputationMetric({
+      agentId: session.agentId,
+      runId: session.id,
+      sessionId: session.id,
+      score: totalScore,
+      maxScore: maxPossible,
+      percentage,
+      level,
+      ts: Date.now(),
+      source: "api.score.result"
     });
     markScoreSessionCompleted(workspace, session.id);
     return true;
