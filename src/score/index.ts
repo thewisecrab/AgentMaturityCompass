@@ -225,6 +225,9 @@ export type { EUAIActComplianceResult } from "./euAIActCompliance.js";
 export { scoreOWASPLLMCoverage } from "./owaspLLMCoverage.js";
 export type { OWASPLLMCoverageResult } from "./owaspLLMCoverage.js";
 
+export { scoreISO42001Coverage, scoreRegulatoryReadiness } from "./regulatoryReadiness.js";
+export type { ISO42001CoverageResult, RegulatoryReadinessResult, RegulatoryReadinessInput } from "./regulatoryReadiness.js";
+
 export { scoreETPSelfKnowledge } from "./selfKnowledgeMaturity.js";
 export type { ETPSelfKnowledgeResult } from "./selfKnowledgeMaturity.js";
 
