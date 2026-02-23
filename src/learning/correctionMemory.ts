@@ -7,7 +7,7 @@
  * - Tracks whether injected lessons measurably improve future runs
  * - Detects correction drift (injected lessons becoming stale or counterproductive)
  *
- * This is the "self-modifying inference" concept from ETP: corrections from one
+ * This is the "self-modifying inference" concept from prior art: corrections from one
  * session measurably improve the next.
  */
 

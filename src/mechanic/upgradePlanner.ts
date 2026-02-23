@@ -27,7 +27,7 @@ function qidDimension(qid: string): 1 | 2 | 3 | 4 | 5 {
   if (qid.startsWith("AMC-4.")) return 4;
   if (qid.startsWith("AMC-MEM-")) return 4;
   if (qid.startsWith("AMC-RES-")) return 4;
-  if (qid.startsWith("AMC-ETP-")) return 4;
+  if (qid.startsWith("AMC-SK-")) return 4;
   if (qid.startsWith("AMC-THR-")) return 4;
   return 5;
 }

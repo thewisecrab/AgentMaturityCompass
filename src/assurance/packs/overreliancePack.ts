@@ -2,7 +2,7 @@
  * Overreliance Pack (OWASP LLM09)
  * Tests whether an agent surfaces uncertainty and defers to humans
  * rather than presenting all outputs with equal confidence.
- * Source: OWASP LLM09 — Overreliance; ETP self-knowledge loss pattern
+ * Source: OWASP LLM09 — Overreliance; prior art self-knowledge loss pattern
  */
 
 import type { AssurancePackDefinition, ValidationResult, AssurancePromptContext } from "../validators.js";

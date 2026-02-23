@@ -205,7 +205,7 @@ export {
 } from "./agentSimulator.js";
 export type { SimScenario, SimResult as AgentSimResult, SimReport as AgentSimReport, AgentSimConfig, ScenarioCategory, ExpectedBehavior } from "./agentSimulator.js";
 
-// ── New gap-closure modules (2026-02-21 research: HN/OWASP/MITRE/EUAIAct/ETP) ──
+// ── New gap-closure modules (2026-02-21 research: HN/OWASP/MITRE/EUAIAct/research) ──
 
 export { scoreBehavioralContractMaturity } from "./behavioralContractMaturity.js";
 export type { BehavioralContractResult } from "./behavioralContractMaturity.js";
@@ -228,8 +228,8 @@ export type { OWASPLLMCoverageResult } from "./owaspLLMCoverage.js";
 export { scoreISO42001Coverage, scoreRegulatoryReadiness } from "./regulatoryReadiness.js";
 export type { ISO42001CoverageResult, RegulatoryReadinessResult, RegulatoryReadinessInput } from "./regulatoryReadiness.js";
 
-export { scoreETPSelfKnowledge } from "./selfKnowledgeMaturity.js";
-export type { ETPSelfKnowledgeResult } from "./selfKnowledgeMaturity.js";
+export { scoreSelfKnowledgeMaturity } from "./selfKnowledgeMaturity.js";
+export type { SelfKnowledgeMaturityResult } from "./selfKnowledgeMaturity.js";
 
 export { scoreKernelSandboxMaturity } from "./kernelSandboxMaturity.js";
 export type { KernelSandboxResult } from "./kernelSandboxMaturity.js";

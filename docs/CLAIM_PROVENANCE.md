@@ -8,7 +8,7 @@ Evidence provenance lifecycle in AMC: how claims are labeled, tracked, promoted,
 
 Agent systems produce claims constantly: "I completed the task," "the test passed," "the policy was enforced." Without provenance tracking, these claims are indistinguishable from hallucinations. A claim without provenance is noise.
 
-ETP's Pathfinder system had the right idea — provenance labels like `USER-VERIFIED`, `DERIVED`, `HYPOTHESIS` that tracked how knowledge was established. That granularity was lost when Pathfinder was restructured into ETP. AMC builds this into the core evidence model with cryptographic backing.
+the prior art's Pathfinder system had the right idea — provenance labels like `USER-VERIFIED`, `DERIVED`, `HYPOTHESIS` that tracked how knowledge was established. That granularity was lost when Pathfinder was restructured. AMC builds this into the core evidence model with cryptographic backing.
 
 ---
 
@@ -298,9 +298,9 @@ amc fleet contradictions
 
 ---
 
-## 5. Provenance Labels vs. ETP's Pathfinder
+## 5. Provenance Labels vs. the prior art's Pathfinder
 
-AMC's provenance system is a direct response to the granularity that ETP's Pathfinder had and lost:
+AMC's provenance system is a direct response to the granularity that the prior art's Pathfinder had and lost:
 
 | Pathfinder Label | AMC Equivalent | Key Improvement |
 |-----------------|----------------|-----------------|

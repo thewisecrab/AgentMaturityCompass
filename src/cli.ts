@@ -13992,14 +13992,14 @@ score
 
 score
   .command("self-knowledge")
-  .description("Score ETP self-knowledge maturity (typed attention, trace layer, confidence+citation)")
+  .description("Score prior art self-knowledge maturity (typed attention, trace layer, confidence+citation)")
   .option("--json", "Output as JSON")
   .action(async (opts: { json?: boolean }) => {
     try {
-      const { scoreETPSelfKnowledge } = await import("./score/selfKnowledgeMaturity.js");
-      const result = scoreETPSelfKnowledge();
+      const { scoreSelfKnowledgeMaturity } = await import("./score/selfKnowledgeMaturity.js");
+      const result = scoreSelfKnowledgeMaturity();
       if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
-      console.log(chalk.bold.hex("#FF6600")("\n🔍  ETP Self-Knowledge Maturity"));
+      console.log(chalk.bold.hex("#FF6600")("\n🔍  prior art Self-Knowledge Maturity"));
       console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
       console.log(chalk.gray("Typed relationships:"), result.hasTypedRelationships ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Trace layer:"), result.hasTraceLayer ? chalk.green("yes") : chalk.red("no"));

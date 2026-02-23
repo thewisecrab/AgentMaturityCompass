@@ -1,7 +1,7 @@
 /**
  * claimProvenance.ts — Claim-level provenance lifecycle for AMC
  *
- * Inspired by ETP/Pathfinder's provenance tagging system.
+ * Inspired by provenance tagging research's provenance tagging system.
  * Extends AMC's evidence trust tiers to the granularity of individual claims.
  *
  * Core insight: a claim cannot be promoted from HYPOTHESIS to DERIVED/USER_VERIFIED

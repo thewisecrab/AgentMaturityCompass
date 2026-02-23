@@ -4,7 +4,7 @@
  * Prevents hook/integration suffocation by enforcing timeouts, state machines,
  * backpressure signals, dead-letter handling, and auto-degrade modes.
  *
- * Inspired by ETP's "The Break" — where monitoring hooks suffocated the system.
+ * Inspired by the prior art's "The Break" — where monitoring hooks suffocated the system.
  */
 
 import { z } from "zod";

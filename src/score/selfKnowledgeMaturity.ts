@@ -1,10 +1,10 @@
 /**
- * ETP Self-Knowledge Maturity
+ * prior art Self-Knowledge Maturity
  * Scores whether an agent knows what it knows — confidence calibration,
  * typed relationships, trace-based learning, and self-modifying inference.
- * Source: ETP — The External Trust Protocol (example.com, 2026)
+ * Source: prior art — The External Trust Protocol (example.com, 2026)
  *
- * Four ETP architectures:
+ * Four prior art architectures:
  * 1. Typed Attention — labeled relationships (REQUIRES, USES), not just magnitudes
  * 2. Activation Thresholds — only relevant connections fire (interpretability)
  * 3. Self-Modifying Inference / Trace Layer — corrections persist across sessions
@@ -14,37 +14,37 @@
 import { existsSync } from "fs";
 import { join } from "path";
 
-export interface ETPSelfKnowledgeResult {
+export interface SelfKnowledgeMaturityResult {
   score: number; // 0-100
   level: number; // 0-5
-  hasTypedRelationships: boolean;       // ETP #1: labeled edges, not just magnitudes
-  hasInterpretabilityLayer: boolean;    // ETP #2: can show which connections fired
-  hasTraceLayer: boolean;               // ETP #3: corrections persist across sessions
-  hasConfidenceWithCitation: boolean;   // ETP #4: every answer carries its own proof
+  hasTypedRelationships: boolean;       // prior art #1: labeled edges, not just magnitudes
+  hasInterpretabilityLayer: boolean;    // prior art #2: can show which connections fired
+  hasTraceLayer: boolean;               // prior art #3: corrections persist across sessions
+  hasConfidenceWithCitation: boolean;   // prior art #4: every answer carries its own proof
   hasCalibrationMechanism: boolean;     // confidence varies by actual knowledge
   hasSelfKnowledgeLoss: boolean;        // penalizes unexplainable outputs
   gaps: string[];
   recommendations: string[];
 }
 
-export function scoreETPSelfKnowledge(cwd?: string): ETPSelfKnowledgeResult {
+export function scoreSelfKnowledgeMaturity(cwd?: string): SelfKnowledgeMaturityResult {
   const root = cwd ?? process.cwd();
   const gaps: string[] = [];
   const recommendations: string[] = [];
 
-  // ETP #1: Typed relationships — knowledge graph with labeled edges
+  // prior art #1: Typed relationships — knowledge graph with labeled edges
   const typedRelPaths = ["src/score/knowledgeGraph.ts", "src/cgx", "src/claims/contradictions.ts"];
   const hasTypedRelationships = typedRelPaths.some(f => existsSync(join(root, f)));
 
-  // ETP #2: Interpretability — can show which evidence/connections drove a decision
+  // prior art #2: Interpretability — can show which evidence/connections drove a decision
   const interpPaths = ["src/score/claimProvenance.ts", "src/truthguard/truthProtocol.ts", "src/score/confidenceDrift.ts"];
   const hasInterpretabilityLayer = interpPaths.some(f => existsSync(join(root, f)));
 
-  // ETP #3: Trace layer — corrections and lessons persist across sessions
+  // prior art #3: Trace layer — corrections and lessons persist across sessions
   const tracePaths = ["src/score/lessonLearnedDatabase.ts", ".amc/PREDICTION_LOG.md", "src/corrections"];
   const hasTraceLayer = tracePaths.some(f => existsSync(join(root, f)));
 
-  // ETP #4: Confidence with citation — every claim has evidence refs
+  // prior art #4: Confidence with citation — every claim has evidence refs
   const citationPaths = ["src/claims/claimConfidence.ts", "src/score/claimProvenance.ts", "src/truthguard"];
   const hasConfidenceWithCitation = citationPaths.some(f => existsSync(join(root, f)));
 
@@ -56,10 +56,10 @@ export function scoreETPSelfKnowledge(cwd?: string): ETPSelfKnowledgeResult {
   const selfKnowledgePaths = ["src/score/confidenceDrift.ts", "src/score/claimProvenance.ts"];
   const hasSelfKnowledgeLoss = selfKnowledgePaths.some(f => existsSync(join(root, f)));
 
-  if (!hasTypedRelationships) gaps.push("No typed relationships — agent knows things are related but not HOW (ETP #1)");
-  if (!hasInterpretabilityLayer) gaps.push("No interpretability layer — cannot show which evidence drove a decision (ETP #2)");
-  if (!hasTraceLayer) gaps.push("No trace layer — corrections evaporate between sessions (ETP #3)");
-  if (!hasConfidenceWithCitation) gaps.push("No confidence-with-citation — outputs lack proof of why (ETP #4)");
+  if (!hasTypedRelationships) gaps.push("No typed relationships — agent knows things are related but not HOW (gap #1)");
+  if (!hasInterpretabilityLayer) gaps.push("No interpretability layer — cannot show which evidence drove a decision (gap #2)");
+  if (!hasTraceLayer) gaps.push("No trace layer — corrections evaporate between sessions (gap #3)");
+  if (!hasConfidenceWithCitation) gaps.push("No confidence-with-citation — outputs lack proof of why (gap #4)");
   if (!hasCalibrationMechanism) gaps.push("No calibration mechanism — agent expresses all outputs with equal fluency");
   if (!hasSelfKnowledgeLoss) gaps.push("No self-knowledge loss — unexplainable outputs are not penalized");
 

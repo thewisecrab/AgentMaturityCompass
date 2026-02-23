@@ -20,7 +20,7 @@ function dimensionIdForQuestion(questionId: string): "DIM-1" | "DIM-2" | "DIM-3"
   if (questionId.startsWith("AMC-4.")) return "DIM-4";
   if (questionId.startsWith("AMC-MEM-")) return "DIM-4";
   if (questionId.startsWith("AMC-RES-")) return "DIM-4";
-  if (questionId.startsWith("AMC-ETP-")) return "DIM-4";
+  if (questionId.startsWith("AMC-SK-")) return "DIM-4";
   if (questionId.startsWith("AMC-THR-")) return "DIM-4";
   return "DIM-5";
 }

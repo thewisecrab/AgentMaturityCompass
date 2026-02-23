@@ -63,3 +63,4 @@ security-audit/
 # Stray CLI artifacts
 --json
 --verbose
+AMC_IMPROVEMENT_ROADMAP.md

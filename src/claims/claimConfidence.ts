@@ -8,7 +8,7 @@
  *  - Domain-specific confidence bins (facts, policy, risk, execution)
  *  - Governor integration: block actions below confidence threshold
  *
- * Key concepts from ETP:
+ * Key concepts from prior art:
  *  - "Confidence without citation" → hard penalty for high-risk claims
  *  - "Self-knowledge loss" → confidence should vary by component/domain
  *  - "Unsupported confidence penalty" → when confidence and evidence diverge

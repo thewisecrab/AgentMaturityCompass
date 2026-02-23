@@ -480,11 +480,11 @@ This layered model positions AMC in the "measurement and verification" layer of 
 
 ### 7.4 Convention vs. Math: Why Cryptographic Proof Matters
 
-A critical distinction separates AMC from convention-based trust systems. Many agent frameworks — including well-designed ones like The Reasoning Protocol (ETP) — build trust through structural conventions: JSONL files exist because the agent wrote them, session blocks link because timestamps are sequential, knowledge graph edges are valid because the system created them. These conventions work when all participants follow the rules. They fail when anyone — or anything — doesn't.
+A critical distinction separates AMC from convention-based trust systems. Many agent frameworks — including well-designed convention-based systems — build trust through structural conventions: JSONL files exist because the agent wrote them, session blocks link because timestamps are sequential, knowledge graph edges are valid because the system created them. These conventions work when all participants follow the rules. They fail when anyone — or anything — doesn't.
 
 AMC replaces convention with cryptographic proof at every layer:
 
-| Trust Property | Convention-Based (e.g., ETP) | AMC (Cryptographic) |
+| Trust Property | Convention-Based | AMC (Cryptographic) |
 |---------------|------------------------------|---------------------|
 | Artifact integrity | File exists → assumed authentic | SHA-256 hash chain → tamper-evident |
 | Authorship | "Claude wrote this JSONL" (convention) | Vault/notary signature (verifiable) |
@@ -498,18 +498,18 @@ This is not a theoretical distinction. Consider a scenario where an agent's JSON
 
 The convention-to-math transition maps directly to the L4→L5 maturity gap: L4 systems follow best practices by convention; L5 systems make violations structurally impossible (or at minimum, cryptographically detectable).
 
-### 7.5 Comparison with The Reasoning Protocol (ETP)
+### 7.5 Convention vs. Cryptographic Trust
 
-ETP is a 4-layer architecture for agent trust developed in the Claude Code ecosystem:
+Prior art is a 4-layer architecture for agent trust developed in the Claude Code ecosystem:
 
 1. **JSONL ground truth** — raw action recording
 2. **Session blockchain** — hash-linked session blocks (~85 sessions, ~3,500 traced edges)
 3. **Atlas knowledge graph** — typed edges (`[REQUIRES]`, `[USES]`, `[CONTRADICTS]`)
 4. **Governance** — CLAUDE.md + git rules read on session start
 
-ETP represents thoughtful engineering with genuine architectural insight. AMC's relationship to ETP is complementary, not competitive:
+Prior art represents thoughtful engineering with genuine architectural insight. AMC's relationship to prior art is complementary, not competitive:
 
-| Capability | ETP | AMC | Relationship |
+| Capability | prior art | AMC | Relationship |
 |-----------|-----|-----|-------------|
 | Raw artifact capture | ✅ JSONL auto-record | ✅ Hash-chained ledger | AMC adds tamper evidence |
 | Session linking | ✅ Session blockchain | ✅ Evidence chain | AMC adds cryptographic signing |
@@ -521,7 +521,7 @@ ETP represents thoughtful engineering with genuine architectural insight. AMC's 
 | Offline verification | ❌ | ✅ Merkle proofs | AMC enables cross-device trust |
 | Anti-hallucination | ❌ | ✅ Truthguard + confidence gates | AMC prevents claim inflation |
 
-AMC can ingest ETP's JSONL artifacts as `SELF_REPORTED` evidence (0.4× trust), then upgrade them through attestation or re-observation — providing a migration path for ETP users who want cryptographic guarantees.
+AMC can ingest the prior art's JSONL artifacts as `SELF_REPORTED` evidence (0.4× trust), then upgrade them through attestation or re-observation — providing a migration path for prior art users who want cryptographic guarantees.
 
 ### 7.6 Positioning Against Evaluation Platforms
 

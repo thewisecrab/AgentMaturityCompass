@@ -2,8 +2,8 @@
  * gapModules.test.ts — Tests for all gap-closure modules
  *
  * Covers:
- *  - ClaimProvenance (ETP/Pathfinder gap)
- *  - KnowledgeGraph (ETP Atlas gap)
+ *  - ClaimProvenance (provenance gap)
+ *  - KnowledgeGraph (knowledge graph prior art gap)
  *  - ModelDrift detection
  *  - Shield Validators (Guardrails AI gap)
  *  - NL Policy authoring (enterprise UX gap)

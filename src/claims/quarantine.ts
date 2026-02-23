@@ -9,7 +9,7 @@ import { canonicalize } from "../utils/json.js";
 /**
  * Quarantine policy configuration for claim promotion gates
  * Prevents claims from being promoted from QUARANTINE/PROVISIONAL to PROMOTED
- * without sufficient cross-session evidence, inspired by ETP's Pathfinder system
+ * without sufficient cross-session evidence, inspired by the prior art's Pathfinder system
  */
 
 export const QuarantinePolicySchema = z.object({

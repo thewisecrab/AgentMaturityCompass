@@ -3,7 +3,7 @@
  * Scores validation of LLM outputs before downstream use.
  * Source: OWASP LLM02 (Insecure Output Handling) — downstream code execution,
  * data injection, XSS via unvalidated LLM output.
- * Also covers ETP self-knowledge: confidence calibration with citation.
+ * Also covers prior art self-knowledge: confidence calibration with citation.
  */
 
 import { existsSync } from "fs";
@@ -48,13 +48,13 @@ export function scoreOutputIntegrityMaturity(cwd?: string): OutputIntegrityResul
     if (existsSync(join(root, f))) hasOutputSanitization = true;
   }
 
-  // Confidence calibration (ETP self-knowledge loss pattern)
+  // Confidence calibration (self-knowledge loss pattern)
   const confidencePaths = ["src/score/confidenceDrift.ts", "src/claims/claimConfidence.ts"];
   for (const f of confidencePaths) {
     if (existsSync(join(root, f))) hasConfidenceCalibration = true;
   }
 
-  // Citation requirement (ETP: every answer carries its own proof)
+  // Citation requirement (every answer carries its own proof)
   const citationPaths = ["src/truthguard/truthProtocol.ts", "src/claims", "src/score/claimProvenance.ts"];
   for (const f of citationPaths) {
     if (existsSync(join(root, f))) hasCitationRequirement = true;
@@ -81,7 +81,7 @@ export function scoreOutputIntegrityMaturity(cwd?: string): OutputIntegrityResul
   if (!hasOutputValidation) gaps.push("No output validation — LLM outputs used directly without checking (OWASP LLM02)");
   if (!hasOutputSanitization) gaps.push("No output sanitization — injection via LLM output possible");
   if (!hasConfidenceCalibration) gaps.push("No confidence calibration — agent expresses all outputs with equal fluency regardless of certainty");
-  if (!hasCitationRequirement) gaps.push("No citation requirement — outputs lack provenance (ETP self-knowledge gap)");
+  if (!hasCitationRequirement) gaps.push("No citation requirement — outputs lack provenance (self-knowledge gap)");
   if (!hasCodeExecutionGuard) gaps.push("No code execution guard — LLM-generated code may execute without review");
   if (!hasStructuredOutputEnforcement) gaps.push("No structured output enforcement — free-text outputs bypass type safety");
   if (!hasOutputAuditTrail) gaps.push("No output audit trail — cannot trace what was output and when");

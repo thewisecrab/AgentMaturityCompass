@@ -17,7 +17,7 @@ function dimensionIdForQuestion(qid: string): "D1" | "D2" | "D3" | "D4" | "D5" {
   if (qid.startsWith("AMC-4.")) return "D4";
   if (qid.startsWith("AMC-MEM-")) return "D4";
   if (qid.startsWith("AMC-RES-")) return "D4";
-  if (qid.startsWith("AMC-ETP-")) return "D4";
+  if (qid.startsWith("AMC-SK-")) return "D4";
   if (qid.startsWith("AMC-THR-")) return "D4";
   return "D5";
 }

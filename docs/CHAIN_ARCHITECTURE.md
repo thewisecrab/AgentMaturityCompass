@@ -30,7 +30,7 @@ Raw records of what happened during agent sessions: JSONL logs, file changes, to
 ### Who Does This
 
 - **Codex / Claude Code**: Records every action automatically as JSONL ground truth. Sessions produce raw action logs.
-- **ETP (The Reasoning Protocol)**: JSONL ground truth is Layer 1 of their 4-layer architecture. Claude Code records every action automatically.
+- **Convention-based systems**: JSONL ground truth is Layer 1 of their 4-layer architecture. Claude Code records every action automatically.
 - **AMC**: The evidence ledger (`.amc/ledger/`) captures raw events from gateway proxy, monitor wrapping, and adapter instrumentation.
 
 ### AMC's Implementation
@@ -52,9 +52,9 @@ amc transparency tail --agent my-agent --limit 20   # View recent chain entries
 amc verify all --json                                 # Verify full chain integrity
 ```
 
-### Key Difference from ETP
+### Key Difference from prior art
 
-ETP's JSONL entries are **not hashed**. Authorship is by convention (the file exists, so Claude must have written it). AMC's ledger entries are **individually hashed and chain-linked**, with the chain signed by the vault or notary key. Tampering with any entry breaks the chain — detectable by `amc verify`.
+the prior art's JSONL entries are **not hashed**. Authorship is by convention (the file exists, so Claude must have written it). AMC's ledger entries are **individually hashed and chain-linked**, with the chain signed by the vault or notary key. Tampering with any entry breaks the chain — detectable by `amc verify`.
 
 ---
 
@@ -66,7 +66,7 @@ Interpreted, structured evidence derived from raw artifacts. Not "what tool was 
 
 ### Who Does This
 
-- **ETP**: Session blockchain (Layer 2) — blocks hash-link across ~85 sessions with ~3,500 traced edges. Each block represents a session with typed relationships to prior sessions.
+- **Convention-based**: Session blockchain (Layer 2) — blocks hash-link across ~85 sessions with ~3,500 traced edges. Each block represents a session with typed relationships to prior sessions.
 - **AMC**: The Execution-Proof Evidence System (EPES) — evidence artifacts are derived from ledger events, classified by trust tier, and scored with calibrated multipliers.
 
 ### AMC's Implementation
@@ -95,9 +95,9 @@ Evidence artifacts answer specific maturity questions:
 | `ATTESTED` | Cryptographic attestation (vault/notary/human) | 0.8× | Hash-chained, counter-signed |
 | `SELF_REPORTED` | Agent claims (ingested external logs) | 0.4× | Hash-chained, flagged as self-reported |
 
-### Key Difference from ETP
+### Key Difference from prior art
 
-ETP's session blockchain links sessions together but entries are **not cryptographically signed** — verification is by timestamp convention. AMC's evidence chain is **cryptographically signed at every link** with the vault or notary key. The trust tier system means AMC can distinguish between "we observed this" (1.0×) and "the agent claims this" (0.4×) — a distinction ETP does not make.
+the prior art's session blockchain links sessions together but entries are **not cryptographically signed** — verification is by timestamp convention. AMC's evidence chain is **cryptographically signed at every link** with the vault or notary key. The trust tier system means AMC can distinguish between "we observed this" (1.0×) and "the agent claims this" (0.4×) — a distinction prior art does not make.
 
 ---
 
@@ -109,8 +109,8 @@ A typed knowledge graph that captures relationships between concepts, decisions,
 
 ### Who Does This
 
-- **ETP**: Atlas (Layer 3) — a knowledge graph with typed edges like `[REQUIRES]`, `[USES]`, `[CONTRADICTS]`. Represents accumulated understanding across sessions.
-- **ETP's lost Pathfinder feature**: Had provenance labels (`USER-VERIFIED`, `DERIVED`, `HYPOTHESIS`, `SESSION-LOCAL`, `REFERENCE-ONLY`) that tracked how knowledge claims were established. Claims couldn't be promoted without cross-session evidence. This granularity was lost during ETP restructuring.
+- **Convention-based**: Knowledge graph (Layer 3) — a knowledge graph with typed edges like `[REQUIRES]`, `[USES]`, `[CONTRADICTS]`. Represents accumulated understanding across sessions.
+- **the prior art's lost Pathfinder feature**: Had provenance labels (`USER-VERIFIED`, `DERIVED`, `HYPOTHESIS`, `SESSION-LOCAL`, `REFERENCE-ONLY`) that tracked how knowledge claims were established. Claims couldn't be promoted without cross-session evidence. This granularity was lost during prior art restructuring.
 
 ### AMC's Implementation
 
@@ -139,7 +139,7 @@ Cross-agent knowledge consistency checking:
 amc fleet contradictions
 ```
 
-Detects cases where agents in the same fleet produce conflicting evidence or policy decisions — analogous to ETP's `[CONTRADICTS]` edges but computed from signed evidence rather than convention.
+Detects cases where agents in the same fleet produce conflicting evidence or policy decisions — analogous to the prior art's `[CONTRADICTS]` edges but computed from signed evidence rather than convention.
 
 **3. Correction Memory and Lessons**
 
@@ -154,11 +154,11 @@ amc lessons-promote --agent my-agent --id L1 # Promote lesson to policy
 
 Lessons are signed and tracked with provenance — you can trace why a correction was made, what evidence supported it, and whether it was promoted to policy.
 
-### Key Difference from ETP
+### Key Difference from prior art
 
-ETP's Atlas is richer as a pure knowledge graph (typed edges, explicit relationship semantics). AMC's CGX is more constrained but **every node and edge is signed and hash-verified**. ETP's Atlas entries are verified by timestamp only — AMC's are cryptographically bound to the evidence that produced them.
+the prior art's Atlas is richer as a pure knowledge graph (typed edges, explicit relationship semantics). AMC's CGX is more constrained but **every node and edge is signed and hash-verified**. the prior art's Atlas entries are verified by timestamp only — AMC's are cryptographically bound to the evidence that produced them.
 
-The Pathfinder provenance labels that ETP lost are addressed by AMC's Claim Provenance system (see [CLAIM_PROVENANCE.md](CLAIM_PROVENANCE.md)).
+The Pathfinder provenance labels that prior art lost are addressed by AMC's Claim Provenance system (see [CLAIM_PROVENANCE.md](CLAIM_PROVENANCE.md)).
 
 ---
 
@@ -186,7 +186,7 @@ The Pathfinder provenance labels that ETP lost are addressed by AMC's Claim Prov
 
 ### Comparison Table
 
-| Property | Codex/Claude Code | ETP | AMC |
+| Property | Codex/Claude Code | prior art | AMC |
 |----------|------------------|-----|-----|
 | **L1: Artifact capture** | JSONL auto-record | JSONL ground truth | Hash-chained ledger |
 | **L1: Tamper evidence** | None | None (convention) | SHA-256 chain + signature |
@@ -202,7 +202,7 @@ The Pathfinder provenance labels that ETP lost are addressed by AMC's Claim Prov
 
 ### The "Convention vs. Math" Gap
 
-ETP's architecture is thoughtful and well-structured, but it operates on convention:
+the prior art's architecture is thoughtful and well-structured, but it operates on convention:
 - JSONL entries exist because Claude wrote them (convention)
 - Session blocks link because timestamps are sequential (convention)
 - Atlas edges are valid because the system created them (convention)
@@ -212,7 +212,7 @@ AMC operates on math:
 - Evidence is trusted because it's signed by an isolated notary process (cryptography)
 - Merkle proofs demonstrate inclusion without trusting the log maintainer (cryptography)
 
-This is the L4→L5 gap that ETP itself identified: moving from "it works because we follow the rules" to "it works because the math prevents cheating."
+This is the L4→L5 gap that prior art itself identified: moving from "it works because we follow the rules" to "it works because the math prevents cheating."
 
 ---
 
@@ -221,7 +221,7 @@ This is the L4→L5 gap that ETP itself identified: moving from "it works becaus
 AMC can ingest evidence from systems that operate at Level 1 only:
 
 ```bash
-# Ingest external JSONL logs (e.g., from Codex, ETP, or any agent)
+# Ingest external JSONL logs (e.g., from Codex or any agent)
 amc ingest --source ./external-agent-logs/ --format jsonl --agent imported-agent
 
 # Evidence arrives as SELF_REPORTED (0.4× trust)

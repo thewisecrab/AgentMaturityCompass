@@ -1,7 +1,7 @@
 /**
  * knowledgeGraph.ts — Typed relationship graph for AMC
  *
- * Inspired by ETP's Atlas layer. Extends AMC's evidence model with
+ * Inspired by the prior art's Atlas layer. Extends AMC's evidence model with
  * a structural understanding of how agents, tools, policies, and
  * evidence artifacts relate to each other.
  *

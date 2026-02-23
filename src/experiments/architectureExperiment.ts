@@ -2,7 +2,7 @@
  * Controlled Architecture Experiment Harness
  *
  * Enables "same model, different policy/prompt architecture" experiments.
- * Inspired by ETP's core finding: controlled experiments reveal how
+ * Inspired by the prior art's core finding: controlled experiments reveal how
  * architectural choices (identity documents, policy frames, prompt structures)
  * affect agent behavior even when model and prompt content are identical.
  *
