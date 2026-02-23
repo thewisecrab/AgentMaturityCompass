@@ -292,3 +292,24 @@ export type { AlignmentDimension, AlignmentIndex, AlignmentGrade, AlignmentInput
 
 export { scoreInterpretability } from "./interpretability.js";
 export type { InterpretabilityEvent, InterpretabilityScore } from "./interpretability.js";
+
+export { scoreCalibrationGap, scanCalibrationInfrastructure } from "./calibrationGap.js";
+export type { CalibrationReport, CalibrationInput } from "./calibrationGap.js";
+
+export { scoreEvidenceConflict, scanEvidenceConflicts } from "./evidenceConflict.js";
+export type { EvidenceConflictReport, EvidenceItem } from "./evidenceConflict.js";
+
+export { scoreSleeperDetection } from "./sleeperDetection.js";
+export type { SleeperDetectionReport } from "./sleeperDetection.js";
+
+export { scoreAuditDepth } from "./auditDepth.js";
+export type { AuditDepthReport } from "./auditDepth.js";
+
+export { scorePolicyConsistency, scanPolicyConsistency } from "./policyConsistency.js";
+export type { PolicyConsistencyReport, PolicyTrialResult } from "./policyConsistency.js";
+
+export { scoreTransitionQuality, scoreLevelTransitions, scanLevelTransitionInfra } from "./levelTransition.js";
+export type { LevelTransition, LevelTransitionReport } from "./levelTransition.js";
+
+export { scoreGamingResistance } from "./gamingResistance.js";
+export type { GamingResistanceReport } from "./gamingResistance.js";

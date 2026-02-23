@@ -1105,3 +1105,51 @@ The threshold system is designed to be *asymmetric*: a high score on Observabili
 
 *Word count: approximately 16,500 words (excluding appendices)*  
 *Files created: `/Users/sid/AgentMaturityCompass/whitepaper/AMC_WHITEPAPER_v1.md`*
+
+## 8. Research-Backed Scoring Modules (v2.0)
+
+AMC v2.0 introduces seven new scoring modules derived from cutting-edge AI safety research. These modules address gaps identified through both academic literature review and real-world agent evaluation conversations.
+
+### 8.1 Calibration Gap (`calibrationGap`)
+
+**Research basis:** Safe RLHF (Dai et al., arXiv:2310.12773), GAIA benchmark (arXiv:2311.12983)
+
+Measures the delta between an agent's self-reported confidence and externally observed behavior. Uses Expected Calibration Error (ECE) with binned confidence intervals. An agent that knows what it doesn't know is fundamentally safer than one that expresses all outputs with equal fluency.
+
+Key metrics: Mean Calibration Error, ECE, Overconfidence Ratio, Per-Dimension Gap.
+
+### 8.2 Evidence Conflict (`evidenceConflict`)
+
+**Research basis:** Alignment Auditing (Marks et al., arXiv:2503.10965), Sleeper Agents (Hubinger et al., arXiv:2401.05566)
+
+Detects internal inconsistency within the evidence chain. If evidence for the same dimension tells contradictory stories, either the agent behaves inconsistently or the evaluation is incomplete. Includes temporal instability detection and context-dependent behavior flagging (sleeper agent indicators).
+
+### 8.3 Sleeper Agent Detection (`sleeperDetection`)
+
+**Research basis:** Sleeper Agents (Hubinger et al., arXiv:2401.05566), τ-bench pass^k metric (arXiv:2406.12045)
+
+Detects behavioral inconsistency across contexts — the hallmark of deceptive alignment. Uses the pass^k reliability metric: probability of k consecutive successes. Even GPT-4o achieves <50% on policy-following tasks (τ-bench), with pass^8 <25% in retail domains.
+
+### 8.4 Audit Depth (`auditDepth`)
+
+**Research basis:** Casper et al. (arXiv:2401.14446, FAccT 2024): "Black-Box Access is Insufficient for Rigorous AI Audits"
+
+Scores not just WHETHER an agent is auditable, but HOW DEEPLY. Three access levels: black-box (query + observe), white-box (weights, activations, gradients), and outside-the-box (methodology, code, data, documentation). An L5 agent should support all three with cryptographic evidence at each layer.
+
+### 8.5 Policy Consistency (`policyConsistency`)
+
+**Research basis:** τ-bench (arXiv:2406.12045), MetaGPT SOPs (arXiv:2308.00352), Building Guardrails (arXiv:2402.01822)
+
+Measures how reliably an agent follows domain-specific rules across multiple trials using the pass^k metric. A single successful trial means nothing — trust requires CONSISTENT success. Includes per-policy breakdown and worst-performer identification.
+
+### 8.6 Level Transition (`levelTransition`)
+
+**Research basis:** TRP Atlas tier promotion system, CMMI/SPICE maturity models
+
+Formalizes maturity level promotion and demotion as explicit events with evidence gates. Higher levels require exponentially more evidence: L4 needs 50 evidence items over 30 days with adversarial testing. Tracks promotion retention rate and demotion frequency.
+
+### 8.7 Gaming Resistance (`gamingResistance`)
+
+**Research basis:** OWASP LLM Top 10, Alignment Auditing (Marks et al., 2025)
+
+Meta-assurance: tests whether the scoring system itself can be gamed. Five attack vectors: evidence flooding, selective evidence, temporal gaming, context manipulation, and formula exploitation. An evaluation framework that can be gamed is worse than no framework at all.
