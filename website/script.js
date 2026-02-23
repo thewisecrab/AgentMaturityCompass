@@ -47,7 +47,7 @@ gsap.to('.hero-content', {
 });
 
 // ─── SCROLL REVEALS ───
-document.querySelectorAll('.sec-tag, .sec h2, .sec-sub, .plat-card, .dim, .lvl, .tier, .uc, .terminal, .inflation-demo, .arch-diagram, .install-alt, .trust-tiers').forEach(el => {
+document.querySelectorAll('.sec-tag, .sec h2, .sec-sub, .plat-card, .dim, .lvl, .tier, .uc, .terminal, .inflation-demo, .arch-diagram, .install-alt, .trust-tiers, .p-card, .ev-step, .atk, .atk-terminal, .int-item, .comply-card, .oss-stats, .oss-links, .sub-heading, .tier-intro, .atk-note, .evidence-flow').forEach(el => {
   el.classList.add('reveal');
 });
 
@@ -63,6 +63,11 @@ document.querySelectorAll('.dim').forEach((d, i) => { d.style.transitionDelay = 
 document.querySelectorAll('.lvl').forEach((l, i) => { l.style.transitionDelay = `${i * 0.08}s`; });
 document.querySelectorAll('.uc').forEach((u, i) => { u.style.transitionDelay = `${i * 0.06}s`; });
 document.querySelectorAll('.tier').forEach((t, i) => { t.style.transitionDelay = `${i * 0.06}s`; });
+document.querySelectorAll('.p-card').forEach((c, i) => { c.style.transitionDelay = `${i * 0.08}s`; });
+document.querySelectorAll('.atk').forEach((a, i) => { a.style.transitionDelay = `${i * 0.04}s`; });
+document.querySelectorAll('.ev-step').forEach((e, i) => { e.style.transitionDelay = `${i * 0.1}s`; });
+document.querySelectorAll('.int-item').forEach((e, i) => { e.style.transitionDelay = `${i * 0.05}s`; });
+document.querySelectorAll('.comply-card').forEach((c, i) => { c.style.transitionDelay = `${i * 0.08}s`; });
 
 // ─── COUNTERS ───
 function animateNum(el, target) {
@@ -86,6 +91,7 @@ const cObs = new IntersectionObserver(entries => {
 }, { threshold: 0.5 });
 
 document.querySelectorAll('.proof-num').forEach(n => cObs.observe(n));
+document.querySelectorAll('.oss-num').forEach(n => cObs.observe(n));
 
 // ─── INFLATION BARS ───
 const infObs = new IntersectionObserver(entries => {
