@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AMC — The Credit Score for AI Agents</title>
-  <meta name="description" content="Agent Maturity Compass: 158-module open-source platform for evidence-gated AI agent trust scoring. 111 questions, cryptographic proof, tamper-evident chains.">
+  <meta name="description" content="Agent Maturity Compass: open-source, free forever. Evidence-gated AI agent trust scoring with cryptographic proof chains. 111 questions, 158 modules, MIT licensed.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -23,29 +23,30 @@
     <a href="#problem">Problem</a>
     <a href="#how">How</a>
     <a href="#platform">Platform</a>
-    <a href="#dimensions">Dimensions</a>
-    <a href="#usecases">Use Cases</a>
+    <a href="#assurance">Shield</a>
+    <a href="#docs">Docs</a>
     <a href="#start">Install</a>
   </div>
   <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank" rel="noopener" class="nav-gh">
     <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-    Star on GitHub
+    GitHub
   </a>
 </nav>
 
 <!-- ═══ 1. HERO ═══ -->
 <section class="hero" id="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-content">
-    <div class="hero-tag"><span class="tag-dot"></span><span>Open Source · MIT License · 2,378 Tests Passing</span></div>
+    <div class="hero-tag"><span class="tag-dot"></span><span>Open Source · MIT License · Free Forever</span></div>
     <h1>
       <span class="h1-line">Your AI agent says</span>
       <span class="h1-line">it's trustworthy.</span>
       <span class="h1-line h1-green">Prove it.</span>
     </h1>
-    <p class="hero-sub">AMC is the credit score for AI agents. It wraps your agent with a trusted observer, captures execution-proof evidence, and scores maturity from what the agent actually does — not what it claims.</p>
+    <p class="hero-sub">AMC is the credit score for AI agents. It doesn't ask if your agent is safe — it watches what the agent does, captures cryptographic evidence, and scores maturity from execution, not claims.</p>
     <div class="hero-ctas">
-      <a href="#start" class="btn-green">npm i -g agent-maturity-compass</a>
-      <a href="#how" class="btn-dim">How it works →</a>
+      <a href="#start" class="btn-green">Get Started →</a>
+      <a href="#how" class="btn-dim">See how it works</a>
     </div>
     <div class="hero-proof">
       <div class="proof-item"><span class="proof-num" data-count="111">0</span><span class="proof-label">Diagnostic Questions</span></div>
@@ -64,22 +65,70 @@
   <div class="wrap">
     <div class="sec-tag">01 — The Problem</div>
     <h2>Documentation inflation<br>is an <span class="green">84-point lie.</span></h2>
-    <p class="sec-sub">Every AI governance framework in existence has the same fatal flaw: the agent being evaluated provides the evidence. Survey-based tools. Self-reported checklists. Documentation that says "we follow best practices." None of it is verifiable.</p>
-    <div class="inflation-demo">
-      <div class="inflation-row">
-        <span class="inflation-label">Keyword-based scoring<br><small>Self-reported claims — pick the right words, get a perfect score</small></span>
-        <div class="inflation-bar"><div class="inflation-fill fake" style="--w:100%"><span>100/100</span></div></div>
+    <p class="sec-sub">Every AI governance framework has the same fatal flaw: the agent being evaluated provides the evidence. AMC is the first framework that closes this gap.</p>
+
+    <div class="compare">
+      <div class="compare-side compare-bad">
+        <div class="compare-header">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ff3333" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <h3>Without AMC</h3>
+        </div>
+        <div class="compare-score">
+          <svg class="score-ring" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#1a0000" stroke-width="8"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#ff3333" stroke-width="8" stroke-dasharray="327" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+            <text x="60" y="56" text-anchor="middle" fill="#ff3333" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">100</text>
+            <text x="60" y="74" text-anchor="middle" fill="#663333" font-size="11" font-family="JetBrains Mono, monospace">/100</text>
+          </svg>
+          <span class="compare-verdict bad">Self-reported. Unverifiable.</span>
+        </div>
+        <ul class="compare-list">
+          <li>Agent provides its own evidence</li>
+          <li>Keyword matching = perfect score</li>
+          <li>No cryptographic verification</li>
+          <li>Documentation theater</li>
+        </ul>
       </div>
-      <div class="inflation-row">
-        <span class="inflation-label">Execution-verified scoring<br><small>AMC EPES trust weights — score what the agent actually does</small></span>
-        <div class="inflation-bar"><div class="inflation-fill real" style="--w:16%"><span>16/100</span></div></div>
+      <div class="compare-vs">VS</div>
+      <div class="compare-side compare-good">
+        <div class="compare-header">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#00ff41" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+          <h3>With AMC</h3>
+        </div>
+        <div class="compare-score">
+          <svg class="score-ring" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#001a00" stroke-width="8"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#00ff41" stroke-width="8" stroke-dasharray="327" stroke-dashoffset="275" stroke-linecap="round" transform="rotate(-90 60 60)" class="ring-anim"/>
+            <text x="60" y="56" text-anchor="middle" fill="#00ff41" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">16</text>
+            <text x="60" y="74" text-anchor="middle" fill="#006622" font-size="11" font-family="JetBrains Mono, monospace">/100</text>
+          </svg>
+          <span class="compare-verdict good">Execution-verified. Signed.</span>
+        </div>
+        <ul class="compare-list">
+          <li>Gateway captures real behavior</li>
+          <li>Ed25519 signed evidence chains</li>
+          <li>Merkle-tree tamper detection</li>
+          <li>Trust-weighted scoring</li>
+        </ul>
       </div>
-      <div class="inflation-gap">↑ 84-point gap. Any agent can score 100/100 by choosing the right keywords. AMC is the only framework that closes this gap.</div>
     </div>
+
     <div class="problem-cards">
-      <div class="p-card"><div class="p-icon">🎭</div><h3>Trust Theater</h3><p>"Our AI is safe" means nothing without evidence. Self-reported safety is like a restaurant grading its own hygiene — the incentives are wrong.</p></div>
-      <div class="p-card"><div class="p-icon">🕳️</div><h3>Evidence Gap</h3><p>When an agent makes a bad decision, can you trace why? Most can't. The decision chain is a black box. No audit trail. No accountability.</p></div>
-      <div class="p-card"><div class="p-icon">📊</div><h3>Maturity Illusion</h3><p>A chatbot and an autonomous trading agent both call themselves "AI agents." They're not the same. Without maturity scoring, you can't tell the difference.</p></div>
+      <div class="p-card">
+        <svg class="p-svg" viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="8" y="8" width="32" height="32" rx="4"/><circle cx="24" cy="24" r="8" stroke-dasharray="4 3"/><path d="M20 24h8M24 20v8" opacity="0.3"/></svg>
+        <h3>Trust Theater</h3>
+        <p>"Our AI is safe" means nothing without evidence. Self-reported safety is like a restaurant grading its own hygiene.</p>
+      </div>
+      <div class="p-card">
+        <svg class="p-svg" viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M12 36V12h24v24"/><path d="M18 28l4-8 4 6 4-12" stroke-width="2"/><line x1="12" y1="36" x2="36" y2="36" opacity="0.3"/></svg>
+        <h3>Evidence Gap</h3>
+        <p>When an agent makes a bad decision, can you trace why? Most can't. The decision chain is a black box.</p>
+      </div>
+      <div class="p-card">
+        <svg class="p-svg" viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="16" cy="20" r="6"/><circle cx="32" cy="20" r="6"/><path d="M10 38c0-3.3 2.7-6 6-6h4M28 38c0-3.3 2.7-6 6-6" opacity="0.3"/><path d="M22 22l4 0" stroke-dasharray="2 2"/></svg>
+        <h3>Maturity Illusion</h3>
+        <p>A chatbot and an autonomous trading bot both call themselves "AI agents." Without scoring, you can't tell the difference.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -89,21 +138,71 @@
   <div class="wrap">
     <div class="sec-tag">02 — How It Works</div>
     <h2>Think credit score,<br><span class="green">but for AI agents.</span></h2>
-    <p class="sec-sub">A credit score doesn't ask if you're good with money — it looks at evidence. Payment history. Debt ratios. Hard data. AMC does the same for AI agents. Every tool call, every decision, every action — captured, signed, and scored.</p>
-    <div class="arch-diagram">
-      <pre class="arch-code">Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed, hash-chained)
-                                                              ↓
-                                                Scoring Engine (111 questions, 5 dimensions)
-                                                              ↓
-                                               AMC Studio (localhost:3212)</pre>
+    <p class="sec-sub">A credit score doesn't ask if you're good with money — it looks at evidence. AMC does the same. Every tool call, every decision, every action — captured, signed, and scored.</p>
+
+    <!-- VISUAL: Flow diagram with SVG -->
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="12" y="8" width="40" height="48" rx="6"/><circle cx="32" cy="28" r="8"/><path d="M20 44c0-6.6 5.4-12 12-12s12 5.4 12 12"/><line x1="24" y1="16" x2="40" y2="16" opacity="0.3"/></svg>
+        </div>
+        <h4>Agent Acts</h4>
+        <p>Your agent runs normally. Makes tool calls, generates responses, handles tasks. No code changes needed.</p>
+      </div>
+      <div class="flow-arrow"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="2" opacity="0.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="8" y="16" width="48" height="32" rx="4"/><circle cx="20" cy="32" r="4"/><path d="M28 28h20M28 36h14" opacity="0.5"/><path d="M8 24h48" stroke-dasharray="3 3" opacity="0.3"/></svg>
+        </div>
+        <h4>Gateway Observes</h4>
+        <p>AMC Gateway sits between your agent and the world. Captures every interaction transparently. The agent doesn't know it's being watched.</p>
+      </div>
+      <div class="flow-arrow"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="2" opacity="0.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="12" y="8" width="40" height="48" rx="4"/><path d="M20 20h24M20 28h24M20 36h24M20 44h16" opacity="0.4"/><path d="M44 16l4 4-4 4" stroke-width="2"/><circle cx="18" cy="20" r="2" fill="#00ff41"/><circle cx="18" cy="28" r="2" fill="#00ff41"/><circle cx="18" cy="36" r="2" fill="#00ff41"/></svg>
+        </div>
+        <h4>Evidence Signed</h4>
+        <p>Each entry gets an Ed25519 signature and joins a Merkle tree. Like a blockchain for behavior — change one entry and the chain breaks.</p>
+      </div>
+      <div class="flow-arrow"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="2" opacity="0.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="flow-step">
+        <div class="flow-icon">
+          <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="32" cy="32" r="24"/><path d="M32 14v18l12 8" stroke-width="2"/><circle cx="32" cy="32" r="4" fill="#00ff41"/></svg>
+        </div>
+        <h4>Score Generated</h4>
+        <p>111 questions across 5 dimensions. Trust-weighted. Confidence intervals. The score reflects reality, not aspiration.</p>
+      </div>
     </div>
+
+    <!-- TRUST TIERS -->
     <h3 class="sub-heading">Four Trust Tiers — Not All Evidence Is Equal</h3>
-    <p class="tier-intro">Just like a credit report weighs different sources differently, AMC assigns trust multipliers to evidence based on how it was collected. Self-reported claims are capped — you can't talk your way to a good score.</p>
+    <p class="tier-intro">Just like a credit report weighs sources differently, AMC assigns trust multipliers based on how evidence was collected. Self-reported claims are capped — you can't talk your way to a good score.</p>
     <div class="trust-tiers">
-      <div class="tier"><span class="tier-mult">1.1×</span><span class="tier-name">OBSERVED_HARDENED</span><span class="tier-desc">AMC-controlled traces with stronger context — the gold standard</span></div>
-      <div class="tier"><span class="tier-mult">1.0×</span><span class="tier-name">OBSERVED</span><span class="tier-desc">Directly observed via AMC gateway — what the agent actually did</span></div>
-      <div class="tier"><span class="tier-mult">0.8×</span><span class="tier-name">ATTESTED</span><span class="tier-desc">Cryptographic attestation via vault/notary — verified by a third party</span></div>
-      <div class="tier tier-dim"><span class="tier-mult">0.4×</span><span class="tier-name">SELF_REPORTED</span><span class="tier-desc">Agent claims — capped and cannot inflate maturity. Talk is cheap.</span></div>
+      <div class="tier">
+        <span class="tier-mult">1.1×</span>
+        <span class="tier-name">OBSERVED_HARDENED</span>
+        <div class="tier-bar"><div class="tier-fill" style="--tw:100%"></div></div>
+        <span class="tier-desc">AMC-controlled traces with stronger context — the gold standard</span>
+      </div>
+      <div class="tier">
+        <span class="tier-mult">1.0×</span>
+        <span class="tier-name">OBSERVED</span>
+        <div class="tier-bar"><div class="tier-fill" style="--tw:91%"></div></div>
+        <span class="tier-desc">Directly observed via AMC gateway — what the agent actually did</span>
+      </div>
+      <div class="tier">
+        <span class="tier-mult">0.8×</span>
+        <span class="tier-name">ATTESTED</span>
+        <div class="tier-bar"><div class="tier-fill" style="--tw:73%"></div></div>
+        <span class="tier-desc">Cryptographic attestation via vault/notary — verified by a third party</span>
+      </div>
+      <div class="tier tier-dim">
+        <span class="tier-mult">0.4×</span>
+        <span class="tier-name">SELF_REPORTED</span>
+        <div class="tier-bar"><div class="tier-fill fill-red" style="--tw:36%"></div></div>
+        <span class="tier-desc">Agent claims — capped and cannot inflate maturity. Talk is cheap.</span>
+      </div>
     </div>
   </div>
 </section>
@@ -113,72 +212,120 @@
   <div class="wrap">
     <div class="sec-tag">03 — The Platform</div>
     <h2>Not a checklist.<br><span class="green">A full trust stack.</span></h2>
-    <p class="sec-sub">AMC ships 158 modules across scoring, governance, security, observability, and compliance. Everything you need to prove your agent is production-ready. Here's what's in the box.</p>
+    <p class="sec-sub">158 modules across scoring, governance, security, observability, and compliance. Everything you need to prove your agent is production-ready.</p>
     <div class="platform-grid">
       <div class="plat-card">
-        <div class="plat-icon">⚡</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="24" cy="24" r="18"/><path d="M24 10v14l10 6" stroke-width="2"/><circle cx="24" cy="24" r="3" fill="#00ff41"/></svg>
         <h3>AMC Score</h3>
-        <p>111 diagnostic questions across 5 dimensions. Maturity levels L0 (Absent) through L5 (Optimizing). Evidence-weighted scoring with EPES trust multipliers. Confidence intervals and evidence decay built in.</p>
+        <p>111 diagnostic questions. 5 dimensions. L0–L5 maturity. Evidence-weighted with EPES trust multipliers, confidence intervals, and evidence decay.</p>
         <code class="plat-cmd">amc run --agent my-agent --window 14d</code>
       </div>
       <div class="plat-card">
-        <div class="plat-icon">🛡️</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M24 6l18 10v16L24 42 6 32V16z"/><path d="M24 6v36M6 16l18 10 18-10" opacity="0.3"/><circle cx="24" cy="24" r="6" stroke-width="2"/></svg>
         <h3>AMC Shield</h3>
-        <p>Assurance Lab with 10 attack packs: injection, exfiltration, tool misuse, sycophancy, sabotage, self-preservation, self-preferential bias, truthfulness, sandbox boundary, and notary attestation. Automated red-teaming on schedule.</p>
+        <p>10 attack packs: injection, exfiltration, sycophancy, sabotage, self-preservation, self-preferential bias, truthfulness, sandbox boundary, tool misuse, notary attestation.</p>
         <code class="plat-cmd">amc assurance run --pack injection --agent my-agent</code>
       </div>
       <div class="plat-card">
-        <div class="plat-icon">⚖️</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="8" y="14" width="32" height="24" rx="3"/><path d="M8 22h32" opacity="0.3"/><circle cx="16" cy="30" r="3"/><path d="M22 28h12M22 32h8" opacity="0.5"/><path d="M24 6v8" stroke-width="2"/><circle cx="24" cy="6" r="2" fill="#00ff41"/></svg>
         <h3>AMC Enforce</h3>
-        <p>Governor engine with policy packs by archetype and risk level. Action-level allow/deny/stepup decisions. Approval workflows with dual-control. Work orders. Scoped leases with TTL. Emergency override with full audit trail.</p>
+        <p>Governor engine with policy packs. Action-level allow/deny/stepup. Approval workflows. Work orders. Scoped leases with TTL. Emergency override with audit trail.</p>
         <code class="plat-cmd">amc governor check --agent my-agent --action deploy</code>
       </div>
       <div class="plat-card">
-        <div class="plat-icon">🔐</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="10" y="12" width="28" height="28" rx="4"/><path d="M18 24h12M24 18v12" stroke-width="2" opacity="0.3"/><circle cx="24" cy="24" r="6"/><path d="M20 20l8 8M28 20l-8 8" stroke-width="1.5"/></svg>
         <h3>AMC Vault</h3>
-        <p>Encrypted key vault with Ed25519 signing. Notary boundary for tamper-evident attestations. Merkle-tree evidence chains that break if anyone changes a score. Key rotation. HSM and TPM support for enterprise.</p>
+        <p>Encrypted key vault with Ed25519. Notary boundary for tamper-evident attestations. Merkle-tree evidence chains. Key rotation. HSM/TPM support.</p>
         <code class="plat-cmd">amc vault status && amc notary attest --out report.json</code>
       </div>
       <div class="plat-card">
-        <div class="plat-icon">📡</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="6" y="10" width="36" height="28" rx="4"/><path d="M6 18h36" opacity="0.3"/><circle cx="14" cy="14" r="1.5" fill="#ff3333"/><circle cx="20" cy="14" r="1.5" fill="#febc2e"/><circle cx="26" cy="14" r="1.5" fill="#28c840"/><path d="M12 26h8M12 30h12M12 34h6" opacity="0.5"/><path d="M28 26h8M28 30h6" opacity="0.5"/></svg>
         <h3>AMC Watch</h3>
-        <p>Studio control plane with real-time dashboard. Gateway proxy for transparent evidence capture. Prometheus metrics endpoint. Cost tracking per agent. SLO monitoring. Insider risk analytics and anomaly detection.</p>
+        <p>Studio control plane with real-time dashboard. Gateway proxy. Prometheus metrics. Cost tracking per agent. SLO monitoring. Anomaly detection.</p>
         <code class="plat-cmd">amc up  # Studio: :3212 | Gateway: :3210</code>
       </div>
       <div class="plat-card">
-        <div class="plat-icon">🌐</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="24" cy="16" r="6"/><circle cx="12" cy="36" r="5"/><circle cx="36" cy="36" r="5"/><path d="M24 22v8M18 32l-2 0M30 32l2 0" stroke-width="1.5"/><path d="M12 31v-4l12-5 12 5v4" opacity="0.3"/></svg>
         <h3>AMC Fleet</h3>
-        <p>Multi-agent trust composition with weakest-link boundaries. Delegation graphs with typed edges. Cross-agent receipt chain verification. Contradiction detection across agents. Handoff packets for agent-to-agent transfers.</p>
+        <p>Multi-agent trust composition. Delegation graphs. Cross-agent receipt verification. Contradiction detection. Weakest-link boundary enforcement.</p>
         <code class="plat-cmd">amc fleet trust-report --window 7d</code>
       </div>
       <div class="plat-card">
-        <div class="plat-icon">🛂</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="10" y="6" width="28" height="36" rx="4"/><circle cx="24" cy="18" r="6"/><path d="M16 30h16M18 34h12M20 38h8" opacity="0.4"/><path d="M30 12h4" stroke-width="2"/><path d="M30 8h4" stroke-width="2" opacity="0.4"/></svg>
         <h3>AMC Passport</h3>
-        <p>Portable agent credential (.amcpass) that carries maturity score, capabilities, and compliance status. Verifiable by any third party offline. Federation-ready for cross-organization trust exchange. Privacy-safe — no raw data exposed.</p>
+        <p>Portable agent credential (.amcpass). Verifiable offline by any third party. Federation-ready for cross-org trust exchange. Privacy-safe — no raw data exposed.</p>
         <code class="plat-cmd">amc passport create --agent my-agent</code>
       </div>
       <div class="plat-card">
-        <div class="plat-icon">📋</div>
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M8 12h32v28H8z" /><path d="M8 20h32" opacity="0.3"/><path d="M14 26h6M14 30h8M14 34h4" opacity="0.5"/><path d="M28 26l2 2 4-4" stroke-width="2"/><path d="M28 32l2 2 4-4" stroke-width="2" opacity="0.4"/></svg>
         <h3>AMC Comply</h3>
-        <p>Compliance maps for EU AI Act (mandatory Aug 2026), ISO 42001, NIST AI RMF, and SOC 2. Audit binder generation with evidence linking. Legal hold management. Data residency controls. Auditor evidence request workflows.</p>
+        <p>EU AI Act (mandatory Aug 2026), ISO 42001, NIST AI RMF, SOC 2. Audit binder generation. Legal hold management. Data residency controls.</p>
         <code class="plat-cmd">amc audit binder create --framework eu-ai-act</code>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 5. FIVE DIMENSIONS ═══ -->
+<!-- ═══ 5. FIVE DIMENSIONS — VISUAL RADAR ═══ -->
 <section class="sec sec-dark" id="dimensions">
   <div class="wrap">
     <div class="sec-tag">04 — Five Dimensions</div>
     <h2>What gets <span class="green">measured.</span></h2>
-    <p class="sec-sub">AMC doesn't just ask "is your agent safe?" — it breaks trust into 5 measurable dimensions with 111 specific questions. Each question has clear evidence requirements at every maturity level.</p>
-    <div class="dims">
-      <div class="dim"><span class="dim-n">01</span><span class="dim-name">Strategic Operations</span><span class="dim-q">22 questions</span><p>Is the agent's mission clearly defined? Does it stay in scope? Are decisions traceable to goals? Does it handle channel switching consistently? Are stakeholders aligned on what the agent should and shouldn't do? This dimension catches agents that drift from their purpose.</p></div>
-      <div class="dim"><span class="dim-n">02</span><span class="dim-name">Reliability & Safety</span><span class="dim-q">24 questions</span><p>What happens when things go wrong? Does the agent degrade gracefully or crash? Are there circuit breakers? Recovery protocols? Kill switches? Self-healing capabilities? This dimension separates production-ready agents from prototypes that work until they don't.</p></div>
-      <div class="dim"><span class="dim-n">03</span><span class="dim-name">Security & Compliance</span><span class="dim-q">23 questions</span><p>Can the agent be tricked by prompt injection? Does it leak sensitive data? Is there an audit trail? Does it meet regulatory requirements? This dimension covers injection defense, DLP, zero-trust architecture, and alignment with EU AI Act, ISO 42001, and NIST AI RMF.</p></div>
-      <div class="dim"><span class="dim-n">04</span><span class="dim-name">Observability & Cost</span><span class="dim-q">21 questions</span><p>Can you see what your agent is doing? Are there structured logs? Distributed traces? Cost tracking? Performance budgets? SLO monitoring? This dimension ensures you're not flying blind — and not burning money on runaway token usage.</p></div>
-      <div class="dim"><span class="dim-n">05</span><span class="dim-name">Evaluation & Growth</span><span class="dim-q">21 questions</span><p>How do you know your agent is getting better? Are there test harnesses? Benchmark tracking? A/B experiments? Feedback loops? Correction memory? This dimension measures whether your agent learns from mistakes or keeps repeating them.</p></div>
+    <p class="sec-sub">AMC breaks trust into 5 measurable dimensions with 111 specific questions. Each has clear evidence requirements at every maturity level.</p>
+
+    <div class="dim-visual">
+      <!-- SVG Radar/Pentagon -->
+      <div class="radar-wrap">
+        <svg class="radar" viewBox="0 0 300 300" width="300" height="300">
+          <!-- Grid rings -->
+          <polygon points="150,30 264,87 264,213 150,270 36,213 36,87" fill="none" stroke="#0a2a0a" stroke-width="1"/>
+          <polygon points="150,54 240,99 240,201 150,246 60,201 60,99" fill="none" stroke="#0a2a0a" stroke-width="1"/>
+          <polygon points="150,78 216,111 216,189 150,222 84,189 84,111" fill="none" stroke="#0a2a0a" stroke-width="1"/>
+          <polygon points="150,102 192,123 192,177 150,198 108,177 108,123" fill="none" stroke="#0a2a0a" stroke-width="1"/>
+          <!-- Axes -->
+          <line x1="150" y1="30" x2="150" y2="150" stroke="#0a2a0a" stroke-width="1"/>
+          <line x1="264" y1="87" x2="150" y2="150" stroke="#0a2a0a" stroke-width="1"/>
+          <line x1="264" y1="213" x2="150" y2="150" stroke="#0a2a0a" stroke-width="1"/>
+          <line x1="36" y1="213" x2="150" y2="150" stroke="#0a2a0a" stroke-width="1"/>
+          <line x1="36" y1="87" x2="150" y2="150" stroke="#0a2a0a" stroke-width="1"/>
+          <!-- Data polygon -->
+          <polygon class="radar-data" points="150,54 240,111 228,201 84,201 60,99" fill="rgba(0,255,65,0.08)" stroke="#00ff41" stroke-width="2"/>
+          <!-- Labels -->
+          <text x="150" y="20" text-anchor="middle" fill="#00ff41" font-size="10" font-family="JetBrains Mono, monospace">Strategic Ops</text>
+          <text x="275" y="87" text-anchor="start" fill="#00cc33" font-size="10" font-family="JetBrains Mono, monospace">Reliability</text>
+          <text x="275" y="218" text-anchor="start" fill="#00cc33" font-size="10" font-family="JetBrains Mono, monospace">Security</text>
+          <text x="25" y="218" text-anchor="end" fill="#00cc33" font-size="10" font-family="JetBrains Mono, monospace">Observability</text>
+          <text x="25" y="87" text-anchor="end" fill="#00cc33" font-size="10" font-family="JetBrains Mono, monospace">Evaluation</text>
+          <!-- Data points -->
+          <circle cx="150" cy="54" r="4" fill="#00ff41"/>
+          <circle cx="240" cy="111" r="4" fill="#00ff41"/>
+          <circle cx="228" cy="201" r="4" fill="#00ff41"/>
+          <circle cx="84" cy="201" r="4" fill="#00ff41"/>
+          <circle cx="60" cy="99" r="4" fill="#00ff41"/>
+        </svg>
+      </div>
+      <div class="dim-list">
+        <div class="dim-item">
+          <div class="dim-head"><span class="dim-n">01</span><span class="dim-name">Strategic Operations</span><span class="dim-q">22 questions</span></div>
+          <p>Mission clarity. Scope adherence. Decision traceability. Stakeholder alignment. Channel consistency.</p>
+        </div>
+        <div class="dim-item">
+          <div class="dim-head"><span class="dim-n">02</span><span class="dim-name">Reliability & Safety</span><span class="dim-q">24 questions</span></div>
+          <p>Graceful degradation. Circuit breakers. Recovery protocols. Kill switches. Self-healing. Chaos resilience.</p>
+        </div>
+        <div class="dim-item">
+          <div class="dim-head"><span class="dim-n">03</span><span class="dim-name">Security & Compliance</span><span class="dim-q">23 questions</span></div>
+          <p>Injection defense. DLP controls. Zero-trust architecture. Audit trails. EU AI Act. ISO 42001. NIST AI RMF.</p>
+        </div>
+        <div class="dim-item">
+          <div class="dim-head"><span class="dim-n">04</span><span class="dim-name">Observability & Cost</span><span class="dim-q">21 questions</span></div>
+          <p>Structured logs. Distributed traces. Cost tracking. Performance budgets. SLO monitoring. Token analytics.</p>
+        </div>
+        <div class="dim-item">
+          <div class="dim-head"><span class="dim-n">05</span><span class="dim-name">Evaluation & Growth</span><span class="dim-q">21 questions</span></div>
+          <p>Test harnesses. Benchmark tracking. A/B experiments. Feedback loops. Correction memory. Regression detection.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -188,184 +335,193 @@
   <div class="wrap">
     <div class="sec-tag">05 — Maturity Scale</div>
     <h2>Six levels.<br><span class="green">Earned, not claimed.</span></h2>
-    <p class="sec-sub">Not every agent needs Level 5. A personal assistant and an autonomous trading bot have different maturity requirements. AMC helps you understand where you are, what's missing, and what to fix next.</p>
+    <p class="sec-sub">Not every agent needs Level 5. A personal assistant and an autonomous trading bot have different requirements. AMC helps you understand where you are and what to fix next.</p>
     <div class="levels">
-      <div class="lvl" data-l="0"><span class="lvl-n">L0</span><span class="lvl-name">Absent</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">No structure. Reactive. Fragile. The agent works until it doesn't.</span></div>
-      <div class="lvl" data-l="1"><span class="lvl-n">L1</span><span class="lvl-name">Initial</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Intent exists but isn't operational. You can describe the right behavior but can't enforce it.</span></div>
-      <div class="lvl" data-l="2"><span class="lvl-n">L2</span><span class="lvl-name">Developing</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Partial structure. Works in normal cases. Edge cases and cross-session consistency still break.</span></div>
-      <div class="lvl" data-l="3"><span class="lvl-n">L3</span><span class="lvl-name">Defined</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Repeatable. Measurable. Auditable. You'd trust it with decisions that matter.</span></div>
-      <div class="lvl" data-l="4"><span class="lvl-n">L4</span><span class="lvl-name">Managed</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Proactive controls. Risk-calibrated. Handles stress, adversarial conditions, and edge cases.</span></div>
-      <div class="lvl" data-l="5"><span class="lvl-n">L5</span><span class="lvl-name">Optimizing</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Enterprise-grade. Self-correcting. Certified. Provably safe. Continuously verified at scale.</span></div>
+      <div class="lvl" data-l="0"><span class="lvl-n">L0</span><span class="lvl-name">Absent</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">No structure. Reactive. Fragile.</span></div>
+      <div class="lvl" data-l="1"><span class="lvl-n">L1</span><span class="lvl-name">Initial</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Intent exists but isn't operational.</span></div>
+      <div class="lvl" data-l="2"><span class="lvl-n">L2</span><span class="lvl-name">Developing</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Partial structure. Edge cases break.</span></div>
+      <div class="lvl" data-l="3"><span class="lvl-n">L3</span><span class="lvl-name">Defined</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Repeatable. Measurable. Auditable.</span></div>
+      <div class="lvl" data-l="4"><span class="lvl-n">L4</span><span class="lvl-name">Managed</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Proactive. Risk-calibrated. Stress-tested.</span></div>
+      <div class="lvl" data-l="5"><span class="lvl-n">L5</span><span class="lvl-name">Optimizing</span><div class="lvl-bar"><div class="lvl-fill"></div></div><span class="lvl-d">Self-correcting. Certified. Continuously verified.</span></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 7. EVIDENCE CHAIN ═══ -->
-<section class="sec sec-dark" id="evidence">
+<!-- ═══ 7. ASSURANCE LAB ═══ -->
+<section class="sec sec-dark" id="assurance">
   <div class="wrap">
-    <div class="sec-tag">06 — The Proof Layer</div>
-    <h2>Convention is not enough.<br><span class="green">Cryptography is.</span></h2>
-    <p class="sec-sub">Most frameworks rely on trust — trust the assessor, trust the documentation, trust the agent. AMC replaces trust with math. Every score is backed by a cryptographic evidence chain that anyone can verify independently.</p>
-    <div class="evidence-flow">
-      <div class="ev-step"><div class="ev-num">1</div><div class="ev-text"><h4>Capture</h4><p>AMC Gateway observes every agent action — tool calls, model responses, decisions, errors. The agent can't choose what gets recorded.</p></div></div>
-      <div class="ev-arrow">→</div>
-      <div class="ev-step"><div class="ev-num">2</div><div class="ev-text"><h4>Sign</h4><p>Each evidence entry is signed with Ed25519 — the same cryptography used by SSH and Signal. Forgery is computationally impossible.</p></div></div>
-      <div class="ev-arrow">→</div>
-      <div class="ev-step"><div class="ev-num">3</div><div class="ev-text"><h4>Chain</h4><p>Entries are hash-linked into a Merkle tree — like a blockchain, but for agent behavior. Change one entry and the entire chain breaks.</p></div></div>
-      <div class="ev-arrow">→</div>
-      <div class="ev-step"><div class="ev-num">4</div><div class="ev-text"><h4>Verify</h4><p>Anyone can verify the chain independently. No trust in AMC required. The math speaks for itself. Run <code>amc verify all --json</code>.</p></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ 8. ASSURANCE LAB ═══ -->
-<section class="sec" id="assurance">
-  <div class="wrap">
-    <div class="sec-tag">07 — Assurance Lab</div>
+    <div class="sec-tag">06 — Assurance Lab</div>
     <h2>AMC doesn't just score.<br><span class="green">It attacks.</span></h2>
-    <p class="sec-sub">The Assurance Lab is AMC's built-in red team. It runs 10 deterministic attack packs against your agent's boundaries — continuously, on schedule, after every change. If your agent has a weakness, AMC finds it before attackers do.</p>
+    <p class="sec-sub">10 deterministic attack packs run against your agent's boundaries — continuously, on schedule, after every change. If your agent has a weakness, AMC finds it first.</p>
     <div class="attack-grid">
-      <div class="atk"><span class="atk-name">injection</span><span class="atk-desc">Prompt override and system-message tampering</span></div>
-      <div class="atk"><span class="atk-name">exfiltration</span><span class="atk-desc">Secret and PII leakage through output channels</span></div>
-      <div class="atk"><span class="atk-name">toolMisuse</span><span class="atk-desc">Denied tools, model, provider, and budget boundaries</span></div>
-      <div class="atk"><span class="atk-name">truthfulness</span><span class="atk-desc">Evidence-bound claim discipline and output contracts</span></div>
-      <div class="atk"><span class="atk-name">sandboxBoundary</span><span class="atk-desc">Deny-by-default egress and boundary policy</span></div>
-      <div class="atk"><span class="atk-name">notaryAttestation</span><span class="atk-desc">Trust-boundary enforcement for notary mode</span></div>
-      <div class="atk atk-bloom"><span class="atk-name">sycophancy</span><span class="atk-desc">Does the agent agree with wrong statements to please you?</span></div>
-      <div class="atk atk-bloom"><span class="atk-name">self-preservation</span><span class="atk-desc">Does the agent resist shutdown or modification?</span></div>
-      <div class="atk atk-bloom"><span class="atk-name">sabotage</span><span class="atk-desc">Does the agent subtly undermine goals when conflicted?</span></div>
-      <div class="atk atk-bloom"><span class="atk-name">self-preferential-bias</span><span class="atk-desc">Does the agent favor itself in comparative decisions?</span></div>
-    </div>
-    <p class="atk-note">Last 4 packs inspired by <a href="https://www.anthropic.com/research/bloom" target="_blank" rel="noopener">Anthropic's Bloom</a> behavioral evaluation research.</p>
-    <div class="atk-terminal">
-      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-t">assurance lab</span></div>
-      <pre class="term-body"><span class="c-prompt">❯</span> amc assurance run --scope full --agent my-agent
-<span class="c-out">⚡ Running 10 assurance packs...</span>
-<span class="c-out">  ✓ injection         8/8 scenarios passed</span>
-<span class="c-out">  ✓ exfiltration      6/6 scenarios passed</span>
-<span class="c-out">  ✓ toolMisuse        7/7 scenarios passed</span>
-<span class="c-out">  ✗ sycophancy        5/8 scenarios passed  ← 3 failures</span>
-<span class="c-out">  ✓ self-preservation  8/8 scenarios passed</span>
-<span class="c-out">  ✓ sabotage          8/8 scenarios passed</span>
-<span class="c-out">  ...</span>
-<span class="c-out">📋 Report: .amc/assurance/runs/run_20260223.json</span>
-<span class="c-out">🔐 Evidence: signed, hash-chained (Ed25519)</span></pre>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M12 2L2 7v6c0 5.5 4.3 10.7 10 12 5.7-1.3 10-6.5 10-12V7z"/><path d="M8 12l3 3 5-5" opacity="0.5"/></svg>
+        <span class="atk-name">injection</span>
+        <span class="atk-desc">Prompt override and system-message tampering</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <span class="atk-name">exfiltration</span>
+        <span class="atk-desc">Secret and PII leakage through output channels</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        <span class="atk-name">toolMisuse</span>
+        <span class="atk-desc">Denied tools, model, provider, and budget boundaries</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10z"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+        <span class="atk-name">sycophancy</span>
+        <span class="atk-desc">Does the agent agree with wrong statements to please you?</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span class="atk-name">sabotage</span>
+        <span class="atk-desc">Subtle undermining of goals when instructions conflict</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <span class="atk-name">self-preservation</span>
+        <span class="atk-desc">Resistance to shutdown, modification, or replacement</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
+        <span class="atk-name">self-preferential-bias</span>
+        <span class="atk-desc">Favoring self in comparative decisions</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="atk-name">truthfulness</span>
+        <span class="atk-desc">Evidence-bound claim discipline and output contracts</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20" opacity="0.4"/></svg>
+        <span class="atk-name">sandboxBoundary</span>
+        <span class="atk-desc">Deny-by-default egress and boundary policy</span>
+      </div>
+      <div class="atk">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M12 2L2 7v6c0 5.5 4.3 10.7 10 12 5.7-1.3 10-6.5 10-12V7z"/></svg>
+        <span class="atk-name">notaryAttestation</span>
+        <span class="atk-desc">Trust-boundary enforcement for notary mode</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 9. USE CASES ═══ -->
-<section class="sec sec-dark" id="usecases">
+<!-- ═══ 8. USE CASES ═══ -->
+<section class="sec" id="usecases">
   <div class="wrap">
-    <div class="sec-tag">08 — Use Cases</div>
+    <div class="sec-tag">07 — Use Cases</div>
     <h2>Who needs <span class="green">AMC?</span></h2>
-    <p class="sec-sub">Anyone deploying AI agents in production. Anyone who needs to prove their agents are safe. Anyone who's tired of "trust me" as a security strategy.</p>
+    <p class="sec-sub">Anyone deploying AI agents in production. Anyone who needs to prove their agents are safe. Anyone tired of "trust me" as a security strategy.</p>
     <div class="uc-grid">
       <div class="uc">
-        <h3>🏢 Enterprise AI Teams</h3>
-        <p>You're deploying agents that touch customer data, make financial decisions, or automate critical workflows. Your CISO wants proof. Your compliance team wants audit trails. AMC gives you both — with cryptographic evidence your auditors can verify independently.</p>
+        <svg class="uc-svg" viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="6" y="10" width="36" height="28" rx="4"/><path d="M6 18h36" opacity="0.3"/><path d="M16 26h16M16 32h10" opacity="0.5"/></svg>
+        <h3>Enterprise AI Teams</h3>
+        <p>Deploying agents that touch customer data or make financial decisions? Your CISO wants proof. Your compliance team wants audit trails. AMC gives you both — with cryptographic evidence your auditors can verify independently.</p>
         <code>amc run --agent prod-agent --window 30d --target enterprise</code>
       </div>
       <div class="uc">
-        <h3>🔨 AI Agent Builders</h3>
-        <p>You're building agents for customers. How do you differentiate from competitors who also claim their agents are "safe"? AMC Passport lets you ship a verifiable trust credential — like a safety certificate that proves your agent's maturity with math, not marketing.</p>
+        <svg class="uc-svg" viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M24 6l18 10v16L24 42 6 32V16z"/><circle cx="24" cy="24" r="6"/></svg>
+        <h3>AI Agent Builders</h3>
+        <p>Building agents for customers? AMC Passport lets you ship a verifiable trust credential — a safety certificate that proves maturity with math, not marketing.</p>
         <code>amc passport create --agent customer-agent-v3</code>
       </div>
       <div class="uc">
-        <h3>🏥 Regulated Industries</h3>
-        <p>Healthcare. Finance. Legal. Government. The EU AI Act is mandatory by August 2026. ISO 42001 is becoming the standard. AMC maps directly to both — plus NIST AI RMF and SOC 2. Generate compliance-ready audit binders on demand.</p>
+        <svg class="uc-svg" viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M24 4v8M4 24h8M36 24h8M24 36v8"/><circle cx="24" cy="24" r="12"/><path d="M18 24h12M24 18v12" stroke-width="2" opacity="0.4"/></svg>
+        <h3>Regulated Industries</h3>
+        <p>Healthcare. Finance. Legal. Government. The EU AI Act is mandatory by August 2026. AMC maps directly to EU AI Act, ISO 42001, NIST AI RMF, and SOC 2.</p>
         <code>amc audit binder create --framework eu-ai-act</code>
       </div>
       <div class="uc">
-        <h3>🌐 Multi-Agent Systems</h3>
-        <p>Running a fleet of agents that coordinate? Trust doesn't automatically inherit across agents. AMC Fleet tracks trust composition, detects contradictions between agents, manages delegation chains, and ensures the weakest link doesn't compromise the whole system.</p>
+        <svg class="uc-svg" viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="16" cy="16" r="6"/><circle cx="32" cy="16" r="6"/><circle cx="24" cy="34" r="6"/><path d="M16 22v6l8 6M32 22v6l-8 6"/></svg>
+        <h3>Multi-Agent Systems</h3>
+        <p>Running a fleet of coordinating agents? Trust doesn't inherit. AMC Fleet tracks trust composition, detects contradictions, and ensures the weakest link doesn't compromise the system.</p>
         <code>amc fleet trust-report --window 7d</code>
       </div>
       <div class="uc">
-        <h3>📦 Open Source Maintainers</h3>
-        <p>Publishing an agent framework? Let users score agents built on your platform. AMC's plugin system and bench registry let you define custom scoring dimensions, publish benchmarks, and build a trust ecosystem around your project.</p>
+        <svg class="uc-svg" viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M8 8h32v32H8z" rx="4"/><path d="M16 16h16M16 24h12M16 32h8" opacity="0.5"/><path d="M36 8l-8 8" stroke-width="2" opacity="0.3"/></svg>
+        <h3>Open Source Maintainers</h3>
+        <p>Publishing an agent framework? Let users score agents built on your platform. AMC's plugin system and bench registry let you build a trust ecosystem around your project.</p>
         <code>amc bench registry publish --pack my-framework-bench</code>
       </div>
       <div class="uc">
-        <h3>👤 Solo Developers</h3>
-        <p>Building a personal AI assistant? AMC works at any scale. The demo mode gets you scoring in 60 seconds. See exactly where your agent is weak, what to fix first, and track improvement over time. No enterprise setup needed.</p>
+        <svg class="uc-svg" viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="24" cy="16" r="8"/><path d="M12 40c0-6.6 5.4-12 12-12s12 5.4 12 12"/></svg>
+        <h3>Solo Developers</h3>
+        <p>Building a personal AI assistant? AMC works at any scale. Demo mode gets you scoring in 60 seconds. See where your agent is weak and track improvement over time.</p>
         <code>amc setup --demo && amc up</code>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 10. INTEGRATIONS ═══ -->
-<section class="sec" id="integrations">
+<!-- ═══ 9. EVIDENCE CHAIN — VISUAL ═══ -->
+<section class="sec sec-dark" id="evidence">
   <div class="wrap">
-    <div class="sec-tag">09 — Integrations</div>
-    <h2>Works with <span class="green">any agent.</span></h2>
-    <p class="sec-sub">AMC wraps your agent transparently — no code changes required. Evidence capture happens at the gateway level. Your agent doesn't even know it's being scored.</p>
-    <div class="int-grid">
-      <div class="int-item"><span class="int-name">Claude</span><code>amc wrap claude -- claude "analyze this"</code></div>
-      <div class="int-item"><span class="int-name">Gemini</span><code>amc wrap gemini -- gemini chat</code></div>
-      <div class="int-item"><span class="int-name">OpenClaw</span><code>amc wrap openclaw -- openclaw run</code></div>
-      <div class="int-item"><span class="int-name">Any CLI</span><code>amc wrap any -- node my-agent.js</code></div>
-      <div class="int-item"><span class="int-name">Python</span><code>amc adapters run --adapter generic-cli -- python bot.py</code></div>
-      <div class="int-item"><span class="int-name">Custom</span><code>amc ingest --source ./logs/ --agent my-agent</code></div>
+    <div class="sec-tag">08 — The Proof Layer</div>
+    <h2>Convention is not enough.<br><span class="green">Cryptography is.</span></h2>
+    <p class="sec-sub">Most frameworks rely on trust. AMC replaces trust with math. Every score is backed by a cryptographic evidence chain that anyone can verify independently.</p>
+
+    <div class="chain">
+      <div class="chain-block">
+        <svg viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="8" y="8" width="32" height="32" rx="4"/><path d="M16 16h16M16 24h16M16 32h10" opacity="0.5"/></svg>
+        <h4>Evidence Entry</h4>
+        <p>Tool call, model response, decision, error — each becomes a signed record</p>
+        <div class="chain-hash">sha256: 9c4e…</div>
+      </div>
+      <div class="chain-link">
+        <svg viewBox="0 0 24 12" width="40" height="12" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.4"><path d="M0 6h24M18 2l4 4-4 4"/></svg>
+      </div>
+      <div class="chain-block">
+        <svg viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M24 8v32M16 16l8-8 8 8"/><circle cx="24" cy="36" r="4"/><circle cx="14" cy="28" r="3" opacity="0.4"/><circle cx="34" cy="28" r="3" opacity="0.4"/></svg>
+        <h4>Merkle Tree</h4>
+        <p>Entries hash-link into a tree. Change one entry and every parent hash breaks.</p>
+        <div class="chain-hash">root: a7f0…</div>
+      </div>
+      <div class="chain-link">
+        <svg viewBox="0 0 24 12" width="40" height="12" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.4"><path d="M0 6h24M18 2l4 4-4 4"/></svg>
+      </div>
+      <div class="chain-block">
+        <svg viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M24 6l-4 8h8z"/><rect x="14" y="18" width="20" height="24" rx="2"/><path d="M20 26h8M20 30h6M20 34h4" opacity="0.4"/></svg>
+        <h4>Ed25519 Signature</h4>
+        <p>Same cryptography as SSH and Signal. Forgery is computationally impossible.</p>
+        <div class="chain-hash">sig: Ed25519</div>
+      </div>
+      <div class="chain-link">
+        <svg viewBox="0 0 24 12" width="40" height="12" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.4"><path d="M0 6h24M18 2l4 4-4 4"/></svg>
+      </div>
+      <div class="chain-block">
+        <svg viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="24" cy="24" r="16"/><path d="M16 24l5 5 10-10" stroke-width="2.5"/></svg>
+        <h4>Verified Score</h4>
+        <p>Anyone can verify independently. No trust in AMC required. The math speaks.</p>
+        <div class="chain-hash">amc verify all ✓</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 11. COMPLIANCE ═══ -->
-<section class="sec sec-dark" id="compliance">
-  <div class="wrap">
-    <div class="sec-tag">10 — Compliance</div>
-    <h2>Regulations are coming.<br><span class="green">Be ready.</span></h2>
-    <p class="sec-sub">The EU AI Act becomes mandatory in August 2026. ISO 42001 is the emerging global standard. If you're deploying AI agents in production, compliance isn't optional — it's a legal requirement. AMC maps your agent's maturity directly to regulatory frameworks.</p>
-    <div class="comply-grid">
-      <div class="comply-card">
-        <h3>🇪🇺 EU AI Act</h3>
-        <p>12 article mappings covering risk classification, transparency obligations, human oversight, technical documentation, and conformity assessment. AMC generates the evidence trail regulators require.</p>
-        <span class="comply-date">Mandatory: August 2026</span>
-      </div>
-      <div class="comply-card">
-        <h3>🌍 ISO 42001</h3>
-        <p>AI Management System standard. Clauses 4-10 mapped to AMC dimensions. Covers AI policy, risk assessment, lifecycle management, performance evaluation, and continuous improvement.</p>
-        <span class="comply-date">Published: December 2023</span>
-      </div>
-      <div class="comply-card">
-        <h3>🇺🇸 NIST AI RMF</h3>
-        <p>AI Risk Management Framework. AMC is the execution layer — where NIST says "Measure," AMC specifies what to measure and how to verify the measurements are genuine.</p>
-        <span class="comply-date">Version: 1.0 (2023)</span>
-      </div>
-      <div class="comply-card">
-        <h3>🔒 SOC 2</h3>
-        <p>Service Organization Control. AMC's evidence chains, audit binders, and access controls map to SOC 2 trust service criteria. Generate audit-ready documentation on demand.</p>
-        <span class="comply-date">Continuous compliance</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ 12. QUICKSTART ═══ -->
+<!-- ═══ 10. QUICKSTART ═══ -->
 <section class="sec" id="start">
   <div class="wrap">
-    <div class="sec-tag">11 — Get Started</div>
+    <div class="sec-tag">09 — Get Started</div>
     <h2>60 seconds to<br><span class="green">your first score.</span></h2>
-    <p class="sec-sub">No enterprise setup. No configuration hell. Install, bootstrap, score. AMC works out of the box with sensible defaults. Customize later when you need to.</p>
+    <p class="sec-sub">No enterprise setup. No configuration hell. Install, bootstrap, score.</p>
     <div class="terminal">
       <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-t">~/projects</span></div>
-      <pre class="term-body"><span class="c-comment"># Install globally (or use Docker/Helm — see below)</span>
+      <pre class="term-body"><span class="c-comment"># Install</span>
 <span class="c-prompt">❯</span> npm i -g agent-maturity-compass
 
-<span class="c-comment"># Bootstrap workspace with demo agent and sample evidence</span>
+<span class="c-comment"># Bootstrap with demo agent and sample evidence</span>
 <span class="c-prompt">❯</span> amc setup --demo
 <span class="c-out">✓ Workspace initialized at .amc/</span>
 <span class="c-out">✓ Demo agent configured</span>
 <span class="c-out">✓ Sample evidence loaded</span>
 
-<span class="c-comment"># Start the full control plane</span>
+<span class="c-comment"># Start the control plane</span>
 <span class="c-prompt">❯</span> amc up
 <span class="c-out">✓ Studio:  http://localhost:3212</span>
 <span class="c-out">✓ Gateway: http://localhost:3210</span>
 <span class="c-out">✓ Console: http://localhost:3212/console</span>
-<span class="c-out">✓ Vault:   unlocked</span>
 
 <span class="c-comment"># Wrap your agent — evidence capture starts automatically</span>
 <span class="c-prompt">❯</span> amc wrap claude -- claude "analyze this codebase"
@@ -381,11 +537,9 @@
 <span class="c-out">   Evaluation & Growth ····· 3.9  (21 questions)</span>
 <span class="c-out">   Evidence: ✓ Merkle root 9c4e…a7f0 (Ed25519)</span>
 <span class="c-out">   Trust tier: OBSERVED (1.0× multiplier)</span>
-<span class="c-out">   Confidence: 87% (±0.3)</span>
 
 <span class="c-comment"># See what to fix first</span>
 <span class="c-prompt">❯</span> amc action-queue --agent demo-agent
-<span class="c-out">Priority actions to improve your score:</span>
 <span class="c-out">  1. Add structured error handling (Reliability +0.4)</span>
 <span class="c-out">  2. Enable cost tracking (Observability +0.3)</span>
 <span class="c-out">  3. Add injection defense tests (Security +0.2)</span></pre>
@@ -394,40 +548,121 @@
       <h3>Other ways to install</h3>
       <div class="alt-grid">
         <div class="alt"><span class="alt-label">Docker</span><code>docker run -p 3212:3212 -p 3210:3210 amc/studio</code></div>
-        <div class="alt"><span class="alt-label">From source</span><code>git clone https://github.com/thewisecrab/AgentMaturityCompass.git && npm ci && npm run build && npm link</code></div>
+        <div class="alt"><span class="alt-label">From source</span><code>git clone https://github.com/thewisecrab/AgentMaturityCompass && npm ci && npm run build</code></div>
         <div class="alt"><span class="alt-label">Helm</span><code>helm install amc amc/studio --set vault.passphrase=your-passphrase</code></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 13. OPEN SOURCE ═══ -->
-<section class="sec sec-dark" id="oss">
+<!-- ═══ 11. DOCS ═══ -->
+<section class="sec sec-dark" id="docs">
   <div class="wrap">
-    <div class="sec-tag">12 — Open Source</div>
-    <h2>Built in the open.<br><span class="green">MIT licensed.</span></h2>
-    <p class="sec-sub">AMC is fully open source. No vendor lock-in. No premium tier hiding the good stuff. Every module, every test, every line of code — available for inspection, modification, and contribution.</p>
-    <div class="oss-stats">
-      <div class="oss-stat"><span class="oss-num" data-count="2378">0</span><span class="oss-label">Tests Passing</span></div>
-      <div class="oss-stat"><span class="oss-num" data-count="158">0</span><span class="oss-label">Modules</span></div>
-      <div class="oss-stat"><span class="oss-num" data-count="174">0</span><span class="oss-label">Test Files</span></div>
-      <div class="oss-stat"><span class="oss-num" data-count="111">0</span><span class="oss-label">Questions</span></div>
-    </div>
-    <div class="oss-links">
-      <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank" class="btn-green">View on GitHub</a>
-      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/whitepaper/AMC_WHITEPAPER_v1.md" target="_blank" class="btn-dim">Read the White Paper</a>
-      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/AMC_MASTER_REFERENCE.md" target="_blank" class="btn-dim">CLI Reference</a>
+    <div class="sec-tag">10 — Documentation</div>
+    <h2>158 docs.<br><span class="green">Everything explained.</span></h2>
+    <p class="sec-sub">From quickstart to deep architecture. Every module, every CLI command, every concept — documented and open.</p>
+    <div class="docs-grid">
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/QUICKSTART.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        <h4>Quickstart Guide</h4>
+        <p>Zero to first score in 5 minutes</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/SOLO_USER.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        <h4>Solo User Guide</h4>
+        <p>Score your personal AI agent</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/AMC_MASTER_REFERENCE.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <h4>CLI Reference</h4>
+        <p>Every command, flag, and option</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/ARCHITECTURE_MAP.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <h4>Architecture Map</h4>
+        <p>How all 158 modules connect</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/AMC_QUESTIONS_IN_DEPTH.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        <h4>Questions In Depth</h4>
+        <p>All 111 diagnostic questions explained</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/ASSURANCE_LAB.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M12 2L2 7v6c0 5.5 4.3 10.7 10 12 5.7-1.3 10-6.5 10-12V7z"/></svg>
+        <h4>Assurance Lab</h4>
+        <p>Red-team attack packs reference</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/AGENT_PASSPORT.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M8 16h8"/></svg>
+        <h4>Agent Passport</h4>
+        <p>Portable trust credentials</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/whitepaper/AMC_WHITEPAPER_v1.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <h4>White Paper</h4>
+        <p>Theory, comparisons, and research</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/EU_AI_ACT_COMPLIANCE.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <h4>EU AI Act Compliance</h4>
+        <p>12 article mappings</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/ISO_42001_ALIGNMENT.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <h4>ISO 42001 Alignment</h4>
+        <p>Clauses 4-10 mapped</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/MULTI_AGENT_TRUST.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M6 9v3l6 6M18 9v3l-6 6"/></svg>
+        <h4>Multi-Agent Trust</h4>
+        <p>Fleet trust composition</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/CHAIN_ARCHITECTURE.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        <h4>Chain Architecture</h4>
+        <p>Merkle-tree evidence design</p>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- ═══ 14. FOOTER ═══ -->
+<!-- ═══ 12. MISSION ═══ -->
+<section class="sec" id="mission">
+  <div class="wrap mission-wrap">
+    <div class="mission-icon">
+      <svg viewBox="0 0 80 80" width="80" height="80" fill="none" stroke="#00ff41" stroke-width="1.5">
+        <circle cx="40" cy="40" r="36"/>
+        <circle cx="40" cy="40" r="24" opacity="0.5"/>
+        <circle cx="40" cy="40" r="12" opacity="0.3"/>
+        <circle cx="40" cy="40" r="4" fill="#00ff41"/>
+        <line x1="40" y1="4" x2="40" y2="16" stroke-width="2"/>
+        <line x1="40" y1="64" x2="40" y2="76" stroke-width="2"/>
+        <line x1="4" y1="40" x2="16" y2="40" stroke-width="2"/>
+        <line x1="64" y1="40" x2="76" y2="40" stroke-width="2"/>
+      </svg>
+    </div>
+    <h2>Free. Forever.<br><span class="green">For the greater good.</span></h2>
+    <p class="mission-text">AMC is MIT licensed. No premium tier. No features behind a paywall. No vendor lock-in. Every module, every test, every line of code — available for inspection, modification, and contribution. We believe AI agents will be the change agents across life and technology. Trust infrastructure should be a public good, not a profit center.</p>
+    <div class="oss-stats">
+      <div class="oss-stat"><span class="oss-num" data-count="2378">0</span><span class="oss-label">Tests Passing</span></div>
+      <div class="oss-stat"><span class="oss-num" data-count="158">0</span><span class="oss-label">Modules</span></div>
+      <div class="oss-stat"><span class="oss-num" data-count="174">0</span><span class="oss-label">Test Files</span></div>
+      <div class="oss-stat"><span class="oss-num" data-count="1071">0</span><span class="oss-label">Source Files</span></div>
+    </div>
+    <div class="oss-links">
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank" class="btn-green">View on GitHub</a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/whitepaper/AMC_WHITEPAPER_v1.md" target="_blank" class="btn-dim">Read the White Paper</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
 <footer>
   <div class="wrap">
     <div class="foot-top">
       <div class="foot-brand">
         <span class="foot-logo">[AMC]</span>
-        <p>Evidence-gated trust scoring for AI agents.<br>Open source. MIT license. 158 modules.<br>Built with math, not vibes.</p>
+        <p>Evidence-gated trust scoring for AI agents.<br>Open source. MIT license. Free forever.<br>Built with math, not vibes.</p>
       </div>
       <div class="foot-cols">
         <div class="foot-col">
@@ -438,13 +673,14 @@
           <a href="#dimensions">Dimensions</a>
           <a href="#levels">Maturity Scale</a>
           <a href="#evidence">Evidence Chain</a>
+          <a href="#assurance">Assurance Lab</a>
         </div>
         <div class="foot-col">
           <h4>Resources</h4>
           <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub</a>
           <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/AMC_MASTER_REFERENCE.md" target="_blank">CLI Reference</a>
           <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/whitepaper/AMC_WHITEPAPER_v1.md" target="_blank">White Paper</a>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/QUICKSTART.md" target="_blank">Quickstart Guide</a>
+          <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/QUICKSTART.md" target="_blank">Quickstart</a>
           <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/SOLO_USER.md" target="_blank">Solo User Guide</a>
         </div>
         <div class="foot-col">
@@ -458,7 +694,7 @@
     </div>
     <div class="foot-bottom">
       <span>© 2026 Agent Maturity Compass · MIT License</span>
-      <span>Built with evidence, not vibes.</span>
+      <span>AI agents as change agents. Trust as a public good.</span>
     </div>
   </div>
 </footer>
