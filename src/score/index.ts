@@ -237,6 +237,18 @@ export type { KernelSandboxResult } from "./kernelSandboxMaturity.js";
 export { scoreRuntimeIdentityMaturity } from "./runtimeIdentityMaturity.js";
 export type { RuntimeIdentityResult } from "./runtimeIdentityMaturity.js";
 
+export {
+  scoreAutonomyDuration,
+  getDomainRiskProfile,
+  listDomainRiskProfiles
+} from "./autonomyDuration.js";
+export type {
+  DomainRiskClass,
+  DomainRiskProfile,
+  AutonomyDurationSignal,
+  AutonomyDurationInput
+} from "./autonomyDuration.js";
+
 // ── METR Task Horizon (2026-02-23) ───────────────────────────────────
 
 export {
