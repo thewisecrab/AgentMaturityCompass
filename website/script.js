@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════
-   AMC v8 — Matrix Green Terminal
-   Matrix rain, counters, scroll reveals, level bars
-   ═══════════════════════════════════════════ */
+/* AMC v9 — Matrix Terminal Script */
 
 // ─── MATRIX RAIN ───
 const canvas = document.getElementById('matrix');
@@ -14,117 +11,109 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-const chars = 'AMCアイウエオカキクケコ01234567890.:{}<>[];/\\|=+-_*&^%$#@!~';
+const chars = 'AMCアイウエオ01234567890.:{}<>[];/\\|=+-_*&^%';
 const fontSize = 14;
-let columns = Math.floor(canvas.width / fontSize);
-let drops = Array(columns).fill(1);
+let columns, drops;
+
+function initDrops() {
+  columns = Math.floor(canvas.width / fontSize);
+  drops = Array(columns).fill(1);
+}
+initDrops();
+window.addEventListener('resize', initDrops);
 
 function drawMatrix() {
-  ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+  ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#00ff41';
   ctx.font = fontSize + 'px monospace';
-
   for (let i = 0; i < drops.length; i++) {
     const char = chars[Math.floor(Math.random() * chars.length)];
     ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-      drops[i] = 0;
-    }
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
     drops[i]++;
   }
   requestAnimationFrame(drawMatrix);
 }
 drawMatrix();
 
-window.addEventListener('resize', () => {
-  columns = Math.floor(canvas.width / fontSize);
-  drops = Array(columns).fill(1);
-});
-
-// ─── NAV SCROLL ───
-const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.style.borderBottomColor = window.scrollY > 60
-    ? 'rgba(0, 255, 65, 0.12)'
-    : 'rgba(0, 255, 65, 0.06)';
-}, { passive: true });
-
-// ─── COUNTER ANIMATION ───
-function animateCounter(el, target) {
-  const duration = 1800;
-  const start = performance.now();
-  function update(now) {
-    const p = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(eased * target);
-    if (p < 1) requestAnimationFrame(update);
-  }
-  requestAnimationFrame(update);
-}
-
-// ─── SCROLL REVEALS ───
+// ─── GSAP + SCROLL ───
 gsap.registerPlugin(ScrollTrigger);
 
-// Mark elements for reveal
-document.querySelectorAll('.sec-tag, .sec h2, .sec-sub, .plat-card, .dim, .lvl, .tier, .uc, .terminal, .inflation-demo, .arch-diagram, .install-alt').forEach(el => {
+// Hero parallax
+gsap.to('.hero-content', {
+  scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 },
+  y: -100, opacity: 0
+});
+
+// ─── SCROLL REVEALS ───
+document.querySelectorAll('.sec-tag, .sec h2, .sec-sub, .plat-card, .dim, .lvl, .tier, .uc, .terminal, .inflation-demo, .arch-diagram, .install-alt, .trust-tiers').forEach(el => {
   el.classList.add('reveal');
 });
 
-const revealObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) e.target.classList.add('vis');
-  });
-}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
 
-document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-// Stagger delays
-document.querySelectorAll('.plat-card').forEach((c, i) => { c.style.transitionDelay = `${i * 0.06}s`; });
-document.querySelectorAll('.dim').forEach((d, i) => { d.style.transitionDelay = `${i * 0.08}s`; });
-document.querySelectorAll('.lvl').forEach((l, i) => { l.style.transitionDelay = `${i * 0.1}s`; });
-document.querySelectorAll('.uc').forEach((u, i) => { u.style.transitionDelay = `${i * 0.08}s`; });
-document.querySelectorAll('.tier').forEach((t, i) => { t.style.transitionDelay = `${i * 0.08}s`; });
+// Stagger
+document.querySelectorAll('.plat-card').forEach((c, i) => { c.style.transitionDelay = `${i * 0.05}s`; });
+document.querySelectorAll('.dim').forEach((d, i) => { d.style.transitionDelay = `${i * 0.06}s`; });
+document.querySelectorAll('.lvl').forEach((l, i) => { l.style.transitionDelay = `${i * 0.08}s`; });
+document.querySelectorAll('.uc').forEach((u, i) => { u.style.transitionDelay = `${i * 0.06}s`; });
+document.querySelectorAll('.tier').forEach((t, i) => { t.style.transitionDelay = `${i * 0.06}s`; });
 
 // ─── COUNTERS ───
-const counterObs = new IntersectionObserver((entries) => {
+function animateNum(el, target) {
+  const dur = 2000;
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / dur, 1);
+    el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+const cObs = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
-      animateCounter(e.target, parseInt(e.target.dataset.count));
-      counterObs.unobserve(e.target);
+      animateNum(e.target, parseInt(e.target.dataset.count));
+      cObs.unobserve(e.target);
     }
   });
 }, { threshold: 0.5 });
 
-document.querySelectorAll('.proof-num').forEach(n => counterObs.observe(n));
+document.querySelectorAll('.proof-num').forEach(n => cObs.observe(n));
 
-// ─── LEVEL BARS ───
-const levelObs = new IntersectionObserver((entries) => {
+// ─── INFLATION BARS ───
+const infObs = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
-      const fill = e.target.querySelector('.lvl-fill');
-      if (fill) {
-        const tw = getComputedStyle(fill).getPropertyValue('--tw');
-        fill.style.width = tw;
-      }
-      levelObs.unobserve(e.target);
+      e.target.querySelectorAll('.inflation-fill').forEach(fill => {
+        const w = fill.style.getPropertyValue('--w');
+        fill.style.width = w;
+      });
+      infObs.unobserve(e.target);
     }
   });
 }, { threshold: 0.3 });
 
-document.querySelectorAll('.lvl').forEach(l => levelObs.observe(l));
+document.querySelectorAll('.inflation-demo').forEach(d => infObs.observe(d));
 
-// ─── HERO PARALLAX ───
-gsap.to('.hero-content', {
-  scrollTrigger: {
-    trigger: '.hero',
-    start: 'top top',
-    end: 'bottom top',
-    scrub: 1
-  },
-  y: -80,
-  opacity: 0
-});
+// ─── LEVEL BARS ───
+const lvlObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const fill = e.target.querySelector('.lvl-fill');
+      if (fill) fill.style.width = getComputedStyle(fill).getPropertyValue('--tw');
+      lvlObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.lvl').forEach(l => lvlObs.observe(l));
 
 // ─── SMOOTH SCROLL ───
 document.querySelectorAll('a[href^="#"]').forEach(a => {
