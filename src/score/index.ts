@@ -277,3 +277,18 @@ export type {
   FactualityDimensionScore,
   FactualityResult,
 } from "./factuality.js";
+
+export { assessAutonomy, getDeescalationTriggers, getDomainRiskCap } from "./graduatedAutonomy.js";
+export type { AutonomyMode, AutonomyTransitionRule, AutonomyState, AutonomyAssessment, RiskOverride } from "./graduatedAutonomy.js";
+
+export { scorePauseQuality } from "./pauseQuality.js";
+export type { PauseEvent, PauseReason, PauseQualityScore, PauseQualityInput } from "./pauseQuality.js";
+
+export { scoreMemoryIntegrity } from "./memoryIntegrity.js";
+export type { MemoryEvent, MemoryEventType, MemoryIntegrityScore, MemoryIntegrityInput } from "./memoryIntegrity.js";
+
+export { computeAlignmentIndex } from "./alignmentIndex.js";
+export type { AlignmentDimension, AlignmentIndex, AlignmentGrade, AlignmentInput } from "./alignmentIndex.js";
+
+export { scoreInterpretability } from "./interpretability.js";
+export type { InterpretabilityEvent, InterpretabilityScore } from "./interpretability.js";
