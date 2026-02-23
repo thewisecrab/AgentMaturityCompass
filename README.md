@@ -543,6 +543,21 @@ Every AMC export is signed, offline-verifiable, and tamper-evident:
 
 **The one thing nobody else does:** Execution-proof evidence. When AMC says your agent is L3, there are 8+ observed events, 3+ sessions, 3+ days of signed evidence backing that claim. No self-reporting. No keyword inflation.
 
+### Convention vs. Math
+
+Most agent trust systems — including well-designed ones — rely on convention: files exist because the agent wrote them, sessions link because timestamps are sequential, knowledge graphs are valid because the system created them. Convention works when everyone follows the rules. It fails silently when they don't.
+
+AMC replaces convention with cryptographic proof:
+- Every evidence entry is SHA-256 hash-chained — tampering breaks the chain
+- Every chain link is signed by the vault or an isolated notary process
+- Merkle inclusion proofs enable offline verification without trusting the log maintainer
+- Trust tiers (OBSERVED > ATTESTED > SELF_REPORTED) with calibrated multipliers prevent claim inflation
+- Multi-agent trust uses weakest-link composition with signed delegation receipts
+
+This is the L4→L5 gap: L4 follows best practices by convention; L5 makes violations cryptographically detectable.
+
+→ [Chain Architecture](docs/CHAIN_ARCHITECTURE.md) · [Multi-Agent Trust](docs/MULTI_AGENT_TRUST.md) · [Claim Provenance](docs/CLAIM_PROVENANCE.md)
+
 ---
 
 ## Deploy
@@ -682,8 +697,11 @@ Covers:
 ### Reference
 [Master CLI Reference](docs/AMC_MASTER_REFERENCE.md) · [Architecture](docs/ARCHITECTURE_MAP.md) · [Questions In Depth (legacy core set)](docs/AMC_QUESTIONS_IN_DEPTH.md) · [Diagnostic Bank (implementation-aligned)](docs/DIAGNOSTIC_BANK.md) · [Full Module Roadmap](docs/FULL_MODULE_ROADMAP.md) · [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
 
+### Trust Architecture
+[Multi-Agent Trust](docs/MULTI_AGENT_TRUST.md) · [Chain Architecture](docs/CHAIN_ARCHITECTURE.md) · [Claim Provenance](docs/CLAIM_PROVENANCE.md) · [Evidence Trust](docs/EVIDENCE_TRUST.md)
+
 ### Research
-[Whitepaper](whitepaper/AMC_WHITEPAPER_v1.md) · [Evidence Trust](docs/EVIDENCE_TRUST.md) · [Benchmarks](docs/BENCHMARKS.md)
+[Whitepaper](whitepaper/AMC_WHITEPAPER_v1.md) · [Benchmarks](docs/BENCHMARKS.md)
 
 ---
 

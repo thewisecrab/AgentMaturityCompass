@@ -492,6 +492,67 @@ A key positioning insight from this comparison is that AMC is *not* a replacemen
 
 This layered model positions AMC in the "measurement and verification" layer of the AI governance stack—an area that is currently a gap in all major standards.
 
+### 7.4 Convention vs. Math: Why Cryptographic Proof Matters
+
+A critical distinction separates AMC from convention-based trust systems. Many agent frameworks — including well-designed ones like The Reasoning Protocol (ETP) — build trust through structural conventions: JSONL files exist because the agent wrote them, session blocks link because timestamps are sequential, knowledge graph edges are valid because the system created them. These conventions work when all participants follow the rules. They fail when anyone — or anything — doesn't.
+
+AMC replaces convention with cryptographic proof at every layer:
+
+| Trust Property | Convention-Based (e.g., ETP) | AMC (Cryptographic) |
+|---------------|------------------------------|---------------------|
+| Artifact integrity | File exists → assumed authentic | SHA-256 hash chain → tamper-evident |
+| Authorship | "Claude wrote this JSONL" (convention) | Vault/notary signature (verifiable) |
+| Session linking | Sequential timestamps | Hash-linked chain entries |
+| Knowledge validity | System created the edge (convention) | Signed, evidence-referenced graph nodes |
+| Evidence trust | All evidence treated equally | 4-tier EPES with calibrated multipliers |
+| Offline verification | Not supported | Merkle inclusion proofs |
+| Cross-agent trust | Not addressed | Weakest-link composition with signed receipts |
+
+This is not a theoretical distinction. Consider a scenario where an agent's JSONL log is modified after the fact — perhaps to remove evidence of a policy violation. In a convention-based system, the modification is undetectable (the file still looks like a valid JSONL log). In AMC, the modification breaks the hash chain, and `amc verify` detects the tampering immediately.
+
+The convention-to-math transition maps directly to the L4→L5 maturity gap: L4 systems follow best practices by convention; L5 systems make violations structurally impossible (or at minimum, cryptographically detectable).
+
+### 7.5 Comparison with The Reasoning Protocol (ETP)
+
+ETP is a 4-layer architecture for agent trust developed in the Claude Code ecosystem:
+
+1. **JSONL ground truth** — raw action recording
+2. **Session blockchain** — hash-linked session blocks (~85 sessions, ~3,500 traced edges)
+3. **Atlas knowledge graph** — typed edges (`[REQUIRES]`, `[USES]`, `[CONTRADICTS]`)
+4. **Governance** — CLAUDE.md + git rules read on session start
+
+ETP represents thoughtful engineering with genuine architectural insight. AMC's relationship to ETP is complementary, not competitive:
+
+| Capability | ETP | AMC | Relationship |
+|-----------|-----|-----|-------------|
+| Raw artifact capture | ✅ JSONL auto-record | ✅ Hash-chained ledger | AMC adds tamper evidence |
+| Session linking | ✅ Session blockchain | ✅ Evidence chain | AMC adds cryptographic signing |
+| Knowledge graph | ✅ Atlas (typed edges) | ✅ CGX (signed, deterministic) | AMC adds signature verification |
+| Provenance labels | ❌ Lost (was in Pathfinder) | ✅ 8-tier provenance system | AMC restores and extends |
+| Trust classification | ❌ All evidence equal | ✅ 4-tier EPES multipliers | AMC differentiates trust quality |
+| Cryptographic signing | ❌ Convention only | ✅ Vault/notary at every link | AMC's core differentiator |
+| Multi-agent trust | ❌ Single-agent focus | ✅ Fleet composition | AMC extends to fleets |
+| Offline verification | ❌ | ✅ Merkle proofs | AMC enables cross-device trust |
+| Anti-hallucination | ❌ | ✅ Truthguard + confidence gates | AMC prevents claim inflation |
+
+AMC can ingest ETP's JSONL artifacts as `SELF_REPORTED` evidence (0.4× trust), then upgrade them through attestation or re-observation — providing a migration path for ETP users who want cryptographic guarantees.
+
+### 7.6 Positioning Against Evaluation Platforms
+
+Platforms like evaluation platform focus on LLM testing and evaluation — measuring whether an agent produces correct outputs for given inputs. This is capability evaluation, not maturity assessment. The distinction matters:
+
+| Aspect | Evaluation Platforms (evaluation platform, etc.) | AMC |
+|--------|------------------------------------------|-----|
+| What they measure | Output correctness on test cases | Operational maturity across 7 dimensions |
+| Evidence model | Test results (pass/fail) | Execution-proof evidence with trust tiers |
+| Temporal scope | Point-in-time test runs | Continuous monitoring with evidence decay |
+| Gaming resistance | Limited (can overfit to test cases) | EPES prevents documentation inflation |
+| Governance coverage | None | Full governance, policy, approval lifecycle |
+| Multi-agent | Limited | Fleet composition, delegation receipts |
+| Compliance mapping | None | SOC2, NIST AI RMF, ISO/IEC 42001 |
+
+Evaluation platforms and AMC are complementary: test results from evaluation platform or similar platforms can be ingested as evidence into AMC's scoring pipeline, contributing to the Evaluation dimension. AMC provides the governance, trust, and compliance wrapper that evaluation platforms lack.
+
 ---
 
 ## 8. Standards Alignment
