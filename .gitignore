@@ -1,9 +1,23 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
 coverage/
-.DS_Store
 
-# AMC runtime data
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage artifacts
+.v8cov*/
+
+# IDE / Agent workspace files
+.claude/
+.openclaw/
+.changeset/
+
+# AMC runtime data (generated at runtime, not source)
 .amc/evidence.sqlite
 .amc/evidence.sqlite-shm
 .amc/evidence.sqlite-wal
@@ -14,18 +28,18 @@ coverage/
 .amc/release/working/
 .amc/**/*.json.sig
 .amc/**/scheduler.json
+
+# SQLite databases (generated)
 *.db
 
-# Python platform
-platform/python/.venv/
+# Python
 __pycache__/
 *.pyc
-platform/python/.pytest_cache/
-platform/python/*.db
-platform/python/amc_routing.db
-platform/python/*.egg-info/
+*.egg-info/
+.venv/
+.pytest_cache/
 
-# Workspace / personal files (OpenClaw workspace — do NOT commit)
+# Personal / workspace files (NEVER commit these)
 SOUL.md
 MEMORY.md
 BOOTSTRAP.md
@@ -37,14 +51,15 @@ NOW.md
 CONTINUATION.md
 AGENTS.md
 AMC_ARMY_ROLES.md
+HANDOFF.md
 qualification.md
 sales_playbook.md
-AMC_OS/
-!AMC_OS/
-AMC_OS/*
-!AMC_OS/DEVOPS/
-AMC_OS/DEVOPS/*
-!AMC_OS/DEVOPS/wave4-deployment-audit.md
 memory/
 amc_ai_army/
+AMC_OS/
 ASSETS/
+security-audit/
+
+# Stray CLI artifacts
+--json
+--verbose
