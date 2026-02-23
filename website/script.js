@@ -133,3 +133,27 @@ if (toggle) {
     localStorage.setItem('amc-mode', isEli5 ? 'eli5' : 'tech');
   });
 }
+
+// ─── OS INSTALL TABS ───
+document.querySelectorAll('.os-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    var os = this.getAttribute('data-os');
+    document.querySelectorAll('.os-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.os-panel').forEach(function(p) { p.classList.remove('active'); });
+    this.classList.add('active');
+    document.querySelector('.os-panel[data-os="' + os + '"]').classList.add('active');
+  });
+});
+
+// ─── DASHBOARD HEATMAP ───
+var heatmap = document.getElementById('dashHeatmap');
+if (heatmap) {
+  var greens = ['#0a1a0a','#0d2b0d','#0f3d0f','#1a5a1a','#2a7a2a','#00cc33','#00ff41'];
+  for (var i = 0; i < 111; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'dash-cell';
+    var level = Math.floor(Math.random() * greens.length);
+    cell.style.background = greens[level];
+    heatmap.appendChild(cell);
+  }
+}
