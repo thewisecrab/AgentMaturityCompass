@@ -4,7 +4,7 @@
 
 AMC doesn't ask if your agent is safe — it watches what the agent does, captures execution-proof evidence, and scores maturity from behavior, not claims.
 
-[![Tests](https://img.shields.io/badge/tests-2%2C425%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-2%2C478%20passing-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 [![Modules](https://img.shields.io/badge/modules-158-green)]()
 
