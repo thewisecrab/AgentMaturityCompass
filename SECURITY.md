@@ -151,3 +151,50 @@ If not isolated, keep `shared` and treat results as untrusted (`INVALID`).
 - Verify assurance determinism: `amc assurance verify --agent <id> --assuranceRun <id>`
 - Issue cert: `amc certify --agent <id> --run <runId> --policy <gatePolicy.json> --out <file.amccert>`
 - Verify cert offline: `amc cert verify <file.amccert>`
+
+---
+
+## Responsible Disclosure
+
+If you discover a security vulnerability in AMC, please report it responsibly:
+
+1. **GitHub Security Advisories** (preferred): [Report a vulnerability](https://github.com/thewisecrab/AgentMaturityCompass/security/advisories/new)
+2. **Email**: Open a GitHub Security Advisory (we don't publish a public email to avoid spam)
+
+Please include:
+- Description of the vulnerability
+- Steps to reproduce
+- Impact assessment
+- Suggested fix (if any)
+
+We will acknowledge receipt within 48 hours and aim to provide a fix within 7 days for critical issues.
+
+**Please do NOT:**
+- Open a public GitHub issue for security vulnerabilities
+- Disclose the vulnerability publicly before we've had a chance to fix it
+- Test against production systems you don't own
+
+## Supported Versions
+
+| Version | Supported |
+|---------|-----------|
+| 1.x (current) | ✅ Security updates |
+| < 1.0 | ❌ No longer supported |
+
+## Security Architecture Overview
+
+AMC's security model is built on four principles:
+
+1. **Evidence-Provenance Enforcement (EPES)**: Every evidence item carries a trust tier (OBSERVED_HARDENED, OBSERVED, ATTESTED, SELF_REPORTED). Self-reported evidence is capped at 0.4× weight and cannot inflate maturity levels.
+
+2. **Cryptographic Integrity**: Ed25519 signatures on all evidence entries, hash-chained ledger for tamper detection, Merkle tree proofs for efficient verification.
+
+3. **Trust Boundary Isolation**: The evaluated agent process is untrusted. Monitor/wrapper keys must be isolated from the agent. If isolation is compromised, all evidence is marked INVALID.
+
+4. **Four Trust Tiers**: Not all evidence is equal. AMC weights evidence by how it was collected, not what it claims. This prevents documentation inflation (the 84-point gap).
+
+## Hall of Fame
+
+Security researchers who have responsibly disclosed vulnerabilities:
+
+*Be the first! Report a vulnerability to be listed here.*
