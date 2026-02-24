@@ -1106,6 +1106,19 @@ program
     for (const line of legacy.lines) {
       console.log(line);
     }
+    console.log("");
+    if (!result.ok || !legacy.ok) {
+      console.log(chalk.yellow("━━━ What to do next ━━━"));
+      console.log(chalk.white("  1. Run"), chalk.cyan("amc doctor-fix"), chalk.white("to auto-repair common issues"));
+      console.log(chalk.white("  2. Run"), chalk.cyan("amc up"), chalk.white("to start Studio (the local control plane)"));
+      console.log(chalk.white("  3. Run"), chalk.cyan("amc quickscore"), chalk.white("for a 2-minute health check"));
+      console.log(chalk.white("  4. See"), chalk.cyan("amc help"), chalk.white("for all available commands"));
+      console.log("");
+    } else {
+      console.log(chalk.green("✅ All checks passed. Your workspace is ready."));
+      console.log(chalk.white("  Run"), chalk.cyan("amc quickscore"), chalk.white("to get your first maturity score."));
+      console.log("");
+    }
     process.exit(result.ok && legacy.ok ? 0 : 1);
   });
 
@@ -14233,6 +14246,7 @@ score
       console.log(chalk.gray("Score:"), result.overallScore.toFixed(2));
       console.log(chalk.gray("Total pauses:"), result.totalPauses);
       console.log(chalk.gray("Pause rate:"), `${(result.pauseRate * 100).toFixed(1)}%`);
+      if (result.totalPauses === 0) { console.log(chalk.yellow("\n💡 No pause events recorded. Instrument your agent to emit pause events when it stops to ask for help.")); }
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
 
@@ -14247,7 +14261,7 @@ score
       if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
       console.log(chalk.bold.hex("#FF6600")("\n🎯  Task Horizon"));
       console.log(chalk.gray("Score:"), result.score.toFixed(2));
-      console.log(chalk.gray("Band:"), result.band);
+      console.log(chalk.gray("Band:"), result.band.label);
       console.log(chalk.gray("Level:"), result.level);
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
@@ -14266,6 +14280,7 @@ score
       console.log(chalk.gray("  Parametric:"), result.parametric.score.toFixed(2));
       console.log(chalk.gray("  Search/Retrieval:"), result.searchRetrieval.score.toFixed(2));
       console.log(chalk.gray("  Grounded:"), result.grounded.score.toFixed(2));
+      if (result.overallScore === 0) { console.log(chalk.yellow("\n💡 No data provided. Pipe evidence via --json or use 'amc score collect-evidence <agentId>' first.")); }
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
 
@@ -14283,6 +14298,7 @@ score
       for (const d of result.dimensions) {
         console.log(chalk.gray(`  ${d.name}:`), d.score.toFixed(2));
       }
+      if (result.overall === 0) { console.log(chalk.yellow("\n💡 All scores are zero. Provide real scores from your agent's eval suite (truthfulness, safety, compliance, consistency).")); }
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
 
@@ -14299,6 +14315,7 @@ score
       console.log(chalk.gray("Score:"), result.overallScore.toFixed(2));
       console.log(chalk.gray("Explanation coverage:"), `${(result.explanationCoverage * 100).toFixed(1)}%`);
       console.log(chalk.gray("Faithfulness:"), result.faithfulnessScore.toFixed(2));
+      if (result.overallScore === 0) { console.log(chalk.yellow("\n💡 No decision traces provided. Add reasoning traces to your agent's outputs for interpretability scoring.")); }
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
 
@@ -14315,6 +14332,7 @@ score
       console.log(chalk.gray("Score:"), result.overallScore.toFixed(2));
       console.log(chalk.gray("Consistency:"), result.consistencyScore.toFixed(2));
       console.log(chalk.gray("Poisoning resistance:"), result.poisoningResistanceScore.toFixed(2));
+      if (result.overallScore === 0) { console.log(chalk.yellow("\n💡 No memory events provided. Run your agent with AMC instrumentation to collect memory data.")); }
     } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
   });
 

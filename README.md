@@ -20,24 +20,20 @@ AMC closes this gap with cryptographic evidence chains that can't be faked.
 
 ## Quick Start
 
+> 📖 **Full guide:** [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — everything from install to L5.
+
 ```bash
 # Install
 npm i -g agent-maturity-compass
 
-# Bootstrap with demo agent
+# Create workspace and get your first score in 2 minutes
+mkdir my-agent && cd my-agent
+amc init
+amc quickscore
+
+# Or bootstrap with demo data
 amc setup --demo
-
-# Start the control plane
 amc up
-# → Studio:  http://localhost:3212
-# → Gateway: http://localhost:3210
-# → Console: http://localhost:3212/console
-
-# Wrap your agent (evidence capture starts automatically)
-amc wrap claude -- claude "analyze this codebase"
-
-# Run the diagnostic
-amc run --agent demo-agent --window 14d
 ```
 
 ## What You Get
