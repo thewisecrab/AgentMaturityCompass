@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AMC — The Credit Score for AI Agents</title>
-  <meta name="description" content="Agent Maturity Compass: open-source, free forever. Evidence-gated AI agent trust scoring with cryptographic proof chains. 111 questions, 158 modules, MIT licensed.">
+  <meta name="description" content="Agent Maturity Compass: open-source, free forever. Evidence-gated AI agent trust scoring with cryptographic proof chains. 111 questions, 69 scoring modules, 66 assurance packs, 4064 tests. MIT licensed.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -58,7 +58,7 @@
     <div class="hero-proof">
       <div class="proof-item"><span class="proof-num" data-count="111">0</span><span class="proof-label">Diagnostic Questions</span></div>
       <div class="proof-sep"></div>
-      <div class="proof-item"><span class="proof-num" data-count="62">0</span><span class="proof-label">Scoring Modules</span></div>
+      <div class="proof-item"><span class="proof-num" data-count="69">0</span><span class="proof-label">Scoring Modules</span></div>
       <div class="proof-sep"></div>
       <div class="proof-item"><span class="proof-num" data-count="63">0</span><span class="proof-label">Attack Packs</span></div>
       <div class="proof-sep"></div>
@@ -335,7 +335,7 @@ amc run --agent default</code></div>
     <div class="sec-tag">03 — The Platform</div>
     <h2 class="tech-only">Not a checklist.<br><span class="green">A full trust stack.</span></h2>
     <h2 class="eli5-only">Everything you need<br><span class="green">to trust your AI.</span></h2>
-    <p class="sec-sub">158 modules across scoring, governance, security, observability, and compliance. Everything you need to prove your agent is production-ready.</p>
+    <p class="sec-sub">1089 modules across scoring, governance, security, observability, compliance, network trust, and research-backed analysis. 4064 tests passing. Everything you need to prove your agent is production-ready.</p>
     <div class="platform-grid reveal">
       <div class="plat-card">
         <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="24" cy="24" r="18"/><path d="M24 10v14l10 6" stroke-width="2"/><circle cx="24" cy="24" r="3" fill="#00ff41"/></svg>
@@ -346,7 +346,7 @@ amc run --agent default</code></div>
       <div class="plat-card">
         <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M24 6l18 10v16L24 42 6 32V16z"/><path d="M24 6v36M6 16l18 10 18-10" opacity="0.3"/><circle cx="24" cy="24" r="6" stroke-width="2"/></svg>
         <h3>AMC Shield</h3>
-        <p>10 attack packs: injection, exfiltration, sycophancy, sabotage, self-preservation, self-preferential bias, truthfulness, sandbox boundary, tool misuse, notary attestation.</p>
+        <p>66 attack packs: injection, exfiltration, sycophancy, sabotage, self-preservation, self-preferential bias, truthfulness, sandbox boundary, tool misuse, notary attestation, adversarial robustness, multi-turn safety, supply chain integrity, context leakage, operational discipline, EU AI Act articles, OWASP GenAI, memory poisoning, and 48 more domain-specific packs.</p>
         <code class="plat-cmd">amc assurance run --pack injection --agent my-agent</code>
       </div>
       <div class="plat-card">
@@ -372,6 +372,18 @@ amc run --agent default</code></div>
         <h3>AMC Fleet</h3>
         <p>Multi-agent trust composition. Delegation graphs. Cross-agent receipt verification. Contradiction detection. Weakest-link boundary enforcement.</p>
         <code class="plat-cmd">amc fleet trust-report --window 7d</code>
+      </div>
+      <div class="plat-card">
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><circle cx="16" cy="16" r="6"/><circle cx="32" cy="16" r="6"/><circle cx="24" cy="34" r="6"/><path d="M20 19l4 12M28 19l-4 12M18 22l12 0" opacity="0.4"/><path d="M16 10v-4M32 10v-4" stroke-width="2" opacity="0.3"/></svg>
+        <h3>Network Trust</h3>
+        <p>Agent-to-agent mutual verification. Output attestation with trust metadata. Merkle-tree transparency log. Challenge-response protocol. Weakest-link enforcement. Certificate Transparency-style proofs.</p>
+        <code class="plat-cmd">amc score mutual-verification --json</code>
+      </div>
+      <div class="plat-card">
+        <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M6 24h36M24 6v36" opacity="0.15"/><circle cx="12" cy="12" r="3" fill="#00ff41" opacity="0.6"/><circle cx="36" cy="12" r="3" fill="#00ff41" opacity="0.8"/><circle cx="12" cy="36" r="3" fill="#00ff41" opacity="0.4"/><circle cx="36" cy="36" r="3" fill="#00ff41"/><circle cx="24" cy="24" r="4" fill="none" stroke="#00ff41" stroke-width="2"/></svg>
+        <h3>Research Scoring</h3>
+        <p>17 research-backed modules: calibration gap (ECE), evidence conflict, density mapping, gaming resistance, sleeper detection, factuality (FACTS/DeepMind), autonomy duration (Anthropic), task horizon (METR), alignment index, interpretability, and more.</p>
+        <code class="plat-cmd">amc score calibration-gap --json</code>
       </div>
       <div class="plat-card">
         <svg class="plat-svg" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="10" y="6" width="28" height="36" rx="4"/><circle cx="24" cy="18" r="6"/><path d="M16 30h16M18 34h12M20 38h8" opacity="0.4"/><path d="M30 12h4" stroke-width="2"/><path d="M30 8h4" stroke-width="2" opacity="0.4"/></svg>
@@ -871,6 +883,21 @@ npx amc setup --demo && npx amc up</code></div>
         <h4>Chain Architecture</h4>
         <p>Merkle-tree evidence design</p>
       </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/SECURITY.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <h4>Security Model</h4>
+        <p>Trust tiers, receipts, anti-cheat</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/RECEIPTS.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h6M7 16h8" opacity="0.5"/><circle cx="18" cy="16" r="2" fill="#00ff41"/></svg>
+        <h4>Receipts</h4>
+        <p>Unforgeable cryptographic proofs</p>
+      </a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/BUNDLES.md" target="_blank" class="doc-card">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00ff41" stroke-width="1.5"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+        <h4>Bundles</h4>
+        <p>Portable evidence export/verify</p>
+      </a>
     </div>
   </div>
 </section>
@@ -896,7 +923,7 @@ npx amc setup --demo && npx amc up</code></div>
     <div class="oss-stats reveal">
       <div class="oss-stat"><span class="oss-num" data-count="2449">0</span><span class="oss-label">Tests Passing</span></div>
       <div class="oss-stat"><span class="oss-num" data-count="462">0</span><span class="oss-label">Attack Scenarios</span></div>
-      <div class="oss-stat"><span class="oss-num" data-count="62">0</span><span class="oss-label">Scoring Modules</span></div>
+      <div class="oss-stat"><span class="oss-num" data-count="69">0</span><span class="oss-label">Scoring Modules</span></div>
       <div class="oss-stat"><span class="oss-num" data-count="1077">0</span><span class="oss-label">Source Files</span></div>
     </div>
     <div class="oss-links reveal">
