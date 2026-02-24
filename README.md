@@ -1,42 +1,6 @@
 # 🧭 Agent Maturity Compass (AMC)
 
-**The credit score for AI agents.** Evidence-gated trust scoring with cryptographic proof chains.
-
-AMC doesn't ask if your agent is safe — it watches what the agent does, captures execution-proof evidence, and scores maturity from behavior, not claims.
-
-[![Tests](https://img.shields.io/badge/tests-2%2C478%20passing-brightgreen)]()
-[![License](https://img.shields.io/badge/license-MIT-blue)]()
-[![Modules](https://img.shields.io/badge/modules-158-green)]()
-
-🌐 **Website:** [thewisecrab.github.io/AgentMaturityCompass](https://thewisecrab.github.io/AgentMaturityCompass/)
-
----
-
-## The Problem
-
-Every AI governance framework has the same fatal flaw: **the agent being evaluated provides the evidence.** Keyword-based scoring gives a perfect 100/100. Execution-verified scoring reveals the truth: 16/100. That's an 84-point documentation inflation gap.
-
-AMC closes this gap with cryptographic evidence chains that can't be faked.
-
-## Quick Start
-
-> 📖 **Full guide:** [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — everything from install to L5.
-
-```bash
-# Install
-npm i -g agent-maturity-compass
-
-# Create workspace and get your first score in 2 minutes
-mkdir my-agent && cd my-agent
-amc init
-amc quickscore
-
-# Or bootstrap with demo data
-amc setup --demo
-amc up
-```
-
-## What You Get
+**The credit score for AI agents.**
 
 ```
 🧭 AMC Score: 3.7 / 5.0 — Defined
@@ -46,34 +10,80 @@ amc up
    Observability & Cost ···· 3.5  (21 questions)
    Evaluation & Growth ····· 3.9  (21 questions)
    Evidence: ✓ Merkle root 9c4e…a7f0 (Ed25519)
-   Trust tier: OBSERVED (1.0× multiplier)
 ```
+
+## The 84-Point Lie
+
+Every AI governance framework has the same fatal flaw: **the agent being evaluated provides the evidence.**
+
+| Scoring Method | Score | Reality |
+|---|---|---|
+| Keyword / self-reported | 100/100 ✅ | "I have safety controls" |
+| AMC execution-verified | 16/100 ❌ | Agent bypassed every control when tested |
+
+That's an **84-point documentation inflation gap**. AMC closes it with cryptographic evidence chains that can't be faked.
+
+## Get Started (2 minutes)
+
+```bash
+npm i -g agent-maturity-compass
+mkdir my-agent && cd my-agent
+amc init
+```
+
+That's it. `amc init` walks you through your first score interactively.
+
+> 📖 [Full guide: install → first score → L5](docs/GETTING_STARTED.md)
+
+[![Tests](https://img.shields.io/badge/tests-4%2C064%20passing-brightgreen)]()
+[![License](https://img.shields.io/badge/license-MIT-blue)]()
+[![Questions](https://img.shields.io/badge/questions-113-blue)]()
+[![Modules](https://img.shields.io/badge/scoring%20modules-69-green)]()
+[![Attack Packs](https://img.shields.io/badge/attack%20packs-66-red)]()
+
+🌐 [Website](https://thewisecrab.github.io/AgentMaturityCompass/) · 📖 [Docs](docs/) · 💬 [Discussions](https://github.com/thewisecrab/AgentMaturityCompass/discussions)
+
+---
 
 ## How It Works
 
 ```
 Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed, hash-chained)
                                                               ↓
-                                                Scoring Engine (111 questions, 5 dimensions)
+                                                Scoring Engine (113 questions, 5 dimensions)
                                                               ↓
                                                AMC Studio (dashboard + API)
 ```
 
-**Four Trust Tiers** — not all evidence is equal:
+Not all evidence is equal — AMC weights by trust tier:
 
-| Tier | Weight | Description |
-|------|--------|-------------|
+| Tier | Weight | Source |
+|------|--------|--------|
 | OBSERVED_HARDENED | 1.1× | AMC-controlled traces with stronger context |
 | OBSERVED | 1.0× | Directly observed via AMC gateway |
 | ATTESTED | 0.8× | Cryptographic attestation via vault/notary |
 | SELF_REPORTED | 0.4× | Agent claims — capped, cannot inflate maturity |
 
-## The Platform
+## Works With Any Agent
+
+```bash
+amc wrap claude -- claude "analyze this"           # Claude
+amc wrap gemini -- gemini chat                     # Gemini
+amc adapters run --adapter generic-cli -- python bot.py  # Any CLI agent
+amc score evidence-ingest --format openai-evals    # Import existing evals
+```
+
+12+ framework adapters: LangChain, CrewAI, AutoGen, OpenAI Agents SDK, LlamaIndex, Semantic Kernel, Claude Code, Gemini, OpenClaw, and more.
+
+---
+
+<details>
+<summary><strong>📊 The Platform (8 modules)</strong></summary>
 
 | Module | What It Does |
 |--------|-------------|
-| **AMC Score** | 111 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
-| **AMC Shield** | 10 attack packs: injection, exfiltration, sycophancy, sabotage, and more |
+| **AMC Score** | 113 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
+| **AMC Shield** | 66 attack packs: injection, exfiltration, sycophancy, sabotage, and more |
 | **AMC Enforce** | Governor engine with policy packs, approval workflows, scoped leases |
 | **AMC Vault** | Ed25519 key vault, Merkle-tree evidence chains, HSM/TPM support |
 | **AMC Watch** | Studio dashboard, gateway proxy, Prometheus metrics, cost tracking |
@@ -81,7 +91,10 @@ Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed
 | **AMC Passport** | Portable agent credential (.amcpass), verifiable offline |
 | **AMC Comply** | EU AI Act, ISO 42001, NIST AI RMF, SOC 2 compliance mapping |
 
-## Five Dimensions, 111 Questions
+</details>
+
+<details>
+<summary><strong>📐 5 Dimensions, 113 Questions, 6 Maturity Levels</strong></summary>
 
 | Dimension | Questions | Focus |
 |-----------|-----------|-------|
@@ -90,8 +103,6 @@ Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed
 | Security & Compliance | 23 | Injection defense, DLP, zero-trust, regulatory alignment |
 | Observability & Cost | 21 | Structured logs, traces, cost tracking, SLO monitoring |
 | Evaluation & Growth | 21 | Test harnesses, benchmarks, feedback loops, regression detection |
-
-## Six Maturity Levels
 
 | Level | Name | Description |
 |-------|------|-------------|
@@ -102,62 +113,59 @@ Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed
 | L4 | Managed | Proactive. Risk-calibrated. Stress-tested. |
 | L5 | Optimizing | Self-correcting. Certified. Continuously verified. |
 
-## Assurance Lab (Built-in Red Team)
+</details>
 
-AMC doesn't just score — it attacks. 10 deterministic attack packs:
+<details>
+<summary><strong>🔴 Assurance Lab (Built-in Red Team)</strong></summary>
+
+AMC doesn't just score — it attacks. 66 deterministic attack packs including:
 
 - **injection** — Prompt override and system-message tampering
 - **exfiltration** — Secret and PII leakage controls
 - **toolMisuse** — Denied tools, model, and budget boundaries
 - **truthfulness** — Evidence-bound claim discipline
-- **sandboxBoundary** — Deny-by-default egress policy
-- **notaryAttestation** — Trust-boundary enforcement
 - **sycophancy** — Does the agent agree with wrong statements to please you?
 - **self-preservation** — Does the agent resist shutdown or modification?
 - **sabotage** — Does the agent subtly undermine goals when conflicted?
-- **self-preferential-bias** — Does the agent favor itself in comparative decisions?
+- **adversarial-robustness** — TAP/PAIR, Crescendo, Skeleton Key attacks
+- **context-leakage** — EchoLeak, cross-session data bleed
+- **operational-discipline** — Supply chain integrity, MCP poisoning
 
 ```bash
 amc assurance run --scope full --agent my-agent
 ```
 
-## Scoring Modules (30)
+</details>
 
-Beyond the core diagnostic, AMC includes specialized scoring:
+<details>
+<summary><strong>🔬 69 Scoring Modules</strong></summary>
 
-- Adversarial gaming detection
+Beyond the core diagnostic, AMC includes research-backed scoring:
+
+- Calibration gap (confidence vs reality)
+- Evidence conflict detection
+- Evidence density mapping (blind spot detection)
+- Gaming resistance (adversarial score inflation)
+- Sleeper agent detection (context-dependent behavior)
+- Audit depth (black-box, white-box, outside-the-box)
+- Policy consistency (pass^k reliability)
 - Task horizon (METR-inspired)
-- Factuality dimensions (FACTS-inspired)
+- Factuality (parametric, retrieval, grounded)
 - Autonomy duration with domain risk profiles
-- Graduated autonomy governance
-- Agent-initiated pause quality
-- Memory integrity
-- Alignment index (composite trust signal)
+- Pause quality (agent-initiated stops)
+- Memory integrity & poisoning resistance
+- Alignment index (safety × honesty × helpfulness)
 - Interpretability scoring
-- EU AI Act compliance
-- Cross-agent trust composition
-- Behavioral contract maturity
-- Confidence drift detection
-- Cost predictability
-- And 16 more...
+- Output attestation (cryptographic signing)
+- Mutual verification (agent-to-agent trust)
+- Network transparency log (Merkle tree)
+- EU AI Act compliance, OWASP LLM Top 10
+- And more...
 
-## Works With Any Agent
+</details>
 
-```bash
-# Claude
-amc wrap claude -- claude "analyze this"
-
-# Gemini
-amc wrap gemini -- gemini chat
-
-# Any CLI agent
-amc adapters run --agent my-bot --adapter generic-cli -- python bot.py
-
-# Ingest existing logs
-amc ingest --source ./logs/ --agent my-agent
-```
-
-## Compliance
+<details>
+<summary><strong>📋 Compliance</strong></summary>
 
 | Framework | Status |
 |-----------|--------|
@@ -165,25 +173,31 @@ amc ingest --source ./logs/ --agent my-agent
 | ISO 42001 | Clauses 4-10 mapped to AMC dimensions |
 | NIST AI RMF | Risk management framework alignment |
 | SOC 2 | Trust service criteria mapping |
+| OWASP LLM Top 10 | Full coverage (10/10) |
 
 ```bash
 amc audit binder create --framework eu-ai-act
 ```
 
-## Documentation
+</details>
 
+<details>
+<summary><strong>📚 Documentation</strong></summary>
+
+- [Getting Started](docs/GETTING_STARTED.md) — Install → first score → L5
 - [Quickstart Guide](docs/QUICKSTART.md)
 - [Solo User Guide](docs/SOLO_USER.md)
 - [CLI Reference](docs/AMC_MASTER_REFERENCE.md)
 - [Architecture Map](docs/ARCHITECTURE_MAP.md)
 - [Questions In Depth](docs/AMC_QUESTIONS_IN_DEPTH.md)
 - [Assurance Lab](docs/ASSURANCE_LAB.md)
-- [Agent Passport](docs/AGENT_PASSPORT.md)
+- [Security](docs/SECURITY.md)
 - [EU AI Act Compliance](docs/EU_AI_ACT_COMPLIANCE.md)
-- [ISO 42001 Alignment](docs/ISO_42001_ALIGNMENT.md)
 - [Multi-Agent Trust](docs/MULTI_AGENT_TRUST.md)
 - [Chain Architecture](docs/CHAIN_ARCHITECTURE.md)
 - [White Paper](whitepaper/AMC_WHITEPAPER_v1.md)
+
+</details>
 
 ## Install Options
 
@@ -191,29 +205,22 @@ amc audit binder create --framework eu-ai-act
 # npm (recommended)
 npm i -g agent-maturity-compass
 
-# Docker
-docker run -p 3212:3212 -p 3210:3210 amc/studio
-
 # From source
 git clone https://github.com/thewisecrab/AgentMaturityCompass.git
-cd AgentMaturityCompass
-npm ci && npm run build && npm link
+cd AgentMaturityCompass && npm ci && npm run build && npm link
 
-# Helm
-helm install amc amc/studio
+# Docker
+docker run -p 3212:3212 -p 3210:3210 amc/studio
 ```
 
 ## Contributing
 
 AMC is MIT licensed and open source. Contributions welcome.
 
-1. Fork the repo
-2. Create a feature branch
-3. Run tests: `npm test`
-4. Submit a PR
+1. Fork → branch → `npm test` → PR
 
 ## License
 
-MIT — free forever, for the greater good.
+MIT — free forever.
 
 AI agents will be the change agents across life and technology. Trust infrastructure should be a public good, not a profit center.
