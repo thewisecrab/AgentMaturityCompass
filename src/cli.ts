@@ -244,7 +244,7 @@ import {
 } from "./storage/blobs/blobCli.js";
 import { ensureBlobKey, verifyBlobCurrentKeySignature } from "./storage/blobs/blobKeys.js";
 import { ensureDir, pathExists, readUtf8, writeFileAtomic } from "./utils/fs.js";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { request as httpRequest } from "node:http";
 import {
   parseRolesCsv,
@@ -1073,9 +1073,67 @@ program
   .command("init")
   .description("Initialize .amc workspace")
   .option("--trust-boundary <mode>", "isolated|shared", "shared")
-  .action((opts: { trustBoundary: "isolated" | "shared" }) => {
+  .action(async (opts: { trustBoundary: "isolated" | "shared" }) => {
     const init = initWorkspace({ trustBoundaryMode: opts.trustBoundary });
-    console.log(chalk.green(`Initialized workspace at ${init.workspacePath}`));
+    console.log("");
+    console.log(chalk.green("  ✅ AMC workspace initialized"));
+    console.log(chalk.gray(`  Location: ${init.workspacePath}`));
+    console.log("");
+    console.log(chalk.bold("  What's next?"));
+    console.log("");
+    console.log(chalk.white("  1."), chalk.cyan("amc quickscore"), chalk.gray("— Get your first maturity score (2 min, interactive)"));
+    console.log(chalk.white("  2."), chalk.cyan("amc setup --demo"), chalk.gray("— Load demo data and explore all features"));
+    console.log(chalk.white("  3."), chalk.cyan("amc doctor"), chalk.gray("— Check what's available in your environment"));
+    console.log(chalk.white("  4."), chalk.cyan("amc up"), chalk.gray("— Start Studio (web dashboard)"));
+    console.log("");
+    console.log(chalk.gray("  Full guide:"), chalk.underline("https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/GETTING_STARTED.md"));
+    console.log("");
+
+    // Offer to run quickscore immediately if interactive
+    if (process.stdin.isTTY) {
+      const { runNow } = await inquirer.prompt<{ runNow: boolean }>([{
+        type: "confirm",
+        name: "runNow",
+        message: "Run quickscore now? (2-minute interactive assessment)",
+        default: true
+      }]);
+      if (runNow) {
+        const { getRapidQuestions, scoreRapidAssessment } = await import("./diagnostic/rapidQuickscore.js");
+        const questions = getRapidQuestions();
+        const answers: Record<string, number> = {};
+        console.log("");
+        console.log(chalk.bold("  🧭 AMC Quickscore — 5 questions about your agent"));
+        console.log(chalk.gray("  Pick the level that best describes your current state."));
+        console.log("");
+        for (const question of questions) {
+          const { level } = await inquirer.prompt<{ level: number }>([{
+            type: "list",
+            name: "level",
+            message: `${question.id}: ${question.title}`,
+            choices: question.options.map((option) => ({
+              name: `L${option.level} - ${option.label}`,
+              value: option.level
+            }))
+          }]);
+          answers[question.id] = level;
+        }
+        const result = scoreRapidAssessment(answers);
+        console.log("");
+        console.log(chalk.bold(`  🧭 Your AMC Score: ${result.totalScore}/${result.maxScore} (${result.percentage}%)`));
+        console.log(chalk.bold(`  Preliminary maturity: ${result.preliminaryLevel}`));
+        console.log("");
+        if (result.recommendations.length > 0) {
+          console.log(chalk.bold("  Top improvements:"));
+          for (const rec of result.recommendations.slice(0, 3)) {
+            console.log(chalk.yellow(`  → ${rec.questionId}: ${rec.title}`));
+            console.log(chalk.gray(`    ${rec.howToImprove}`));
+          }
+          console.log("");
+        }
+        console.log(chalk.gray("  Run"), chalk.cyan("amc score formal-spec <agentId>"), chalk.gray("for a full diagnostic."));
+        console.log("");
+      }
+    }
   });
 
 program
@@ -1199,6 +1257,85 @@ program
     for (const step of out.nextSteps) {
       console.log(`- ${step}`);
     }
+  });
+
+program
+  .command("improve")
+  .description("Guided improvement — shows what to fix next based on your current score")
+  .option("--json", "emit JSON output", false)
+  .action(async (opts: { json: boolean }) => {
+    const { getRapidQuestions, scoreRapidAssessment } = await import("./diagnostic/rapidQuickscore.js");
+
+    // Check if we have a recent quickscore, otherwise run one
+    let answers: Record<string, number> = {};
+    const questions = getRapidQuestions();
+
+    if (process.stdin.isTTY) {
+      console.log("");
+      console.log(chalk.bold("  🧭 AMC Improve — Let's find your biggest wins"));
+      console.log(chalk.gray("  Answer 5 quick questions so I can prioritize your improvements."));
+      console.log("");
+
+      for (const question of questions) {
+        const { level } = await inquirer.prompt<{ level: number }>([{
+          type: "list",
+          name: "level",
+          message: `${question.id}: ${question.title}`,
+          choices: question.options.map((option) => ({
+            name: `L${option.level} - ${option.label}`,
+            value: option.level
+          }))
+        }]);
+        answers[question.id] = level;
+      }
+    }
+
+    const result = scoreRapidAssessment(answers);
+
+    if (opts.json) {
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+
+    console.log("");
+    console.log(chalk.bold(`  Current: ${result.preliminaryLevel} (${result.totalScore}/${result.maxScore})`));
+    console.log("");
+
+    if (result.recommendations.length === 0) {
+      console.log(chalk.green("  🎉 You're at L5 across the board. Nothing to improve!"));
+      console.log("");
+      return;
+    }
+
+    console.log(chalk.bold("  Your improvement roadmap (highest impact first):"));
+    console.log("");
+
+    for (let i = 0; i < Math.min(result.recommendations.length, 5); i++) {
+      const rec = result.recommendations[i]!;
+      const num = i + 1;
+      console.log(chalk.bold.yellow(`  ${num}. ${rec.questionId}: ${rec.title}`));
+      console.log(chalk.gray(`     Current: L${rec.currentLevel} → Target: L${rec.targetLevel}`));
+      console.log(chalk.white(`     Why: ${rec.whyItMatters}`));
+      console.log(chalk.cyan(`     How: ${rec.howToImprove}`));
+
+      // Map to specific CLI commands
+      const cmdMap: Record<string, string> = {
+        "AMC-1.1": "amc score behavioral-contract",
+        "AMC-2.1": "amc score autonomy-duration",
+        "AMC-3.1.1": "amc score alignment-index",
+        "AMC-3.2": "amc score factuality",
+        "AMC-4.1": "amc score audit-depth",
+      };
+      const cmd = cmdMap[rec.questionId];
+      if (cmd) {
+        console.log(chalk.gray(`     Run:`), chalk.cyan(cmd));
+      }
+      console.log("");
+    }
+
+    console.log(chalk.gray("  Deep dive into any question:"), chalk.cyan("amc explain <questionId>"));
+    console.log(chalk.gray("  Full diagnostic:"), chalk.cyan("amc score formal-spec <agentId>"));
+    console.log("");
   });
 
 program
@@ -12908,7 +13045,42 @@ program.action((_opts, command: Command) => {
     process.exit(1);
     return;
   }
-  program.help();
+
+  // Welcome screen — shown when user just types `amc`
+  const hasWorkspace = existsSync(".amc");
+
+  console.log("");
+  console.log(chalk.bold.hex("#FF6600")("  🧭 Agent Maturity Compass"));
+  console.log(chalk.gray("  The credit score for AI agents."));
+  console.log("");
+
+  if (!hasWorkspace) {
+    console.log(chalk.white("  No workspace found. Get started:"));
+    console.log("");
+    console.log(chalk.white("  $"), chalk.cyan("amc init"), chalk.gray("           Create workspace + get your first score"));
+    console.log(chalk.white("  $"), chalk.cyan("amc setup --demo"), chalk.gray("   Quick start with demo data"));
+    console.log("");
+    console.log(chalk.gray("  Guide:"), chalk.underline("https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/GETTING_STARTED.md"));
+  } else {
+    console.log(chalk.green("  ✓ Workspace found"));
+    console.log("");
+    console.log(chalk.bold("  Common commands:"));
+    console.log("");
+    console.log(chalk.white("  $"), chalk.cyan("amc quickscore"), chalk.gray("       2-minute maturity assessment"));
+    console.log(chalk.white("  $"), chalk.cyan("amc doctor"), chalk.gray("           Check environment health"));
+    console.log(chalk.white("  $"), chalk.cyan("amc up"), chalk.gray("               Start Studio (web dashboard)"));
+    console.log(chalk.white("  $"), chalk.cyan("amc score --help"), chalk.gray("     All scoring commands"));
+    console.log(chalk.white("  $"), chalk.cyan("amc status"), chalk.gray("           Show current status"));
+    console.log("");
+    console.log(chalk.bold("  Improve your agent:"));
+    console.log("");
+    console.log(chalk.white("  $"), chalk.cyan("amc score formal-spec <agent>"), chalk.gray("   Full diagnostic"));
+    console.log(chalk.white("  $"), chalk.cyan("amc score collect-evidence <agent>"), chalk.gray("Gather proof"));
+    console.log(chalk.white("  $"), chalk.cyan("amc explain <questionId>"), chalk.gray("        Learn about any question"));
+    console.log("");
+    console.log(chalk.gray("  All commands:"), chalk.cyan("amc --help"));
+  }
+  console.log("");
 });
 
 
