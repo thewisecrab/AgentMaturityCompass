@@ -251,8 +251,9 @@ describe("studio + vault + mode + loop", () => {
 
     const html = readUtf8(join(built.outDir, "index.html"));
     const appJs = readUtf8(join(built.outDir, "app.js"));
-    expect(html).toContain("id=\"studio-qr\"");
-    expect(appJs).toContain("drawQrLike");
-    expect(appJs).toContain("renderStudioHome");
+    // v3 dashboard: Studio Home data rendered in Fleet section
+    expect(html).toContain("id=\"studio-mount\"");
+    expect(appJs).toContain("buildFleet");
+    expect(appJs).toContain("studioHome");
   });
 });

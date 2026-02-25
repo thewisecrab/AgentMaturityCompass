@@ -3,6 +3,12 @@ import type { Socket } from "node:net";
 import { URL } from "node:url";
 import { join } from "node:path";
 import { readdirSync } from "node:fs";
+import {
+  execCliCommand as cliBridgeExec,
+  execCliBatch as cliBridgeBatch,
+  listCliCommands as cliBridgeList,
+  validateCliExec as cliBridgeValidate,
+} from "./cliBridge.js";
 import { spawnSync } from "node:child_process";
 import { parse as parseYaml } from "yaml";
 import { listAgents } from "../fleet/registry.js";
@@ -8479,6 +8485,39 @@ export async function startStudioApiServer(options: StudioApiOptions): Promise<{
         res.statusCode = 200;
         res.setHeader("content-type", "text/markdown; charset=utf-8");
         res.end(generateReport(report, "md") as string);
+        return;
+      }
+
+      /* ════════════════════════════════════════════════
+         CLI BRIDGE — exposes all CLI commands via API
+         ════════════════════════════════════════════════ */
+      if (pathname === "/cli/exec" && method === "POST") {
+        const body = await readBody(req, options.maxRequestBytes ?? 1_048_576);
+        const parsed = JSON.parse(body);
+        const result = await cliBridgeExec(options.workspace, parsed);
+        json(res, result.ok ? 200 : 422, result);
+        return;
+      }
+
+      if (pathname === "/cli/batch" && method === "POST") {
+        const body = await readBody(req, options.maxRequestBytes ?? 1_048_576);
+        const parsed = JSON.parse(body);
+        const result = await cliBridgeBatch(options.workspace, parsed);
+        json(res, result.ok ? 200 : 422, result);
+        return;
+      }
+
+      if (pathname === "/cli/commands" && method === "GET") {
+        const commands = await cliBridgeList(options.workspace);
+        json(res, 200, { commands });
+        return;
+      }
+
+      if (pathname === "/cli/validate" && method === "POST") {
+        const body = await readBody(req, options.maxRequestBytes ?? 1_048_576);
+        const parsed = JSON.parse(body);
+        const err = cliBridgeValidate(parsed);
+        json(res, 200, { valid: !err, error: err });
         return;
       }
 

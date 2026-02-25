@@ -485,7 +485,7 @@ describe("receipts, correlation, runtime sdk, dashboard", () => {
         req.end();
       });
       expect(response.status).toBe(200);
-      expect(response.body).toContain("Agent Maturity Compass");
+      expect(response.body).toContain("AMC Dashboard");
     } finally {
       await server.close();
     }
