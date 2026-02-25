@@ -1376,16 +1376,42 @@ program
     console.log(`Preliminary maturity: ${result.preliminaryLevel}`);
     if (result.recommendations.length === 0) {
       console.log("Top recommendations: none (all rapid questions are at L3+).");
-      return;
+    } else {
+      console.log("Top 3 improvement recommendations:");
+      for (const recommendation of result.recommendations) {
+        console.log(
+          `- ${recommendation.questionId} ${recommendation.title}: L${recommendation.currentLevel} -> L${recommendation.targetLevel}`
+        );
+        console.log(`  Why it matters: ${recommendation.whyItMatters}`);
+        console.log(`  How to improve: ${recommendation.howToImprove}`);
+      }
     }
-    console.log("Top 3 improvement recommendations:");
-    for (const recommendation of result.recommendations) {
-      console.log(
-        `- ${recommendation.questionId} ${recommendation.title}: L${recommendation.currentLevel} -> L${recommendation.targetLevel}`
-      );
-      console.log(`  Why it matters: ${recommendation.whyItMatters}`);
-      console.log(`  How to improve: ${recommendation.howToImprove}`);
+
+    // Post-quickscore "What Now?" flow
+    console.log("");
+    console.log(chalk.bold("━━━ What now? ━━━"));
+    console.log("");
+    if (result.recommendations.length > 0) {
+      const weakest = result.recommendations[0]!;
+      const cmdMap: Record<string, string> = {
+        "AMC-1.1": "amc score behavioral-contract",
+        "AMC-2.1": "amc score autonomy-duration",
+        "AMC-3.1.1": "amc score alignment-index",
+        "AMC-3.2": "amc score factuality",
+        "AMC-4.1": "amc score audit-depth",
+      };
+      const cmd = cmdMap[weakest.questionId] ?? "amc score formal-spec <agentId>";
+      console.log(chalk.yellow(`Your weakest area: ${weakest.title} (L${weakest.currentLevel})`));
+      console.log(chalk.gray(`  ${weakest.whyItMatters}`));
+      console.log(chalk.white("  Fix it:"), chalk.cyan(cmd));
     }
+    console.log("");
+    console.log(chalk.white("  Next steps:"));
+    console.log(chalk.white("  1."), chalk.cyan("amc improve"), chalk.gray("— Guided improvement roadmap"));
+    console.log(chalk.white("  2."), chalk.cyan("amc score formal-spec <agentId>"), chalk.gray("— Full 113-question diagnostic"));
+    console.log(chalk.white("  3."), chalk.cyan("amc demo gap"), chalk.gray("— See the 84-point documentation inflation gap"));
+    console.log(chalk.white("  4."), chalk.cyan("amc explain <questionId>"), chalk.gray("— Deep dive into any question"));
+    console.log("");
   });
 
 program
