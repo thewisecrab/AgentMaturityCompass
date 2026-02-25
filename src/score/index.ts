@@ -328,3 +328,6 @@ export type { AgentIdentity, VerificationChallenge, VerificationResponse, Mutual
 
 export { TransparencyLog } from "./networkTransparencyLog.js";
 export type { LogEntry, LogEntryType, InclusionProof, TransparencyLogReport } from "./networkTransparencyLog.js";
+
+export { scoreReasoningEfficiency } from "./reasoningEfficiency.js";
+export type { ReasoningEfficiencyResult } from "./reasoningEfficiency.js";
