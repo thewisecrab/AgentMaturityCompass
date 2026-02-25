@@ -183,6 +183,8 @@ We will acknowledge receipt within 48 hours and aim to provide a fix within 7 da
 
 ## Security Architecture Overview
 
+For the full deep-dive — including EPES mechanics, anti-gaming defenses, key management, trust boundaries, and evidence decay — see [Security Architecture Overview](docs/SECURITY_ARCHITECTURE_OVERVIEW.md).
+
 AMC's security model is built on four principles:
 
 1. **Evidence-Provenance Enforcement (EPES)**: Every evidence item carries a trust tier (OBSERVED_HARDENED, OBSERVED, ATTESTED, SELF_REPORTED). Self-reported evidence is capped at 0.4× weight and cannot inflate maturity levels.
