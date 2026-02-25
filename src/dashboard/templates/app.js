@@ -286,12 +286,13 @@ function buildHm(){
       const tgt=tm[q.questionId]??0, gap=tgt-q.finalLevel;
       const gc=gap<=0?'g0':gap===1?'g1':gap===2?'g2c':'g3';
       const conf=Math.round((q.confidence||0)*100);
+      const sc=q.finalLevel>=4?'var(--g)':q.finalLevel>=2.5?'var(--amber)':'var(--red)';
       return `<div class="hm-row" data-qid="${esc(q.questionId)}" tabindex="0">
         <span class="hm-qid">${esc(q.questionId)}</span>
-        <span class="hm-n" style="color:var(--g)">${q.finalLevel}</span>
+        <span class="hm-n" style="color:${sc}">${q.finalLevel}</span>
         <span class="hm-n" style="color:var(--t3)">${tgt}</span>
         <span class="hm-n ${gc}">${gap>0?'+':''}${gap}</span>
-        <div class="hm-conf"><div class="hm-cf" style="width:${conf}%"></div></div>
+        <div class="hm-conf"><div class="hm-cf" style="width:${conf}%;background:${sc}"></div></div>
       </div>`;
     }).join('');
     return `<div class="hm-grp">
@@ -359,7 +360,8 @@ function buildAf(){
   const idxEl=document.getElementById('idx-mount');
   idxEl.innerHTML=idx.length?idx.map(x=>{
     const col=x.score0to100>=70?'var(--g)':x.score0to100>=40?'var(--amber)':'var(--red)';
-    return `<div class="idx-row"><span class="idx-nm">${esc(x.id)}</span>
+    const nm=x.id.replace(/([A-Z])/g,' $1').replace(/Risk$/,' Risk').trim();
+    return `<div class="idx-row"><span class="idx-nm">${esc(nm)}</span>
       <div class="idx-trk"><div class="idx-fill" style="width:${x.score0to100}%;background:${col}"></div></div>
       <span class="idx-pct" style="color:${col}">${x.score0to100.toFixed(0)}</span></div>`;
   }).join(''):'<div class="empty-t" style="color:var(--t3);padding:12px 0">No index data</div>';

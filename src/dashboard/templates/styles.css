@@ -344,7 +344,7 @@ svg { display: block; }
 /* ════════════════════════════════════════════════════
    ASSURANCE CARDS (full page — keeps donuts)
    ════════════════════════════════════════════════════ */
-.asr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 8px; }
+.asr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 8px; }
 .asr-card { background: var(--inset); border: 1px solid var(--bdr); border-radius: var(--r); padding: 12px; display: flex; align-items: center; gap: 12px; transition: all var(--ease); cursor: pointer; }
 .asr-card:hover { border-color: var(--bdr2); background: var(--card2); transform: translateY(-1px); }
 .asr-donut { width: 44px; height: 44px; flex-shrink: 0; }
@@ -352,7 +352,7 @@ svg { display: block; }
 .donut-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset .9s cubic-bezier(.4,0,.2,1); }
 .donut-pct { font: 700 9px var(--mono); fill: var(--t0); dominant-baseline: middle; text-anchor: middle; }
 .asr-info { flex: 1; min-width: 0; }
-.asr-name { font: 500 11px/1.3 var(--sans); color: var(--t0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asr-name { font: 500 11px/1.3 var(--sans); color: var(--t0); white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .asr-sub { font: 400 9px/1 var(--mono); color: var(--t3); margin-top: 2px; }
 
 /* ════════════════════════════════════════════════════
