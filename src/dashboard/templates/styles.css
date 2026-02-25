@@ -73,14 +73,7 @@ ul, ol { list-style: none; }
 svg { display: block; }
 
 /* ── SCANLINES ───────────────────────────────────── */
-body::after {
-  content: '';
-  position: fixed; inset: 0; z-index: 9990; pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 2px,
-    rgba(0,255,65,.012) 2px, rgba(0,255,65,.012) 4px
-  );
-}
+/* Removed — ages the product. Clean enterprise look. */
 
 /* ── SCROLLBAR ───────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -202,7 +195,7 @@ body::after {
 .tb-badge.md { color: var(--amber); background: var(--a-dim); border: 1px solid var(--a-line); }
 .tb-badge.lo { color: var(--red); background: var(--r-dim); border: 1px solid var(--r-line); }
 
-.tb-r { display: flex; align-items: center; gap: 8px; }
+.tb-r { display: flex; align-items: center; gap: 14px; }
 .tb-views {
   display: flex; gap: 1px;
   background: var(--inset); border: 1px solid var(--bdr);
@@ -228,17 +221,17 @@ body::after {
 /* ════════════════════════════════════════════════════
    CONTENT
    ════════════════════════════════════════════════════ */
-.content { flex: 1; padding: 20px 24px; }
-.sec { display: flex; flex-direction: column; gap: 16px; }
+.content { flex: 1; padding: 24px 28px; }
+.sec { display: flex; flex-direction: column; gap: 20px; }
 .sec.h { display: none !important; }
 
 /* ── GRID SYSTEM ─────────────────────────────────── */
-.row { display: grid; gap: 12px; }
+.row { display: grid; gap: 16px; }
 .c1 { grid-template-columns: 1fr; }
 .c2 { grid-template-columns: 1fr 1fr; }
 .c3 { grid-template-columns: 1fr 1fr 1fr; }
 .c6 { grid-template-columns: repeat(6, 1fr); }
-.hero-row { grid-template-columns: 220px 1fr 260px; }
+.hero-row { grid-template-columns: 260px 1fr 260px; }
 .full { grid-column: 1 / -1; }
 
 /* ── CARD ────────────────────────────────────────── */
@@ -246,7 +239,7 @@ body::after {
   background: var(--card);
   border: 1px solid var(--bdr);
   border-radius: var(--r2);
-  padding: 16px;
+  padding: 18px;
   transition: border-color var(--ease), box-shadow var(--ease);
 }
 .card:hover {
@@ -281,7 +274,7 @@ body::after {
 .score-meta { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
 .score-trend { font: 500 11px/1.2 var(--mono); display: flex; align-items: center; gap: 4px; }
 .t-up { color: var(--g); } .t-dn { color: var(--red); } .t-fl { color: var(--t2); }
-.score-int { font: 400 10px/1 var(--mono); color: var(--t3); }
+.score-int { font: 500 11px/1 var(--mono); color: var(--t1); letter-spacing: .02em; }
 
 /* ════════════════════════════════════════════════════
    DIMENSION BARS

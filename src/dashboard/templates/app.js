@@ -66,8 +66,6 @@ function renderScore(d) {
   if(integrity!=null) document.getElementById('score-int').textContent=`Integrity: ${integrity.toFixed(3)}`;
   // Topbar
   document.getElementById('tb-id').textContent=d.agentId||'default';
-  const tb=document.getElementById('tb-badge');
-  tb.textContent=label; tb.className='tb-badge '+tc(label);
 }
 
 /* ── DIM BARS ─────────────────────────────────────── */
