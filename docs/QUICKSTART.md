@@ -81,7 +81,23 @@ After the session, re-run scoring:
 amc run --agent my-claude --window 7d
 ```
 
-## 7. Verify Everything
+## 7. Generate Guardrails
+
+Apply personalized guardrails to your agent's config:
+
+```bash
+amc guide --go
+```
+
+This auto-detects your framework, generates severity-tagged guardrails, and applies them to your agent's config file. One command.
+
+Check status anytime:
+
+```bash
+amc guide --status
+```
+
+## 8. Verify Everything
 
 ```bash
 amc verify all --json
@@ -94,6 +110,7 @@ Confirms ledger integrity, signature chains, policy compliance, and artifact has
 | Goal | Guide |
 |------|-------|
 | Install on your OS/infra | [INSTALL.md](INSTALL.md) |
+| Agent Guide & guardrails | [AGENT_GUIDE.md](AGENT_GUIDE.md) |
 | Wrap any AI agent | [ADAPTERS.md](ADAPTERS.md) |
 | Enterprise deployment | [ENTERPRISE.md](ENTERPRISE.md) |
 | All provider integrations | [INTEGRATIONS.md](INTEGRATIONS.md) |

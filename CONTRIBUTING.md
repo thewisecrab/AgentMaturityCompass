@@ -14,7 +14,7 @@ npm run build
 ## Running Tests
 
 ```bash
-# TypeScript (2478 tests)
+# TypeScript (2693+ tests)
 npm test
 
 # Python platform (1586 tests)
@@ -22,6 +22,9 @@ cd platform/python && python3 -m pytest tests/ -q
 
 # Or from repo root
 python3 -m pytest platform/python/tests/ -q
+
+# Run a specific test file
+npx vitest run tests/guideGenerator.test.ts
 ```
 
 All tests must pass before submitting a PR.
@@ -49,6 +52,19 @@ All tests must pass before submitting a PR.
 - Check [good first issues](https://github.com/thewisecrab/AgentMaturityCompass/labels/good%20first%20issue) for beginner-friendly tasks
 - Browse [GitHub Discussions](https://github.com/thewisecrab/AgentMaturityCompass/discussions) for ideas and questions
 - Look at open issues for bugs and feature requests
+
+### Key Areas
+
+| Area | Files | What to know |
+|------|-------|-------------|
+| Scoring engine | `src/scoring/` | 74 modules, each self-contained |
+| Diagnostic questions | `src/diagnostic/questionBank.ts` | 126 questions across 6 dimensions |
+| Assurance packs | `src/assurance/` | 74 attack packs, deterministic |
+| Agent Guide | `src/guide/guideGenerator.ts` | Guardrails, agent instructions, CI gates |
+| CLI | `src/cli.ts` | ~15K lines, all commands |
+| Dashboard | `src/dashboard/templates/` | Static HTML/CSS/JS, no npm deps |
+| Adapters | `src/adapters/` | 14 framework adapters |
+| Python platform | `platform/python/` | Mirror of core scoring in Python |
 
 ## PR Process
 

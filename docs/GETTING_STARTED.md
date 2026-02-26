@@ -78,6 +78,35 @@ AMC evaluates 5 dimensions, each with specific questions:
 
 ## Improving Your Agent's Score
 
+### The fastest path: Agent Guide
+
+The Agent Guide generates personalized guardrails from your score and applies them directly to your agent's config file:
+
+```bash
+# One command — auto-detect framework, generate guardrails, apply to config
+amc guide --go
+```
+
+This auto-detects your framework (LangChain, CrewAI, Claude Code, Cursor, etc.), generates severity-tagged guardrails (🔴 Critical / 🟡 High / 🔵 Medium), and applies them to your agent's config file.
+
+After your agent works with the new guardrails, re-score and see what improved:
+
+```bash
+amc quickscore
+amc guide --diff    # Shows closed gaps, new gaps, level changes
+```
+
+> 📖 Full guide system docs: [AGENT_GUIDE.md](AGENT_GUIDE.md)
+
+### Other guide modes
+
+```bash
+amc guide --status              # One-line health check
+amc guide --interactive         # Cherry-pick which gaps to fix
+amc guide --watch --apply       # Continuous monitoring + auto-update
+amc guide --ci --target 3       # CI gate — exit non-zero if below threshold
+```
+
 ### Check what needs work
 
 ```bash
@@ -265,6 +294,17 @@ amc score evidence-ingest --format weights-biases
 | `amc score adversarial <agent>` | Gaming resistance test |
 | `amc score collect-evidence <agent>` | Collect evidence from runs |
 
+### Agent Guide
+| Command | What it does |
+|---------|-------------|
+| `amc guide --go` | Zero-friction: detect + generate + apply |
+| `amc guide --status` | One-line health check |
+| `amc guide --interactive` | Cherry-pick gaps to fix |
+| `amc guide --ci --target 3` | CI gate mode |
+| `amc guide --watch --apply` | Continuous monitoring |
+| `amc guide --diff` | Compare with previous run |
+| `amc guide --frameworks` | List supported frameworks |
+
 ### Research-Backed Modules
 | Command | What it scores |
 |---------|---------------|
@@ -367,9 +407,10 @@ cd platform/python && python3 -m pytest tests/ -q
 ## Next Steps
 
 1. **Run `amc quickscore`** — get your baseline
-2. **Run `amc doctor`** — check your environment
-3. **Run `amc setup --demo`** — explore with sample data
-4. **Pick your weakest dimension** — focus improvement there
-5. **Set up evidence collection** — move from questionnaires to proof
+2. **Run `amc guide --go`** — generate and apply guardrails automatically
+3. **Run `amc doctor`** — check your environment
+4. **Run `amc setup --demo`** — explore with sample data
+5. **Run `amc guide --diff`** — see what improved after your agent works with guardrails
+6. **Set up evidence collection** — move from questionnaires to proof
 
 Questions? Issues? [GitHub](https://github.com/thewisecrab/AgentMaturityCompass)

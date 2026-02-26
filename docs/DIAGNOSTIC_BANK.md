@@ -16,7 +16,7 @@ amc diagnostic render --agent default --format md
 
 Hard guarantees:
 - exactly 5 dimensions
-- exactly 111 questions
+- exactly 126 questions
 - each question has 6 rubric levels (`0..5`)
 - each question has explicit evidence mapping and minimum coverage logic
 

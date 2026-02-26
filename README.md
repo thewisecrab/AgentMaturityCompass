@@ -42,11 +42,11 @@ amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3%20Defin
 
 > 📖 [Full guide: install → first score → L5](docs/GETTING_STARTED.md)
 
-[![Tests](https://img.shields.io/badge/tests-4%2C234%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-2%2C693%20passing-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
-[![Questions](https://img.shields.io/badge/questions-118-blue)]()
+[![Questions](https://img.shields.io/badge/questions-126-blue)]()
 [![Modules](https://img.shields.io/badge/scoring%20modules-74-green)]()
-[![Attack Packs](https://img.shields.io/badge/attack%20packs-71-red)]()
+[![Attack Packs](https://img.shields.io/badge/attack%20packs-74-red)]()
 [![Adapters](https://img.shields.io/badge/adapters-14-purple)]()
 🌐 [Website](https://thewisecrab.github.io/AgentMaturityCompass/) · 📖 [Docs](docs/) · 💬 [Discussions](https://github.com/thewisecrab/AgentMaturityCompass/discussions)
 
@@ -57,7 +57,7 @@ amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3%20Defin
 ```
 Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed, hash-chained)
                                                               ↓
-                                                Scoring Engine (118 questions, 5 dimensions)
+                                                Scoring Engine (126 questions, 5 dimensions)
                                                               ↓
                                                AMC Studio (dashboard + API)
 ```
@@ -84,13 +84,39 @@ amc score evidence-ingest --format openai-evals    # Import existing evals
 
 ---
 
+## Agent Guide — Guardrails From Your Score
+
+AMC doesn't just score — it generates operational guardrails and applies them directly to your agent's config file.
+
+```bash
+# One command: detect framework → generate guardrails → apply to config
+amc guide --go
+```
+
+- **10 frameworks** auto-detected from project files (pyproject.toml, package.json, config files)
+- **15 config targets** — AGENTS.md, CLAUDE.md, .cursorrules, .kiro/steering, .gemini/style.md, and more
+- **Severity-tagged** — 🔴 Critical, 🟡 High, 🔵 Medium — so you know what to fix first
+- **Idempotent** — re-running `--apply` updates only the guardrails section (AMC-GUARDRAILS markers)
+- **CI gate** — `amc guide --ci --target 3` exits non-zero if below threshold
+
+```bash
+amc guide --status              # One-line health check
+amc guide --interactive         # Cherry-pick which gaps to fix
+amc guide --watch --apply       # Continuous monitoring + auto-update
+amc guide --diff                # What improved since last run
+```
+
+> 📖 [Full guide system docs](docs/AGENT_GUIDE.md)
+
+---
+
 <details>
 <summary><strong>📊 The Platform (8 modules)</strong></summary>
 
 | Module | What It Does |
 |--------|-------------|
-| **AMC Score** | 118 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
-| **AMC Shield** | 71 attack packs: injection, exfiltration, sycophancy, sabotage, and more |
+| **AMC Score** | 126 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
+| **AMC Shield** | 74 attack packs: injection, exfiltration, sycophancy, sabotage, over-compliance, and more |
 | **AMC Enforce** | Governor engine with policy packs, approval workflows, scoped leases |
 | **AMC Vault** | Ed25519 key vault, Merkle-tree evidence chains, HSM/TPM support |
 | **AMC Watch** | Studio dashboard, gateway proxy, Prometheus metrics, cost tracking |
@@ -101,7 +127,7 @@ amc score evidence-ingest --format openai-evals    # Import existing evals
 </details>
 
 <details>
-<summary><strong>📐 5 Dimensions, 118 Questions, 6 Maturity Levels</strong></summary>
+<summary><strong>📐 5 Dimensions, 126 Questions, 6 Maturity Levels</strong></summary>
 
 | Dimension | Questions | Focus |
 |-----------|-----------|-------|
@@ -110,6 +136,7 @@ amc score evidence-ingest --format openai-evals    # Import existing evals
 | Resilience | 27 | Graceful degradation, circuit breakers, monitor bypass resistance |
 | Leadership & Autonomy | 21 | Structured logs, traces, cost tracking, SLO monitoring |
 | Culture & Alignment | 20 | Test harnesses, benchmarks, feedback loops, regression detection |
+| Evaluation & Growth | 8 | Over-compliance detection, behavioral calibration, self-improvement |
 
 | Level | Name | Description |
 |-------|------|-------------|
@@ -125,7 +152,7 @@ amc score evidence-ingest --format openai-evals    # Import existing evals
 <details>
 <summary><strong>🔴 Assurance Lab (Built-in Red Team)</strong></summary>
 
-AMC doesn't just score — it attacks. 71 deterministic attack packs including:
+AMC doesn't just score — it attacks. 74 deterministic attack packs including:
 
 - **injection** — Prompt override and system-message tampering
 - **exfiltration** — Secret and PII leakage controls
@@ -141,6 +168,7 @@ AMC doesn't just score — it attacks. 71 deterministic attack packs including:
 - **economic-amplification** — Cost explosion and resource exhaustion attacks
 - **mcp-security** — MCP server poisoning, tool schema manipulation
 - **zombie-persistence** — Agents that survive termination or persist unauthorized
+- **over-compliance** — H-Neurons-inspired detection of agents that exceed instructions (arXiv:2512.01797)
 
 ```bash
 amc assurance run --scope full --agent my-agent
@@ -170,6 +198,8 @@ Beyond the core diagnostic, AMC includes research-backed scoring:
 - Output attestation (cryptographic signing)
 - Mutual verification (agent-to-agent trust)
 - Network transparency log (Merkle tree)
+- Over-compliance detection (H-Neurons, arXiv:2512.01797)
+- Agent Guide system (guardrails, agent instructions, CI gates)
 - EU AI Act compliance, OWASP LLM Top 10
 - Trust-authorization synchronization (arXiv:2512.06914)
 - Monitor bypass resistance (arXiv:2503.09950)
@@ -202,6 +232,7 @@ amc audit binder create --framework eu-ai-act
 
 - [Getting Started](docs/GETTING_STARTED.md) — Install → first score → L5
 - [Quickstart Guide](docs/QUICKSTART.md)
+- [Agent Guide System](docs/AGENT_GUIDE.md) — Guardrails, auto-detect, CI gates
 - [Solo User Guide](docs/SOLO_USER.md)
 - [CLI Reference](docs/AMC_MASTER_REFERENCE.md)
 - [Architecture Map](docs/ARCHITECTURE_MAP.md)
