@@ -159,7 +159,7 @@ The 81 product modules in `platform/python/amc/product/` remain in the Python SD
 | 🟡 New assurance pack | 8 | 8 new packs: DLP, SBOM, RAG, circuit-breaker, honeytoken, config-lint, step-up, taint |
 | 🟠 Partial coverage | 18 | Python SDK supplements where needed |
 | ⚪ Python SDK | 72+ | Product modules — available via python-amc-sdk adapter |
-| **Total mapped** | **158+** | All Python modules accounted for |
+| **Total mapped** | **1130+** | All Python modules accounted for |
 
 ---
 

@@ -1,6 +1,6 @@
 /**
  * Python AMC SDK adapter.
- * Wraps Python agents using the AMC Python SDK (158 modules at platform/python/).
+ * Wraps Python agents using the AMC Python SDK (1130 modules across platform/python/).
  * Modules: shield/ (16), enforce/ (35), vault/ (14), watch/ (10), score/ (7), product/ (81).
  */
 import type { AdapterDefinition } from "../adapterTypes.js";

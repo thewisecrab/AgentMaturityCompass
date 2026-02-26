@@ -76,7 +76,7 @@ This is intentional: AMC measures *organizational and architectural maturity*, n
 
 ## 2. Content Validity
 
-**Definition:** Do the 67 questions comprehensively cover the content domain of agent maturity?
+**Definition:** Do the 126 questions comprehensively cover the content domain of agent maturity?
 
 ### Domain Derivation Methodology
 

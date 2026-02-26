@@ -308,7 +308,7 @@ and logs all decisions. Uses keyword matching + basic ML classification.
 | product | `amc.product.workflow_engine` | ok | instantiated WorkflowEngine | WorkflowEngine |
 | product | `amc.product.workflow_templates` | ok | imported (class WorkflowTemplates not fo | module imported |
 
-**Coverage: 158/158 modules OK (0 failures)**
+**Coverage: 1130/1130 modules OK (0 failures)**
 
 ## How Each Level Was Earned
 

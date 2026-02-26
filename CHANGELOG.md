@@ -32,7 +32,7 @@ All notable changes to AMC are documented here.
 ### Changed
 - Question bank expanded: 118 → 126 questions (added Evaluation & Growth dimension)
 - Assurance packs expanded: 71 → 74 packs
-- Test count: 2656 → 2693 (37 guide system tests added)
+- Test count: 2656 → 2699 (43 guide system tests added)
 - Website stats updated across all surfaces
 - CLI formatting module (`src/cliFormat.ts`) shared across init, quickscore, doctor
 - Dashboard rebuilt from ground up (v11) with Linear/Vercel aesthetic

@@ -21,7 +21,7 @@ const NAV = [
     { id: "architecture", title: "Architecture" },
     { id: "trust-model", title: "Trust Model" },
     { id: "evidence", title: "Evidence & Ledger" },
-    { id: "questions", title: "111 Questions" },
+    { id: "questions", title: "126 Questions" },
     { id: "assurance", title: "Assurance Packs" },
   ]},
   { section: "API & Integration", items: [
@@ -56,7 +56,7 @@ AMC is a 25-module platform that measures how mature, safe, and trustworthy an A
 <p>AI agents self-report their capabilities. Anyone can claim they're safe, reliable, or compliant. But there's an <strong>+84 point gap</strong> between what agents claim and what they actually do (based on our research across 200+ production agents).</p>
 <p>AMC closes that gap with:</p>
 <ul>
-<li><strong>111 diagnostic questions</strong> across 5 maturity dimensions</li>
+<li><strong>126 diagnostic questions</strong> across 6 maturity dimensions</li>
 <li><strong>Evidence-gated scoring</strong> — you can't claim L3 without proving it</li>
 <li><strong>Tamper-evident ledger</strong> — Merkle-tree backed, cryptographically signed</li>
 <li><strong>Anti-gaming protections</strong> — temporal consistency, cross-reference validation</li>
@@ -78,7 +78,7 @@ AMC is a 25-module platform that measures how mature, safe, and trustworthy an A
 <h2>Key Features</h2>
 <table>
 <tr><th>Feature</th><th>Description</th></tr>
-<tr><td>AMC Score</td><td>111-question maturity assessment with 6-level scoring (L0–L5)</td></tr>
+<tr><td>AMC Score</td><td>126-question maturity assessment with 6-level scoring (L0–L5)</td></tr>
 <tr><td>AMC Shield</td><td>Threat detection, prompt injection defense, anomaly scanning</td></tr>
 <tr><td>AMC Enforce</td><td>Policy-as-code guardrails with real-time enforcement</td></tr>
 <tr><td>AMC Vault</td><td>Encrypted credential storage with key rotation</td></tr>
@@ -228,7 +228,7 @@ Top 3 improvement recommendations:
 <p>Open <code>http://localhost:3212/console</code> in your browser to see the full UI.</p>
 
 <h2>Step 5: Run a Full Diagnostic</h2>
-<pre><code># Run the full 111-question diagnostic
+<pre><code># Run the full 126-question diagnostic
 amc run
 
 # View the report
@@ -249,7 +249,7 @@ amc adapters add anthropic --api-key sk-ant-...</code></pre>
 <ul>
 <li><a href="#studio-overview">Explore the Studio UI</a> — visual walkthrough of every page</li>
 <li><a href="#cli-commands">CLI Command Reference</a> — every command documented</li>
-<li><a href="#questions">Understand the 111 Questions</a> — what AMC actually measures</li>
+<li><a href="#questions">Understand the 126 Questions</a> — what AMC actually measures</li>
 <li><a href="#assurance">Run Assurance Packs</a> — automated compliance checks</li>
 </ul>
 `;
@@ -278,12 +278,12 @@ PAGES["first-score"] = `
 </div>
 <div class="card">
 <h4>🔬 Full Diagnostic</h4>
-<p>All 111 questions across 5 dimensions. Comprehensive maturity assessment with evidence gates. Run with <code>amc run</code>.</p>
+<p>All 126 questions across 6 dimensions. Comprehensive maturity assessment with evidence gates. Run with <code>amc run</code>.</p>
 </div>
 </div>
 
 <h2>The 5 Dimensions</h2>
-<p>AMC organizes its 111 questions into 5 maturity dimensions:</p>
+<p>AMC organizes its 126 questions into 6 maturity dimensions:</p>
 <table>
 <tr><th>Dimension</th><th>Questions</th><th>What It Measures</th></tr>
 <tr><td>Strategic Operations</td><td>9</td><td>Mission alignment, charter, scope boundaries</td></tr>
@@ -409,7 +409,7 @@ open http://localhost:3212/console</code></pre>
 <table>
 <tr><th>Page</th><th>Description</th></tr>
 <tr><td>Score</td><td>Run and view maturity scores</td></tr>
-<tr><td>Diagnostic</td><td>Full 111-question diagnostic runner</td></tr>
+<tr><td>Diagnostic</td><td>Full 126-question diagnostic runner</td></tr>
 <tr><td>Heatmap</td><td>Visual heatmap of all question scores</td></tr>
 <tr><td>Radar</td><td>Radar chart of dimension scores</td></tr>
 <tr><td>Timeline</td><td>Score progression over time</td></tr>
@@ -460,10 +460,10 @@ PAGES["dashboard"] = `
 <h2>Dashboard Components</h2>
 
 <h3>Layer Radar Chart</h3>
-<p>A radar/spider chart showing scores across all 5 dimensions. Useful for identifying which areas need the most improvement.</p>
+<p>A radar/spider chart showing scores across all 6 dimensions. Useful for identifying which areas need the most improvement.</p>
 
 <h3>111-Question Heatmap</h3>
-<p>Color-coded grid of all 111 questions. Green = high maturity, red = low maturity, gray = not assessed. Click any cell to see the question details and evidence status.</p>
+<p>Color-coded grid of all 126 questions. Green = high maturity, red = low maturity, gray = not assessed. Click any cell to see the question details and evidence status.</p>
 
 <h3>Timeline</h3>
 <p>Score progression over time. Shows how your agent's maturity has changed across diagnostic runs.</p>
@@ -579,7 +579,7 @@ AMC_VAULT_PASSPHRASE=mypass amc setup --non-interactive</code></pre>
 amc quickscore --json</code></pre>
 
 <h3><code>amc run</code></h3>
-<p>Run the full 111-question maturity diagnostic.</p>
+<p>Run the full 126-question maturity diagnostic.</p>
 <pre><code>amc run
 amc run --agent my-agent
 amc run --dimension governance</code></pre>
@@ -734,7 +734,7 @@ PAGES["cli-scoring"] = `
 <pre><code>Questions → Answers → Evidence Check → Level Assignment → Dimension Score → Overall Score</code></pre>
 
 <h3>1. Question Bank</h3>
-<p>111 questions organized into 5 dimensions. Each question has:</p>
+<p>126 questions organized into 6 dimensions. Each question has:</p>
 <ul>
 <li>A unique ID (e.g., <code>AMC-4.3.2</code>)</li>
 <li>Level criteria for L0 through L5</li>
@@ -819,10 +819,10 @@ PAGES["architecture"] = `
 <h2>Key Components</h2>
 
 <h3>Canon</h3>
-<p>The canonical specification — a signed YAML file that defines the 5 dimensions, 111 questions, scoring rubrics, and evidence requirements. The canon is cryptographically signed to prevent tampering.</p>
+<p>The canonical specification — a signed YAML file that defines the 6 dimensions, 126 questions, scoring rubrics, and evidence requirements. The canon is cryptographically signed to prevent tampering.</p>
 
 <h3>Question Bank</h3>
-<p>The runtime representation of all 111 diagnostic questions with their level criteria, evidence gates, and anti-gaming rules.</p>
+<p>The runtime representation of all 126 diagnostic questions with their level criteria, evidence gates, and anti-gaming rules.</p>
 
 <h3>Evidence Ledger</h3>
 <p>A Merkle-tree backed, append-only ledger that stores all evidence artifacts. Each entry is cryptographically signed and chained to the previous entry, making tampering detectable.</p>
@@ -970,7 +970,7 @@ PAGES["questions"] = `
 <p>Each question has:</p>
 <ul>
 <li><strong>ID</strong> — unique identifier (e.g., <code>AMC-1.1</code>)</li>
-<li><strong>Dimension</strong> — which of the 5 dimensions it belongs to</li>
+<li><strong>Dimension</strong> — which of the 6 dimensions it belongs to</li>
 <li><strong>Text</strong> — the question itself</li>
 <li><strong>Level criteria</strong> — what constitutes L0 through L5</li>
 <li><strong>Evidence requirements</strong> — what proof is needed per level</li>
@@ -986,46 +986,30 @@ amc run --list-questions
 # View questions by dimension
 amc run --list-questions --dimension governance</code></pre>
 
-<h2>Dimension 1: Strategic Operations (9 questions)</h2>
-<p>Covers mission alignment, agent charter, scope boundaries, and strategic planning.</p>
+<h2>Dimension 1: Strategic Agent Operations (17 questions)</h2>
+<p>Covers mission clarity, scope adherence, decision traceability, and agent charter.</p>
 <ul>
-<li>AMC-1.1 Agent Charter &amp; Scope</li>
-<li>AMC-1.2 Mission Alignment</li>
-<li>AMC-1.3 Boundary Definition</li>
-<li>And 6 more...</li>
+<li>AMC-SAO-1.x — Mission alignment and scope boundaries</li>
+<li>AMC-SAO-2.x — Decision traceability and audit hooks</li>
+<li>And more...</li>
 </ul>
 
-<h2>Dimension 2: Leadership &amp; Autonomy (5 questions)</h2>
-<p>Covers decision authority, escalation protocols, and human oversight quality.</p>
+<h2>Dimension 2: Skills (33 questions)</h2>
+<p>Covers tool mastery, injection defense, DLP, zero-trust tool use.</p>
 
-<h2>Dimension 3: Culture &amp; Alignment (15 questions)</h2>
-<p>Three sub-groups:</p>
-<ul>
-<li><strong>3.1 Values (6 questions)</strong> — integrity, ethics, alignment with organizational values</li>
-<li><strong>3.2 Positioning (5 questions)</strong> — market positioning, differentiation, identity</li>
-<li><strong>3.3 Enablers (4 questions)</strong> — tools, processes, and infrastructure that enable maturity</li>
-</ul>
+<h2>Dimension 3: Resilience (27 questions)</h2>
+<p>Covers graceful degradation, circuit breakers, monitor bypass resistance, error recovery.</p>
 
-<h2>Dimension 4: Governance &amp; Security (42 questions)</h2>
-<p>The largest dimension. Covers:</p>
-<ul>
-<li>Access control and authentication</li>
-<li>Policy enforcement</li>
-<li>Threat detection and response</li>
-<li>Compliance (EU AI Act, OWASP LLM Top 10, ISO 42001)</li>
-<li>Incident management</li>
-<li>Audit and accountability</li>
-</ul>
+<h2>Dimension 4: Leadership &amp; Autonomy (21 questions)</h2>
+<p>Covers structured logs, traces, cost tracking, SLO monitoring, human oversight quality.</p>
 
-<h2>Dimension 5: Skills &amp; Capabilities (40 questions)</h2>
-<p>Covers:</p>
+<h2>Dimension 5: Culture &amp; Alignment (20 questions)</h2>
+<p>Covers test harnesses, benchmarks, feedback loops, regression detection, alignment index.</p>
+
+<h2>Dimension 6: Evaluation &amp; Growth (8 questions)</h2>
+<p>Covers over-compliance detection (H-Neurons, arXiv:2512.01797), behavioral calibration, self-improvement loops.</p>
 <ul>
-<li>Tool use and integration</li>
-<li>Memory and context management</li>
-<li>Reasoning and decision quality</li>
-<li>Reliability and error handling</li>
-<li>Observability and monitoring</li>
-<li>Cost efficiency</li>
+<li>AMC-OC-1 through AMC-OC-8 — Over-compliance diagnostic questions</li>
 </ul>
 
 <div class="callout info"><strong>Full Question Bank</strong>
@@ -1121,7 +1105,7 @@ curl -b session=&lt;cookie&gt; http://localhost:3212/api/v1/health</code></pre>
 <h3>Questions</h3>
 <table>
 <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
-<tr><td>GET</td><td><code>/api/v1/questions</code></td><td>List all 111 questions</td></tr>
+<tr><td>GET</td><td><code>/api/v1/questions</code></td><td>List all 126 questions</td></tr>
 <tr><td>GET</td><td><code>/api/v1/questions/:id</code></td><td>Get question details</td></tr>
 <tr><td>GET</td><td><code>/api/v1/questions/:id/explain</code></td><td>Plain-English explanation</td></tr>
 </table>
@@ -1659,14 +1643,14 @@ PAGES["faq"] = `
 <p>Agent Maturity Compass (AMC) is an open-source platform that measures how mature, safe, and trustworthy AI agents actually are — using cryptographically signed execution evidence rather than self-reported claims.</p>
 
 <h3>Is AMC free?</h3>
-<p>Yes. AMC is open source under the MIT license. The core platform with all 111 questions, 25 modules, and full CLI/UI is completely free.</p>
+<p>Yes. AMC is open source under the MIT license. The core platform with all 126 questions, 74 scoring modules, and full CLI/UI is completely free.</p>
 
 <h3>What makes AMC different from other frameworks?</h3>
 <ul>
 <li><strong>Evidence-gated scoring</strong> — you can't claim maturity without proving it</li>
 <li><strong>Tamper-evident ledger</strong> — Merkle-tree backed, cryptographically signed</li>
 <li><strong>Anti-gaming protections</strong> — temporal consistency, cross-reference validation</li>
-<li><strong>111 questions</strong> — the most comprehensive assessment available</li>
+<li><strong>126 questions</strong> — the most comprehensive assessment available</li>
 <li><strong>Both UI and CLI</strong> — works for humans and agents alike</li>
 </ul>
 

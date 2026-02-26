@@ -9,6 +9,7 @@
    Resilience ·············· 3.8  (27 questions)
    Leadership & Autonomy ··· 3.5  (21 questions)
    Culture & Alignment ····· 3.9  (20 questions)
+   Evaluation & Growth ····· 3.4  (8 questions)
    Evidence: ✓ Merkle root 9c4e…a7f0 (Ed25519)
 ```
 
@@ -42,7 +43,7 @@ amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3%20Defin
 
 > 📖 [Full guide: install → first score → L5](docs/GETTING_STARTED.md)
 
-[![Tests](https://img.shields.io/badge/tests-2%2C693%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-2%2C699%20passing-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 [![Questions](https://img.shields.io/badge/questions-126-blue)]()
 [![Modules](https://img.shields.io/badge/scoring%20modules-74-green)]()
@@ -57,7 +58,7 @@ amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3%20Defin
 ```
 Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed, hash-chained)
                                                               ↓
-                                                Scoring Engine (126 questions, 5 dimensions)
+                                                Scoring Engine (126 questions, 6 dimensions)
                                                               ↓
                                                AMC Studio (dashboard + API)
 ```
@@ -116,7 +117,7 @@ amc guide --diff                # What improved since last run
 
 | Module | What It Does |
 |--------|-------------|
-| **AMC Score** | 126 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
+| **AMC Score** | 126 diagnostic questions, 6 dimensions, L0–L5 maturity, evidence-weighted |
 | **AMC Shield** | 74 attack packs: injection, exfiltration, sycophancy, sabotage, over-compliance, and more |
 | **AMC Enforce** | Governor engine with policy packs, approval workflows, scoped leases |
 | **AMC Vault** | Ed25519 key vault, Merkle-tree evidence chains, HSM/TPM support |

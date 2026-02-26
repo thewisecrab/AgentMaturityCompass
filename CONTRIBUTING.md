@@ -14,7 +14,7 @@ npm run build
 ## Running Tests
 
 ```bash
-# TypeScript (2693+ tests)
+# TypeScript (2699+ tests)
 npm test
 
 # Python platform (1586 tests)

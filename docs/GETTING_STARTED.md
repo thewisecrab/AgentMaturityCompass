@@ -66,13 +66,14 @@ AMC scores agents on a 5-level scale:
 
 ## What Gets Scored
 
-AMC evaluates 5 dimensions, each with specific questions:
+AMC evaluates 6 dimensions, each with specific questions:
 
 1. **Purpose & Boundaries** — Does the agent know what it should and shouldn't do?
 2. **Autonomy & Oversight** — How much freedom does it have, and who's watching?
 3. **Trustworthiness** — Is it honest, safe, and consistent?
 4. **Operational Maturity** — Can it handle failures, scale, and recover?
 5. **Ecosystem & Compliance** — Does it play well with others and follow the rules?
+6. **Evaluation & Growth** — Does it detect over-compliance, calibrate behavior, and self-improve?
 
 ---
 

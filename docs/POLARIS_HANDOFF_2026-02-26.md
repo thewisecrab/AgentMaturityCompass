@@ -70,7 +70,7 @@ The Design Council should update the AMC website (`website/index.html`) to refle
    - Trust-authorization synchronization scoring (unique to AMC)
    - Zero-trust memory security architecture scoring (unique to AMC)
 5. **Framework coverage update**: Now maps to 7 frameworks (NIST AI RMF, ISO 42001, EU AI Act, SOC2, GDPR, ForesightSafety Bench, Agentic 4C)
-6. **The "84-point gap" in the current site should be updated** to reflect the new 118-question diagnostic
+6. **The "84-point gap" in the current site should be updated** to reflect the new 126-question diagnostic
 
 ## Commit
 `d8e6b2c` — feat: research-derived modules + docs update — 74 modules, 74 packs, 126 questions

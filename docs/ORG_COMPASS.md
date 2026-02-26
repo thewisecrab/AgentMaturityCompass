@@ -57,7 +57,7 @@ then:
 ## Unified Clarity
 
 Org scorecards summarize:
-- headline overall + layers + 111 question medians
+- headline overall + layers + 126 question medians
 - trust/integrity/evidence coverage
 - top 10 maturity gaps vs target medians
 - top 5 systemic risks (indices)

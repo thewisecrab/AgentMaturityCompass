@@ -5213,7 +5213,7 @@ standard
     console.log(JSON.stringify(standardListCli(process.cwd()), null, 2));
   });
 
-const diagnosticBank = diagnostic.command("bank").description("Signed diagnostic 67-question bank operations");
+const diagnosticBank = diagnostic.command("bank").description("Signed diagnostic 126-question bank operations");
 
 diagnosticBank
   .command("init")
@@ -5244,7 +5244,7 @@ diagnosticBank
 
 diagnostic
   .command("render")
-  .description("Render contextualized 67-question diagnostic for an agent")
+  .description("Render contextualized 126-question diagnostic for an agent")
   .requiredOption("--agent <agentId>", "agent id")
   .option("--format <format>", "md|json", "json")
   .option("--out <file>", "output file")
@@ -15542,7 +15542,7 @@ program
     for (const line of result.roadmap) { console.log(chalk.cyan(`  ${line}`)); }
 
     console.log(chalk.bold.hex("#FF6600")("\n📋  Next Steps:"));
-    console.log("  amc score tier --tier standard   Full 67-question assessment");
+    console.log("  amc score tier --tier standard   Full 126-question assessment");
     console.log("  amc scan --local .               Scan your codebase");
     console.log("  amc dashboard open               Open web dashboard");
     console.log("  amc playground run               Run scenario tests");
@@ -15729,7 +15729,7 @@ demo
     console.log(chalk.white("  • Execution-verified evidence (not self-reported claims)"));
     console.log(chalk.white("  • Cryptographic proof chains (can't be faked)"));
     console.log(chalk.white("  • Trust-tiered scoring (self-reported evidence is capped at 0.4×)"));
-    console.log(chalk.white("  • Adversarial testing (66 attack packs that actually probe behavior)"));
+    console.log(chalk.white("  • Adversarial testing (74 attack packs that actually probe behavior)"));
     console.log("");
     console.log(chalk.gray("  Start scoring your agent:"), chalk.cyan("amc init"));
     console.log("");
