@@ -1359,6 +1359,8 @@ program
   .option("--dry-run", "preview --apply changes without writing files", false)
   .option("--quick", "instant guide from defaults — no interactive questions", false)
   .option("--auto-detect", "auto-detect framework from project files", false)
+  .option("--status", "one-line status: current level, gap count, severities", false)
+  .option("--go", "all-in-one: quick + auto-detect + export + apply (zero friction)", false)
   .option("--agent <id>", "agent ID", "default")
   .option("--framework <name>", "framework name for tailored instructions")
   .option("--json", "emit JSON output", false)
@@ -1377,6 +1379,8 @@ program
     dryRun: boolean;
     quick: boolean;
     autoDetect: boolean;
+    status: boolean;
+    go: boolean;
     agent: string;
     framework?: string;
     json: boolean;
@@ -1391,6 +1395,7 @@ program
       diffGuides,
       listSupportedFrameworks,
       detectFramework,
+      guideStatusLine,
       applyGuardrails,
       KNOWN_AGENT_CONFIGS,
     } = await import("./guide/guideGenerator.js");
@@ -1412,6 +1417,26 @@ program
       }
     }
 
+    /* ── --go: all-in-one zero-friction mode ─────── */
+    if (opts.go) {
+      opts.quick = true;
+      opts.autoDetect = true;
+      opts.export = true;
+      opts.apply = true;
+
+      // Re-run auto-detect since we just set the flag
+      if (!opts.framework) {
+        const detected = detectFramework(
+          (p) => { try { fs.accessSync(path.join(process.cwd(), p)); return true; } catch { return false; } },
+          (p) => { try { return fs.readFileSync(path.join(process.cwd(), p), "utf-8"); } catch { return null; } },
+        );
+        if (detected) {
+          opts.framework = detected.name;
+          console.log(chalk.gray(`  Auto-detected: ${detected.name} (from ${detected.detectedFrom})`));
+        }
+      }
+    }
+
     /* ── --frameworks: list supported frameworks ─── */
     if (opts.frameworks) {
       const fws = listSupportedFrameworks();
@@ -1428,6 +1453,12 @@ program
         console.log("");
       }
       return;
+    }
+
+    /* ── --status: one-line status ──────────────── */
+    if (opts.status) {
+      // Force quick mode for status
+      opts.quick = true;
     }
 
     /* ── Helper: run assessment and build guide ──── */
@@ -1494,6 +1525,18 @@ program
         agentId: opts.agent,
         framework: opts.framework,
       });
+    }
+
+    /* ── --status: one-line output ──────────────── */
+    if (opts.status) {
+      const guide = await buildGuide();
+      const line = guideStatusLine(guide);
+      if (opts.json) {
+        console.log(JSON.stringify({ status: line, currentLevel: guide.currentLevel, targetLevel: guide.targetLevel, gaps: guide.sections.length }));
+      } else {
+        console.log(`  🧭 ${guide.agentId}: ${line}`);
+      }
+      return;
     }
 
     /* ── CI gate mode ────────────────────────────── */

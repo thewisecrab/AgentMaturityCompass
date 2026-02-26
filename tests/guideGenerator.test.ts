@@ -8,6 +8,7 @@ import {
   diffGuides,
   listSupportedFrameworks,
   detectFramework,
+  guideStatusLine,
   applyGuardrails,
   KNOWN_AGENT_CONFIGS,
 } from "../src/guide/guideGenerator.js";
@@ -438,5 +439,55 @@ describe("guideGenerator", () => {
       () => null,
     );
     expect(result).toBeNull();
+  });
+
+  it("guideStatusLine returns compact one-liner with severities", () => {
+    const scores = [
+      makeScore(questionBank[0]!.id, 0), // critical
+      makeScore(questionBank[1]!.id, 1), // high
+      makeScore(questionBank[2]!.id, 2), // medium
+    ];
+    const guide = generateGuide({ overall: 1.0, questionScores: scores, targetLevel: 3 });
+    const line = guideStatusLine(guide);
+
+    expect(line).toContain("L1 → L3");
+    expect(line).toContain("gaps");
+    expect(line).toContain("critical");
+  });
+
+  it("guideStatusLine shows all clear when no gaps", () => {
+    const scores = questionBank.slice(0, 3).map(q => makeScore(q.id, 4));
+    const guide = generateGuide({ overall: 4.0, questionScores: scores, targetLevel: 4 });
+    const line = guideStatusLine(guide);
+
+    expect(line).toContain("all clear");
+  });
+
+  it("agent instructions include per-question verify commands", () => {
+    const scores = questionBank.slice(0, 3).map(q => makeScore(q.id, 1));
+    const guide = generateGuide({ overall: 1.0, questionScores: scores, targetLevel: 3 });
+    const md = guideToAgentMarkdown(guide);
+
+    expect(md).toContain("Verify this question");
+    expect(md).toContain("amc explain");
+    expect(md).toContain("amc score formal-spec --question");
+  });
+
+  it("human markdown includes getting-started for L0-L1 agents", () => {
+    const scores = questionBank.slice(0, 5).map(q => makeScore(q.id, 0));
+    const guide = generateGuide({ overall: 0.5, questionScores: scores, targetLevel: 2 });
+    const md = guideToHumanMarkdown(guide);
+
+    expect(md).toContain("First Time? Start Here");
+    expect(md).toContain("amc evidence collect");
+    expect(md).toContain("amc guide --diff");
+  });
+
+  it("human markdown skips getting-started for L2+ agents", () => {
+    const scores = questionBank.slice(0, 5).map(q => makeScore(q.id, 2));
+    const guide = generateGuide({ overall: 2.5, questionScores: scores, targetLevel: 4 });
+    const md = guideToHumanMarkdown(guide);
+
+    expect(md).not.toContain("First Time? Start Here");
   });
 });

@@ -324,6 +324,14 @@ function generateAgentInstruction(q: DiagnosticQuestion, currentLevel: number, t
       parts.push(`- Must NOT have: ${targetGate.mustNotInclude.auditTypes.join(", ")}`);
     }
     parts.push("");
+
+    // Per-question verification command
+    parts.push("### Verify this question");
+    parts.push(`\`\`\`bash`);
+    parts.push(`amc explain ${q.id}`);
+    parts.push(`amc score formal-spec --question ${q.id}`);
+    parts.push(`\`\`\``);
+    parts.push("");
   }
 
   return parts.join("\n");
@@ -416,6 +424,21 @@ export function guideToHumanMarkdown(guide: Guide): string {
   if (guide.sections.length === 0) {
     lines.push("🎉 Nothing to fix — you're at target level!");
     return lines.join("\n");
+  }
+
+  // Getting started preamble for first-time users
+  if (guide.currentLevel <= 1) {
+    lines.push("## 🚀 First Time? Start Here");
+    lines.push("");
+    lines.push("This guide is personalized to your agent's actual scores. Here's how to use it:");
+    lines.push("");
+    lines.push("1. Read the **Priority Fixes** below — they're sorted by impact (biggest wins first)");
+    lines.push("2. Run the **CLI commands** shown in each section — they do the heavy lifting");
+    lines.push("3. After fixing, run `amc quickscore` to see your new score");
+    lines.push("4. Run `amc guide --diff` to see what improved");
+    lines.push("");
+    lines.push("Most agents jump a full level just by running `amc evidence collect`. Start there.");
+    lines.push("");
   }
 
   lines.push("## Priority Fixes (highest impact first)");
@@ -919,6 +942,27 @@ export function listSupportedFrameworks(): Array<{ name: string; aliases: string
     language: fw.language,
     configFile: fw.configFile,
   }));
+}
+
+/* ── One-liner status ──────────────────────────────── */
+
+export function guideStatusLine(guide: Guide): string {
+  const criticals = guide.sections.filter(s => s.severity === "critical").length;
+  const highs = guide.sections.filter(s => s.severity === "high").length;
+  const mediums = guide.sections.filter(s => s.severity === "medium").length;
+
+  const parts = [`L${guide.currentLevel} → L${guide.targetLevel}`];
+  if (guide.sections.length === 0) {
+    parts.push("✓ all clear");
+  } else {
+    parts.push(`${guide.sections.length} gaps`);
+    const sevParts: string[] = [];
+    if (criticals > 0) sevParts.push(`${criticals} critical`);
+    if (highs > 0) sevParts.push(`${highs} high`);
+    if (mediums > 0) sevParts.push(`${mediums} medium`);
+    parts.push(`(${sevParts.join(", ")})`);
+  }
+  return parts.join(" | ");
 }
 
 /* ── Auto-detect framework from project files ──────── */
