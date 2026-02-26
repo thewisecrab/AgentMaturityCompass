@@ -1348,81 +1348,229 @@ program
   .option("--target <level>", "target maturity level (1-5)", "")
   .option("--export", "export markdown files to .amc/guides/", false)
   .option("--agent-instructions", "export agent-consumable instructions (for AGENTS.md / system prompts)", false)
+  .option("--guardrails", "generate operational guardrails (rules, not suggestions)", false)
+  .option("--apply [file]", "apply guardrails directly to agent config file (auto-detects or specify path)")
+  .option("--interactive", "mechanic mode — choose which gaps to fix", false)
+  .option("--watch", "continuous monitoring — re-generate guide on trust drift", false)
+  .option("--watch-interval <seconds>", "interval for watch mode in seconds", "300")
   .option("--agent <id>", "agent ID", "default")
   .option("--framework <name>", "framework name for tailored instructions")
   .option("--json", "emit JSON output", false)
-  .action(async (opts: { target: string; export: boolean; agentInstructions: boolean; agent: string; framework?: string; json: boolean }) => {
+  .action(async (opts: {
+    target: string;
+    export: boolean;
+    agentInstructions: boolean;
+    guardrails: boolean;
+    apply?: string | boolean;
+    interactive: boolean;
+    watch: boolean;
+    watchInterval: string;
+    agent: string;
+    framework?: string;
+    json: boolean;
+  }) => {
     const { getRapidQuestions, scoreRapidAssessment } = await import("./diagnostic/rapidQuickscore.js");
-    const { generateGuide, guideToHumanMarkdown, guideToAgentMarkdown } = await import("./guide/guideGenerator.js");
+    const {
+      generateGuide,
+      guideToHumanMarkdown,
+      guideToAgentMarkdown,
+      guideToGuardrails,
+      applyGuardrails,
+      KNOWN_AGENT_CONFIGS,
+    } = await import("./guide/guideGenerator.js");
     const { questionBank } = await import("./diagnostic/questionBank.js");
     const fs = await import("fs");
     const path = await import("path");
 
-    // Run a quick assessment to get scores
-    let answers: Record<string, number> = {};
-    const questions = getRapidQuestions();
+    /* ── Helper: run assessment and build guide ──── */
+    async function buildGuide() {
+      let answers: Record<string, number> = {};
+      const questions = getRapidQuestions();
 
-    if (process.stdin.isTTY && !opts.json) {
-      console.log("");
-      console.log(chalk.bold("  🧭 AMC Guide — Personalized improvement plan"));
-      console.log(chalk.gray("  Answer 5 quick questions to generate your guide."));
-      console.log("");
+      if (process.stdin.isTTY && !opts.json) {
+        console.log("");
+        console.log(chalk.bold("  🧭 AMC Guide — Personalized improvement plan"));
+        console.log(chalk.gray("  Answer 5 quick questions to generate your guide."));
+        console.log("");
 
-      for (const question of questions) {
-        const { level } = await inquirer.prompt<{ level: number }>([{
-          type: "list",
-          name: "level",
-          message: `${question.id}: ${question.title}`,
-          choices: question.options.map((option) => ({
-            name: `L${option.level} - ${option.label}`,
-            value: option.level
-          }))
-        }]);
-        answers[question.id] = level;
+        for (const question of questions) {
+          const { level } = await inquirer.prompt<{ level: number }>([{
+            type: "list",
+            name: "level",
+            message: `${question.id}: ${question.title}`,
+            choices: question.options.map((option) => ({
+              name: `L${option.level} - ${option.label}`,
+              value: option.level
+            }))
+          }]);
+          answers[question.id] = level;
+        }
       }
+
+      const result = scoreRapidAssessment(answers);
+
+      const questionScores = result.questionScores.map(qs => ({
+        questionId: qs.questionId,
+        claimedLevel: qs.level,
+        supportedMaxLevel: qs.level,
+        finalLevel: qs.level,
+        confidence: 1,
+        evidenceEventIds: [] as string[],
+        flags: [] as string[],
+        narrative: "",
+      }));
+
+      const scoredIds = new Set(questionScores.map(q => q.questionId));
+      for (const q of questionBank) {
+        if (!scoredIds.has(q.id)) {
+          questionScores.push({
+            questionId: q.id,
+            claimedLevel: 0,
+            supportedMaxLevel: 0,
+            finalLevel: 0,
+            confidence: 0,
+            evidenceEventIds: [],
+            flags: ["unscored"],
+            narrative: "",
+          });
+        }
+      }
+
+      const overall = (result.totalScore / result.maxScore) * 5;
+      const targetLevel = opts.target ? parseInt(opts.target, 10) : undefined;
+
+      return generateGuide({
+        overall,
+        questionScores,
+        targetLevel,
+        agentId: opts.agent,
+        framework: opts.framework,
+      });
     }
 
-    const result = scoreRapidAssessment(answers);
+    /* ── Interactive mechanic mode ───────────────── */
+    if (opts.interactive) {
+      const guide = await buildGuide();
 
-    // Build QuestionScore-compatible array from rapid assessment
-    const questionScores = result.questionScores.map(qs => ({
-      questionId: qs.questionId,
-      claimedLevel: qs.level,
-      supportedMaxLevel: qs.level,
-      finalLevel: qs.level,
-      confidence: 1,
-      evidenceEventIds: [] as string[],
-      flags: [] as string[],
-      narrative: "",
-    }));
-
-    // Also include all other questions at L0 (unscored)
-    const scoredIds = new Set(questionScores.map(q => q.questionId));
-    for (const q of questionBank) {
-      if (!scoredIds.has(q.id)) {
-        questionScores.push({
-          questionId: q.id,
-          claimedLevel: 0,
-          supportedMaxLevel: 0,
-          finalLevel: 0,
-          confidence: 0,
-          evidenceEventIds: [],
-          flags: ["unscored"],
-          narrative: "",
-        });
+      if (guide.sections.length === 0) {
+        console.log(chalk.green("\n  🎉 No gaps found — you're at target level!\n"));
+        return;
       }
+
+      console.log("");
+      console.log(chalk.bold("  🔧 Mechanic Mode — Choose what to improve"));
+      console.log(chalk.gray(`  ${guide.sections.length} gaps found. Select which ones to include in your guide.\n`));
+
+      const { selected } = await inquirer.prompt<{ selected: string[] }>([{
+        type: "checkbox",
+        name: "selected",
+        message: "Select gaps to fix (space to toggle, enter to confirm):",
+        choices: guide.sections.map(s => ({
+          name: `${s.questionId}: ${s.title} (L${s.currentLevel} → L${s.targetLevel}) [${s.layerName}]`,
+          value: s.questionId,
+          checked: s.targetLevel - s.currentLevel >= 2, // Pre-select big gaps
+        })),
+        pageSize: 15,
+      }]);
+
+      if (selected.length === 0) {
+        console.log(chalk.yellow("\n  No gaps selected. Nothing to generate.\n"));
+        return;
+      }
+
+      // Filter guide to only selected sections
+      guide.sections = guide.sections.filter(s => selected.includes(s.questionId));
+      guide.summary = `Custom guide: ${selected.length} gap${selected.length === 1 ? "" : "s"} selected for improvement.`;
+
+      // Export the custom guide
+      const guidesDir = path.join(process.cwd(), ".amc", "guides");
+      fs.mkdirSync(guidesDir, { recursive: true });
+
+      const humanPath = path.join(guidesDir, "custom-improvement-guide.md");
+      fs.writeFileSync(humanPath, guideToHumanMarkdown(guide), "utf-8");
+      console.log(chalk.green(`\n  ✓ Human guide:`), chalk.cyan(humanPath));
+
+      const agentPath = path.join(guidesDir, "custom-agent-instructions.md");
+      fs.writeFileSync(agentPath, guideToAgentMarkdown(guide, opts.framework), "utf-8");
+      console.log(chalk.green(`  ✓ Agent instructions:`), chalk.cyan(agentPath));
+
+      const guardrailsPath = path.join(guidesDir, "custom-guardrails.md");
+      fs.writeFileSync(guardrailsPath, guideToGuardrails(guide, opts.framework), "utf-8");
+      console.log(chalk.green(`  ✓ Guardrails:`), chalk.cyan(guardrailsPath));
+
+      console.log("");
+      console.log(chalk.gray("  Apply to your agent config:"), chalk.cyan("amc guide --apply"));
+      console.log(chalk.gray("  Or copy the guardrails into your agent's instructions manually."));
+      console.log("");
+      return;
     }
 
-    const overall = (result.totalScore / result.maxScore) * 5;
-    const targetLevel = opts.target ? parseInt(opts.target, 10) : undefined;
+    /* ── Watch mode (continuous monitoring) ───────── */
+    if (opts.watch) {
+      const intervalMs = Math.max(30, parseInt(opts.watchInterval, 10)) * 1000;
+      console.log("");
+      console.log(chalk.bold("  🔄 AMC Guide Watch Mode — Continuous monitoring"));
+      console.log(chalk.gray(`  Re-scoring every ${Math.round(intervalMs / 1000)}s. Press Ctrl+C to stop.`));
+      console.log("");
 
-    const guide = generateGuide({
-      overall,
-      questionScores,
-      targetLevel,
-      agentId: opts.agent,
-      framework: opts.framework,
-    });
+      let lastScore = -1;
+      let iteration = 0;
+
+      const tick = async () => {
+        iteration++;
+        const guide = await buildGuide();
+        const now = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+        if (guide.currentLevel !== lastScore) {
+          // Score changed — regenerate everything
+          const guidesDir = path.join(process.cwd(), ".amc", "guides");
+          fs.mkdirSync(guidesDir, { recursive: true });
+
+          const guardrailsContent = guideToGuardrails(guide, opts.framework);
+          const guardrailsPath = path.join(guidesDir, "guardrails-latest.md");
+          fs.writeFileSync(guardrailsPath, guardrailsContent, "utf-8");
+
+          const agentPath = path.join(guidesDir, "agent-instructions-latest.md");
+          fs.writeFileSync(agentPath, guideToAgentMarkdown(guide, opts.framework), "utf-8");
+
+          if (lastScore >= 0) {
+            const direction = guide.currentLevel > lastScore ? chalk.green("↑") : chalk.red("↓");
+            console.log(`  [${now}] ${direction} Score changed: L${lastScore} → L${guide.currentLevel} | ${guide.sections.length} gaps | Updated guides`);
+
+            // If --apply was also set, auto-apply on drift
+            if (opts.apply) {
+              const targetFile = typeof opts.apply === "string" ? opts.apply : undefined;
+              await doApply(guide, targetFile, fs, path);
+            }
+          } else {
+            console.log(`  [${now}] Initial: L${guide.currentLevel} | ${guide.sections.length} gaps | Guides written to ${guidesDir}`);
+          }
+
+          lastScore = guide.currentLevel;
+        } else {
+          if (iteration % 12 === 0) { // Log heartbeat every ~12 intervals
+            console.log(chalk.gray(`  [${now}] No change — L${guide.currentLevel} | ${guide.sections.length} gaps`));
+          }
+        }
+      };
+
+      await tick();
+      const timer = setInterval(tick, intervalMs);
+
+      // Handle graceful shutdown
+      process.on("SIGINT", () => {
+        clearInterval(timer);
+        console.log(chalk.gray("\n  Watch mode stopped.\n"));
+        process.exit(0);
+      });
+
+      // Keep alive
+      await new Promise(() => {}); // Never resolves — runs until SIGINT
+      return;
+    }
+
+    /* ── Standard guide generation ───────────────── */
+    const guide = await buildGuide();
 
     if (opts.json) {
       console.log(JSON.stringify(guide, null, 2));
@@ -1451,8 +1599,16 @@ program
       console.log("");
     }
 
-    // Export if requested
-    if (opts.export || opts.agentInstructions) {
+    /* ── Apply mode ──────────────────────────────── */
+    if (opts.apply !== undefined && opts.apply !== false) {
+      const targetFile = typeof opts.apply === "string" ? opts.apply : undefined;
+      await doApply(guide, targetFile, fs, path);
+      return;
+    }
+
+    /* ── Export modes ─────────────────────────────── */
+    const shouldExport = opts.export || opts.agentInstructions || opts.guardrails;
+    if (shouldExport) {
       const guidesDir = path.join(process.cwd(), ".amc", "guides");
       fs.mkdirSync(guidesDir, { recursive: true });
 
@@ -1466,17 +1622,102 @@ program
         const agentPath = path.join(guidesDir, `agent-instructions-l${guide.currentLevel}-to-l${guide.targetLevel}.md`);
         fs.writeFileSync(agentPath, guideToAgentMarkdown(guide, opts.framework), "utf-8");
         console.log(chalk.green(`  ✓ Agent instructions:`), chalk.cyan(agentPath));
-        console.log("");
-        console.log(chalk.gray("  Feed the agent instructions into your agent's system prompt,"));
-        console.log(chalk.gray("  AGENTS.md, or framework config. Then re-score with:"));
-        console.log(chalk.cyan("  amc quickscore"));
       }
+
+      if (opts.guardrails || opts.export) {
+        const guardrailsPath = path.join(guidesDir, `guardrails-l${guide.currentLevel}-to-l${guide.targetLevel}.md`);
+        fs.writeFileSync(guardrailsPath, guideToGuardrails(guide, opts.framework), "utf-8");
+        console.log(chalk.green(`  ✓ Guardrails:`), chalk.cyan(guardrailsPath));
+      }
+
+      console.log("");
+      console.log(chalk.gray("  Apply guardrails to agent config:"), chalk.cyan("amc guide --apply"));
+      console.log(chalk.gray("  Interactive mechanic mode:"), chalk.cyan("amc guide --interactive"));
+      console.log(chalk.gray("  Continuous monitoring:"), chalk.cyan("amc guide --watch"));
       console.log("");
     } else {
-      console.log(chalk.gray("  Export guides:"), chalk.cyan("amc guide --export"));
-      console.log(chalk.gray("  Agent-ready instructions:"), chalk.cyan("amc guide --agent-instructions"));
+      console.log(chalk.gray("  Export all guides:"), chalk.cyan("amc guide --export"));
+      console.log(chalk.gray("  Generate guardrails:"), chalk.cyan("amc guide --guardrails"));
+      console.log(chalk.gray("  Apply to agent config:"), chalk.cyan("amc guide --apply"));
+      console.log(chalk.gray("  Mechanic mode (pick & choose):"), chalk.cyan("amc guide --interactive"));
+      console.log(chalk.gray("  Continuous monitoring:"), chalk.cyan("amc guide --watch"));
       console.log(chalk.gray("  Target specific level:"), chalk.cyan("amc guide --target 4"));
       console.log("");
+    }
+
+    /* ── Apply helper ────────────────────────────── */
+    async function doApply(
+      guide: Awaited<ReturnType<typeof generateGuide>>,
+      targetFile: string | undefined,
+      fsModule: typeof fs,
+      pathModule: typeof path,
+    ) {
+      const guardrailsContent = guideToGuardrails(guide, opts.framework);
+
+      if (targetFile) {
+        // Apply to specified file
+        const fullPath = pathModule.resolve(process.cwd(), targetFile);
+        const result = applyGuardrails(
+          fullPath,
+          guardrailsContent,
+          (p) => { try { return fsModule.readFileSync(p, "utf-8"); } catch { return null; } },
+          (p, c) => { fsModule.mkdirSync(pathModule.dirname(p), { recursive: true }); fsModule.writeFileSync(p, c, "utf-8"); },
+        );
+        console.log(chalk.green(`  ✓ Guardrails ${result.action}:`), chalk.cyan(result.path));
+        console.log("");
+        return;
+      }
+
+      // Auto-detect: find existing agent config files
+      const detected: Array<{ path: string; label: string }> = [];
+      for (const cfg of KNOWN_AGENT_CONFIGS) {
+        const fullPath = pathModule.join(process.cwd(), cfg.path);
+        try {
+          fsModule.accessSync(fullPath);
+          detected.push({ path: cfg.path, label: cfg.label });
+        } catch {
+          // File doesn't exist
+        }
+      }
+
+      // Always offer to create AGENTS.md if nothing detected
+      if (detected.length === 0) {
+        detected.push({ path: "AGENTS.md", label: "AGENTS.md (create new)" });
+      }
+
+      const choices = [
+        ...detected.map(d => ({ name: `${d.label} (${d.path})`, value: d.path })),
+        { name: "Custom path...", value: "__custom__" },
+      ];
+
+      const { target } = await inquirer.prompt<{ target: string }>([{
+        type: "list",
+        name: "target",
+        message: "Apply guardrails to which file?",
+        choices,
+      }]);
+
+      let finalPath = target;
+      if (target === "__custom__") {
+        const { customPath } = await inquirer.prompt<{ customPath: string }>([{
+          type: "input",
+          name: "customPath",
+          message: "Enter file path:",
+          default: "AGENTS.md",
+        }]);
+        finalPath = customPath;
+      }
+
+      const fullPath = pathModule.resolve(process.cwd(), finalPath);
+      const result = applyGuardrails(
+        fullPath,
+        guardrailsContent,
+        (p) => { try { return fsModule.readFileSync(p, "utf-8"); } catch { return null; } },
+        (p, c) => { fsModule.mkdirSync(pathModule.dirname(p), { recursive: true }); fsModule.writeFileSync(p, c, "utf-8"); },
+      );
+      console.log(chalk.green(`\n  ✓ Guardrails ${result.action}:`), chalk.cyan(result.path));
+      console.log(chalk.gray("  Re-running the guide will update the guardrails section automatically."));
+      console.log(chalk.gray("  Your agent now has operational trust rules from AMC.\n"));
     }
   });
 
