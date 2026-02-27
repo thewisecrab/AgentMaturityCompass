@@ -49,6 +49,7 @@ amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3%20Defin
 [![Modules](https://img.shields.io/badge/scoring%20modules-74-green)]()
 [![Attack Packs](https://img.shields.io/badge/attack%20packs-74-red)]()
 [![Adapters](https://img.shields.io/badge/adapters-14-purple)]()
+[![Sector Packs](https://img.shields.io/badge/sector%20packs-40-orange)]()
 🌐 [Website](https://thewisecrab.github.io/AgentMaturityCompass/) · 📖 [Docs](docs/) · 💬 [Discussions](https://github.com/thewisecrab/AgentMaturityCompass/discussions)
 
 ---
@@ -109,6 +110,33 @@ amc guide --diff                # What improved since last run
 ```
 
 > 📖 [Full guide system docs](docs/AGENT_GUIDE.md)
+
+---
+
+## Sector Packs — Enterprise-Grade Vertical Assessment
+
+AMC ships with **40 industry-specific assessment packs** covering regulated sectors, critical infrastructure, and public institutions. Each pack adds precise, sub-vertical questions on top of the base AMC rubric.
+
+```bash
+amc sector packs list              # 40 packs across 7 stations
+amc sector score --pack digital-health-record --agent my-agent
+amc sector gaps --pack clinical-trials --agent my-agent
+amc sector report --pack drug-discovery --output reports/drug.md
+```
+
+| Station | Packs | Focus |
+|---|---|---|
+| 🌿 Environment | 6 | Farm-to-fork, textiles, manufacturing, energy, water |
+| 🏥 Health | 9 | EHR, clinical trials, drug discovery, precision medicine |
+| 💰 Wealth | 5 | Payments, financial inclusion, DeFi, circular economy |
+| 🎓 Education | 5 | K-12, higher ed, skills training, accessibility |
+| 🚇 Mobility | 5 | Smart cities, ports, real estate, cloud infra, privacy |
+| 💡 Technology | 5 | AI intelligence, ecosystems, infotainment, IP partnerships |
+| 🏛️ Governance | 5 | Digital identity, elections, legislation, citizen services |
+
+**339 questions** with specific regulatory article references (`HIPAA §164.312(a)(1)`, `EU AI Act Art. 5(1)(a)`, `FERPA 20 U.S.C. §1232g`, `UNECE WP.29 R155 §7`, `UNCAC Art. 7`). Every pack includes `riskTier`, EU AI Act classification, SDG alignment, certification path, and key risks.
+
+> 📖 [Full Sector Packs docs](docs/SECTOR_PACKS.md)
 
 ---
 
@@ -235,6 +263,7 @@ amc audit binder create --framework eu-ai-act
 - [Getting Started](docs/GETTING_STARTED.md) — Install → first score → L5
 - [Quickstart Guide](docs/QUICKSTART.md)
 - [Agent Guide System](docs/AGENT_GUIDE.md) — Guardrails, auto-detect, CI gates
+- [Sector Packs](docs/SECTOR_PACKS.md) — 40 industry-specific assessment packs
 - [Solo User Guide](docs/SOLO_USER.md)
 - [CLI Reference](docs/AMC_MASTER_REFERENCE.md)
 - [Architecture Map](docs/ARCHITECTURE_MAP.md)

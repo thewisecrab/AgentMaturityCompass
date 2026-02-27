@@ -978,6 +978,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
       <li class="nh"><a href="#platform">Platform</a></li>
       <li class="nh"><a href="#how">How It Works</a></li>
       <li class="nh"><a href="#improve">Improve</a></li>
+      <li class="nh"><a href="#sector-packs">Sector Packs</a></li>
       <li class="nh"><a href="#scale">Maturity Scale</a></li>
       <li class="nh"><a href="#research">Research</a></li>
       <li class="nh"><a href="#euact">EU AI Act</a></li>
@@ -1478,12 +1479,80 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 
 <div class="dv"><i aria-hidden="true"></i></div>
 
+<!-- SECTOR PACKS -->
+<section id="sector-packs" aria-labelledby="sector-h">
+  <div class="slabel"><span class="slabel-num">05</span><em>Sector Packs</em></div>
+  <h2 id="sector-h" class="sec-h">Enterprise-Grade Vertical Assessment</h2>
+  <p class="how-lead">AMC ships with <strong>40 industry-specific assessment packs</strong> — precise, sub-vertical diagnostics with specific regulatory article references, risk tiers, and EU AI Act classifications. Built for regulated enterprises and critical infrastructure.</p>
+
+  <div class="grid3" style="margin:2.5rem 0 2rem">
+    <div class="step3 rv" data-n="01">
+      <span class="step3-icon">🌿</span>
+      <div class="step3-title">Environment — 6 packs</div>
+      <p class="step3-body">Farm-to-fork, textiles supply chains, advanced manufacturing, energy grids, water &amp; sanitation. Refs: EU Farm-to-Fork, REACH Reg., IEC 61850, EU Drinking Water Directive.</p>
+      <span class="step3-code">amc sector score --pack farm-to-fork</span>
+    </div>
+    <div class="step3 rv d1" data-n="02">
+      <span class="step3-icon">🏥</span>
+      <div class="step3-title">Health — 9 packs</div>
+      <p class="step3-body">EHR systems, clinical trials, drug discovery, precision medicine, medtech devices. Refs: HIPAA §164.312, FDA 21 CFR Part 11, EU MDR 2017/745, GCP E6(R3).</p>
+      <span class="step3-code">amc sector score --pack clinical-trials</span>
+    </div>
+    <div class="step3 rv d2" data-n="03">
+      <span class="step3-icon">💰</span>
+      <div class="step3-title">Wealth — 5 packs</div>
+      <p class="step3-body">Payments, financial inclusion, DeFi/blockchain, circular economy. Refs: MiFID II, PSD2, EU DORA, MiCA, FATF R1/R10.</p>
+      <span class="step3-code">amc sector score --pack digital-payments</span>
+    </div>
+    <div class="step3 rv d1" data-n="04">
+      <span class="step3-icon">🎓</span>
+      <div class="step3-title">Education — 5 packs</div>
+      <p class="step3-body">K-12, higher education, skills training, accessibility-first EdTech. Refs: FERPA 20 U.S.C. §1232g, COPPA §312, IDEA, EU AI Act Annex III §3.</p>
+      <span class="step3-code">amc sector score --pack k12-pm3</span>
+    </div>
+    <div class="step3 rv d2" data-n="05">
+      <span class="step3-icon">🚇</span>
+      <div class="step3-title">Mobility — 5 packs</div>
+      <p class="step3-body">Smart cities, sustainable ports, real estate, virtual infrastructure, network privacy &amp; cybersecurity. Refs: EU EPBD 2024, UNECE WP.29 R155 §7, ETSI EN 303 645, EU NIS2.</p>
+      <span class="step3-code">amc sector score --pack privacy-security-mobility</span>
+    </div>
+    <div class="step3 rv" data-n="06">
+      <span class="step3-icon">💡</span>
+      <div class="step3-title">Technology — 5 packs</div>
+      <p class="step3-body">AI intelligence, API ecosystems, digital infra orchestration, content platforms, IP partnerships. Refs: EU AI Act Art. 13, EU Data Act 2023, DSA Art. 34, TRIPS Agreement.</p>
+      <span class="step3-code">amc sector score --pack cognition-to-intelligence</span>
+    </div>
+  </div>
+
+  <div class="step3 rv" style="margin-bottom:2rem" data-n="07">
+    <span class="step3-icon">🏛️</span>
+    <div class="step3-title">Governance — 5 packs</div>
+    <p class="step3-body">Digital identity, electoral integrity, legislative AI, citizen services, public-private partnerships. Refs: EU eIDAS 2.0, EU AI Act Art. 5(1)(a) (PROHIBITED), UNCAC Art. 7/9, UNGPs, Council of Europe AI Convention 2024.</p>
+    <span class="step3-code">amc sector score --pack digital-citizens-rights</span>
+  </div>
+
+  <div class="bc-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:2rem 0">
+    <div class="bc rv"><span class="bc-head">40 Packs</span><p class="bc-body">Across 7 industry stations</p></div>
+    <div class="bc rv d1"><span class="bc-head">339 Questions</span><p class="bc-body">With specific regulatory article refs</p></div>
+    <div class="bc rv d2"><span class="bc-head">4 Risk Tiers</span><p class="bc-body">high / very-high / critical</p></div>
+    <div class="bc rv d1"><span class="bc-head">EU AI Act Mapped</span><p class="bc-body">Exact Annex III classification per pack</p></div>
+    <div class="bc rv d2"><span class="bc-head">SDG Aligned</span><p class="bc-body">UN Sustainable Development Goals per pack</p></div>
+    <div class="bc rv"><span class="bc-head">L1→L5 Maturity</span><p class="bc-body">Industry-specific descriptors per question</p></div>
+  </div>
+
+  <p style="text-align:center;margin-top:2rem">
+    <a class="cta-btn" href="docs/SECTOR_PACKS.md" style="display:inline-block;padding:.75rem 2rem;background:var(--g);color:#000;font:700 .8rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border-radius:3px">Read Sector Packs Docs →</a>
+  </p>
+</section>
+
+<div class="dv"><i aria-hidden="true"></i></div>
+
 <!-- DIMENSIONS -->
 <section id="dims" aria-labelledby="dims-h">
 <div class="w">
   <div class="dims-split">
     <div>
-      <div class="slabel"><span class="slabel-num">05</span><em>What Gets Measured</em></div>
+      <div class="slabel"><span class="slabel-num">06</span><em>What Gets Measured</em></div>
       <h2 class="dims-h2" id="dims-h">Five Dimensions of Agent Trust</h2>
       <p class="dims-lead">Every agent is evaluated across five independently-weighted dimensions. 126 diagnostic questions. Evidence-gated level caps — you cannot score above what the evidence supports.</p>
       <ul class="dlist" aria-label="Trust dimensions">
