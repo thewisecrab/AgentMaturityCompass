@@ -5,6 +5,13 @@ All notable changes to AMC are documented here.
 ## [Unreleased]
 
 ### Added
+- Agent Transparency Report (`amc transparency report`) — behavioral SBOM for AI agents
+- AMC MCP Server (`amc mcp serve`) — Model Context Protocol integration for AI coding assistants
+  - 6 tools: amc_list_agents, amc_quickscore, amc_get_guide, amc_check_compliance, amc_transparency_report, amc_score_sector_pack
+  - 1 resource: amc://agent/{agentId}
+  - IDE configs: Claude Code, Cursor, Windsurf, VS Code Copilot, Kiro
+- `amc mcp config` — print ready-to-paste MCP configuration for supported IDEs
+- `amc mcp list-tools` — list all MCP tools with descriptions
 - **AMC Sector Packs** — 40 industry-specific assessment packs across 7 stations with 380 diagnostic questions
   - **7 Stations**: Environment (6), Health (9), Wealth (5), Education (5), Mobility (5), Technology (5), Governance (5)
   - **382 questions** with specific regulatory article references (e.g., `HIPAA §164.312(a)(1)`, `EU AI Act Art. 5(1)(a)`, `FERPA 20 U.S.C. §1232g`, `UNECE WP.29 R155 §7`, `UNCAC Art. 7`)

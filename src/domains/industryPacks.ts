@@ -1676,6 +1676,27 @@ export function listIndustryPackIds(): IndustryPackId[] {
   return Object.keys(INDUSTRY_PACKS) as IndustryPackId[];
 }
 
+/**
+ * Maps an IndustryPack sector riskTier to the agent-level RiskTier used by
+ * the diagnostic runner and AgentConfig.
+ *
+ * NOTE: IndustryPack uses sector-specific risk tiers ("very-high", "elevated")
+ * while AgentConfig uses operational tiers ("low" | "med" | "high" | "critical").
+ * These are intentionally separate type systems — sector risk describes regulatory
+ * exposure; operational risk describes deployment blast radius.
+ */
+export function sectorRiskToAgentRiskTier(
+  sectorRisk: IndustryPack["riskTier"]
+): "low" | "med" | "high" | "critical" {
+  switch (sectorRisk) {
+    case "critical": return "critical";
+    case "very-high": return "high";
+    case "high": return "high";
+    case "elevated": return "med";
+    default: return "med";
+  }
+}
+
 export function getStationSummary(stationId: Domain): {
   stationId: Domain;
   packCount: number;

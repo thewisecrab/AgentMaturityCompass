@@ -356,7 +356,7 @@ export class SafetyEngine {
   /** Convert flat key-value map to ConstraintContext */
   private normalizeContext(context: ConstraintContext | Record<string, string | number | boolean>): ConstraintContext {
     // If it already has an 'agent' object, treat as ConstraintContext
-    if ('agent' in context && typeof (context as any).agent === 'object') {
+    if ('agent' in context && typeof (context as Record<string, unknown>).agent === 'object') {
       return context as ConstraintContext;
     }
     // Otherwise it's a flat map like { 'agent.action': 'send_email' }

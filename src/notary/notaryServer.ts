@@ -54,8 +54,8 @@ function resolveAuthSecret(): string | null {
       if (value.length > 0) {
         return value;
       }
-    } catch {
-      return null;
+    } catch (err) {
+      throw new Error(`AMC_NOTARY_AUTH_SECRET_FILE is set but cannot be read: ${(err as Error).message}`);
     }
   }
   const direct = process.env.AMC_NOTARY_AUTH_SECRET;
@@ -149,7 +149,7 @@ export async function startNotaryServer(options: NotaryStartOptions = {}): Promi
   const markAuthReplay = replayGuard(Math.max(1, config.notary.auth.maxClockSkewSeconds) * 1000);
   const sockets = new Set<Socket>();
 
-  const server = createServer(async (req, res) => {
+    const server = createServer(async (req, res) => {
     try {
       const requestId = randomUUID();
       const url = new URL(req.url ?? "/", "http://127.0.0.1");
@@ -370,7 +370,8 @@ export async function startNotaryServer(options: NotaryStartOptions = {}): Promi
 
       json(res, 404, { error: "not found" });
     } catch (error) {
-      json(res, 500, { error: String(error) });
+      console.error("[AMC Notary] Internal error:", error);
+      json(res, 500, { error: "Internal server error" });
     }
   });
   server.on("connection", (socket) => {
@@ -381,6 +382,8 @@ export async function startNotaryServer(options: NotaryStartOptions = {}): Promi
   });
 
   const listenTarget = config.notary.unixSocketPath;
+  server.timeout = 30000; // 30s request timeout
+  server.keepAliveTimeout = 15000; // 15s keep-alive timeout
   await new Promise<void>((resolvePromise, rejectPromise) => {
     if (listenTarget) {
       try {

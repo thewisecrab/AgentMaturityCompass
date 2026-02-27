@@ -1120,8 +1120,8 @@ function createProxyServer(params: {
       socket.destroy();
     };
 
-    (upstreamSocket as any).setTimeout(resilience.proxyConnectTimeoutMs, () => onSocketError(clientSocket, "upstream_timeout"));
-    (clientSocket as any).setTimeout(resilience.proxyConnectTimeoutMs, () => onSocketError(upstreamSocket, "client_timeout"));
+    (upstreamSocket as unknown as { setTimeout: (ms: number, cb: () => void) => void }).setTimeout(resilience.proxyConnectTimeoutMs, () => onSocketError(clientSocket, "upstream_timeout"));
+    (clientSocket as unknown as { setTimeout: (ms: number, cb: () => void) => void }).setTimeout(resilience.proxyConnectTimeoutMs, () => onSocketError(upstreamSocket, "client_timeout"));
     upstreamSocket.on("error", () => onSocketError(clientSocket, "upstream_error"));
     clientSocket.on("error", () => onSocketError(upstreamSocket, "client_error"));
     upstreamSocket.on("close", () => finalize("upstream_close"));

@@ -28,6 +28,8 @@
     "release": "changeset publish",
     "release:prepack-check": "node scripts/prepack-release-check.mjs",
     "check:incident-readiness": "node scripts/incident-readiness-check.mjs",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
     "prepack": "npm run typecheck && npm test && npm run build && npm run release:prepack-check"
   },
   "keywords": [
@@ -38,6 +40,21 @@
     "ledger"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thewisecrab/AgentMaturityCompass.git"
+  },
+  "homepage": "https://thewisecrab.github.io/AgentMaturityCompass",
+  "bugs": {
+    "url": "https://github.com/thewisecrab/AgentMaturityCompass/issues"
+  },
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
     "better-sqlite3": "^11.7.0",

@@ -244,6 +244,7 @@ No network ports are opened. No data leaves your machine. The server reads from 
 
 - **Local only by default** — stdio transport, no network exposure
 - **Read-mostly** — the MCP server reads AMC data; it does not run diagnostics or modify agent configs
+- **All tools are read-only** — no tool modifies agent configs, runs diagnostics, or writes files
 - **Workspace-scoped** — all data comes from the local `.amc/` directory in your project
 - **No credentials required** — AMC MCP needs no API keys or authentication
 

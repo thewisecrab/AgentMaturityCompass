@@ -19,8 +19,9 @@
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join, resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { listAgents } from "../fleet/registry.js";
 import {
   generateTransparencyReport,
@@ -29,13 +30,41 @@ import {
 } from "../transparency/transparencyReport.js";
 import { INDUSTRY_PACKS, scoreIndustryPack, type IndustryPackId } from "../domains/industryPacks.js";
 
-const PKG_VERSION = "1.0.0";
+function getPackageVersion(): string {
+  try {
+    const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "../../package.json");
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { version: string };
+    return pkg.version;
+  } catch {
+    return "0.0.0";
+  }
+}
+const PKG_VERSION = getPackageVersion();
+
+function validateWorkspace(workspace: string): string {
+  const ws = resolve(workspace);
+  const amcDir = join(ws, ".amc");
+  if (!existsSync(amcDir)) {
+    throw new Error(`Not an AMC workspace: ${ws} (missing .amc directory)`);
+  }
+  return ws;
+}
 
 // ---------------------------------------------------------------------------
 // Server bootstrap
 // ---------------------------------------------------------------------------
 
-export async function startMcpServer(): Promise<void> {
+export const MCP_TOOL_METADATA = [
+  { name: "amc_list_agents", description: "List all AMC-registered agents with trust status (read-only)", input: "{ workspace?: string }" },
+  { name: "amc_quickscore", description: "Get trust score and maturity level (L1-L5, 0-100) (read-only)", input: "{ agentId: string, workspace?: string }" },
+  { name: "amc_get_guide", description: "Get prioritized improvement guide with CLI commands (read-only)", input: "{ agentId: string, workspace?: string }" },
+  { name: "amc_check_compliance", description: "Check compliance gaps (EU_AI_ACT, ISO_42001, NIST_AI_RMF, SOC2, ISO_27001) (read-only)", input: "{ agentId: string, frameworks?: string[], workspace?: string }" },
+  { name: "amc_transparency_report", description: "Full Agent Transparency Report (read-only)", input: "{ agentId: string, format?: 'md'|'json', workspace?: string }" },
+  { name: "amc_score_sector_pack", description: "Score agent against an industry Sector Pack (read-only)", input: "{ packId: string, responses: Record<string, number> }" },
+];
+
+export async function startMcpServer(workspace?: string): Promise<void> {
+  if (workspace) process.chdir(workspace);
   const server = new McpServer({
     name: "amc",
     version: PKG_VERSION,
@@ -46,7 +75,7 @@ export async function startMcpServer(): Promise<void> {
   // -------------------------------------------------------------------------
   server.tool(
     "amc_list_agents",
-    "List all AMC-registered AI agents in the workspace with their current trust status.",
+    "List all AMC-registered AI agents in the workspace with their current trust status. (read-only)",
     {
       workspace: z
         .string()
@@ -54,7 +83,7 @@ export async function startMcpServer(): Promise<void> {
         .describe("Path to the AMC workspace (defaults to current directory)"),
     },
     async ({ workspace }) => {
-      const ws = resolve(workspace ?? process.cwd());
+      const ws = validateWorkspace(workspace ?? process.cwd());
       try {
         const agents = listAgents(ws);
         if (agents.length === 0) {
@@ -92,7 +121,7 @@ export async function startMcpServer(): Promise<void> {
   // -------------------------------------------------------------------------
   server.tool(
     "amc_quickscore",
-    "Get the current AMC trust score and maturity level for an AI agent. Returns L1-L5 score per dimension and an overall trust score (0-100).",
+    "Get the current AMC trust score and maturity level for an AI agent. Returns L1-L5 score per dimension and an overall trust score (0-100). (read-only)",
     {
       agentId: z.string().describe("Agent ID to score"),
       workspace: z
@@ -101,7 +130,7 @@ export async function startMcpServer(): Promise<void> {
         .describe("Path to the AMC workspace (defaults to current directory)"),
     },
     async ({ agentId, workspace }) => {
-      const ws = resolve(workspace ?? process.cwd());
+      const ws = validateWorkspace(workspace ?? process.cwd());
       try {
         const report = generateTransparencyReport(agentId, ws);
         const dims = report.dimensions
@@ -146,7 +175,7 @@ export async function startMcpServer(): Promise<void> {
   // -------------------------------------------------------------------------
   server.tool(
     "amc_get_guide",
-    "Get a prioritized improvement guide for an AI agent. Returns the top actions to improve trust score with specific CLI commands to run.",
+    "Get a prioritized improvement guide for an AI agent. Returns the top actions to improve trust score with specific CLI commands to run. (read-only)",
     {
       agentId: z.string().describe("Agent ID to guide"),
       workspace: z
@@ -155,7 +184,7 @@ export async function startMcpServer(): Promise<void> {
         .describe("Path to the AMC workspace (defaults to current directory)"),
     },
     async ({ agentId, workspace }) => {
-      const ws = resolve(workspace ?? process.cwd());
+      const ws = validateWorkspace(workspace ?? process.cwd());
       try {
         const report = generateTransparencyReport(agentId, ws);
         const priorities = report.topPriorities;
@@ -202,7 +231,7 @@ export async function startMcpServer(): Promise<void> {
   // -------------------------------------------------------------------------
   server.tool(
     "amc_check_compliance",
-    "Check an AI agent for compliance gaps against regulatory frameworks. Supported frameworks: EU_AI_ACT, ISO_42001, NIST_AI_RMF, SOC2, ISO_27001.",
+    "Check an AI agent for compliance gaps against regulatory frameworks. Supported frameworks: EU_AI_ACT, ISO_42001, NIST_AI_RMF, SOC2, ISO_27001. (read-only)",
     {
       agentId: z.string().describe("Agent ID to check"),
       frameworks: z
@@ -217,7 +246,7 @@ export async function startMcpServer(): Promise<void> {
         .describe("Path to the AMC workspace"),
     },
     async ({ agentId, frameworks, workspace }) => {
-      const ws = resolve(workspace ?? process.cwd());
+      const ws = validateWorkspace(workspace ?? process.cwd());
       const fwList = frameworks?.length
         ? frameworks.join(", ")
         : "EU_AI_ACT, ISO_42001, NIST_AI_RMF, SOC2, ISO_27001";
@@ -263,24 +292,25 @@ export async function startMcpServer(): Promise<void> {
   // -------------------------------------------------------------------------
   server.tool(
     "amc_transparency_report",
-    "Generate an Agent Transparency Report — a complete picture of what an AI agent does, what it can access, what decisions it can make autonomously, and its trust evidence. Essential for AI governance, audits, and compliance reviews.",
+    "Generate an Agent Transparency Report — a complete picture of what an AI agent does, what it can access, what decisions it can make autonomously, and its trust evidence. Essential for AI governance, audits, and compliance reviews. (read-only)",
     {
       agentId: z.string().describe("Agent ID to report on"),
       format: z
-        .enum(["markdown", "json"])
+        .enum(["md", "json", "markdown"])
         .optional()
-        .describe("Output format: markdown (default) or json"),
+        .describe("Output format: md/markdown (default) or json"),
       workspace: z
         .string()
         .optional()
         .describe("Path to the AMC workspace"),
     },
     async ({ agentId, format, workspace }) => {
-      const ws = resolve(workspace ?? process.cwd());
+      const ws = validateWorkspace(workspace ?? process.cwd());
       try {
         const report = generateTransparencyReport(agentId, ws);
+        const fmt = format === "json" ? "json" : "markdown";
         const text =
-          format === "json"
+          fmt === "json"
             ? renderTransparencyReportJson(report)
             : renderTransparencyReportMarkdown(report);
 
@@ -304,7 +334,7 @@ export async function startMcpServer(): Promise<void> {
   // -------------------------------------------------------------------------
   server.tool(
     "amc_score_sector_pack",
-    "Score an AI agent against an AMC Sector Pack for a specific industry vertical. Sector Packs provide regulatory-grounded assessment for 40 industry sub-verticals across 7 stations (Environment, Health, Wealth, Education, Mobility, Technology, Governance). Example pack IDs: digital-health-record, clinical-trials, farm-to-fork, dance-of-democracy.",
+    "Score an AI agent against an AMC Sector Pack for a specific industry vertical. Sector Packs provide regulatory-grounded assessment for 40 industry sub-verticals across 7 stations (Environment, Health, Wealth, Education, Mobility, Technology, Governance). Example pack IDs: digital-health-record, clinical-trials, farm-to-fork, dance-of-democracy. (read-only)",
     {
       packId: z
         .string()
@@ -319,12 +349,12 @@ export async function startMcpServer(): Promise<void> {
     },
     async ({ packId, responses }) => {
       if (!INDUSTRY_PACKS[packId as IndustryPackId]) {
-        const available = Object.keys(INDUSTRY_PACKS).slice(0, 10).join(", ");
+        const available = Object.keys(INDUSTRY_PACKS).join(", ");
         return {
           content: [
             {
               type: "text",
-              text: `Unknown sector pack: "${packId}"\n\nAvailable packs (first 10): ${available}...\n\nRun \`amc sector packs list\` for the full list.`,
+              text: `Unknown sector pack: "${packId}"\n\nAvailable packs (${Object.keys(INDUSTRY_PACKS).length}):\n${available}`,
             },
           ],
           isError: true,
@@ -413,4 +443,11 @@ export async function startMcpServer(): Promise<void> {
   // -------------------------------------------------------------------------
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  const cleanup = async () => {
+    await server.close();
+    process.exit(0);
+  };
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
 }

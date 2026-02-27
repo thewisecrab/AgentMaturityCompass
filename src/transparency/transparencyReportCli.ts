@@ -25,6 +25,7 @@ export function registerTransparencyReportCommands(program: Command): void {
   transparency
     .command("report [agentId]")
     .description("Generate an Agent Transparency Report — what the agent does, can access, and how trustworthy it is")
+    .option("--agent <id>", "Agent ID (alternative to positional argument)")
     .option("--format <fmt>", "Output format: md | json", "md")
     .option("--out <file>", "Write report to file instead of stdout")
     .option("--all", "Generate reports for all registered agents")
@@ -33,6 +34,7 @@ export function registerTransparencyReportCommands(program: Command): void {
       async (
         agentId: string | undefined,
         opts: {
+          agent?: string;
           format: string;
           out?: string;
           all?: boolean;
@@ -72,7 +74,7 @@ export function registerTransparencyReportCommands(program: Command): void {
           return;
         }
 
-        const targetId: string = agentId ?? (() => {
+        const targetId: string = agentId ?? opts.agent ?? (() => {
           const agents = listAgents(workspace);
           if (agents.length === 1) return agents[0]!.id;
           if (agents.length === 0) {

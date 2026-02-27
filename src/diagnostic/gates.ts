@@ -58,12 +58,18 @@ export function parseEvidenceEvent(event: EvidenceEvent): ParsedEvidenceEvent {
   };
 }
 
+const regexCache = new Map<string, RegExp>();
+
 function compileRegex(pattern: string): RegExp {
+  let re = regexCache.get(pattern);
+  if (re) return re;
   try {
-    return new RegExp(pattern, "i");
+    re = new RegExp(pattern, "i");
   } catch {
-    return new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    re = new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
   }
+  regexCache.set(pattern, re);
+  return re;
 }
 
 export interface GateEvaluation {

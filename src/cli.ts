@@ -529,6 +529,7 @@ import { classifyControls, renderControlClassificationMarkdown } from "./diagnos
 import { diagnosticBankInitCli, diagnosticBankVerifyCli } from "./diagnostic/bank/bankCli.js";
 import { contextualizedDiagnosticRenderCli } from "./diagnostic/contextualizer/contextualizerCli.js";
 import { truthguardValidateCli } from "./truthguard/truthguardCli.js";
+import { toErrorMessage } from "./utils/errors.js";
 import {
   promptInitCli,
   promptPackBuildCli,
@@ -1013,6 +1014,16 @@ function normalizeCliErrorMessage(error: unknown): string {
   }
   return message;
 }
+
+// Global crash handlers — catch unhandled promise rejections and exceptions
+process.on("unhandledRejection", (reason) => {
+  console.error(chalk.red(`[AMC] Unhandled rejection: ${reason instanceof Error ? reason.message : String(reason)}`));
+  process.exit(1);
+});
+process.on("uncaughtException", (err) => {
+  console.error(chalk.red(`[AMC] Uncaught exception: ${err.message}`));
+  process.exit(1);
+});
 
 const program = new Command();
 program
@@ -3607,8 +3618,8 @@ assurance
       if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
       console.log(chalk.bold.yellow("\n🧪 TOCTOU Pack"));
       console.log(JSON.stringify(result, null, 2));
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -3625,8 +3636,8 @@ assurance
       if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
       console.log(chalk.bold.yellow("\n🧪 Compound Threat Pack"));
       console.log(JSON.stringify(result, null, 2));
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -3643,8 +3654,8 @@ assurance
       if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
       console.log(chalk.bold.yellow("\n🧪 Shutdown Compliance Pack"));
       console.log(JSON.stringify(result, null, 2));
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -3661,8 +3672,8 @@ assurance
       if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
       console.log(chalk.bold.yellow("\n🧪 Advanced Threats Pack"));
       console.log(JSON.stringify(result, null, 2));
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -4247,7 +4258,7 @@ incident
         prev_incident_hash: store.getLastIncidentHash(agentId)
       };
 
-      const incidentHash = computeIncidentHash(incidentBase as any);
+      const incidentHash = computeIncidentHash(incidentBase as unknown as Parameters<typeof computeIncidentHash>[0]);
       const signatureDigest = sha256Hex(canonicalize({ ...incidentBase, incident_hash: incidentHash }));
       const signature = signHexDigest(signatureDigest, getPrivateKeyPem(workspace, "monitor"));
 
@@ -4255,7 +4266,7 @@ incident
         ...incidentBase,
         incident_hash: incidentHash,
         signature
-      } as any);
+      } as unknown as Parameters<typeof store.insertIncident>[0]);
 
       console.log(chalk.green(`Incident created: ${incidentId}`));
       console.log(`agent=${agentId}`);
@@ -4353,7 +4364,7 @@ incident
       store.insertIncidentTransition({
         transitionId,
         incidentId: id,
-        fromState: currentState as any,
+        fromState: currentState as never,
         toState: "RESOLVED",
         reason: opts.resolution,
         ts: now,
@@ -9584,7 +9595,7 @@ program
   .action(() => {
     const { initGovernanceLineageTables } = require("./claims/governanceLineage.js") as typeof import("./claims/governanceLineage.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initGovernanceLineageTables(db);
     ledger.close();
     console.log(chalk.green("Governance lineage tables initialized."));
@@ -9601,7 +9612,7 @@ program
       renderGovernanceLineageMarkdown
     } = require("./claims/governanceLineage.js") as typeof import("./claims/governanceLineage.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initGovernanceLineageTables(db);
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const report = generateGovernanceLineageReport(db, agentId);
@@ -9620,7 +9631,7 @@ program
       renderClaimLineageMarkdown
     } = require("./claims/governanceLineage.js") as typeof import("./claims/governanceLineage.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initGovernanceLineageTables(db);
     const view = buildClaimLineageView(db, claimId);
     ledger.close();
@@ -9641,7 +9652,7 @@ program
       getPolicyIntentsByAgent
     } = require("./claims/governanceLineage.js") as typeof import("./claims/governanceLineage.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initGovernanceLineageTables(db);
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const intents = getPolicyIntentsByAgent(db, agentId);
@@ -9673,10 +9684,10 @@ program
       renderClaimConfidenceMarkdown
     } = require("./claims/claimConfidence.js") as typeof import("./claims/claimConfidence.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     // Get evidence events from ledger
-    const events = db.prepare("SELECT * FROM evidence_events WHERE runtime != 'mock' ORDER BY ts DESC LIMIT 500").all() as any[];
+    const events = db.prepare("SELECT * FROM evidence_events WHERE runtime != 'mock' ORDER BY ts DESC LIMIT 500").all() as import("./types.js").EvidenceEvent[];
     const report = generateClaimConfidenceReport(db, agentId, events);
     ledger.close();
     console.log(renderClaimConfidenceMarkdown(report));
@@ -9690,10 +9701,10 @@ program
   .action((opts: { agent?: string; questions: string }) => {
     const { checkConfidenceGate } = require("./claims/claimConfidence.js") as typeof import("./claims/claimConfidence.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const questionIds = opts.questions.split(",").map((s: string) => s.trim());
-    const events = db.prepare("SELECT * FROM evidence_events WHERE runtime != 'mock' ORDER BY ts DESC LIMIT 500").all() as any[];
+    const events = db.prepare("SELECT * FROM evidence_events WHERE runtime != 'mock' ORDER BY ts DESC LIMIT 500").all() as import("./types.js").EvidenceEvent[];
     const result = checkConfidenceGate(db, agentId, questionIds, events);
     ledger.close();
     if (result.pass) {
@@ -9725,11 +9736,11 @@ program
   .action((mode: string) => {
     const oh = require("./ops/overheadAccounting.js") as typeof import("./ops/overheadAccounting.js");
     const validModes = ["STRICT", "BALANCED", "LEAN"] as const;
-    if (!validModes.includes(mode as any)) {
+    if (!(validModes as readonly string[]).includes(mode)) {
       console.log(chalk.red(`Invalid mode: ${mode}. Must be STRICT, BALANCED, or LEAN.`));
       return;
     }
-    const profile = oh.setOverheadProfile(mode as any);
+    const profile = oh.setOverheadProfile(mode as typeof validModes[number]);
     console.log(chalk.green(`Overhead profile set to ${profile.mode}`));
     console.log(`  Evidence sampling rate: ${profile.evidenceSamplingRate}`);
     console.log(`  Disabled features: ${profile.disabledFeatures.length > 0 ? profile.disabledFeatures.join(", ") : "none"}`);
@@ -9820,8 +9831,8 @@ program
     try { baselineContent = fs.readFileSync(opts.baselineFile, "utf-8"); } catch { /* use default */ }
     try { candidateContent = fs.readFileSync(opts.candidateFile, "utf-8"); } catch { /* use default */ }
     const validKinds = ["POLICY_FRAME", "PROMPT_STRUCTURE", "IDENTITY_DOC", "GUARDRAIL_SET", "TOOL_PERMISSION_SET", "CUSTOM"] as const;
-    const baselineKind = validKinds.includes(opts.baselineKind as any) ? opts.baselineKind as any : "POLICY_FRAME";
-    const candidateKind = validKinds.includes(opts.candidateKind as any) ? opts.candidateKind as any : "POLICY_FRAME";
+    const baselineKind = (validKinds as readonly string[]).includes(opts.baselineKind) ? opts.baselineKind as typeof validKinds[number] : "POLICY_FRAME";
+    const candidateKind = (validKinds as readonly string[]).includes(opts.candidateKind) ? opts.candidateKind as typeof validKinds[number] : "POLICY_FRAME";
     const { markdown } = quickArchitectureComparison({
       name: opts.name,
       modelId: opts.model,
@@ -10094,7 +10105,7 @@ program
   .action((opts: { agent?: string; minEffectiveness: string }) => {
     const { initLessonTables, extractLessonsFromCorrections } = require("./learning/correctionMemory.js") as typeof import("./learning/correctionMemory.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initLessonTables(db);
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const lessons = extractLessonsFromCorrections(db, agentId, process.cwd(), {
@@ -10118,7 +10129,7 @@ program
   .action((opts: { agent?: string }) => {
     const { initLessonTables, buildLessonAdvisories } = require("./learning/correctionMemory.js") as typeof import("./learning/correctionMemory.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initLessonTables(db);
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const advisories = buildLessonAdvisories(db, agentId);
@@ -10139,7 +10150,7 @@ program
     const { initLessonTables, generateCorrectionMemoryReport, renderCorrectionMemoryMarkdown } = require("./learning/correctionMemory.js") as typeof import("./learning/correctionMemory.js");
     const { parseWindowToMs } = require("./utils/time.js") as typeof import("./utils/time.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initLessonTables(db);
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const now = Date.now();
@@ -10156,7 +10167,7 @@ program
   .action((opts: { agent?: string }) => {
     const { initLessonTables, expireStaleLessons } = require("./learning/correctionMemory.js") as typeof import("./learning/correctionMemory.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     initLessonTables(db);
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const expired = expireStaleLessons(db, agentId);
@@ -12508,7 +12519,7 @@ program
   .action((opts: { kind: string; name: string; model: string; description: string }) => {
     const lab = require("./lab/cognitionLab.js") as typeof import("./lab/cognitionLab.js");
     const experiment = lab.createLabExperiment({
-      kind: opts.kind as any,
+      kind: opts.kind as never,
       name: opts.name,
       description: opts.description || `${opts.kind} experiment on ${opts.model}`,
       modelId: opts.model,
@@ -12579,7 +12590,7 @@ program
   .option("--kind <kind>", "filter by experiment kind")
   .action((opts: { kind?: string }) => {
     const lab = require("./lab/cognitionLab.js") as typeof import("./lab/cognitionLab.js");
-    const exps = lab.listLabExperiments(opts.kind as any);
+    const exps = lab.listLabExperiments(opts.kind as never);
     if (exps.length === 0) {
       console.log(chalk.yellow("No lab experiments found."));
       return;
@@ -12838,9 +12849,9 @@ program
       return;
     }
     const policy = dr.createResidencyPolicy({
-      region: opts.region as any,
-      isolationLevel: opts.isolation as any,
-      keyCustodyMode: opts.custody as any,
+      region: opts.region as never,
+      isolationLevel: opts.isolation as never,
+      keyCustodyMode: opts.custody as never,
     });
     console.log(chalk.green(`Residency policy created: ${policy.policyId} for ${policy.region}`));
   });
@@ -12857,8 +12868,8 @@ program
     const boundary = dr.registerTenant({
       tenantId: opts.tenant,
       workspaceId: opts.workspace,
-      region: opts.region as any,
-      isolationLevel: opts.isolation as any,
+      region: opts.region as never,
+      isolationLevel: opts.isolation as never,
     });
     console.log(chalk.green(`Tenant ${boundary.tenantId} registered in ${boundary.region} (${boundary.isolationLevel})`));
   });
@@ -12967,7 +12978,7 @@ program
   .action((opts: { role: string; run?: string; previousRun?: string }) => {
     const opux = require("./ops/operatorUx.js") as typeof import("./ops/operatorUx.js");
     const validRoles = ["operator", "executive", "auditor"] as const;
-    if (!validRoles.includes(opts.role as any)) {
+    if (!(validRoles as readonly string[]).includes(opts.role)) {
       console.log(chalk.red(`Invalid role: ${opts.role}. Must be operator, executive, or auditor.`));
       return;
     }
@@ -12975,7 +12986,7 @@ program
     const agentId = activeAgent(program) ?? "default";
     const mockReport = buildMockReportForUx(agentId, opts.run ?? "latest");
     const mockPrevious = opts.previousRun ? buildMockReportForUx(agentId, opts.previousRun) : null;
-    const dashboard = opux.generateOperatorDashboard(mockReport, opts.role as any, mockPrevious);
+    const dashboard = opux.generateOperatorDashboard(mockReport, opts.role as typeof validRoles[number], mockPrevious);
     console.log(opux.renderOperatorDashboardMarkdown(dashboard));
   });
 
@@ -13169,7 +13180,7 @@ program
       }
       return;
     }
-    const scaffold = is.generateScaffold(framework as any);
+    const scaffold = is.generateScaffold(framework as never);
     console.log(chalk.bold(`\n📦 AMC Integration Scaffold: ${scaffold.framework} (${scaffold.language})\n`));
     console.log(chalk.dim(`Scaffold ID: ${scaffold.scaffoldId}\n`));
     console.log(chalk.bold("Generated files:"));
@@ -13283,7 +13294,7 @@ program
   .action((opts: { agent?: string }) => {
     const { findStaleClaims, renderStaleClaimsMarkdown } = require("./claims/claimExpiry.js") as typeof import("./claims/claimExpiry.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const stale = findStaleClaims(db, agentId);
     ledger.close();
@@ -13297,7 +13308,7 @@ program
   .action((opts: { agent?: string }) => {
     const { sweepStaleClaims, renderSweepResultMarkdown } = require("./claims/claimExpiry.js") as typeof import("./claims/claimExpiry.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const result = sweepStaleClaims(db, agentId, process.cwd());
     ledger.close();
@@ -13313,7 +13324,7 @@ program
   .action((opts: { agent?: string; window: string }) => {
     const { analyzeAgentConfidenceDrift, renderConfidenceDriftMarkdown } = require("./claims/confidenceDrift.js") as typeof import("./claims/confidenceDrift.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
     const windowMs = parseWindowToMs(opts.window);
     const report = analyzeAgentConfidenceDrift(db, agentId, windowMs);
@@ -13331,7 +13342,7 @@ program
     const { listLessons, renderLessonsMarkdown } = require("./corrections/lessonStore.js") as typeof import("./corrections/lessonStore.js");
     const scope = opts.scope === "agent" ? "agent" : "fleet";
     const agentId = opts.agent ?? activeAgent(program) ?? "default";
-    const lessons = listLessons(process.cwd(), scope as any, agentId);
+    const lessons = listLessons(process.cwd(), scope as 'agent' | 'fleet', agentId);
     console.log(renderLessonsMarkdown(lessons, scope));
   });
 
@@ -13342,7 +13353,7 @@ program
   .action((correctionId: string) => {
     const { promoteCorrection } = require("./corrections/lessonStore.js") as typeof import("./corrections/lessonStore.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     const result = promoteCorrection(db, correctionId, process.cwd());
     ledger.close();
     if (result.isNew) {
@@ -13361,7 +13372,7 @@ program
   .action((opts: { agent: string }) => {
     const { generateFeedbackClosureReport, renderFeedbackClosureReport } = require("./corrections/feedbackClosure.js") as typeof import("./corrections/feedbackClosure.js");
     const ledger = openLedger(process.cwd());
-    const db = (ledger as any).db as import("better-sqlite3").Database;
+    const db = ledger.db;
     const report = generateFeedbackClosureReport(db, opts.agent);
     ledger.close();
     console.log(renderFeedbackClosureReport(report));
@@ -13440,11 +13451,11 @@ program
       expiryTs = Date.now() + parseWindowToMs(opts.expiry);
     }
     const entry = addDebtEntry(process.cwd(), {
-      type: opts.type as any,
+      type: opts.type as never,
       reason: opts.reason,
       expiryTs,
       affectedPolicies: opts.policies ? opts.policies.split(",").map((s: string) => s.trim()) : [],
-      riskAssessment: opts.risk as any,
+      riskAssessment: opts.risk as never,
       agentId,
       createdBy: opts.createdBy,
     });
@@ -13480,7 +13491,7 @@ program
       agentId,
       reason: opts.reason,
       ttlMs,
-      mode: opts.mode as any,
+      mode: opts.mode as never,
     });
     console.log(chalk.yellow(`Emergency override activated: ${entry.overrideId}`));
     console.log(renderOverrideMarkdown(entry));
@@ -13726,7 +13737,7 @@ shield
           console.log(chalk.yellow(`  • [${finding.severity}] ${finding.description}`));
         }
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 shield
@@ -13742,7 +13753,7 @@ shield
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Passed:"), result.passed ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Details:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 shield
@@ -13762,7 +13773,7 @@ shield
       for (const [name, version] of Object.entries(deps)) {
         console.log(chalk.gray(`  • ${name}@${version}`));
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 shield
@@ -13778,7 +13789,7 @@ shield
       console.log(chalk.gray("Tool:"), toolId);
       console.log(chalk.gray("Score:"), result.score ?? "N/A");
       console.log(chalk.gray("Trusted:"), result.trusted ? chalk.green("yes") : chalk.red("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 shield
@@ -13794,7 +13805,7 @@ shield
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Integrity:"), result.valid ? chalk.green("intact") : chalk.red("compromised"));
       console.log(chalk.gray("Details:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 shield
@@ -13810,7 +13821,7 @@ shield
       console.log(chalk.gray("Input:"), input);
       console.log(chalk.gray("Threats:"), result.threats?.length ?? 0);
       console.log(chalk.gray("Risk:"), result.threats.length > 0 ? "high" : "safe");
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 
@@ -13827,7 +13838,7 @@ shield
       console.log(chalk.gray("Injection detected:"), result.detected ? chalk.red("YES") : chalk.green("no"));
       console.log(chalk.gray("Risk Score:"), result.riskScore);
       console.log(chalk.gray("Confidence:"), result.confidence);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 shield
@@ -13842,7 +13853,7 @@ shield
       console.log(chalk.bold.cyan("\n🛡️  Sanitize"));
       console.log(chalk.gray("Cleaned:"), result.sanitized);
       console.log(chalk.gray("Removed count:"), result.removedCount);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 // ============================================================
@@ -13866,7 +13877,7 @@ enforce
       console.log(chalk.gray("Tool:"), tool);
       console.log(chalk.gray("Action:"), action);
       console.log(chalk.gray("Decision:"), result.decision === "allow" ? chalk.green("allow") : chalk.red(result.decision));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 enforce
@@ -13882,7 +13893,7 @@ enforce
       console.log(chalk.gray("Command:"), cmd);
       console.log(chalk.gray("Safe:"), result.allowed ? chalk.green("yes") : chalk.red("no"));
       if (result.blockedPattern) console.log(chalk.gray("Blocked pattern:"), result.blockedPattern);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 enforce
@@ -13897,7 +13908,7 @@ enforce
       console.log(chalk.bold.magenta("\n⚖️  ATO Detection"));
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Suspicious:"), result.suspicious ? chalk.red("yes") : chalk.green("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 enforce
@@ -13913,7 +13924,7 @@ enforce
       console.log(chalk.gray("Value:"), value);
       console.log(chalk.gray("Range:"), `[${min}, ${max}]`);
       console.log(chalk.gray("Valid:"), result.valid ? chalk.green("yes") : chalk.red("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 enforce
@@ -13930,7 +13941,7 @@ enforce
       console.log(chalk.bold.magenta("\n⚖️  Taint Tracking"));
       console.log(chalk.gray("Input:"), input);
       console.log(chalk.gray("Tainted:"), result ? chalk.red("yes") : chalk.green("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 
@@ -13946,7 +13957,7 @@ enforce
       console.log(chalk.bold.magenta("\n⚖️  Secret Blinding"));
       console.log(chalk.gray("Secrets found:"), result.secretsFound);
       console.log(chalk.gray("Blinded text:"), result.blinded);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 // ============================================================
@@ -13967,7 +13978,7 @@ watch
       console.log(chalk.gray("Output:"), output);
       console.log(chalk.gray("Hash:"), result.hash || "N/A");
       console.log(chalk.gray("Attested:"), chalk.green("yes"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 watch
@@ -13984,7 +13995,7 @@ watch
       console.log(chalk.gray("Run:"), runId);
       console.log(chalk.gray("Confidence:"), "0.9");
       console.log(chalk.gray("Packet:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 watch
@@ -14001,7 +14012,7 @@ watch
       console.log(chalk.gray("Passed:"), result.passed > 0 ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Tests Run:"), result.testsRun);
       console.log(chalk.gray("Findings:"), result.findings.length);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 
@@ -14018,7 +14029,7 @@ watch
       console.log(chalk.gray("Passed:"), result.passed ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Findings:"), result.findings?.length ?? 0);
       if (result.findings?.length) result.findings.forEach(f => console.log(chalk[f.passed ? "green" : "red"](`  • [${f.severity}] ${f.title}: ${f.detail}`)));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 // ============================================================
@@ -14039,7 +14050,7 @@ product
       console.log(chalk.bold.yellow("\n📦  Task Routing"));
       console.log(chalk.gray("Task Type:"), taskType);
       console.log(chalk.gray("Route:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 product
@@ -14056,7 +14067,7 @@ product
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Mode:"), mode);
       console.log(chalk.gray("Decision:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 product
@@ -14072,7 +14083,7 @@ product
       console.log(chalk.bold.yellow("\n📦  Loop Detection"));
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Loop Detected:"), result.loopDetected ? chalk.red("yes") : chalk.green("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 product
@@ -14089,7 +14100,7 @@ product
       console.log(chalk.bold.yellow("\n📦  Metering"));
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Bill:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 product
@@ -14104,7 +14115,7 @@ product
       console.log(chalk.bold.yellow("\n📦  Retry"));
       console.log(chalk.gray("Command:"), cmd);
       console.log(chalk.gray("Result:"), result);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 product
@@ -14119,7 +14130,7 @@ product
       console.log(chalk.bold.yellow("\n📦  Plan"));
       console.log(chalk.gray("Goal:"), goal);
       console.log(chalk.gray("Steps:"), JSON.stringify(result.steps || result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 const workflowCmd = product.command("workflow").description("Workflow management");
@@ -14136,7 +14147,7 @@ workflowCmd
       console.log(chalk.bold.yellow("\n📦  Workflow Created"));
       console.log(chalk.gray("Name:"), name);
       console.log(chalk.gray("ID:"), result.workflowId || "N/A");
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 // ============================================================
@@ -14155,7 +14166,7 @@ vault
       console.log(chalk.gray("Input:"), input);
       console.log(chalk.gray("Safe:"), result.safe ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Details:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 vault
@@ -14170,7 +14181,7 @@ vault
       console.log(chalk.bold.green("\n🔒  Data Classification"));
       console.log(chalk.gray("Text:"), text.substring(0, 50) + (text.length > 50 ? "..." : ""));
       console.log(chalk.gray("Level:"), result.classification || "unknown");
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 vault
@@ -14187,7 +14198,7 @@ vault
       console.log(chalk.gray("File:"), file);
       console.log(chalk.gray("Scrubbed:"), chalk.green("yes"));
       console.log(chalk.gray("Result:"), JSON.stringify(result, null, 2).substring(0, 200));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 vault
@@ -14203,7 +14214,7 @@ vault
       console.log(chalk.bold.green("\n🔒  DSAR Status"));
       console.log(chalk.gray("Pending Requests:"), 0);
       console.log(chalk.gray("Status:"), "No pending requests");
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 vault
@@ -14220,7 +14231,7 @@ vault
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Remaining:"), result.remaining ?? "N/A");
       console.log(chalk.gray("Allowed:"), result.allowed ? chalk.green("yes") : chalk.red("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 // ============================================================
@@ -14249,7 +14260,7 @@ product
       for (const f of features) {
         console.log(`  ${chalk.cyan(f.id)} ${f.name} [${f.relevance}] ${f.amcFit ? chalk.green("✓ AMC") : ""}`);
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 product
@@ -14264,7 +14275,7 @@ product
       if (opts.json) { console.log(JSON.stringify(features, null, 2)); return; }
       console.log(chalk.bold.yellow(`\n📦  Recommended Features (${features.length})`));
       for (const f of features) console.log(`  ${chalk.cyan(f.id)} ${f.name} — ${f.pricingRange}`);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 productGlossary
@@ -14281,7 +14292,7 @@ productGlossary
       console.log(chalk.bold.yellow("\n📖  Term Defined"));
       console.log(chalk.gray("ID:"), id);
       console.log(chalk.gray("Term:"), term);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 productGlossary
@@ -14300,7 +14311,7 @@ productGlossary
       console.log(chalk.gray("Definition:"), entry.definition);
       console.log(chalk.gray("Domain:"), entry.domain);
       if (entry.aliases.length) console.log(chalk.gray("Aliases:"), entry.aliases.join(", "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 domainCmd
@@ -14318,7 +14329,7 @@ domainCmd
         console.log(`    Risk: ${domain.riskLevel} | EU AI Act: ${domain.euAIActCategory} | Questions: ${domain.questionCount}`);
         console.log(`    Regulatory: ${domain.regulatoryBasis.join(", ")}`);
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 domainCmd
@@ -14344,7 +14355,7 @@ domainCmd
       console.log(chalk.gray("Certification Readiness:"), result.certificationReadiness ? chalk.green("ready") : chalk.red("not ready"));
       console.log(chalk.gray("Compliance Gaps:"), result.complianceGaps.length);
       console.log(chalk.gray("Regulatory Warnings:"), result.regulatoryWarnings.length);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 domainCmd
@@ -14363,7 +14374,7 @@ domainCmd
       for (const module of modules) {
         console.log(`  ${chalk.cyan(module.moduleId)} ${module.moduleName} [${module.relevance}]`);
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 domainCmd
@@ -14387,7 +14398,7 @@ domainCmd
         console.log(`  ${chalk.yellow(gap.questionId)} ${gap.dimension} L${gap.currentLevel}->L${gap.requiredLevel}`);
         console.log(`    ${gap.regulatoryRef}`);
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 domainCmd
@@ -14416,7 +14427,7 @@ domainCmd
       console.log(chalk.gray("Output:"), report.outputPath ?? opts.output);
       console.log(chalk.gray("Composite Score:"), report.assessment.compositeScore);
       console.log(chalk.gray("Level:"), report.assessment.level);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 domainCmd
@@ -14439,7 +14450,7 @@ domainCmd
       }
       console.log(chalk.gray("Totals:"), `scenarios=${run.totalScenarios} passed=${run.passed} failed=${run.failed}`);
       console.log(chalk.gray("Overall:"), run.allPassed ? chalk.green("all checks passed") : chalk.yellow("review required"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 domainCmd
@@ -14460,7 +14471,7 @@ domainCmd
         if (item.moduleId) console.log(`    module: ${item.moduleId}`);
         console.log(`    regulatory: ${item.regulatoryImpact}`);
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 const score = program.command("score").description("Maturity scoring, adversarial testing, and evidence collection")
@@ -14514,7 +14525,7 @@ score
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Score:"), result.overallScore ?? "N/A");
       console.log(chalk.gray("Level:"), result.overallLevel || "unknown");
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14530,7 +14541,7 @@ score
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Gaming Resistant:"), result.gamingResistant ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Details:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14545,7 +14556,7 @@ score
       console.log(chalk.bold.hex("#FF6600")("\n📊  Evidence Collection"));
       console.log(chalk.gray("Agent:"), agentId);
       console.log(chalk.gray("Evidence:"), JSON.stringify(result, null, 2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14563,8 +14574,8 @@ score
       console.log(chalk.gray("Ready:"), result.ready ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Score:"), result.score);
       console.log(chalk.gray("Gate failures:"), result.blockers.join(", ") || "none");
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -14586,8 +14597,8 @@ score
       console.log(chalk.gray("Escalation rate:"), `${result.escalationRate}%`);
       console.log(chalk.gray("Drift events:"), result.driftEvents);
       console.log(chalk.gray("Quality held:"), result.qualityHeld ? "yes" : "no");
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -14607,8 +14618,8 @@ score
       console.log(chalk.gray("Automated:"), result.automatedCoverage);
       console.log(chalk.gray("Manual required:"), result.manualRequired);
       console.log(chalk.gray("Tradeoffs:"), result.improvementPlan.join("; "));
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -14628,8 +14639,8 @@ score
       console.log(chalk.gray("Estimated setup hours:"), result.estimatedSetupHours);
       console.log(chalk.gray("Max achievable level:"), result.maximumAchievableLevel);
       console.log(chalk.gray("Tradeoffs:"), result.tradeoffs.join("; "));
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -14659,7 +14670,7 @@ score
       console.log(chalk.gray("Runtime integrity:"), result.hasRuntimeIntegrityCheck ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Drift profile:"), result.hasDriftProfile ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14679,7 +14690,7 @@ score
       console.log(chalk.gray("Anomaly detection:"), result.hasSemanticAnomalyDetection ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Excessive agency controls:"), result.hasExcessiveAgencyControls ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14698,7 +14709,7 @@ score
       console.log(chalk.gray("Citation requirement:"), result.hasCitationRequirement ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Code execution guard:"), result.hasCodeExecutionGuard ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14717,7 +14728,7 @@ score
       console.log(chalk.gray("State versioning:"), result.hasStateVersioning ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Integrity on transfer:"), result.hasIntegrityOnTransfer ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14738,7 +14749,7 @@ score
       console.log(chalk.gray("Adversarial testing:"), result.hasAdversarialTesting ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("FRIA:"), result.hasFundamentalRightsImpactAssessment ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.slice(0, 3).join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14755,7 +14766,7 @@ score
       console.log(chalk.gray("Covered:"), `${result.coveredCount}/10`);
       if (result.uncoveredRisks.length) console.log(chalk.yellow("Uncovered:"), result.uncoveredRisks.join(", "));
       else console.log(chalk.green("All 10 OWASP LLM risks covered ✓"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14784,8 +14795,8 @@ score
       if (result.gaps.length > 0) {
         console.log(chalk.yellow("Top gaps:"), result.gaps.slice(0, 4).join("; "));
       }
-    } catch (e: any) {
-      console.error(chalk.red(e.message));
+    } catch (e: unknown) {
+      console.error(chalk.red(toErrorMessage(e)));
       process.exit(1);
     }
   });
@@ -14806,7 +14817,7 @@ score
       console.log(chalk.gray("Confidence+citation:"), result.hasConfidenceWithCitation ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Calibration:"), result.hasCalibrationMechanism ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14825,7 +14836,7 @@ score
       console.log(chalk.gray("Network isolation:"), result.hasNetworkIsolation ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Secret injection:"), result.hasSecretInjection ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14844,7 +14855,7 @@ score
       console.log(chalk.gray("JIT credentials:"), result.hasJITCredentials ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Identity revocation:"), result.hasIdentityRevocation ? chalk.green("yes") : chalk.red("no"));
       if (result.gaps.length) console.log(chalk.yellow("Gaps:"), result.gaps.join("; "));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 // ── Research-backed scoring modules (2026-02-24) ─────────────────────────────
@@ -14862,7 +14873,7 @@ score
       console.log(chalk.gray("ECE Score:"), result.expectedCalibrationError.toFixed(4));
       console.log(chalk.gray("Overconfidence ratio:"), result.overconfidenceRatio.toFixed(2));
       console.log(chalk.gray("Underconfidence ratio:"), result.underconfidenceRatio.toFixed(2));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14878,7 +14889,7 @@ score
       console.log(chalk.gray("Conflict ratio:"), result.conflictRatio.toFixed(4));
       console.log(chalk.gray("Score:"), result.score);
       console.log(chalk.gray("Level:"), result.level);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14895,7 +14906,7 @@ score
       console.log(chalk.gray("Coverage:"), `${(result.overallCoverage * 100).toFixed(1)}%`);
       console.log(chalk.gray("Cluster pattern:"), result.clusterPattern);
       console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14906,7 +14917,7 @@ score
   .action(async (opts: { json?: boolean; format?: string }) => {
     try {
       const { ingestEvidence, TRUST_WEIGHTS } = await import("./score/evidenceIngestion.js");
-      const format = (opts.format || "custom") as any;
+      const format = (opts.format || "custom") as never;
       const result = ingestEvidence({ format, data: {}, sourceSystem: "cli", timestamp: new Date().toISOString() });
       if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
       console.log(chalk.bold.hex("#FF6600")("\n📥  Evidence Ingestion"));
@@ -14915,7 +14926,7 @@ score
       console.log(chalk.gray("Unmapped:"), result.unmapped.length);
       console.log(chalk.gray("Trust tier:"), result.trustTier);
       console.log(chalk.gray("Mapping coverage:"), `${(result.mappingCoverage * 100).toFixed(1)}%`);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14932,7 +14943,7 @@ score
       console.log(chalk.gray("Retention rate:"), `${(result.promotionRetentionRate * 100).toFixed(1)}%`);
       console.log(chalk.gray("Demotion rate:"), result.demotionRate.toFixed(4));
       console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14951,7 +14962,7 @@ score
       console.log(chalk.gray("Temporal:"), result.temporalResistance.score);
       console.log(chalk.gray("Context:"), result.contextResistance.score);
       console.log(chalk.gray("Formula:"), result.formulaResistance.score);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14966,7 +14977,7 @@ score
       console.log(chalk.bold.hex("#FF6600")("\n🕵️   Sleeper Detection"));
       console.log(chalk.gray("Consistency:"), result.consistencyScore.toFixed(2));
       console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -14983,7 +14994,7 @@ score
       console.log(chalk.gray("Black-box:"), result.blackBox.score);
       console.log(chalk.gray("White-box:"), result.whiteBox.score);
       console.log(chalk.gray("Outside-the-box:"), result.outsideTheBox.score);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15001,7 +15012,7 @@ score
       for (const pk of result.passK) {
         console.log(chalk.gray(`  pass^${pk.k}:`), `${(pk.rate * 100).toFixed(1)}%`, chalk.gray(pk.interpretation));
       }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15017,7 +15028,7 @@ score
       console.log(chalk.gray("Autonomy score:"), result.autonomyScore.toFixed(2));
       console.log(chalk.gray("Oversight:"), result.oversightAdequacy);
       console.log(chalk.gray("Risk class:"), result.riskClass);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15034,7 +15045,7 @@ score
       console.log(chalk.gray("Total pauses:"), result.totalPauses);
       console.log(chalk.gray("Pause rate:"), `${(result.pauseRate * 100).toFixed(1)}%`);
       if (result.totalPauses === 0) { console.log(chalk.yellow("\n💡 No pause events recorded. Instrument your agent to emit pause events when it stops to ask for help.")); }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15050,7 +15061,7 @@ score
       console.log(chalk.gray("Score:"), result.score.toFixed(2));
       console.log(chalk.gray("Band:"), result.band.label);
       console.log(chalk.gray("Level:"), result.level);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15068,7 +15079,7 @@ score
       console.log(chalk.gray("  Search/Retrieval:"), result.searchRetrieval.score.toFixed(2));
       console.log(chalk.gray("  Grounded:"), result.grounded.score.toFixed(2));
       if (result.overallScore === 0) { console.log(chalk.yellow("\n💡 No data provided. Pipe evidence via --json or use 'amc score collect-evidence <agentId>' first.")); }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15086,7 +15097,7 @@ score
         console.log(chalk.gray(`  ${d.name}:`), d.score.toFixed(2));
       }
       if (result.overall === 0) { console.log(chalk.yellow("\n💡 All scores are zero. Provide real scores from your agent's eval suite (truthfulness, safety, compliance, consistency).")); }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15103,7 +15114,7 @@ score
       console.log(chalk.gray("Explanation coverage:"), `${(result.explanationCoverage * 100).toFixed(1)}%`);
       console.log(chalk.gray("Faithfulness:"), result.faithfulnessScore.toFixed(2));
       if (result.overallScore === 0) { console.log(chalk.yellow("\n💡 No decision traces provided. Add reasoning traces to your agent's outputs for interpretability scoring.")); }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15120,7 +15131,7 @@ score
       console.log(chalk.gray("Consistency:"), result.consistencyScore.toFixed(2));
       console.log(chalk.gray("Poisoning resistance:"), result.poisoningResistanceScore.toFixed(2));
       if (result.overallScore === 0) { console.log(chalk.yellow("\n💡 No memory events provided. Run your agent with AMC instrumentation to collect memory data.")); }
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15136,7 +15147,7 @@ score
       console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
       console.log(chalk.gray("Output signing:"), result.hasOutputSigning ? chalk.green("yes") : chalk.red("no"));
       console.log(chalk.gray("Trust level binding:"), result.hasTrustLevelBinding ? chalk.green("yes") : chalk.red("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15151,7 +15162,7 @@ score
       console.log(chalk.bold.hex("#FF6600")("\n🤝  Mutual Verification"));
       console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
       console.log(chalk.gray("Challenge-response:"), result.hasChallengeResponse ? chalk.green("yes") : chalk.red("no"));
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 score
@@ -15167,7 +15178,7 @@ score
       console.log(chalk.bold.hex("#FF6600")("\n🌐  Network Transparency Log"));
       console.log(chalk.gray("Score:"), result.score, chalk.gray(`(L${result.level})`));
       console.log(chalk.gray("Log size:"), result.logSize);
-    } catch (e: any) { console.error(chalk.red(e.message)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 // Memory commands
@@ -15434,8 +15445,8 @@ dashboard
     const outDir = resolvedAgent ? `.amc/agents/${resolvedAgent}/dashboard` : ".amc/dashboard";
     try {
       buildDashboard({ workspace: process.cwd(), agentId: resolvedAgent, outDir });
-    } catch (e: any) {
-      console.log(chalk.yellow(`Note: ${e.message}`));
+    } catch (e: unknown) {
+      console.log(chalk.yellow(`Note: ${toErrorMessage(e)}`));
       console.log(chalk.gray("Dashboard will serve with available data."));
     }
     const handle = await serveDashboard({

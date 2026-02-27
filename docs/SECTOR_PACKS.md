@@ -18,7 +18,7 @@ AMC Sector Packs extend the base 126-question AMC rubric with deep vertical expe
 
 ---
 
-## The 7 Stations — 40 Packs, 339 Questions
+## The 7 Stations — 40 Packs, 382 Questions
 
 ### 🌿 Environment (6 packs)
 

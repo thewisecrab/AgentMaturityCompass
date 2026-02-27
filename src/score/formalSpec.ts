@@ -63,6 +63,11 @@ export function computeMaturityScore(
   let totalWeightedScore = 0;
   let totalWeight = 0;
 
+  const allWeights = [...byDimension.keys()].map(dim => weights?.[dim] ?? 1.0);
+  if (allWeights.some(w => Number.isNaN(w))) {
+    throw new Error("NaN weight detected in scoring — check dimension configuration");
+  }
+
   for (const [dim, artifacts] of byDimension) {
     const w = weights?.[dim] ?? 1.0;
     let dimScore = 0;
@@ -92,6 +97,6 @@ export function computeMaturityScore(
 
 export function improvementVelocity(before: MaturityScore, after: MaturityScore, deltaMs: number): number {
   const deltaDays = deltaMs / (24 * 60 * 60 * 1000);
-  if (deltaDays === 0) return 0;
+  if (deltaDays < 1) return 0;
   return (after.overallScore - before.overallScore) / deltaDays;
 }

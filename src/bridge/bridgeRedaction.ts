@@ -8,7 +8,12 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bxai-[A-Za-z0-9\-_]{12,}\b/g,
   /BEGIN (?:RSA|EC|OPENSSH|PRIVATE) KEY/gi,
   /\blease_[a-z0-9]{10,}\b/gi,
-  /\bamc_[a-z0-9]{12,}\b/gi
+  /\bamc_[a-z0-9]{12,}\b/gi,
+  /AKIA[0-9A-Z]{16}/,          // AWS access key
+  /ghp_[a-zA-Z0-9]{36}/,       // GitHub personal token
+  /gho_[a-zA-Z0-9]{36}/,       // GitHub OAuth token
+  /sk-ant-[a-zA-Z0-9-]{20,}/,  // Anthropic API key
+  /eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}/, // JWT token
 ];
 
 function clip(value: string, maxChars: number): string {

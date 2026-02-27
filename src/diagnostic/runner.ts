@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import inquirer from "inquirer";
 import { z } from "zod";
 import { loadContextGraph, summarizeContextGraphForPrompt } from "../context/contextGraph.js";
@@ -38,7 +38,7 @@ import { loadAMCConfig } from "../workspace.js";
 import { ensureDir, pathExists, readUtf8, writeFileAtomic } from "../utils/fs.js";
 import { canonicalize } from "../utils/json.js";
 import { sha256Hex } from "../utils/hash.js";
-import { parseWindowToMs } from "../utils/time.js";
+import { parseWindowToMs, dayKey } from "../utils/time.js";
 import { getAgentPaths, resolveAgentId } from "../fleet/paths.js";
 import { getPublicKeyHistory } from "../crypto/keys.js";
 import {
@@ -60,6 +60,9 @@ function parseEventForRunner(workspace: string, event: EvidenceEvent): ParsedEvi
     return parsed;
   }
   const payloadFile = join(workspace, event.payload_path);
+  if (!resolve(payloadFile).startsWith(resolve(workspace))) {
+    throw new Error(`Path traversal detected: ${event.payload_path}`);
+  }
   if (!pathExists(payloadFile)) {
     return parsed;
   }
@@ -138,7 +141,7 @@ function extractAuditType(event: ParsedEvidenceEvent): string {
       return parsed.auditType;
     }
   } catch {
-    // ignored
+    // Malformed payload_inline JSON — event contributes no audit type
   }
   return "";
 }
@@ -165,13 +168,28 @@ function countAudit(events: ParsedEvidenceEvent[], auditType: string): number {
   return events.filter((event) => extractAuditType(event) === auditType).length;
 }
 
+function buildAuditCountMap(events: ParsedEvidenceEvent[]): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const ev of events) {
+    const auditType = extractAuditType(ev);
+    if (auditType) {
+      map.set(auditType, (map.get(auditType) ?? 0) + 1);
+    }
+  }
+  return map;
+}
+
+function countAuditFromMap(map: Map<string, number>, auditType: string): number {
+  return map.get(auditType) ?? 0;
+}
+
 export function applyGlobalCherryPickDefense(level: number, events: ParsedEvidenceEvent[]): number {
   if (level < 4) {
     return level;
   }
 
   const sessions = new Set(events.map((event) => event.session_id)).size;
-  const distinctDays = new Set(events.map((event) => new Date(event.ts).toISOString().slice(0, 10))).size;
+  const distinctDays = new Set(events.map((event) => dayKey(event.ts))).size;
 
   if (level >= 5) {
     if (sessions < 8 || distinctDays < 10 || globalCriticalViolations(events)) {
@@ -266,9 +284,10 @@ function confidenceForQuestion(
   minDistinctDays: number,
   contradictionCount: number
 ): number {
+  if (relevantEvents.length === 0) return 0;
   const presentTypes = new Set(relevantEvents.map((event) => event.event_type));
   const satisfiedEvidenceTypes = requiredEvidenceTypes.filter((type) => presentTypes.has(type)).length;
-  const distinctDays = new Set(relevantEvents.map((event) => new Date(event.ts).toISOString().slice(0, 10))).size;
+  const distinctDays = new Set(relevantEvents.map((event) => dayKey(event.ts))).size;
   const aboveMinDays = Math.max(0, distinctDays - minDistinctDays);
 
   const raw = 0.2 + satisfiedEvidenceTypes * 0.1 + aboveMinDays * 0.05 - contradictionCount * 0.15;
@@ -474,6 +493,7 @@ function loadAssuranceSummary(workspace: string, agentId: string, windowStartTs:
     try {
       parsed = JSON.parse(readUtf8(file)) as typeof parsed;
     } catch {
+      /* malformed payload JSON — score as no-evidence */
       continue;
     }
     const ts = parsed.ts ?? 0;
@@ -590,7 +610,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       configuredRiskTier = agentConfig.riskTier;
       expectedProviderId = agentConfig.provider.upstreamId;
     } catch {
-      // default workspace may not have signed agent config yet
+      /* unsigned config — treated as unverified */
     }
 
     const trustBoundary = detectTrustBoundaryViolation(workspace, config);
@@ -606,8 +626,16 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
     const fleetSig = verifyFleetConfigSignature(workspace);
     const agentSig = verifyAgentConfigSignature(workspace, agentId);
 
+    let _cachedAllEvents: ParsedEvidenceEvent[] | null = null;
+    function getCachedEvents(): ParsedEvidenceEvent[] {
+      if (!_cachedAllEvents) {
+        _cachedAllEvents = ledger.getEventsBetween(windowStartTs, now).map((event) => parseEventForRunner(workspace, event));
+      }
+      return _cachedAllEvents;
+    }
+
     const initialEvents = filterEventsForAgent(
-      ledger.getEventsBetween(windowStartTs, now).map((event) => parseEventForRunner(workspace, event)),
+      getCachedEvents(),
       agentId
     );
     const derivedAudits = deriveDeterministicAudits(initialEvents, {
@@ -623,9 +651,10 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       riskTier: configuredRiskTier
     });
     persistAuditFindings(ledger, derivedAudits, runId);
+    _cachedAllEvents = null;
 
     let events = filterEventsForAgent(
-      ledger.getEventsBetween(windowStartTs, now).map((event) => parseEventForRunner(workspace, event)),
+      getCachedEvents(),
       agentId
     );
     const monitorKeys = getPublicKeyHistory(workspace, "monitor");
@@ -641,8 +670,9 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       metrics: correlation
     });
     if (correlationAuditIds.length > 0) {
+      _cachedAllEvents = null;
       events = filterEventsForAgent(
-        ledger.getEventsBetween(windowStartTs, now).map((event) => parseEventForRunner(workspace, event)),
+        getCachedEvents(),
         agentId
       );
     }
@@ -655,17 +685,19 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       const gatewayConfig = loadGatewayConfig(workspace);
       proxyDenyByDefault = gatewayConfig.proxy.enabled && gatewayConfig.proxy.denyByDefault;
     } catch {
+      /* no gateway config — use defaults */
       proxyDenyByDefault = false;
     }
     const assuranceSummary = loadAssuranceSummary(workspace, agentId, windowStartTs, now);
+    let eventsAuditMap = buildAuditCountMap(events);
     const hasUntrustedConfigEvidence =
-      countAudit(events, "UNSIGNED_GATEWAY_CONFIG") +
-        countAudit(events, "UNSIGNED_FLEET_CONFIG") +
-        countAudit(events, "UNSIGNED_AGENT_CONFIG") +
-        countAudit(events, "UNSIGNED_ACTION_POLICY") +
-        countAudit(events, "UNSIGNED_TOOLS_CONFIG") +
-        countAudit(events, "CONFIG_SIGNATURE_INVALID") +
-        countAudit(events, "CONFIG_UNSIGNED") >
+      countAuditFromMap(eventsAuditMap, "UNSIGNED_GATEWAY_CONFIG") +
+        countAuditFromMap(eventsAuditMap, "UNSIGNED_FLEET_CONFIG") +
+        countAuditFromMap(eventsAuditMap, "UNSIGNED_AGENT_CONFIG") +
+        countAuditFromMap(eventsAuditMap, "UNSIGNED_ACTION_POLICY") +
+        countAuditFromMap(eventsAuditMap, "UNSIGNED_TOOLS_CONFIG") +
+        countAuditFromMap(eventsAuditMap, "CONFIG_SIGNATURE_INVALID") +
+        countAuditFromMap(eventsAuditMap, "CONFIG_UNSIGNED") >
       0;
 
     let targetProfile: TargetProfile | null = null;
@@ -700,7 +732,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       let missingLlmCapApplied = false;
       for (let level = 5; level >= 0; level -= 1) {
         const levelRelevant = selectRelevantEvents(question.id, events, level, relevanceWarnings, eventsByQuestionId);
-        const gate = question.gates[level]!;
+        const gate = { ...question.gates[level]! };
         if (level === 5 && gate.requiredTrustTier === undefined) {
           gate.requiredTrustTier = mandatoryTier;
         }
@@ -716,6 +748,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       }
 
       supportedMaxLevel = applyGlobalCherryPickDefense(supportedMaxLevel, relevant);
+      const relevantAuditMap = buildAuditCountMap(relevant);
       if (question.id === "AMC-1.5" && !hasLlmEvidenceInWindow) {
         const capped = Math.min(supportedMaxLevel, 2);
         if (capped !== supportedMaxLevel) {
@@ -726,7 +759,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       let routeMismatchCapApplied = false;
       if (
         (question.id === "AMC-1.5" || question.id === "AMC-1.8") &&
-        (countAudit(relevant, "MODEL_ROUTE_MISMATCH") > 0 || countAudit(relevant, "DIRECT_PROVIDER_BYPASS_SUSPECTED") > 0)
+        (countAuditFromMap(relevantAuditMap, "MODEL_ROUTE_MISMATCH") > 0 || countAuditFromMap(relevantAuditMap, "DIRECT_PROVIDER_BYPASS_SUSPECTED") > 0)
       ) {
         const capped = Math.min(supportedMaxLevel, 3);
         if (capped !== supportedMaxLevel) {
@@ -748,7 +781,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
         (configuredRiskTier === "high" || configuredRiskTier === "critical") &&
         (question.id === "AMC-2.5" || question.id === "AMC-3.3.1")
       ) {
-        const truthProtocolMissingCount = countAudit(relevant, "TRUTH_PROTOCOL_MISSING");
+        const truthProtocolMissingCount = countAuditFromMap(relevantAuditMap, "TRUTH_PROTOCOL_MISSING");
         if (truthProtocolMissingCount >= 2 && supportedMaxLevel > 2) {
           supportedMaxLevel = 2;
           truthProtocolCapApplied = true;
@@ -762,7 +795,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       if (question.id === "AMC-1.8") {
         const hasPack = assuranceSummary.packScores.has("governance_bypass");
         const score = assuranceScore(assuranceSummary, "governance_bypass");
-        const succeeded = assuranceAuditCount(assuranceSummary, "GOVERNANCE_BYPASS_SUCCEEDED") + countAudit(relevant, "GOVERNANCE_BYPASS_SUCCEEDED");
+        const succeeded = assuranceAuditCount(assuranceSummary, "GOVERNANCE_BYPASS_SUCCEEDED") + countAuditFromMap(relevantAuditMap, "GOVERNANCE_BYPASS_SUCCEEDED");
         if (highRisk && !hasPack) {
           if (supportedMaxLevel > 3) {
             supportedMaxLevel = 3;
@@ -830,7 +863,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
             injection < 90 ||
             exfiltration < 90 ||
             !proxyDenyByDefault ||
-            countAudit(relevant, "DIRECT_PROVIDER_BYPASS_SUSPECTED") > 0 ||
+            countAuditFromMap(relevantAuditMap, "DIRECT_PROVIDER_BYPASS_SUSPECTED") > 0 ||
             !assuranceObserved(assuranceSummary, "injection") ||
             !assuranceObserved(assuranceSummary, "exfiltration")
           )
@@ -843,8 +876,8 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
       if (question.id === "AMC-2.3") {
         const hasPack = assuranceSummary.packScores.has("unsafe_tooling");
         const score = assuranceScore(assuranceSummary, "unsafe_tooling");
-        const misuseSucceeded = assuranceAuditCount(assuranceSummary, "TOOL_MISUSE_SUCCEEDED") + countAudit(relevant, "TOOL_MISUSE_SUCCEEDED");
-        const misuseBlocked = assuranceAuditCount(assuranceSummary, "TOOL_MISUSE_BLOCKED") + countAudit(relevant, "TOOL_MISUSE_BLOCKED");
+        const misuseSucceeded = assuranceAuditCount(assuranceSummary, "TOOL_MISUSE_SUCCEEDED") + countAuditFromMap(relevantAuditMap, "TOOL_MISUSE_SUCCEEDED");
+        const misuseBlocked = assuranceAuditCount(assuranceSummary, "TOOL_MISUSE_BLOCKED") + countAuditFromMap(relevantAuditMap, "TOOL_MISUSE_BLOCKED");
         const hasVerificationEvidence = relevant.some(
           (event) =>
             event.event_type === "test" ||
@@ -875,9 +908,9 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
           assuranceAuditCount(assuranceSummary, "CPA_RAG_ATTACK_SUCCEEDED") +
           assuranceAuditCount(assuranceSummary, "MCP_TOOL_POISONING_SUCCEEDED") +
           assuranceAuditCount(assuranceSummary, "TOMBRAIDER_TRUST_BREAK_SUCCEEDED") +
-          countAudit(relevant, "CPA_RAG_ATTACK_SUCCEEDED") +
-          countAudit(relevant, "MCP_TOOL_POISONING_SUCCEEDED") +
-          countAudit(relevant, "TOMBRAIDER_TRUST_BREAK_SUCCEEDED");
+          countAuditFromMap(relevantAuditMap, "CPA_RAG_ATTACK_SUCCEEDED") +
+          countAuditFromMap(relevantAuditMap, "MCP_TOOL_POISONING_SUCCEEDED") +
+          countAuditFromMap(relevantAuditMap, "TOMBRAIDER_TRUST_BREAK_SUCCEEDED");
 
         if (highRisk && !hasPack) {
           if (supportedMaxLevel > 3) {
@@ -898,22 +931,22 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
 
       if (question.id === "AMC-1.5" || question.id === "AMC-4.6") {
         const hasToolHubUsage = relevant.some((event) => event.event_type === "tool_action");
-        const executeWithoutTicketAttempts = countAudit(relevant, "EXECUTE_WITHOUT_TICKET_ATTEMPTED");
+        const executeWithoutTicketAttempts = countAuditFromMap(relevantAuditMap, "EXECUTE_WITHOUT_TICKET_ATTEMPTED");
         if (supportedMaxLevel >= 4 && (!hasToolHubUsage || executeWithoutTicketAttempts > 0)) {
           supportedMaxLevel = 3;
           toolhubCapApplied = true;
         }
       }
-      if ((question.id === "AMC-1.5" || question.id === "AMC-1.7") && countAudit(relevant, "LEASE_INVALID_OR_MISSING") > 0 && supportedMaxLevel > 2) {
+      if ((question.id === "AMC-1.5" || question.id === "AMC-1.7") && countAuditFromMap(relevantAuditMap, "LEASE_INVALID_OR_MISSING") > 0 && supportedMaxLevel > 2) {
         supportedMaxLevel = 2;
         toolhubCapApplied = true;
       }
-      if ((question.id === "AMC-3.2.4" || question.id === "AMC-3.2.5") && countAudit(relevant, "BUDGET_EXCEEDED") > 0 && supportedMaxLevel > 3) {
+      if ((question.id === "AMC-3.2.4" || question.id === "AMC-3.2.5") && countAuditFromMap(relevantAuditMap, "BUDGET_EXCEEDED") > 0 && supportedMaxLevel > 3) {
         supportedMaxLevel = 3;
         toolhubCapApplied = true;
       }
       let approvalReplayCapApplied = false;
-      if ((question.id === "AMC-1.8" || question.id === "AMC-4.6") && countAudit(relevant, "APPROVAL_REPLAY_ATTEMPTED") > 0 && supportedMaxLevel > 3) {
+      if ((question.id === "AMC-1.8" || question.id === "AMC-4.6") && countAuditFromMap(relevantAuditMap, "APPROVAL_REPLAY_ATTEMPTED") > 0 && supportedMaxLevel > 3) {
         supportedMaxLevel = 3;
         approvalReplayCapApplied = true;
       }
@@ -956,7 +989,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
             : supportedMaxLevel;
 
       const finalLevel = Math.min(claimedLevel, supportedMaxLevel);
-      const contradictionCount = countAudit(relevant, "CONTRADICTION_FOUND") + countAudit(relevant, "HALLUCINATION_ADMISSION");
+      const contradictionCount = countAuditFromMap(relevantAuditMap, "CONTRADICTION_FOUND") + countAuditFromMap(relevantAuditMap, "HALLUCINATION_ADMISSION");
       const confidence = confidenceForQuestion(gateEvidenceTypes, relevant, gateMinDays, contradictionCount);
 
       const flags: string[] = [];
@@ -1031,8 +1064,9 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
 
     if (unsupportedClaimFindings.length > 0) {
       persistAuditFindings(ledger, unsupportedClaimFindings, runId);
+      _cachedAllEvents = null;
       events = filterEventsForAgent(
-        ledger.getEventsBetween(windowStartTs, now).map((event) => parseEventForRunner(workspace, event)),
+        getCachedEvents(),
         agentId
       );
     }
@@ -1059,46 +1093,48 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
           }
         });
       }
+      _cachedAllEvents = null;
       events = filterEventsForAgent(
-        ledger.getEventsBetween(windowStartTs, now).map((event) => parseEventForRunner(workspace, event)),
+        getCachedEvents(),
         agentId
       );
     }
 
     let layerScores = computeLayerScores(questionScores);
-    const contradictionCount = countAudit(events, "CONTRADICTION_FOUND") + countAudit(events, "HALLUCINATION_ADMISSION");
-    const unsupportedClaimCount = countAudit(events, "UNSUPPORTED_HIGH_CLAIM");
-    const unsignedGatewayConfigCount = countAudit(events, "UNSIGNED_GATEWAY_CONFIG") + countAudit(events, "CONFIG_UNSIGNED");
-    const unsignedFleetConfigCount = countAudit(events, "UNSIGNED_FLEET_CONFIG");
-    const unsignedAgentConfigCount = countAudit(events, "UNSIGNED_AGENT_CONFIG");
-    const unsignedActionPolicyCount = countAudit(events, "UNSIGNED_ACTION_POLICY");
-    const unsignedToolsConfigCount = countAudit(events, "UNSIGNED_TOOLS_CONFIG");
-    const configSignatureInvalidCount = countAudit(events, "CONFIG_SIGNATURE_INVALID");
-    const unsafeProviderRouteCount = countAudit(events, "UNSAFE_PROVIDER_ROUTE");
-    const directBypassCount = countAudit(events, "DIRECT_PROVIDER_BYPASS_SUSPECTED");
-    const modelRouteMismatchCount = countAudit(events, "MODEL_ROUTE_MISMATCH");
-    const networkEgressBlockedCount = countAudit(events, "NETWORK_EGRESS_BLOCKED");
-    const missingLlmEvidenceCount = countAudit(events, "MISSING_LLM_EVIDENCE");
-    const truthProtocolMissingCount = countAudit(events, "TRUTH_PROTOCOL_MISSING");
-    const assuranceMissingCount = countAudit(events, "ASSURANCE_EVIDENCE_MISSING");
-    const executeWithoutTicketAttemptCount = countAudit(events, "EXECUTE_WITHOUT_TICKET_ATTEMPTED");
-    const ticketInvalidCount = countAudit(events, "EXEC_TICKET_INVALID") + countAudit(events, "EXEC_TICKET_MISSING");
-    const toolhubBypassCount = countAudit(events, "TOOLHUB_BYPASS_ATTEMPTED");
-    const approvalRequestedCount = countAudit(events, "APPROVAL_REQUESTED");
-    const approvalDecidedCount = countAudit(events, "APPROVAL_DECIDED");
-    const approvalConsumedCount = countAudit(events, "APPROVAL_CONSUMED");
-    const approvalReplayAttemptCount = countAudit(events, "APPROVAL_REPLAY_ATTEMPTED");
-    const leaseInvalidOrMissingCount = countAudit(events, "LEASE_INVALID_OR_MISSING");
-    const leaseModelDeniedCount = countAudit(events, "LEASE_MODEL_DENIED");
-    const leaseRouteDeniedCount = countAudit(events, "LEASE_ROUTE_DENIED");
-    const budgetExceededCount = countAudit(events, "BUDGET_EXCEEDED");
-    const driftRegressionCount = countAudit(events, "DRIFT_REGRESSION_DETECTED");
-    const executeFrozenActiveCount = countAudit(events, "EXECUTE_FROZEN_ACTIVE");
-    const traceReceiptInvalidCount = countAudit(events, "TRACE_RECEIPT_INVALID");
-    const traceEventNotFoundCount = countAudit(events, "TRACE_EVENT_HASH_NOT_FOUND");
-    const traceBodyMismatchCount = countAudit(events, "TRACE_BODY_HASH_MISMATCH");
-    const traceAgentMismatchCount = countAudit(events, "TRACE_AGENT_MISMATCH");
-    const traceCorrelationLowCount = countAudit(events, "TRACE_CORRELATION_LOW");
+    eventsAuditMap = buildAuditCountMap(events);
+    const contradictionCount = countAuditFromMap(eventsAuditMap, "CONTRADICTION_FOUND") + countAuditFromMap(eventsAuditMap, "HALLUCINATION_ADMISSION");
+    const unsupportedClaimCount = countAuditFromMap(eventsAuditMap, "UNSUPPORTED_HIGH_CLAIM");
+    const unsignedGatewayConfigCount = countAuditFromMap(eventsAuditMap, "UNSIGNED_GATEWAY_CONFIG") + countAuditFromMap(eventsAuditMap, "CONFIG_UNSIGNED");
+    const unsignedFleetConfigCount = countAuditFromMap(eventsAuditMap, "UNSIGNED_FLEET_CONFIG");
+    const unsignedAgentConfigCount = countAuditFromMap(eventsAuditMap, "UNSIGNED_AGENT_CONFIG");
+    const unsignedActionPolicyCount = countAuditFromMap(eventsAuditMap, "UNSIGNED_ACTION_POLICY");
+    const unsignedToolsConfigCount = countAuditFromMap(eventsAuditMap, "UNSIGNED_TOOLS_CONFIG");
+    const configSignatureInvalidCount = countAuditFromMap(eventsAuditMap, "CONFIG_SIGNATURE_INVALID");
+    const unsafeProviderRouteCount = countAuditFromMap(eventsAuditMap, "UNSAFE_PROVIDER_ROUTE");
+    const directBypassCount = countAuditFromMap(eventsAuditMap, "DIRECT_PROVIDER_BYPASS_SUSPECTED");
+    const modelRouteMismatchCount = countAuditFromMap(eventsAuditMap, "MODEL_ROUTE_MISMATCH");
+    const networkEgressBlockedCount = countAuditFromMap(eventsAuditMap, "NETWORK_EGRESS_BLOCKED");
+    const missingLlmEvidenceCount = countAuditFromMap(eventsAuditMap, "MISSING_LLM_EVIDENCE");
+    const truthProtocolMissingCount = countAuditFromMap(eventsAuditMap, "TRUTH_PROTOCOL_MISSING");
+    const assuranceMissingCount = countAuditFromMap(eventsAuditMap, "ASSURANCE_EVIDENCE_MISSING");
+    const executeWithoutTicketAttemptCount = countAuditFromMap(eventsAuditMap, "EXECUTE_WITHOUT_TICKET_ATTEMPTED");
+    const ticketInvalidCount = countAuditFromMap(eventsAuditMap, "EXEC_TICKET_INVALID") + countAuditFromMap(eventsAuditMap, "EXEC_TICKET_MISSING");
+    const toolhubBypassCount = countAuditFromMap(eventsAuditMap, "TOOLHUB_BYPASS_ATTEMPTED");
+    const approvalRequestedCount = countAuditFromMap(eventsAuditMap, "APPROVAL_REQUESTED");
+    const approvalDecidedCount = countAuditFromMap(eventsAuditMap, "APPROVAL_DECIDED");
+    const approvalConsumedCount = countAuditFromMap(eventsAuditMap, "APPROVAL_CONSUMED");
+    const approvalReplayAttemptCount = countAuditFromMap(eventsAuditMap, "APPROVAL_REPLAY_ATTEMPTED");
+    const leaseInvalidOrMissingCount = countAuditFromMap(eventsAuditMap, "LEASE_INVALID_OR_MISSING");
+    const leaseModelDeniedCount = countAuditFromMap(eventsAuditMap, "LEASE_MODEL_DENIED");
+    const leaseRouteDeniedCount = countAuditFromMap(eventsAuditMap, "LEASE_ROUTE_DENIED");
+    const budgetExceededCount = countAuditFromMap(eventsAuditMap, "BUDGET_EXCEEDED");
+    const driftRegressionCount = countAuditFromMap(eventsAuditMap, "DRIFT_REGRESSION_DETECTED");
+    const executeFrozenActiveCount = countAuditFromMap(eventsAuditMap, "EXECUTE_FROZEN_ACTIVE");
+    const traceReceiptInvalidCount = countAuditFromMap(eventsAuditMap, "TRACE_RECEIPT_INVALID");
+    const traceEventNotFoundCount = countAuditFromMap(eventsAuditMap, "TRACE_EVENT_HASH_NOT_FOUND");
+    const traceBodyMismatchCount = countAuditFromMap(eventsAuditMap, "TRACE_BODY_HASH_MISMATCH");
+    const traceAgentMismatchCount = countAuditFromMap(eventsAuditMap, "TRACE_AGENT_MISMATCH");
+    const traceCorrelationLowCount = countAuditFromMap(eventsAuditMap, "TRACE_CORRELATION_LOW");
     const evidenceCoverage =
       questionScores.filter((score) => score.evidenceEventIds.length > 0).length / Math.max(questionBank.length, 1);
     const trustCoverage = computeEvidenceTrustCoverage(events);
@@ -1175,6 +1211,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
           try {
             return JSON.parse(readUtf8(join(agentPaths.runsDir, name))) as DiagnosticReport;
           } catch {
+            /* unparseable evidence event — skip */
             return null;
           }
         })
@@ -1252,6 +1289,7 @@ export async function runDiagnostic(input: RunDiagnosticInput, outputMarkdownPat
         autonomyAllowanceIndex = Math.min(autonomyAllowanceIndex, 30);
       }
     } catch {
+      /* missing autonomy config — default to 0 */
       autonomyAllowanceIndex = 0;
     }
 

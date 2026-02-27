@@ -468,14 +468,23 @@ export function listAgents(workspace: string): Array<{
     .sort((a, b) => a.localeCompare(b));
 
   return ids.map((id) => {
-    const paths = getAgentPaths(workspace, id);
-    const hasConfig = pathExists(paths.agentConfig);
-    const signed = hasConfig ? verifyAgentConfigSignature(workspace, id).valid : false;
-    return {
-      id,
-      hasConfig,
-      configSigned: signed
-    };
+    try {
+      const paths = getAgentPaths(workspace, id);
+      const hasConfig = pathExists(paths.agentConfig);
+      const signed = hasConfig ? verifyAgentConfigSignature(workspace, id).valid : false;
+      return {
+        id,
+        hasConfig,
+        configSigned: signed
+      };
+    } catch {
+      // Skip agents with corrupt configs
+      return {
+        id,
+        hasConfig: false,
+        configSigned: false
+      };
+    }
   });
 }
 

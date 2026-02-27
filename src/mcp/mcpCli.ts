@@ -5,7 +5,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import { INDUSTRY_PACKS } from "../domains/industryPacks.js";
-import { startMcpServer } from "./amcMcpServer.js";
+import { startMcpServer, MCP_TOOL_METADATA } from "./amcMcpServer.js";
 
 const CLAUDE_CODE_CONFIG = {
   mcpServers: {
@@ -43,38 +43,7 @@ const IDE_CONFIGS: Record<string, { file: string; config: unknown }> = {
   "Generic (OpenAI Agents SDK, etc.)": { file: "mcp.json", config: GENERIC_CONFIG },
 };
 
-const MCP_TOOLS = [
-  {
-    name: "amc_list_agents",
-    description: "List all AMC-registered agents with trust status",
-    input: "{ workspace?: string }",
-  },
-  {
-    name: "amc_quickscore",
-    description: "Get trust score and maturity level for an agent (L1-L5, 0-100)",
-    input: "{ agentId: string, workspace?: string }",
-  },
-  {
-    name: "amc_get_guide",
-    description: "Get prioritized improvement guide with CLI commands",
-    input: "{ agentId: string, workspace?: string }",
-  },
-  {
-    name: "amc_check_compliance",
-    description: "Check compliance gaps (EU_AI_ACT, ISO_42001, NIST_AI_RMF, SOC2, ISO_27001)",
-    input: "{ agentId: string, frameworks?: string[], workspace?: string }",
-  },
-  {
-    name: "amc_transparency_report",
-    description: "Full Agent Transparency Report — capabilities, data access, trust evidence",
-    input: "{ agentId: string, format?: 'markdown'|'json', workspace?: string }",
-  },
-  {
-    name: "amc_score_sector_pack",
-    description: "Score agent against an industry Sector Pack (40 packs, 7 stations)",
-    input: "{ packId: string, responses: Record<string, number> }",
-  },
-];
+const MCP_TOOLS = MCP_TOOL_METADATA;
 
 export function registerMcpCommands(program: Command): void {
   const mcp = program
@@ -87,8 +56,12 @@ export function registerMcpCommands(program: Command): void {
     .description("Start the AMC MCP server (stdio transport for IDE integration)")
     .option("--workspace <path>", "Default workspace path", process.cwd())
     .action(async (opts: { workspace: string }) => {
-      process.chdir(opts.workspace);
-      await startMcpServer();
+      try {
+        await startMcpServer(opts.workspace);
+      } catch (err) {
+        console.error(chalk.red(`MCP server failed to start: ${err instanceof Error ? err.message : String(err)}`));
+        process.exit(1);
+      }
     });
 
   // amc mcp config
@@ -96,7 +69,13 @@ export function registerMcpCommands(program: Command): void {
     .command("config")
     .description("Print MCP configuration snippets for supported AI coding assistants")
     .option("--ide <name>", "Specific IDE (claude-code, cursor, windsurf, vscode, kiro)")
-    .action((opts: { ide?: string }) => {
+    .option("--json", "Output as JSON")
+    .action((opts: { ide?: string; json?: boolean }) => {
+      if (opts.json) {
+        console.log(JSON.stringify(IDE_CONFIGS, null, 2));
+        return;
+      }
+
       console.log(chalk.bold.cyan("\n🔌 AMC MCP Server Configuration\n"));
       console.log(
         chalk.gray(
@@ -104,12 +83,23 @@ export function registerMcpCommands(program: Command): void {
         )
       );
 
+      const ideMap: Record<string, string> = {
+        "claude-code": "Claude Code",
+        "cursor": "Cursor",
+        "windsurf": "Windsurf",
+        "vscode": "VS Code Copilot",
+        "kiro": "Kiro",
+        "generic": "Generic (OpenAI Agents SDK, etc.)",
+      };
+
       const entries = Object.entries(IDE_CONFIGS);
       const filtered = opts.ide
-        ? entries.filter(([name]) =>
-            name.toLowerCase().includes(opts.ide!.toLowerCase())
-          )
+        ? entries.filter(([name]) => name === ideMap[opts.ide!.toLowerCase()])
         : entries;
+      if (opts.ide && filtered.length === 0) {
+        console.error(chalk.red(`Unknown IDE: "${opts.ide}". Options: ${Object.keys(ideMap).join(", ")}`));
+        process.exit(1);
+      }
 
       for (const [name, { file, config }] of filtered) {
         console.log(chalk.bold.green(`── ${name}`));

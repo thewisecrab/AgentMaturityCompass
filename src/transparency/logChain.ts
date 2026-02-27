@@ -1,4 +1,4 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync, appendFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
@@ -32,8 +32,7 @@ export function transparencySealSigPath(workspace: string): string {
 }
 
 function appendLine(path: string, line: string): void {
-  const current = pathExists(path) ? readUtf8(path) : "";
-  writeFileAtomic(path, current + line + "\n", 0o644);
+  appendFileSync(path, line + "\n", "utf8");
 }
 
 function readEntries(workspace: string): TransparencyEntry[] {
@@ -140,9 +139,9 @@ export function appendTransparencyEntry(params: {
   writeSeal(params.workspace, entry.hash);
   try {
     updateTransparencyMerkleAfterAppend(params.workspace);
-  } catch {
-    // Keep transparency append robust even if merkle update fails; verification
-    // and issuance paths enforce merkle integrity explicitly.
+  } catch (err) {
+    // Merkle rebuild failed — log warning but don't block append
+    console.error(`[AMC] Warning: Merkle tree rebuild failed after transparency append: ${err instanceof Error ? err.message : String(err)}`);
   }
   return entry;
 }
@@ -225,14 +224,14 @@ export function verifyTransparencyLog(workspace: string): {
 }
 
 function tarCreate(sourceDir: string, outFile: string): void {
-  const out = spawnSync("tar", ["-czf", outFile, "-C", sourceDir, "."], { encoding: "utf8" });
+  const out = spawnSync("tar", ["-czf", outFile, "-C", sourceDir, "."], { encoding: "utf8", timeout: 30000 });
   if (out.status !== 0) {
     throw new Error(`failed to create transparency bundle: ${(`${out.stdout ?? ""}${out.stderr ?? ""}`).trim()}`);
   }
 }
 
 function tarExtract(bundleFile: string, outDir: string): void {
-  const out = spawnSync("tar", ["-xzf", bundleFile, "-C", outDir], { encoding: "utf8" });
+  const out = spawnSync("tar", ["-xzf", bundleFile, "-C", outDir], { encoding: "utf8", timeout: 30000 });
   if (out.status !== 0) {
     throw new Error(`failed to extract transparency bundle: ${(`${out.stdout ?? ""}${out.stderr ?? ""}`).trim()}`);
   }

@@ -342,22 +342,18 @@ function loadLatestReportForAgent(workspace: string, agentId: string): Diagnosti
   if (!pathExists(runsDir)) {
     return null;
   }
-  const files = readdirSync(runsDir).filter((file) => file.endsWith(".json"));
-  let latest: DiagnosticReport | null = null;
-  for (const file of files) {
-    try {
-      const parsed = JSON.parse(readFileSync(join(runsDir, file), "utf8")) as DiagnosticReport;
-      if (!parsed || typeof parsed !== "object" || typeof parsed.ts !== "number" || typeof parsed.agentId !== "string") {
-        continue;
-      }
-      if (!latest || parsed.ts > latest.ts) {
-        latest = parsed;
-      }
-    } catch {
-      continue;
+  const files = readdirSync(runsDir).filter((file) => file.endsWith(".json")).sort();
+  if (files.length === 0) return null;
+  const latest = files[files.length - 1]!;
+  try {
+    const parsed = JSON.parse(readFileSync(join(runsDir, latest), "utf8")) as DiagnosticReport;
+    if (!parsed || typeof parsed !== "object" || typeof parsed.ts !== "number" || typeof parsed.agentId !== "string") {
+      return null;
     }
+    return parsed;
+  } catch {
+    return null;
   }
-  return latest;
 }
 
 function getEnvironmentForAgent(workspace: string, agentId: string): FleetEnvironment {

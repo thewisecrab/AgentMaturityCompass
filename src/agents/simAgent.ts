@@ -20,6 +20,12 @@
 import { randomUUID } from 'node:crypto';
 import { type MetricInput, type MetricGroupResult, MetricRegistry } from './metricTemplates.js';
 
+/** Safely access a nested property on an unknown object */
+function prop(obj: unknown, key: string): unknown {
+  if (obj && typeof obj === 'object') return (obj as Record<string, unknown>)[key];
+  return undefined;
+}
+
 /* ── Types ──────────────────────────────────────────────────────── */
 
 export type StopReason = 'max_turns' | 'persona_done' | 'agent_done' | 'timeout' | 'error' | 'custom';
@@ -396,9 +402,9 @@ export class SimRunner {
 
         const agentContent = typeof agentOutput === 'string'
           ? agentOutput
-          : (agentOutput as any)?.suggestedResponse
-            ?? (agentOutput as any)?.response
-            ?? (agentOutput as any)?.ticket?.response
+          : prop(agentOutput, 'suggestedResponse') as string | undefined
+            ?? prop(agentOutput, 'response') as string | undefined
+            ?? prop(prop(agentOutput, 'ticket'), 'response') as string | undefined
             ?? JSON.stringify(agentOutput);
 
         conversation.messages.push({
@@ -422,8 +428,8 @@ export class SimRunner {
 
         // Check if agent escalated
         if (persona.stopConditions.stopOnEscalation) {
-          const escalated = (agentOutput as any)?.escalated === true
-            || (agentOutput as any)?.ticket?.status === 'escalated';
+          const escalated = prop(agentOutput, 'escalated') === true
+            || prop(prop(agentOutput, 'ticket'), 'status') === 'escalated';
           if (escalated) {
             conversation.stopReason = 'agent_done';
             break;

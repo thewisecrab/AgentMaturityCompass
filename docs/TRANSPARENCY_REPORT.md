@@ -15,6 +15,9 @@ amc transparency report
 # Generate for a specific agent
 amc transparency report my-agent
 
+# Also works with --agent flag
+amc transparency report --agent my-agent --format json
+
 # JSON format (for programmatic use)
 amc transparency report my-agent --format json
 

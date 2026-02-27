@@ -160,7 +160,7 @@ function trustScoreFrom(level: number): number {
   return Math.round(((level - 1) / 4) * 100);
 }
 
-/** Load the latest BOM for an agent, if available */
+/** Returns null if no data exists OR data is unreadable. Caller treats both as "no data available". */
 function loadLatestBom(
   workspace: string,
   agentId: string
@@ -175,12 +175,13 @@ function loadLatestBom(
       .reverse();
     if (files.length === 0) return null;
     return JSON.parse(readFileSync(join(bomDir, files[0]!), "utf8")) as MaturityBom;
-  } catch {
+  } catch (err) {
+    // Data unavailable — return null to indicate missing (not corrupt)
     return null;
   }
 }
 
-/** Load the latest diagnostic run report for an agent */
+/** Returns null if no data exists OR data is unreadable. Caller treats both as "no data available". */
 function loadLatestRun(
   workspace: string,
   agentId: string
@@ -196,12 +197,13 @@ function loadLatestRun(
     return JSON.parse(
       readFileSync(join(paths.runsDir, files[0]!), "utf8")
     ) as DiagnosticReport;
-  } catch {
+  } catch (err) {
+    // Data unavailable — return null to indicate missing (not corrupt)
     return null;
   }
 }
 
-/** Load the latest merkle root hash if available */
+/** Returns null if no data exists OR data is unreadable. Caller treats both as "no data available". */
 function loadMerkleRoot(workspace: string, agentId: string): string | null {
   try {
     const paths = getAgentPaths(workspace, agentId);
@@ -211,7 +213,8 @@ function loadMerkleRoot(workspace: string, agentId: string): string | null {
       root?: string;
     };
     return data.root ?? null;
-  } catch {
+  } catch (err) {
+    // Data unavailable — return null to indicate missing (not corrupt)
     return null;
   }
 }

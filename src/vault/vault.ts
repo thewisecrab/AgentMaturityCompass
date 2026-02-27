@@ -17,6 +17,12 @@ interface VaultPayload {
   secrets: Record<string, string>;
 }
 
+/**
+ * VaultSession holds the unlocked vault state in memory.
+ * SECURITY NOTE: The passphrase is held as a JS string (immutable, not zeroable).
+ * This is an accepted limitation of the Node.js runtime — a heap dump could reveal it.
+ * Mitigation: sessions are evicted after VAULT_SESSION_TTL_MS of inactivity.
+ */
 interface VaultSession {
   unlocked: boolean;
   payload: VaultPayload | null;
@@ -25,6 +31,21 @@ interface VaultSession {
 }
 
 const sessions = new Map<string, VaultSession>();
+const VAULT_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+/** Evict stale vault sessions that haven't been used in VAULT_SESSION_TTL_MS */
+function evictStaleSessions(): void {
+  const now = Date.now();
+  for (const [key, session] of sessions) {
+    if (session.lastUnlockedTs && now - session.lastUnlockedTs > VAULT_SESSION_TTL_MS) {
+      session.passphrase = null;
+      session.payload = null;
+      session.unlocked = false;
+      sessions.delete(key);
+    }
+  }
+}
+
 const UNSAFE_SECRET_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 function assertSafeSecretKey(secretKey: string): void {
@@ -88,7 +109,10 @@ function defaultPassphrase(): string {
   if (process.env.NODE_ENV === "test" || process.env.VITEST === "true" || process.env.VITEST === "1") {
     return "amc-test-passphrase";
   }
-  return "amc-local-default-passphrase";
+  throw new Error(
+    "AMC_VAULT_PASSPHRASE environment variable is required. " +
+    "Set it before using vault operations: export AMC_VAULT_PASSPHRASE='your-secure-passphrase'"
+  );
 }
 
 function parseVaultPayload(raw: string): VaultPayload {
@@ -142,6 +166,7 @@ function ensurePublicKeys(paths: ReturnType<typeof vaultPaths>, monitorPub: stri
 }
 
 function sessionFor(workspace: string): VaultSession {
+  evictStaleSessions();
   const current = sessions.get(workspace);
   if (current) {
     return current;
@@ -194,7 +219,7 @@ export function createVault(params: {
   try {
     chmodSync(paths.vaultFile, 0o600);
   } catch {
-    // ignore platform-specific chmod failures
+    /* chmod not supported on this platform */
   }
 
   const meta = {
@@ -233,6 +258,7 @@ export function unlockVault(workspace: string, passphrase?: string): void {
   try {
     payload = parseVaultPayload(decryptVaultPayload(envelope, phrase).toString("utf8"));
   } catch {
+    /* decryption or parse failed — rethrow with user-friendly message */
     throw new Error("Vault unlock failed: incorrect passphrase or corrupted vault.");
   }
   const session = sessionFor(workspace);
@@ -334,7 +360,7 @@ export function ensureVaultAndPublicKeys(workspace: string): void {
       try {
         unlockVault(workspace, unlockPhrase);
       } catch {
-        // Keep locked when passphrase is unavailable or incorrect.
+        /* passphrase unavailable or incorrect — keep vault locked */
       }
     }
     if (legacyMonitorPrivate && pathExists(paths.legacyMonitorPrivate)) {

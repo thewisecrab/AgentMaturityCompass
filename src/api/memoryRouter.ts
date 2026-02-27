@@ -66,7 +66,7 @@ export async function handleMemoryRoute(
       const { openLedger } = await import('../ledger/ledger.js');
       const { initLessonTables, extractLessonsFromCorrections } = await import('../learning/correctionMemory.js');
       const ledger = openLedger(workspace);
-      const db = (ledger as any).db as import('better-sqlite3').Database;
+      const db = ledger.db;
       initLessonTables(db);
       const agentId = body.agentId ?? 'default';
       const lessons = extractLessonsFromCorrections(db, agentId, workspace, {
@@ -87,7 +87,7 @@ export async function handleMemoryRoute(
       const { openLedger } = await import('../ledger/ledger.js');
       const { initLessonTables, buildLessonAdvisories } = await import('../learning/correctionMemory.js');
       const ledger = openLedger(workspace);
-      const db = (ledger as any).db as import('better-sqlite3').Database;
+      const db = ledger.db;
       initLessonTables(db);
       const advisories = buildLessonAdvisories(db, agentId);
       ledger.close();
@@ -108,7 +108,7 @@ export async function handleMemoryRoute(
       const { initLessonTables, generateCorrectionMemoryReport, renderCorrectionMemoryMarkdown } = await import('../learning/correctionMemory.js');
       const { parseWindowToMs } = await import('../utils/time.js');
       const ledger = openLedger(workspace);
-      const db = (ledger as any).db as import('better-sqlite3').Database;
+      const db = ledger.db;
       initLessonTables(db);
       const now = Date.now();
       const windowMs = parseWindowToMs(window);
@@ -134,7 +134,7 @@ export async function handleMemoryRoute(
       const { openLedger } = await import('../ledger/ledger.js');
       const { initLessonTables, expireStaleLessons } = await import('../learning/correctionMemory.js');
       const ledger = openLedger(workspace);
-      const db = (ledger as any).db as import('better-sqlite3').Database;
+      const db = ledger.db;
       initLessonTables(db);
       const expired = expireStaleLessons(db, agentId);
       ledger.close();

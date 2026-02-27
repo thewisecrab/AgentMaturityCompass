@@ -68,7 +68,7 @@ export function defaultNotaryConfig(): NotaryConfig {
         headerName: "x-amc-notary-auth",
         tsHeaderName: "x-amc-notary-ts",
         hmacAlg: "sha256",
-        maxClockSkewSeconds: 120
+        maxClockSkewSeconds: 30
       },
       allowedSignKinds: [
         "TRANSPARENCY_ROOT",

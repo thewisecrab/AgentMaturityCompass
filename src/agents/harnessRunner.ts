@@ -65,6 +65,11 @@ interface ProbeDefinition {
   check: (agent: AMCAgentBase, config: AgentConfig) => CapabilityProbe;
 }
 
+/** Type-safe runtime method check for duck-typed agent capabilities */
+function hasMethod(obj: unknown, method: string): boolean {
+  return typeof (obj as Record<string, unknown>)[method] === "function";
+}
+
 const PROBE_DEFINITIONS: ProbeDefinition[] = [
   // L1 — Agent exists
   {
@@ -143,7 +148,7 @@ const PROBE_DEFINITIONS: ProbeDefinition[] = [
     category: 'governance',
     weight: 5,
     check: (agent) => {
-      const has = typeof (agent as any).run === 'function';
+      const has = hasMethod(agent, 'run');
       return { capability: 'run_method', present: has, evidence: has ? 'Agent implements run()' : 'No run() method', scoreContribution: has ? 5 : 0 };
     },
   },
@@ -157,9 +162,9 @@ const PROBE_DEFINITIONS: ProbeDefinition[] = [
       const piiTypes = ['customer-support', 'legal-contract'];
       const relevant = piiTypes.includes(config.type);
       // Check if the agent class has methods suggesting PII handling
-      const hasPiiMethod = typeof (_agent as any).detectPII === 'function'
-        || typeof (_agent as any).handleRequest === 'function'
-        || typeof (_agent as any).analyzeContract === 'function';
+      const hasPiiMethod = hasMethod(_agent, 'detectPII')
+        || hasMethod(_agent, 'handleRequest')
+        || hasMethod(_agent, 'analyzeContract');
       const present = relevant ? hasPiiMethod : true; // Not relevant? Auto-pass
       return {
         capability: 'pii_awareness',
@@ -178,9 +183,9 @@ const PROBE_DEFINITIONS: ProbeDefinition[] = [
     category: 'compliance',
     weight: 7,
     check: (_agent, config) => {
-      const hasEscalation = typeof (_agent as any).resolveTicket === 'function'
-        || typeof (_agent as any).escalate === 'function'
-        || typeof (_agent as any).handleRequest === 'function';
+      const hasEscalation = hasMethod(_agent, 'resolveTicket')
+        || hasMethod(_agent, 'escalate')
+        || hasMethod(_agent, 'handleRequest');
       const relevant = ['customer-support', 'content-moderation'].includes(config.type);
       const present = relevant ? hasEscalation : true;
       return {
@@ -198,8 +203,8 @@ const PROBE_DEFINITIONS: ProbeDefinition[] = [
     category: 'compliance',
     weight: 6,
     check: (_agent, config) => {
-      const hasMethods = typeof (_agent as any).resolveTicket === 'function'
-        && typeof (_agent as any).closeTicket === 'function';
+      const hasMethods = hasMethod(_agent, 'resolveTicket')
+        && hasMethod(_agent, 'closeTicket');
       const relevant = config.type === 'customer-support';
       const present = relevant ? hasMethods : true;
       return {
@@ -217,9 +222,9 @@ const PROBE_DEFINITIONS: ProbeDefinition[] = [
     category: 'ops',
     weight: 4,
     check: (_agent, config) => {
-      const hasBatch = typeof (_agent as any).moderateBatch === 'function'
-        || typeof (_agent as any).runPipeline === 'function'
-        || typeof (_agent as any).getCustomerTickets === 'function';
+      const hasBatch = hasMethod(_agent, 'moderateBatch')
+        || hasMethod(_agent, 'runPipeline')
+        || hasMethod(_agent, 'getCustomerTickets');
       return {
         capability: 'batch_processing',
         present: hasBatch,
@@ -234,7 +239,7 @@ const PROBE_DEFINITIONS: ProbeDefinition[] = [
     weight: 5,
     check: (agent, _config) => {
       const hasStats = typeof agent.getStats === 'function';
-      const hasCustomStats = typeof (_agent as any).getBotStats === 'function';
+      const hasCustomStats = hasMethod(_agent, 'getBotStats');
       const present = hasStats;
       function _agent(a: any): any { return agent; }
       return {
@@ -267,7 +272,7 @@ const PROBE_DEFINITIONS: ProbeDefinition[] = [
     category: 'advanced',
     weight: 5,
     check: (_agent, config) => {
-      const has = typeof (_agent as any).resolveTicket === 'function';
+      const has = hasMethod(_agent, 'resolveTicket');
       const relevant = config.type === 'customer-support';
       return {
         capability: 'sla_monitoring',

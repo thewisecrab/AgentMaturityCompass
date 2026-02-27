@@ -1,15 +1,24 @@
-import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { randomBytes } from "node:crypto";
 
 export function ensureDir(path: string): void {
   mkdirSync(path, { recursive: true });
 }
 
 export function writeFileAtomic(path: string, data: string | Buffer, mode?: number): void {
-  ensureDir(dirname(path));
-  writeFileSync(path, data);
-  if (mode !== undefined) {
-    chmodSync(path, mode);
+  const dir = dirname(path);
+  ensureDir(dir);
+  const tmp = join(dir, `.${randomBytes(6).toString("hex")}.tmp`);
+  try {
+    writeFileSync(tmp, data, "utf8");
+    if (mode !== undefined) {
+      chmodSync(tmp, mode);
+    }
+    renameSync(tmp, path);
+  } catch (err) {
+    try { unlinkSync(tmp); } catch { /* ignore cleanup */ }
+    throw err;
   }
 }
 
