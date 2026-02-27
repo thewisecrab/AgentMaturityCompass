@@ -134,7 +134,7 @@ amc sector report --pack drug-discovery --output reports/drug.md
 | 💡 Technology | 5 | AI intelligence, ecosystems, infotainment, IP partnerships |
 | 🏛️ Governance | 5 | Digital identity, elections, legislation, citizen services |
 
-**380 questions** with specific regulatory article references (`HIPAA §164.312(a)(1)`, `EU AI Act Art. 5(1)(a)`, `FERPA 20 U.S.C. §1232g`, `UNECE WP.29 R155 §7`, `UNCAC Art. 7`). Every pack includes `riskTier`, EU AI Act classification, SDG alignment, certification path, and key risks.
+**382 questions** with specific regulatory article references (`HIPAA §164.312(a)(1)`, `EU AI Act Art. 5(1)(a)`, `FERPA 20 U.S.C. §1232g`, `UNECE WP.29 R155 §7`, `UNCAC Art. 7`). Every pack includes `riskTier`, EU AI Act classification, SDG alignment, certification path, and key risks.
 
 > 📖 [Full Sector Packs docs](docs/SECTOR_PACKS.md)
 
