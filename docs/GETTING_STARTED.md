@@ -75,7 +75,7 @@ AMC evaluates 5 dimensions, each with specific questions:
 3. **Trustworthiness** — Is it honest, safe, and consistent?
 4. **Operational Maturity** — Can it handle failures, scale, and recover?
 5. **Ecosystem & Compliance** — Does it play well with others and follow the rules?
-6. **Evaluation & Growth** — Does it detect over-compliance, calibrate behavior, and self-improve?
+
 
 ---
 

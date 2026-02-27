@@ -63,7 +63,6 @@ L1–L5 maturity per AMC dimension with confidence-weighted scores:
 - Instruction Following
 - Evidence & Auditability
 - Context & Memory Management
-- Evaluation & Growth
 - Security & Isolation
 
 ### Compliance

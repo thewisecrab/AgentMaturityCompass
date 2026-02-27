@@ -5,10 +5,10 @@
 ```
 🧭 AMC Score: 3.7 / 5.0 — Defined
    Strategic Agent Ops ····· 3.2  (17 questions)
-   Skills ·················· 4.1  (33 questions)
-   Resilience ·············· 3.8  (27 questions)
+   Skills ·················· 4.1  (35 questions)
+   Resilience ·············· 3.8  (30 questions)
    Leadership & Autonomy ··· 3.5  (21 questions)
-   Culture & Alignment ····· 3.9  (28 questions)
+   Culture & Alignment ····· 3.9  (23 questions)
    Evidence: ✓ Merkle root 9c4e…a7f0 (Ed25519)
 ```
 
@@ -161,11 +161,10 @@ amc sector report --pack drug-discovery --output reports/drug.md
 | Dimension | Questions | Focus |
 |-----------|-----------|-------|
 | Strategic Agent Operations | 17 | Mission clarity, scope adherence, decision traceability |
-| Skills | 33 | Tool mastery, injection defense, DLP, zero-trust |
-| Resilience | 27 | Graceful degradation, circuit breakers, monitor bypass resistance |
+| Skills | 35 | Tool mastery, injection defense, DLP, zero-trust |
+| Resilience | 30 | Graceful degradation, circuit breakers, monitor bypass resistance |
 | Leadership & Autonomy | 21 | Structured logs, traces, cost tracking, SLO monitoring |
-| Culture & Alignment | 20 | Test harnesses, benchmarks, feedback loops, regression detection |
-| Evaluation & Growth | 8 | Over-compliance detection, behavioral calibration, self-improvement |
+| Culture & Alignment | 23 | Test harnesses, benchmarks, feedback loops, over-compliance detection |
 
 | Level | Name | Description |
 |-------|------|-------------|
