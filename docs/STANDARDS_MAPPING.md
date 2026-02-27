@@ -17,7 +17,7 @@ AMC is a **superset** of existing AI and software maturity standards. Each major
 | **Microsoft Responsible AI** | Principles-based guidelines | Operational enforcement modules, not just principles |
 | **Google/HF Model Cards** | Single-model documentation | Org-level agent maturity, multi-model environments, operating model coverage |
 
-**Bottom line:** AMC operationalizes these standards into 5 dimensions, 87 scored questions, and executable evidence modules. It is the only framework that combines *assessment*, *evidence*, *improvement*, and *certification* in a single automated system.
+**Bottom line:** AMC operationalizes these standards into 5 dimensions, 126 scored questions, and executable evidence modules. It is the only framework that combines *assessment*, *evidence*, *improvement*, and *certification* in a single automated system.
 
 ---
 

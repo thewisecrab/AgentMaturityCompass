@@ -24,6 +24,8 @@ import { loadValueContract } from "../src/value/valueStore.js";
 import { attributeValue } from "../src/value/valueAttribution.js";
 import { tailTransparencyEntries } from "../src/transparency/logCli.js";
 
+afterEach(() => { vi.useRealTimers(); });
+
 const roots: string[] = [];
 
 function newWorkspace(): string {

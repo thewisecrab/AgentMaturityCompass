@@ -43,7 +43,7 @@ amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3%20Defin
 
 > 📖 [Full guide: install → first score → L5](docs/GETTING_STARTED.md)
 
-[![Tests](https://img.shields.io/badge/tests-2%2C699%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-2%2C722%20passing-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 [![Questions](https://img.shields.io/badge/questions-126-blue)]()
 [![Modules](https://img.shields.io/badge/scoring%20modules-74-green)]()

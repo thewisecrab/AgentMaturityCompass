@@ -13,6 +13,8 @@ import { verifyLatestForecast } from "../src/forecast/forecastVerifier.js";
 import { detectSuspiciousMaturityJump } from "../src/forecast/anomalyDetector.js";
 import { startStudioApiServer } from "../src/studio/studioServer.js";
 
+afterEach(() => { vi.useRealTimers(); });
+
 const roots: string[] = [];
 
 function newWorkspace(): string {

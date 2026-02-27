@@ -17,6 +17,8 @@ import { decideApprovalForIntent } from "../src/approvals/approvalEngine.js";
 import { listApprovalDecisions } from "../src/approvals/approvalChainStore.js";
 import { questionBank } from "../src/diagnostic/questionBank.js";
 
+afterEach(() => { vi.useRealTimers(); });
+
 const roots: string[] = [];
 
 function newWorkspace(): string {

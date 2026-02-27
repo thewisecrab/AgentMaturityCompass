@@ -104,17 +104,17 @@ export async function generateFleetReport(params: {
 }> {
   const agents = listAgents(params.workspace).map((row) => row.id);
   const effectiveAgents = agents.length > 0 ? agents : ["default"];
-  const reports: DiagnosticReport[] = [];
-  for (const agentId of effectiveAgents) {
-    const report = await runDiagnostic({
-      workspace: params.workspace,
-      window: params.window,
-      targetName: "default",
-      claimMode: "auto",
-      agentId
-    });
-    reports.push(report);
-  }
+  const reports: DiagnosticReport[] = await Promise.all(
+    effectiveAgents.map((agentId) =>
+      runDiagnostic({
+        workspace: params.workspace,
+        window: params.window,
+        targetName: "default",
+        claimMode: "auto",
+        agentId,
+      })
+    )
+  );
 
   const ledger = openLedger(params.workspace);
   const now = Date.now();
