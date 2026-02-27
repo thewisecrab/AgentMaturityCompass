@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -659,6 +660,11 @@ footer{background:var(--black);border-top:1px solid var(--bdr);padding:2.25rem 0
   #improve [style*="minmax(260px"]{grid-template-columns:1fr!important}
   #improve [style*="minmax(200px"]{grid-template-columns:1fr!important}
 }
+/* ── SKIP LINK ───────────────────────────────────── */
+.skip-link{position:fixed;top:-100%;left:1rem;z-index:9999;background:var(--g);color:#000;
+  font:.75rem/1 var(--mono);font-weight:700;padding:.5rem 1rem;text-decoration:none;
+  border-radius:3px;letter-spacing:.05em;transition:top .1s}
+.skip-link:focus{top:1rem}
 /* ── COPY BUTTON ────────────────────────────────── */
 .copy-btn{position:absolute;top:.5rem;right:.5rem;background:rgba(0,255,65,.08);border:1px solid var(--bdr);
   color:var(--t3);font:.6rem/1 var(--mono);padding:.3rem .6rem;cursor:pointer;letter-spacing:.08em;
@@ -835,7 +841,6 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   footer{padding:1.5rem 0 4rem}
   
   /* Sticky bar */
-  #sticky{padding:.6rem .75rem}
   #sticky .bp{font-size:.65rem;padding:.5rem 1rem;min-height:40px}
   
   /* Code blocks */
@@ -902,7 +907,6 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   .dims-h2{font-size:clamp(1.3rem,5vw,1.8rem)}
   .dims-lead{font-size:.95rem!important}
   .rwrap{width:300px!important;height:300px!important;margin:0 auto}
-  .rlabel{font-size:9px}
   
   /* Scale — maturity levels */
   .scard{padding:1.125rem .875rem}
@@ -983,6 +987,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 </style>
 </head>
 <body class="mt" id="body">
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <div id="scroll-prog" aria-hidden="true"></div>
 <div id="cur" aria-hidden="true"></div>
 <div id="cur-ring" aria-hidden="true"></div>
@@ -1019,7 +1024,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="nbtn" target="_blank" rel="noopener">View on GitHub ↗</a>
 </div>
 
-<main>
+<main id="main-content">
 
 <!-- HERO -->
 <section id="hero" aria-label="Hero — AI Agent Trust Scoring">
@@ -1674,7 +1679,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 <div class="dv"><i aria-hidden="true"></i></div>
 
 <!-- ARSENAL -->
-<section id="arsenal" aria-labelledby="ars-h">
+<section id="arsenal" aria-label="Coverage — 74 Ways Your Agent Can Fail">
 <div class="w">
   <div class="slabel"><span class="slabel-num">10</span><em>Coverage</em></div>
   <div class="so"><h2 class="ars-h2" id="ars-h">74 Ways Your Agent Can Fail.<br>AMC Tests All of Them.</h2><p class="ars-lead">From prompt injection to zombie agent persistence, over-compliance detection, economic DoS, and cross-session memory poisoning — grounded in peer-reviewed research.</p></div>
