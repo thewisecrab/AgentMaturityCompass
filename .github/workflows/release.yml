@@ -110,6 +110,26 @@ jobs:
             echo '```'
           } > dist/release-notes.md
 
+      - name: Update Homebrew formula
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          VERSION=$(node -e 'process.stdout.write(require("./package.json").version)')
+          TARBALL="https://registry.npmjs.org/agent-maturity-compass/-/agent-maturity-compass-${VERSION}.tgz"
+          SHA256=$(curl -sL "$TARBALL" | sha256sum | cut -d' ' -f1)
+
+          git clone https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/thewisecrab/homebrew-tap.git /tmp/homebrew-tap
+          sed -i "s|url \".*\"|url \"${TARBALL}\"|" /tmp/homebrew-tap/Formula/amc.rb
+          sed -i "s|sha256 \"PLACEHOLDER_SHA256\"\|sha256 \".*\"\|sha256 \"${SHA256}\"|" /tmp/homebrew-tap/Formula/amc.rb
+
+          cd /tmp/homebrew-tap
+          git config user.name "AMC Release Bot"
+          git config user.email "releases@agentmaturitycompass.dev"
+          git add Formula/amc.rb
+          git diff --staged --quiet || git commit -m "chore: bump amc formula to v${VERSION}"
+          git push
+
       - name: Create GitHub release and upload assets
         uses: softprops/action-gh-release@v2
         with:
