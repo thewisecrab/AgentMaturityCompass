@@ -5,9 +5,9 @@ All notable changes to AMC are documented here.
 ## [Unreleased]
 
 ### Added
-- **AMC Sector Packs** — 40 industry-specific assessment packs across 7 stations with 339 diagnostic questions
+- **AMC Sector Packs** — 40 industry-specific assessment packs across 7 stations with 380 diagnostic questions
   - **7 Stations**: Environment (6), Health (9), Wealth (5), Education (5), Mobility (5), Technology (5), Governance (5)
-  - **339 questions** with specific regulatory article references (e.g., `HIPAA §164.312(a)(1)`, `EU AI Act Art. 5(1)(a)`, `FERPA 20 U.S.C. §1232g`, `UNECE WP.29 R155 §7`, `UNCAC Art. 7`)
+  - **380 questions** with specific regulatory article references (e.g., `HIPAA §164.312(a)(1)`, `EU AI Act Art. 5(1)(a)`, `FERPA 20 U.S.C. §1232g`, `UNECE WP.29 R155 §7`, `UNCAC Art. 7`)
   - **Per-pack enterprise metadata**: `riskTier`, `euAIActClassification`, `sdgAlignment`, `certificationPath`, `keyRisks`, `certificationThreshold`
   - **Per-question L1/L3/L5 maturity descriptors** — industry-specific, not generic
   - **Scoring API**: `scoreIndustryPack()`, `getIndustryPack()`, `getIndustryPacksByStation()`, `listIndustryPacks()`, `getStationSummary()`
