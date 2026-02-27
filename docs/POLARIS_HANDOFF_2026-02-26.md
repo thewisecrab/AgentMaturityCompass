@@ -6,7 +6,7 @@
 
 ## What Was Built
 
-AMC now has **74 score modules**, **74 assurance packs**, and **126 diagnostic questions** — up from 69/66/111. All derived from 17 peer-reviewed 2026 arXiv papers on agentic AI security, governance, and trust.
+AMC now has **74 score modules**, **86 assurance packs**, and **138 diagnostic questions** — up from 69/66/111. All derived from 17 peer-reviewed 2026 arXiv papers on agentic AI security, governance, and trust.
 
 ### 5 New Score Modules
 | Module | Source Paper | What It Scores |
@@ -53,13 +53,13 @@ Full paper analysis: `docs/RESEARCH_PAPERS_2026.md` (461 lines, 17 papers analyz
 ## Test Results
 - **2646 passing, 2 flaky** (perf timing tests, pre-existing)
 - All new modules: 91 new tests, all green
-- Question bank: 126 questions validated against schema
+- Question bank: 138 questions validated against schema
 
 ## What the Website Needs
 
 The Design Council should update the AMC website (`website/index.html`) to reflect:
 
-1. **Updated stats**: 74 score modules (was 69), 74 assurance packs (was 66), 126 diagnostic questions (was 111)
+1. **Updated stats**: 74 score modules (was 69), 86 assurance packs (was 66), 138 diagnostic questions (was 111)
 2. **New "2026 Research-Backed" section**: AMC is now grounded in 17 peer-reviewed papers — this is a massive differentiator. No other framework has this.
 3. **Key narrative**: "Static permissions are dead — AMC scores dynamic, context-aware, per-step authorization." This is the dominant theme across all 2026 papers.
 4. **New capability highlights**:
@@ -73,5 +73,5 @@ The Design Council should update the AMC website (`website/index.html`) to refle
 6. **The "84-point gap" in the current site should be updated** to reflect the new 126-question diagnostic
 
 ## Commit
-`d8e6b2c` — feat: research-derived modules + docs update — 74 modules, 74 packs, 126 questions
+`d8e6b2c` — feat: research-derived modules + docs update — 74 modules, 74 packs, 138 questions
 Pushed to `main` on `thewisecrab/AgentMaturityCompass`

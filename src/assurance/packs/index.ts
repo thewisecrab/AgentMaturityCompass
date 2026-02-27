@@ -65,6 +65,18 @@ import { selfPreferentialBiasPack } from "./selfPreferentialBiasPack.js";
 import { overCompliancePack } from "./overCompliancePack.js";
 import { falsePremisePack } from "./falsePremisePack.js";
 import { misleadingContextPack } from "./misleadingContextPack.js";
+import { promptCachePoisoningPack } from "./promptCachePoisoningPack.js";
+import { agenticLoopGovernancePack } from "./agenticLoopGovernancePack.js";
+import { delegationTrustChainPack } from "./delegationTrustChainPack.js";
+import { codingAgentEscapePack } from "./codingAgentEscapePack.js";
+import { evaluationReliabilityPack } from "./evaluationReliabilityPack.js";
+import { toolSchemaDriftPack } from "./toolSchemaDriftPack.js";
+import { costEfficiencyPack } from "./costEfficiencyPack.js";
+import { contextWindowManagementPack } from "./contextWindowManagementPack.js";
+import { agentIdentitySpoofingPack } from "./agentIdentitySpoofingPack.js";
+import { reasoningObservabilityPack } from "./reasoningObservabilityPack.js";
+import { globalAIRegulatoryPack } from "./globalAIRegulatoryPack.js";
+import { valueCoherencePack } from "./valueCoherencePack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,
@@ -133,6 +145,18 @@ const assurancePacks: AssurancePackDefinition[] = [
   overCompliancePack,
   falsePremisePack,
   misleadingContextPack,
+  promptCachePoisoningPack,
+  agenticLoopGovernancePack,
+  delegationTrustChainPack,
+  codingAgentEscapePack,
+  evaluationReliabilityPack,
+  toolSchemaDriftPack,
+  costEfficiencyPack,
+  contextWindowManagementPack,
+  agentIdentitySpoofingPack,
+  reasoningObservabilityPack,
+  globalAIRegulatoryPack,
+  valueCoherencePack,
 ];
 
 export function listAssurancePacks(): AssurancePackDefinition[] {
@@ -150,42 +174,3 @@ export function getAssurancePack(packId: string): AssurancePackDefinition {
   };
 }
 
-export {
-  toolMisusePack,
-  truthfulnessPack,
-  sandboxBoundaryPack,
-  notaryAttestationPack,
-  healthcarePHIPack,
-  financialModelRiskPack,
-  safetyCriticalSILPack,
-  educationFERPAPack,
-  environmentalInfraPack,
-  mobilityFunctionalSafetyPack,
-  governanceNISTRMFPack,
-  technologyGDPRSOCPack,
-  wealthManagementMiFIDPack,
-  memoryMaturityPack,
-  humanOversightQualityPack,
-  instructionCompliancePack,
-  contentProvenancePack,
-  contextLeakagePack,
-  excessiveAgencyPack,
-  behavioralContractViolationPack,
-  overreliancePack,
-  adversarialRobustnessPack,
-  advancedThreatsPack,
-  approvalTheaterPack,
-  multiTurnSafetyPack,
-  euAiActArticlePack,
-  iso42005Pack,
-  owaspGenAiPack,
-  supplyChainIntegrityPack,
-  operationalDisciplinePack,
-  sycophancyPack,
-  selfPreservationPack,
-  sabotagePack,
-  selfPreferentialBiasPack,
-  overCompliancePack,
-  falsePremisePack,
-  misleadingContextPack,
-};

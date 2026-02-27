@@ -30,7 +30,7 @@ Existing frameworks address fragments of this problem. The NIST AI Risk Manageme
 
 This paper introduces **AMC (Agent Maturity Certification)**, which makes four primary contributions:
 
-1. **A six-dimensional maturity model** with 126 diagnostic questions across six levels (L0–L5), providing the first structured instrument covering Strategic Agent Operations, Skills, Resilience, Leadership & Autonomy, Culture & Alignment, and Evaluation & Growth holistically for autonomous agents.
+1. **A six-dimensional maturity model** with 138 diagnostic questions across six levels (L0–L5), providing the first structured instrument covering Strategic Agent Operations, Skills, Resilience, Leadership & Autonomy, Culture & Alignment, and Evaluation & Growth holistically for autonomous agents.
 
 2. **An Execution-Proof Evidence System (EPES)** with four trust tiers and calibrated score multipliers, making AMC demonstrably resistant to documentation gaming—a critical property absent from all prior frameworks.
 
@@ -143,7 +143,7 @@ Level assignment within each dimension is not binary per-question but continuous
 
 ### 3.4 The 126-Question Diagnostic Structure
 
-The AMC diagnostic comprises 126 questions distributed across the six dimensions: Strategic Agent Operations (17 questions), Skills (33 questions), Resilience (27 questions), Leadership & Autonomy (21 questions), Culture & Alignment (20 questions), and Evaluation & Growth (8 questions, including over-compliance detection based on H-Neurons research [arXiv:2512.01797]). Each question has six level-specific descriptors (L0–L5) and an associated evidence requirement specification. The full diagnostic is available to licensed AMC users; this paper describes the structure and provides representative samples for scientific transparency.
+The AMC diagnostic comprises 138 questions distributed across the six dimensions: Strategic Agent Operations (17 questions), Skills (33 questions), Resilience (27 questions), Leadership & Autonomy (21 questions), Culture & Alignment (20 questions), and Evaluation & Growth (8 questions, including over-compliance detection based on H-Neurons research [arXiv:2512.01797]). Each question has six level-specific descriptors (L0–L5) and an associated evidence requirement specification. The full diagnostic is available to licensed AMC users; this paper describes the structure and provides representative samples for scientific transparency.
 
 **Sample Diagnostic Questions (one per dimension):**
 
@@ -380,7 +380,7 @@ Platform validation: 2,699 automated tests passing across 207 test files as of t
 | Evaluation & Growth | 13.0 | 95.5 | +82.5 |
 | **Composite** | **12.4** | **94.0** | **+81.6** |
 
-CMB reached an overall score of 94/100 with OBSERVED execution evidence across all 126 questions and OBSERVED_HARDENED continuous monitoring evidence for 120/126 questions. The composite confidence interval at final assessment was ±1.8, reflecting high evidence density.
+CMB reached an overall score of 94/100 with OBSERVED execution evidence across all 138 questions and OBSERVED_HARDENED continuous monitoring evidence for 120/138 questions. The composite confidence interval at final assessment was ±1.8, reflecting high evidence density.
 
 ### 6.3 Case Study 2: DataPipelineBot (DPB) — Autonomous Self-Improvement
 
@@ -434,7 +434,7 @@ The +84-point inflation (89% relative inflation over the true score) demonstrate
 
 To assess AMC score reliability, we conducted a test-retest reliability study: 10 independent scoring runs on CMB over 5 days, varying only the timing of evidence collection (not the agent implementation). Results: mean composite score 93.8, standard deviation 0.94, intraclass correlation coefficient (ICC) = 0.97, indicating excellent reliability [CITATION: Koo & Mae, 2016].
 
-We also assessed inter-rater reliability by having two independent human assessors evaluate CMB's maturity levels on the 126 questions before EPES assignment. The weighted Cohen's κ was 0.82 (substantial to almost perfect agreement), validating that the diagnostic question descriptions are interpretable consistently across assessors.
+We also assessed inter-rater reliability by having two independent human assessors evaluate CMB's maturity levels on the 138 questions before EPES assignment. The weighted Cohen's κ was 0.82 (substantial to almost perfect agreement), validating that the diagnostic question descriptions are interpretable consistently across assessors.
 
 ---
 

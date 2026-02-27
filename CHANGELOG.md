@@ -47,7 +47,7 @@ All notable changes to AMC are documented here.
 - **Dashboard v13** — zero-state first-run, rich trend tooltips, crosshair, sidebar collapse, skip-link, prefers-reduced-motion (council score: 9.39/10)
 
 ### Changed
-- Question bank expanded: 118 → 126 questions (added Evaluation & Growth dimension)
+- Question bank expanded: 118 → 138 questions (added Evaluation & Growth dimension)
 - Assurance packs expanded: 71 → 74 packs
 - Test count: 2656 → 2699 (43 guide system tests added)
 - Website stats updated across all surfaces

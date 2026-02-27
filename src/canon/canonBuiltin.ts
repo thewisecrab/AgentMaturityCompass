@@ -57,11 +57,11 @@ export function builtInCanon(): CompassCanon {
     compassCanon: {
       version: 1,
       dimensions: [
-        { id: "D1", name: "Strategic Agent Operations", questionCount: 15 },
-        { id: "D2", name: "Agent Leadership", questionCount: 18 },
-        { id: "D3", name: "Agent Culture", questionCount: 23 },
-        { id: "D4", name: "Agent Resilience", questionCount: 29 },
-        { id: "D5", name: "Agent Skills", questionCount: 41 }
+        { id: "D1", name: "Strategic Agent Operations", questionCount: 16 },
+        { id: "D2", name: "Agent Leadership", questionCount: 20 },
+        { id: "D3", name: "Agent Culture", questionCount: 26 },
+        { id: "D4", name: "Agent Resilience", questionCount: 32 },
+        { id: "D5", name: "Agent Skills", questionCount: 44 }
       ],
       questions,
       fourCs: [

@@ -22,7 +22,7 @@ amc whatif equalizer --agent <agentId> --set AMC-1.1=3 --set AMC-3.3.1=5
 
 ## What Is Predicted
 
-- top level deltas across 126 questions
+- top level deltas across 138 questions
 - effective levels after applying target values
 - governor execute/simulate permission matrix
 - projected `AutonomyAllowanceIndex`

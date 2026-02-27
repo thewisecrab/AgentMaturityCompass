@@ -347,7 +347,7 @@ describe("guideGenerator", () => {
     const json = guideToJSON(guide);
 
     expect(json.totalQuestions).toBe(questionBank.length);
-    expect(json.totalQuestions).toBeGreaterThanOrEqual(126);
+    expect(json.totalQuestions).toBeGreaterThanOrEqual(138);
   });
 
   it("diffGuides tracks per-question level improvements", () => {

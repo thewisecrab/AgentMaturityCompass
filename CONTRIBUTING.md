@@ -58,7 +58,7 @@ All tests must pass before submitting a PR.
 | Area | Files | What to know |
 |------|-------|-------------|
 | Scoring engine | `src/scoring/` | 74 modules, each self-contained |
-| Diagnostic questions | `src/diagnostic/questionBank.ts` | 126 questions across 6 dimensions |
+| Diagnostic questions | `src/diagnostic/questionBank.ts` | 138 questions across 6 dimensions |
 | Assurance packs | `src/assurance/` | 74 attack packs, deterministic |
 | Agent Guide | `src/guide/guideGenerator.ts` | Guardrails, agent instructions, CI gates |
 | CLI | `src/cli.ts` | ~15K lines, all commands |

@@ -58,7 +58,7 @@ amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3%20Defin
 ```
 Agent (untrusted) → AMC Gateway (trusted observer) → Evidence Ledger (signed, hash-chained)
                                                               ↓
-                                                Scoring Engine (126 questions, 5 dimensions)
+                                                Scoring Engine (138 questions, 5 dimensions)
                                                               ↓
                                                AMC Studio (dashboard + API)
 ```
@@ -144,7 +144,7 @@ amc sector report --pack drug-discovery --output reports/drug.md
 
 | Module | What It Does |
 |--------|-------------|
-| **AMC Score** | 126 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
+| **AMC Score** | 138 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
 | **AMC Shield** | 74 attack packs: injection, exfiltration, sycophancy, sabotage, over-compliance, and more |
 | **AMC Enforce** | Governor engine with policy packs, approval workflows, scoped leases |
 | **AMC Vault** | Ed25519 key vault, Merkle-tree evidence chains, HSM/TPM support |
