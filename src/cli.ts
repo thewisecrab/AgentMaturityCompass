@@ -276,6 +276,8 @@ import {
   verifyTransparencyBundle,
   verifyTransparencyLog
 } from "./transparency/logCli.js";
+import { registerTransparencyReportCommands } from "./transparency/transparencyReportCli.js";
+import { registerMcpCommands } from "./mcp/mcpCli.js";
 import {
   transparencyMerkleProofCli,
   transparencyMerkleRebuildCli,
@@ -15817,6 +15819,10 @@ demo
       console.log(chalk.gray("  Open http://127.0.0.1:3212/console for the dashboard.\n"));
     }
   });
+
+// Agent Transparency Report + MCP Server
+registerTransparencyReportCommands(program);
+registerMcpCommands(program);
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = normalizeCliErrorMessage(error);
