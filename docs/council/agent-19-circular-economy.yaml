@@ -1,0 +1,106 @@
+agent_id: '19'
+pack_id: circular-economy
+score: 6.0
+rationale: |
+  Strengths (what’s covered):
+  - EU Taxonomy DNSH is explicitly operationalized: WLT-CE-1 maps to Regulation 2020/852 Art. 3 (substantial contribution) and Art. 17 (Do No Significant Harm) and correctly expects coverage across all six environmental objectives + minimum social safeguards (Art. 18).
+  - Greenwashing controls are meaningfully present via SFDR Art. 6–11 + SEC ESG fund naming rule anchoring (WLT-CE-2), including PAIs and Art. 8/9 substantiation expectations.
+  - Climate risk management is present via TCFD + ECB expectations, including scenario analysis and explicit Scope 1–3 footprinting at L5 (WLT-CE-3).
+  - Circularity itself is not just “marketing”: WLT-CE-8 references Ellen MacArthur Foundation indicators (Material Circularity Indicator) and ISO 14044 lifecycle assessment.
+  - A mature finance-grade governance surface is included (SR 11-7 / EBA ESG risk management for ESG models in WLT-CE-6; EU Green Bond Standard 2023/2631 in WLT-CE-7).
+
+  Key completeness issues (what’s missing / mis-scoped vs the requested key regulations):
+  - SEC Climate Rules disclosure specifics are not tested. The pack references “SEC ESG Disclosure Rules” generally, but does not operationalize Regulation S-K (17 CFR §229.1502) greenhouse gas emissions disclosure duties (governance of boundaries, methodologies, attestation readiness, and disclosure controls).
+  - CSRD/ESRS coverage is under-scoped against the requested “ESRS E1-6 Scope 3” emphasis. WLT-CE-9 only targets ESRS E1–E5 and does not explicitly test ESRS E1 value-chain (Scope 3) quantification/coverage requirements (e.g., categories, estimation hierarchy, and boundary controls), leaving a common assurance failure mode.
+  - LCA governance is incomplete: ISO 14044 is referenced, but ISO 14040 (principles/framework, goal & scope definition discipline, and critical review triggers) is not tested, which weakens auditability of circularity and impact claims.
+  - EU Taxonomy disclosure mechanics are not tested: the pack assesses alignment (Art. 3/17/18), but does not test Article 8 KPI disclosure for taxonomy-eligible/aligned turnover/CapEx/OpEx, which is the enforcement-facing output for many CSRD-aligned disclosures.
+  - Ellen MacArthur “CE100” is not operationalized as a programmatic maturity/governance signal (commitment cadence, public targets, and evidence of participation/knowledge-sharing), despite being called out as a key reference for this agent’s remit.
+
+gaps:
+  critical:
+    - id: GAP-19-C1
+      what: "SEC Climate Rules (Regulation S-K 17 CFR §229.1502) are not explicitly tested; the pack relies on generic SEC ESG references and does not operationalize emissions disclosure controls (boundaries/methodologies/disclosure controls)."
+      law: "SEC Climate Rules — 17 CFR §229.1502 (GHG emissions disclosure)"
+      risk: "A firm can score well on SFDR/Taxonomy-style greenwashing controls but still fail SEC climate disclosure duties for GHG emissions (governance of organizational/operational boundaries, methodology consistency, internal controls over disclosure), creating enforcement and litigation exposure in US capital markets."
+      fix:
+        code: |
+          q('WLT-CE-10', 'Compliance', 'Does the agent support SEC Climate Rules greenhouse gas emissions disclosure per Regulation S-K 17 CFR §229.1502, including (1) defined organizational/operational boundaries, (2) consistent methodology and calculation controls, (3) disclosure controls & procedures and audit trail, and (4) ability to generate filing-ready disclosures with documented assumptions and change history?', 'SEC Climate Rules — 17 CFR §229.1502', 'No SEC climate disclosure readiness: boundaries/methodologies are undefined or inconsistent and disclosures cannot be reproduced with evidence', 'Has documented methodology and can generate emissions outputs, but boundary decisions, change control, and disclosure controls are incomplete or not audit-ready', 'Full §229.1502 readiness with boundary governance, methodology change control, disclosure controls & procedures, evidence retention, and filing-ready outputs aligned to SEC expectations', 15)
+        score_impact: 1.6
+
+    - id: GAP-19-C2
+      what: "CSRD/ESRS is under-scoped against the requested ESRS E1-6 + Scope 3 emphasis; WLT-CE-9 stops at E1–E5 and does not explicitly test ESRS E1 value-chain (Scope 3) quantification coverage, estimation hierarchy, and assurance-ready evidence."
+      law: "EU CSRD 2022/2464; ESRS E1 (incl. Scope 3/value-chain emissions)"
+      risk: "Organizations can produce ESRS-shaped narratives but fail assurance because Scope 3 is incomplete or inconsistent (missing categories, weak estimation controls, unclear boundaries), leading to audit qualifications, restatements, and greenwashing allegations."
+      fix:
+        code: |
+          q('WLT-CE-11', 'Compliance', 'Does the agent implement CSRD-aligned ESRS E1 value-chain (Scope 3) governance, including (1) coverage across relevant Scope 3 categories, (2) boundary and consolidation approach documentation, (3) estimation hierarchy and data quality scoring, and (4) assurance-ready evidence bundles and change logs for reported Scope 3 metrics?', 'EU CSRD 2022/2464; ESRS E1 (Scope 3/value-chain)', 'No ESRS E1 Scope 3 governance: categories are not mapped, boundaries are unclear, and reported figures are not reproducible with evidence', 'Maps major categories and produces estimates, but data quality/coverage controls and assurance evidence are incomplete', 'Full ESRS E1 Scope 3 governance with category mapping, boundary documentation, estimation controls, data quality scoring, and auditor-ready evidence packs with change history', 12)
+        score_impact: 1.3
+
+  major:
+    - id: GAP-19-M1
+      what: "EU Taxonomy Article 8 disclosure (taxonomy-eligible/aligned turnover, CapEx, OpEx KPIs) is not tested; current coverage focuses on alignment criteria (Art. 3/17/18) rather than the disclosure outputs regulators and auditors inspect."
+      law: "EU Taxonomy Regulation 2020/852 Art. 8 (disclosure/KPIs)"
+      risk: "Teams may correctly assess activity alignment but still fail mandatory KPI disclosures, causing CSRD report noncompliance, inconsistent investor disclosures, and supervisory findings (taxonomy KPI misstatement)."
+      fix:
+        code: |
+          q('WLT-CE-12', 'Transparency', 'Does the agent compute and disclose EU Taxonomy Article 8 KPIs (taxonomy-eligible vs taxonomy-aligned turnover, CapEx, OpEx) with traceable mappings from financial line items to underlying economic activities, including evidence for eligibility/alignment and reconciliation to financial statements?', 'EU Taxonomy 2020/852 Art. 8', 'No Art. 8 KPI disclosures: taxonomy KPIs are not computed or cannot be reconciled to financial statements and activity evidence', 'Computes taxonomy KPIs for some activities, but mappings, reconciliations, and evidence are incomplete', 'Full Art. 8 KPI disclosure readiness with traceable mappings, reconciliation to financial statements, evidence links, and repeatable disclosure-generation workflows', 12)
+        score_impact: 0.9
+
+    - id: GAP-19-M2
+      what: "ISO 14040 (LCA principles and framework) is not tested; the pack cites ISO 14044 but misses goal & scope discipline and critical review triggers that determine whether LCA-backed claims are defensible."
+      law: "ISO 14040:2006; ISO 14044:2006 (LCA)"
+      risk: "Circularity/LCA claims can be produced without defensible goal-and-scope definition, functional unit discipline, or critical review where required—creating green-claims vulnerability and audit failures when LCA is used in investor or product disclosures."
+      fix:
+        code: |
+          q('WLT-CE-13', 'Traceability', 'Does the agent ensure lifecycle assessment (LCA) governance aligned to ISO 14040/14044, including (1) explicit goal & scope definition and functional unit, (2) boundary/allocation/cut-off rules, (3) data quality requirements, and (4) critical review triggers and evidence retention when LCA supports external claims?', 'ISO 14040:2006; ISO 14044:2006', 'No LCA governance: LCAs are ad-hoc with unclear scope/boundaries and no critical review readiness for external claims', 'Maintains basic LCA templates and assumptions, but allocation/boundary discipline and critical review readiness are inconsistent', 'Full ISO 14040/14044 governance with goal/scope controls, data quality rules, critical review workflow triggers, and auditable evidence bundles for claim substantiation', 10)
+        score_impact: 0.7
+
+    - id: GAP-19-M3
+      what: "Ellen MacArthur CE100 is referenced only indirectly (principles/indicators) and not operationalized as a governance/maturity control (commitments, target cadence, knowledge-sharing evidence)."
+      law: "Ellen MacArthur Foundation CE100 (program expectations / good practice signal)"
+      risk: "Circular economy positioning may remain theoretical: without programmatic commitments, target cadence, and external benchmarking/learning loops, firms can overstate circular maturity and under-deliver on measurable outcomes, increasing credibility risk with investors and stakeholders."
+      fix:
+        code: |
+          q('WLT-CE-14', 'Governance', 'Does the agent support programmatic circular economy governance aligned to Ellen MacArthur Foundation CE100 practices, including defined circular targets/KPIs, periodic progress reporting, evidence of participation/benchmarking (or equivalent peer learning), and decision gates that tie investment choices to verified circular outcomes?', 'Ellen MacArthur Foundation CE100', 'No programmatic circular governance: circular targets are absent or not linked to decisions and progress is not evidenced', 'Has circular targets and reports progress, but benchmarking/learning loops and decision gating are incomplete', 'Full CE100-style governance with targets/KPIs, periodic reporting, benchmarking/peer-learning evidence, and investment decision gates tied to verified circular outcomes', 8)
+        score_impact: 0.5
+
+  minor:
+    - id: GAP-19-m1
+      what: "CSRD question wording references ESRS E1–E5; if ‘ESRS E1-6’ is an internal expectation, the pack should explicitly clarify scope (E1–E5 environmental + any additional E-standard expectations) to avoid ambiguity for assessors and auditors."
+      law: "CSRD/ESRS scoping clarity (pack governance)"
+      risk: "Assessment ambiguity: teams may interpret ESRS scope differently, leading to inconsistent scoring and mismatched assurance readiness across entities/portfolios."
+      fix:
+        code: |
+          q('WLT-CE-15', 'Governance', 'Does the program maintain an explicit ESRS scope map for CSRD reporting (which ESRS standards/data points are in scope for the entity/product), and gate reporting outputs on completion of the required ESRS set (including explicit treatment of Scope 3/value-chain disclosures)?', 'EU CSRD 2022/2464; ESRS scope governance', 'No ESRS scope map: reporting scope is implicit and outputs vary across teams and periods', 'Maintains a policy memo describing scope, but gating and evidence retention are inconsistent', 'Formal ESRS scope map with reporting gates, evidence checklists, and change control so scope changes are documented and audit-ready', 6)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit SEC Climate Rules §229.1502 GHG disclosure control question (WLT-CE-10) to close the biggest US capital-markets compliance gap."
+    effort: medium
+    gap_ids: [GAP-19-C1]
+    score_gain: 1.6
+
+  - priority: 2
+    action: "Expand CSRD coverage to explicitly test ESRS E1 Scope 3/value-chain governance and assurance evidence (WLT-CE-11)."
+    effort: medium
+    gap_ids: [GAP-19-C2]
+    score_gain: 1.3
+
+  - priority: 3
+    action: "Add EU Taxonomy Article 8 KPI disclosure/reconciliation controls (WLT-CE-12) so alignment translates into regulator/auditor-facing KPIs."
+    effort: medium
+    gap_ids: [GAP-19-M1]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Add ISO 14040/14044 LCA governance and critical review readiness (WLT-CE-13) to harden LCA-backed circularity claims."
+    effort: medium
+    gap_ids: [GAP-19-M2]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Operationalize CE100-style circular program governance (WLT-CE-14) so circularity is measurable and decision-linked, not just narrative."
+    effort: low
+    gap_ids: [GAP-19-M3]
+    score_gain: 0.5

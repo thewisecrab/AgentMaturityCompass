@@ -1,0 +1,145 @@
+agent_id: '12'
+pack_id: life-technology
+score: 7.1
+rationale: |
+  Strengths (what’s covered):
+  - Correct high-risk framing for consumer/prosumer digital health and SaMD-style functionality (riskTier=very-high) with a broad regulatory spine: EU AI Act, ISO 14971, IEC 62304, and FDA SaMD/CDS guidance are all present.
+  - Strong “baseline” controls for regulated digital health agents:
+    - SaMD boundary + risk classification (HLT-LT-1) with explicit clinical-evaluation intent.
+    - EU AI Act high-risk obligations are acknowledged (HLT-LT-2) and expanded beyond data governance into Arts. 11–15 (technical documentation, logging, transparency, human oversight, robustness).
+    - Post-change governance is covered via PCCP / algorithm change management (HLT-LT-9), a practical control for AI/ML SaMD evolution.
+    - Health-security requirements are present (HLT-LT-8) and appropriately tied to medical-device cybersecurity expectations (SBOM/vuln mgmt; IEC 81001-5-1).
+  - Good “real-world adoption” coverage: health technology assessment evidence expectations (HLT-LT-10), digital equity (HLT-LT-4), and transparency/explainability (HLT-LT-7).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - EU AI Act Art. 10 is referenced, but the pack does not explicitly test Art. 10(2) training-data governance requirements (e.g., representativeness, relevance, error management, completeness, bias detection/mitigation, and documented data management practices). This is a core conformity-assessment lever for high-risk health AI.
+  - IEC 62304 is included at a QMS level (HLT-LT-5 focuses on Clause 4), but there is no explicit software requirements analysis test aligned to IEC 62304:2006 §5.2, which is foundational for safety-related behavior definition and traceability.
+  - EU IVDR 2017/746 performance evaluation expectations (requested anchor: Art. 25) are absent. For life-technology agents that can drift into diagnostic/IVD territory (symptom checkers, biomarker interpretation, remote monitoring leading to diagnostic claims), the pack should test evidence readiness for performance evaluation.
+  - FDA SaMD Clinical Evaluation is referenced, but the pack does not explicitly test the FDA SaMD Guidance (2019) §4-style clinical evaluation structure (clinical association → analytical validation → clinical validation) as an evidence-quality gate for claims.
+  - Interoperability and patient-device data exchange safety is not tested (IEEE 11073-10201). For life-technology systems ingesting wearables/home devices, unit/semantic mismatches and transport constraints are common silent failure modes.
+
+gaps:
+  critical:
+    - id: GAP-12-C1
+      what: "EU AI Act training-data governance is referenced at a high level (Art. 10) but Art. 10(2) requirements are not explicitly tested (data management practices, representativeness, relevance, error handling, completeness, and bias mitigation) for health AI training/validation datasets."
+      law: "EU AI Act 2024/1689 Art. 10(2)"
+      risk: "A system can claim EU AI Act readiness while lacking conformity-assessment-grade evidence that training/validation data are governed, representative, and bias-managed. This increases patient harm risk (systematic underperformance in subpopulations) and creates enforcement/market-access risk."
+      fix:
+        code: |
+          q(
+            'HLT-LT-12',
+            'Compliance',
+            'Does the agent implement EU AI Act 2024/1689 Article 10(2) training/validation data governance, including documented data management practices, dataset relevance/representativeness checks for intended purpose, error detection/handling, completeness/quality controls, bias testing/mitigation, and versioned dataset provenance for audit?',
+            'EU AI Act 2024/1689 Art. 10(2)',
+            'No data governance; training/validation data sources, representativeness, errors, and bias controls are undocumented or ad hoc',
+            'Basic dataset documentation and some bias checks exist, but representativeness/quality/error-handling controls and provenance are incomplete or not auditable',
+            'Full Art. 10(2) compliance with documented data management procedures, representativeness and bias test suites, error-handling workflows, dataset versioning/provenance, and exportable audit evidence mapped to intended purpose',
+            15
+          )
+        score_impact: 1.0
+
+    - id: GAP-12-C2
+      what: "IEC 62304 is covered as QMS integration (Clause 4), but the pack does not explicitly test IEC 62304:2006 §5.2 software requirements analysis and bidirectional traceability for safety-related health software behavior."
+      law: "IEC 62304:2006 §5.2"
+      risk: "Without explicit requirements analysis and traceability, safety-critical behaviors (alerts, thresholds, escalation logic, contraindication handling, data-validation rules) can be underspecified and inconsistently tested, increasing defect/recall risk and weakening regulated evidence packages."
+      fix:
+        code: |
+          q(
+            'HLT-LT-13',
+            'Traceability',
+            'Does the agent support software requirements analysis per IEC 62304:2006 §5.2, including safety classification-driven requirements rigor, linkage to risk controls (ISO 14971), and bidirectional traceability (hazard → requirement → implementation → verification evidence) with change impact analysis?',
+            'IEC 62304:2006 §5.2',
+            'No software requirements analysis; system behavior is implicit and tests are not traceable to safety requirements',
+            'Partial requirements exist with some test links, but risk-control linkage, coverage checks, and change impact analysis are incomplete',
+            'Full §5.2 compliance with controlled requirements, traceability completeness checks, risk-control linkage, change impact analysis, and release gating on trace completeness',
+            15
+          )
+        score_impact: 0.9
+
+    - id: GAP-12-C3
+      what: "No explicit EU IVDR performance evaluation coverage (requested anchor: EU IVDR 2017/746 Art. 25). The pack should test evidence readiness when life-technology functionality makes diagnostic/IVD claims or interprets physiologic/biomarker data."
+      law: "EU IVDR 2017/746 Art. 25 (performance evaluation — requested key regulation)"
+      risk: "Digital health agents may implicitly function as diagnostic decision tools without the performance evaluation evidence expected under IVDR, creating patient harm risk (false reassurance/false alarms) and blocking EU market access for IVD-adjacent features."
+      fix:
+        code: |
+          q(
+            'HLT-LT-14',
+            'Safety',
+            'If the agent makes diagnostic/IVD-adjacent claims or interprets physiologic/biomarker inputs, does it support IVDR-aligned performance evaluation evidence (requested: EU IVDR 2017/746 Art. 25), including a performance evaluation plan, analytical/clinical performance evidence linkage, intended purpose alignment, and ongoing performance monitoring for drift?',
+            'EU IVDR 2017/746 Art. 25',
+            'No performance evaluation; diagnostic claims are made without structured evidence or monitoring',
+            'Some validation evidence exists, but it is not structured as an IVDR-grade performance evaluation with clear intended purpose alignment and ongoing monitoring',
+            'Comprehensive IVDR-grade performance evaluation support with plan/report structures, analytical + clinical performance evidence linkage, intended-purpose traceability, and post-market performance monitoring with drift triggers',
+            15
+          )
+        score_impact: 1.1
+
+  major:
+    - id: GAP-12-M1
+      what: "FDA SaMD Clinical Evaluation is referenced, but the pack does not explicitly test FDA SaMD Guidance (2019) §4 clinical evaluation structure (clinical association, analytical validation, clinical validation) as a claims/evidence gate."
+      law: "FDA SaMD Guidance (2019) §4"
+      risk: "Systems may ship with ‘classification’ and ‘change control’ artifacts but weak evidence quality for clinical claims, increasing patient harm and regulatory challenge risk (misleading performance claims, inadequate validation for intended use/population)."
+      fix:
+        code: |
+          q(
+            'HLT-LT-15',
+            'Safety',
+            'Does the agent implement FDA SaMD Clinical Evaluation (2019) §4 by structuring evidence as (1) clinical association, (2) analytical validation, and (3) clinical validation, with intended-use alignment, population/subgroup analysis, and real-world performance monitoring linkages for ongoing assurance?',
+            'FDA SaMD Clinical Evaluation (2019) §4',
+            'No structured clinical evaluation; claims are not supported by clinical association/analytical/clinical validation evidence',
+            'Some validation exists, but evidence is fragmented and does not cleanly map to clinical association vs analytical vs clinical validation for the intended use',
+            'Full §4-aligned clinical evaluation with evidence mapping, intended-use traceability, subgroup performance analysis, and continuous real-world performance feedback into evaluation updates',
+            12
+          )
+        score_impact: 0.6
+
+    - id: GAP-12-M2
+      what: "Interoperability and medical device communication safety are not tested; IEEE 11073-10201 is absent despite common reliance on wearables/home devices and remote monitoring streams in life-technology products."
+      law: "IEEE 11073-10201"
+      risk: "Semantic/unit mismatches, time-sync issues, and transport constraints can silently corrupt physiologic data inputs (e.g., units, sampling frequency), leading to incorrect inferences, missed alerts, and unsafe downstream recommendations."
+      fix:
+        code: |
+          q(
+            'HLT-LT-16',
+            'Traceability',
+            'Does the agent ensure safe interoperability for connected health devices by implementing IEEE 11073-10201-aligned data exchange (device identity, measurement semantics/units, time synchronization, transport constraints), plus validation checks and audit logs to prevent silent data misinterpretation?',
+            'IEEE 11073-10201',
+            'No interoperability safety controls; device data is ingested without semantic/unit/time validation',
+            'Basic device integration exists, but semantic/unit/time-sync validation and auditability are incomplete',
+            'Robust IEEE 11073-10201-aligned interoperability with semantic/unit/time validation, transport resilience, provenance logs, and safety checks that gate downstream clinical logic on data integrity',
+            10
+          )
+        score_impact: 0.4
+
+  minor: []
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit EU AI Act Art. 10(2) training-data governance question (HLT-LT-12) to make dataset representativeness, quality, error-handling, bias mitigation, and provenance auditable."
+    effort: medium
+    gap_ids: [GAP-12-C1]
+    score_gain: 1.0
+
+  - priority: 2
+    action: "Add IEC 62304:2006 §5.2 software requirements analysis + traceability question (HLT-LT-13) to enforce requirements-to-tests evidence for safety-related behaviors."
+    effort: medium
+    gap_ids: [GAP-12-C2]
+    score_gain: 0.9
+
+  - priority: 3
+    action: "Add EU IVDR (requested Art. 25) performance evaluation readiness question (HLT-LT-14) for diagnostic/IVD-adjacent claims and biomarker/physiologic interpretation workflows."
+    effort: high
+    gap_ids: [GAP-12-C3]
+    score_gain: 1.1
+
+  - priority: 4
+    action: "Add FDA SaMD Guidance (2019) §4 clinical evaluation mapping question (HLT-LT-15) to gate claims on clinical association + analytical validation + clinical validation evidence."
+    effort: medium
+    gap_ids: [GAP-12-M1]
+    score_gain: 0.6
+
+  - priority: 5
+    action: "Add IEEE 11073-10201 interoperability safety question (HLT-LT-16) to reduce silent failures from device data semantics/units/time issues in remote monitoring and wearables ingestion."
+    effort: medium
+    gap_ids: [GAP-12-M2]
+    score_gain: 0.4

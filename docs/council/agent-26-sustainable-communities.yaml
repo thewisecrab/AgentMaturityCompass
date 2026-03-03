@@ -1,0 +1,96 @@
+agent_id: '26'
+pack_id: sustainable-communities
+score: 7.2
+rationale: |
+  Strengths (what’s covered):
+  - ISO 37120 is operationalized as a primary monitoring backbone: MOB-SC-1 explicitly tests implementation of core/supporting city indicators, benchmarking, and repeatable reporting, which aligns well to ISO 37120’s intent of comparable, evidence-based city performance measurement (incl. §4.7 indicator-group expectations).
+  - Governance is treated as a first-class control surface: MOB-SC-4 requires structured citizen participation (not just dashboards), consistent with the Urban Agenda for the EU’s partnership-based governance model and multi-level coordination expectations.
+  - The pack correctly treats “smart city AI” as high-risk critical infrastructure: it anchors surveillance limits and biometric safeguards in EU AI Act prohibited practices (Art. 5) and couples this with broader smart-infrastructure cybersecurity (MOB-SC-8), which is a realistic audit stance for SDG 11 deployments.
+  - Urban resilience and adaptation are explicitly in-scope: MOB-SC-6 incorporates resilience indicators and climate adaptation/disaster risk framing (ISO 37123 + Sendai), improving completeness beyond a narrow “smart tech” lens.
+
+  Key completeness issues vs the requested key regulations (what’s missing / under-scoped):
+  - ISO 37120:2018 §4.7 is referenced at the pack level, but the questions do not explicitly test governance of indicator definitions, metadata, and comparability constraints (e.g., boundary definitions, update cadence, and data quality controls) that typically determine whether 37120 reporting is audit-defensible (beyond “we track indicators”).
+  - EU Urban Agenda §3 is gestured at through citizen participation and “urban poverty” linkage, but the pack does not clearly test the full partnership delivery cycle (priority theme selection, action plan tracking, and results dissemination) that is central to the Agenda’s implementation model.
+  - C40 “2030 net-zero” ambition is not made testable: there is no explicit requirement for 1.5°C-aligned pathways, sectoral emissions budgeting, or milestone governance to 2030/2050 (e.g., actions, financing, and accountability), so a city could score well on indicators without being on a credible net-zero trajectory.
+  - Paris Agreement Article 6 (cooperative approaches / ITMOs) is listed in the regulatory basis, but the pack does not assess whether cities using carbon markets or cooperative mechanisms have corresponding MRV, authorization, corresponding adjustment awareness, and anti-double-counting governance. This is a common failure mode for “offset-funded” urban projects.
+  - ISO/IEC JTC 1/SC 41 (IoT / smart city interoperability) appears only indirectly via IoT security (ISO/IEC 27400). Interoperability, reference architecture alignment, and digital-twin/IoT semantics governance are not explicitly tested, which can create vendor lock-in and data fragmentation across urban systems.
+
+gaps:
+  critical:
+    - id: GAP-26-C1
+      what: "C40 2030 net-zero pathway governance is not explicitly tested (1.5°C-aligned milestones, sector pathways, emissions budgeting, and accountability)."
+      law: "C40 Cities — 2030 net-zero / 1.5°C-aligned city climate action expectations"
+      risk: "Cities can pass ‘indicator monitoring’ and participation checks while lacking a credible, governed net-zero trajectory (milestones, funded actions, accountability), undermining SDG 11 climate co-benefits and exposing the program to greenwashing claims."
+      fix:
+        code: |
+          q('MOB-SC-10', 'Sustainability', 'Does the agent manage a C40-aligned net-zero pathway with 1.5°C-consistent milestones to 2030 (sectoral emissions budgets for buildings/transport/waste, action tracking, financing readiness, and accountability reporting)?', 'C40 2030 net-zero (1.5°C-aligned pathways)', 'No net-zero pathway governance; actions are ad-hoc and not tied to sectoral budgets or 2030 milestones', 'Has a net-zero plan and some milestones, but sectoral budgeting, funding linkage, and accountability reporting are incomplete', 'Full C40-aligned pathway governance with sectoral budgets, quantified milestones to 2030, financed action portfolio tracking, progress dashboards, and third-party-verifiable accountability reporting', 15)
+        score_impact: 1.3
+
+    - id: GAP-26-C2
+      what: "Paris Agreement Article 6 cooperative approaches / ITMO governance is not tested (authorization, MRV, corresponding adjustment awareness, and anti-double-counting controls for city programs using carbon finance)."
+      law: "Paris Agreement Art. 6"
+      risk: "Urban mitigation projects may claim carbon benefits without robust anti-double-counting controls or authorization/MRV discipline, creating reputational risk and potential integrity failures for climate finance-backed interventions."
+      fix:
+        code: |
+          q('MOB-SC-11', 'Governance', 'If the city uses cooperative approaches/carbon market mechanisms, does the agent enforce Paris Agreement Article 6 integrity controls (project MRV, authorization records, registry linkage, corresponding-adjustment awareness where applicable, and anti-double-counting checks)?', 'Paris Agreement Art. 6', 'No Art. 6 controls; carbon claims/credits are not governed and double counting risks are unmanaged', 'Tracks project MRV and some documentation, but authorization/registry linkage and anti-double-counting controls are incomplete', 'Full Art. 6-aligned integrity governance with MRV automation, authorization evidence, registry linkage, anti-double-counting checks, and transparent public reporting of claim boundaries', 12)
+        score_impact: 1.1
+
+  major:
+    - id: GAP-26-M1
+      what: "ISO 37120:2018 §4.7 comparability/data governance is under-specified; the pack tests indicator monitoring but not indicator definition governance (boundaries, metadata, quality, update cadence) needed for audit-defensible reporting."
+      law: "ISO 37120:2018 §4.7"
+      risk: "Reported indicators may be incomparable over time or across peer cities (boundary drift, inconsistent definitions), weakening the usefulness of ISO 37120 monitoring and increasing audit disputes."
+      fix:
+        code: |
+          q('MOB-SC-12', 'Traceability', 'Does the agent enforce ISO 37120:2018 §4.7-aligned indicator governance (standard definitions, boundary/metadata documentation, data quality checks, update cadence, and change control) so reported city indicators remain comparable and audit-defensible?', 'ISO 37120:2018 §4.7', 'No indicator governance; definitions/boundaries vary and data quality is unmanaged', 'Documents definitions and performs some checks, but change control and comparability controls are incomplete', 'Full indicator governance with metadata catalogs, boundary/version control, data quality scoring, reproducible computations, and audit-ready evidence for each reported indicator', 10)
+        score_impact: 0.7
+
+    - id: GAP-26-M2
+      what: "ISO/IEC JTC 1/SC 41 smart city interoperability and reference architecture alignment are not explicitly tested (beyond IoT security)."
+      law: "ISO/IEC JTC 1/SC 41 (Smart Cities / IoT standards)"
+      risk: "Smart city systems can become siloed and vendor-locked, preventing cross-domain optimization (mobility/energy/waste) and increasing lifecycle costs and cybersecurity complexity."
+      fix:
+        code: |
+          q('MOB-SC-13', 'Architecture', 'Does the agent ensure smart city interoperability aligned to ISO/IEC JTC 1/SC 41-relevant smart city/IoT standards (reference architecture, semantic/data model alignment, digital twin interoperability where used, and vendor portability)?', 'ISO/IEC JTC 1/SC 41', 'No interoperability governance; systems are siloed with proprietary schemas and high vendor lock-in', 'Implements partial interoperability via APIs, but semantics and portability governance are incomplete', 'Full SC 41-aligned interoperability with reference architecture mapping, semantic standards governance, digital twin interoperability controls, portability requirements, and conformance evidence', 10)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-26-m1
+      what: "EU Urban Agenda implementation cycle (theme/action plan/result dissemination) is not explicitly tested; current coverage emphasizes participation but not end-to-end partnership delivery governance."
+      law: "EU Urban Agenda §3"
+      risk: "Cities may conduct participation activities without converting them into accountable action plans and measurable outcomes, reducing policy effectiveness and creating ‘engagement without delivery’."
+      fix:
+        code: |
+          q('MOB-SC-14', 'Governance', 'Does the agent support the Urban Agenda for the EU partnership implementation cycle (priority theme selection, action plan management, stakeholder coordination, and results dissemination) consistent with §3 partnership principles?', 'EU Urban Agenda §3', 'No partnership delivery workflow; engagement does not translate into managed action plans and outcomes', 'Tracks action plans and stakeholders, but coordination cadence and outcome evidence are inconsistent', 'End-to-end partnership governance with action plan tracking, coordination workflows, outcome KPIs, and transparent dissemination of results and learnings', 6)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit C40-aligned 2030 net-zero pathway governance (sector budgets, milestones, financing, accountability) to make net-zero readiness testable rather than implied."
+    effort: medium
+    gap_ids: [GAP-26-C1]
+    score_gain: 1.3
+
+  - priority: 2
+    action: "Operationalize Paris Agreement Art. 6 integrity controls for any carbon-finance/cooperative approaches used by the city (MRV + anti-double-counting + authorization/registry linkage)."
+    effort: medium
+    gap_ids: [GAP-26-C2]
+    score_gain: 1.1
+
+  - priority: 3
+    action: "Add ISO 37120:2018 §4.7 indicator governance controls (definitions/boundaries/metadata, quality, cadence, change control) to harden audit defensibility of city indicator reporting."
+    effort: low
+    gap_ids: [GAP-26-M1]
+    score_gain: 0.7
+
+  - priority: 4
+    action: "Add an explicit interoperability/reference-architecture question aligned to ISO/IEC JTC 1/SC 41 to reduce vendor lock-in and enable cross-domain urban system integration."
+    effort: medium
+    gap_ids: [GAP-26-M2]
+    score_gain: 0.6
+
+  - priority: 5
+    action: "Extend EU Urban Agenda coverage from participation to the full partnership delivery cycle (action plan management + results dissemination) per §3."
+    effort: low
+    gap_ids: [GAP-26-m1]
+    score_gain: 0.3

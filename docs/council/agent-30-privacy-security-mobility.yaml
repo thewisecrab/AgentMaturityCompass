@@ -1,0 +1,84 @@
+agent_id: '30'
+pack_id: privacy-security-mobility
+score: 6.6
+rationale: |
+  Strengths (what’s covered):
+  - GDPR Art. 25 privacy by design is explicitly tested (MOB-PS-1) with concrete engineering expectations (minimization, pseudonymisation, purpose limitation) and a maturity progression toward DPIA automation and continuous privacy compliance monitoring.
+  - Mobility cybersecurity is in scope via UNECE WP.29 R155 (MOB-PS-2) and software-update governance via UNECE R156 (MOB-PS-9), which is directionally correct for connected vehicles and type-approval realities.
+  - Consumer IoT security is addressed via ETSI EN 303 645 across the full provision set (MOB-PS-3), and broader network hardening is supported via NIST SP 800-207 zero trust (MOB-PS-4).
+  - Response and notification are meaningfully represented through NIST CSF 2.0 Respond + NIS2 Art. 23 (MOB-PS-6), and privacy transparency / rights fulfilment are covered (MOB-PS-7).
+  - Software supply-chain security is included via NIST SSDF + EU CRA (MOB-PS-8/9), which is appropriate given IoT/vehicle dependency on third-party components.
+
+  Key completeness issues vs requested key regulations (what’s missing / insufficiently section-precise):
+  - UNECE WP.29 R155 is referenced at a high level (§7), but the enforcement-relevant requirement UNECE R155 §7.3.3 is not explicitly tested. The pack does not clearly assess post-development monitoring, evidence of ongoing effectiveness, and the operational governance expected to demonstrate CSMS capability during type approval/audit.
+  - ISO 21434 is referenced, but the requested ISO 21434:2021 §9.3 TARA is not explicitly operationalized. The current R155 question mentions “basic TARA” without testing ISO 21434 TARA artifacts/traceability (assets, threats, attack paths, impact ratings, risk treatment decisions, linkage to cybersecurity goals/requirements).
+  - ETSI EN 303 645 is framed as “Provisions 1–13”, but the requested §5.1 requirement is not tested with clause-level specificity and evidence expectations (notably the ‘no universal default passwords’ / unique credentials control and its lifecycle governance).
+  - NIST CSF 2.0 is used for Respond (RS), but the requested Govern category GV.OC (Organizational Context) is missing. This leaves a major gap in defining mission context, stakeholders, regulatory obligations, and risk appetite that should drive privacy/security priorities in mobility ecosystems.
+
+  Overall, this pack has strong breadth and a plausible L5 posture, but it needs more *section-precise*, audit-facing governance and TARA/CSMS evidence controls to be complete against UNECE R155 §7.3.3, ISO 21434 §9.3, ETSI EN 303 645 §5.1, and NIST CSF 2.0 GV.OC.
+
+gaps:
+  critical:
+    - id: GAP-30-C1
+      what: "NIST CSF 2.0 Govern (GV.OC — Organizational Context) is not tested. The pack references NIST CSF 2.0 primarily through Respond (RS) and does not assess governance context: mission, stakeholder expectations, regulatory obligations, and risk appetite for mobility privacy/security."
+      law: "NIST CSF 2.0 — GV.OC (Organizational Context)"
+      risk: "Without GV.OC controls, the agent can implement strong technical safeguards yet still fail program governance: unclear accountability, inconsistent prioritization (e.g., privacy vs safety vs telemetry needs), and weak defensibility during audits, incident reviews, or regulator inquiries."
+      fix:
+        code: |
+          q('MOB-PS-10', 'Governance', 'Does the agent implement NIST CSF 2.0 GV.OC (Organizational Context) by maintaining (1) mission/business context for mobility privacy & security, (2) stakeholder map (drivers, passengers, pedestrians, regulators, OEMs, suppliers), (3) regulatory obligation register (GDPR, UNECE R155/R156, ETSI EN 303 645, NIS2, etc.), and (4) documented risk appetite + prioritization rules that drive control selection and exception handling?', 'NIST CSF 2.0 GV.OC', 'No governance context: mission, stakeholders, regulatory obligations, and risk appetite are not documented; controls are inconsistent and ad hoc', 'Governance context exists but is incomplete, inconsistently applied, or not linked to control priorities and exception decisions', 'Full GV.OC governance with maintained context + stakeholder mapping, versioned obligation register, risk appetite statements, decision logs for exceptions, and governance outputs that drive privacy/security control prioritization and continuous improvement', 12)
+        score_impact: 1.1
+
+    - id: GAP-30-C2
+      what: "ISO 21434:2021 §9.3 TARA is not explicitly operationalized. Current coverage mentions 'basic TARA' under R155, but does not test ISO 21434 TARA artifacts, traceability, and treatment decision governance."
+      law: "ISO 21434:2021 — §9.3 (TARA)"
+      risk: "A connected-vehicle / mobility agent may appear compliant (security controls present) while lacking a defensible TARA. This creates type-approval and audit failure risk and increases the chance that key attack paths (e.g., telematics to CAN, backend API abuse to OTA channel compromise) are missed or untreated."
+      fix:
+        code: |
+          q('MOB-PS-11', 'Security', 'Does the agent implement ISO 21434:2021 §9.3 TARA by producing and maintaining item-level TARA artifacts (asset identification, threat scenarios, attack path analysis, impact/severity ratings, likelihood/feasibility assessment, risk determination, and risk treatment decisions) with traceability to cybersecurity goals/requirements and evidence of periodic review triggered by changes/incidents?', 'ISO 21434:2021 §9.3 (TARA)', 'No ISO 21434 TARA: threats/attack paths are not systematically analyzed and risk treatment decisions are undocumented', 'Partial TARA exists, but attack-path rigor, traceability to requirements, and change-triggered review/evidence are incomplete', 'Full §9.3 TARA with structured artifacts, attack-path modeling, requirement traceability, change/incidence-triggered re-assessment, and audit-ready evidence packs aligned to ISO 21434 expectations', 15)
+        score_impact: 1.2
+
+    - id: GAP-30-C3
+      what: "UNECE WP.29 R155 is tested at §7 level, but UNECE R155 §7.3.3 is not explicitly assessed, especially the audit-facing evidence of ongoing CSMS effectiveness and post-development monitoring / operational feedback loops."
+      law: "UNECE WP.29 R155 — §7.3.3"
+      risk: "Organizations can implement 'static' vehicle security controls that do not satisfy R155 CSMS expectations for ongoing monitoring and demonstrable effectiveness. This increases the probability of undetected fleet-scale exploitation, delayed remediation, and type-approval nonconformance findings."
+      fix:
+        code: |
+          q('MOB-PS-12', 'Compliance', 'Does the agent implement UNECE WP.29 R155 §7.3.3 by operating a CSMS effectiveness and post-development monitoring loop, including (1) continuous monitoring for vulnerabilities/cyber events across fleet + backend + supply chain, (2) defined escalation and decision criteria, (3) evidence of corrective actions and verification of effectiveness, and (4) audit-ready CSMS records demonstrating ongoing compliance for type approval and surveillance audits?', 'UNECE WP.29 R155 §7.3.3', 'No §7.3.3 loop: monitoring is ad hoc, corrective actions are not evidenced, and CSMS effectiveness cannot be demonstrated for audit/type approval', 'Monitoring and response exist but evidence, effectiveness verification, and audit-ready CSMS records are incomplete or inconsistently maintained', 'Full §7.3.3 compliance with continuous monitoring, governed escalation, corrective action + effectiveness verification, and maintained CSMS evidence packs supporting type approval and surveillance audits', 15)
+        score_impact: 1.1
+
+  major:
+    - id: GAP-30-M1
+      what: "ETSI EN 303 645 is included as 'Provisions 1–13', but ETSI EN 303 645 §5.1 is not tested with clause-level specificity and evidence expectations (notably the 'no universal default passwords' / unique credentials control and its lifecycle governance)."
+      law: "ETSI EN 303 645 — §5.1"
+      risk: "IoT devices used in mobility ecosystems can remain vulnerable to large-scale compromise (botnets, lateral movement into vehicle/home networks) if §5.1 credential controls are not enforced end-to-end (manufacturing, onboarding, reset, credential rotation, and decommission)."
+      fix:
+        code: |
+          q('MOB-PS-13', 'Security', 'Does the agent enforce ETSI EN 303 645 §5.1 by preventing universal default credentials and ensuring unique-per-device (or unique-per-user) authentication secrets, including secure onboarding, secure reset behavior, credential rotation/renewal, and evidence that device fleets cannot be accessed via shared defaults?', 'ETSI EN 303 645 §5.1', 'Universal/default credentials exist; onboarding and resets reintroduce shared secrets and the fleet is vulnerable to credential-stuffing and mass compromise', 'Unique credentials are used for many devices, but reset/onboarding/rotation controls and evidence are incomplete or inconsistently applied across the fleet', 'Full §5.1 compliance with unique credential governance, secure onboarding + reset flows, rotation support, fleet-wide verification tests, and auditable evidence demonstrating absence of universal default passwords/keys', 12)
+        score_impact: 0.8
+
+  minor: []
+
+path_to_10:
+  - priority: 1
+    action: "Add a NIST CSF 2.0 GV.OC governance-context control so privacy/security decisions are driven by an obligation register, stakeholder context, and explicit risk appetite."
+    effort: low
+    gap_ids: [GAP-30-C1]
+    score_gain: 1.1
+
+  - priority: 2
+    action: "Add an ISO 21434:2021 §9.3 TARA control that tests item-level TARA artifacts, traceability to cybersecurity goals/requirements, and change-triggered reviews."
+    effort: medium
+    gap_ids: [GAP-30-C2]
+    score_gain: 1.2
+
+  - priority: 3
+    action: "Add an UNECE WP.29 R155 §7.3.3 CSMS effectiveness + post-development monitoring control with audit-ready evidence expectations."
+    effort: medium
+    gap_ids: [GAP-30-C3]
+    score_gain: 1.1
+
+  - priority: 4
+    action: "Make ETSI EN 303 645 §5.1 clause-level (no universal default credentials) explicit, including onboarding/reset/rotation evidence across device fleets."
+    effort: low
+    gap_ids: [GAP-30-M1]
+    score_gain: 0.8

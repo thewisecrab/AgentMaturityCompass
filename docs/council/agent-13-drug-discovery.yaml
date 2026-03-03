@@ -1,0 +1,95 @@
+agent_id: '13'
+pack_id: drug-discovery
+score: 6.8
+rationale: |
+  Strengths (what’s covered):
+  - Strong computerized-systems and research-record integrity coverage: HLT-DD-1 (FDA 21 CFR §211.68 + EU GMP Annex 11 §7 ALCOA+) and HLT-DD-9 (21 CFR Part 11 + Annex 11 §9 audit trails) appropriately anchor regulated data governance for discovery/CMC-facing lab systems.
+  - Useful QbD trajectory is present: HLT-DD-2 frames design space and risk management across ICH Q8/Q9/Q10/Q12 concepts, and HLT-DD-6 constrains AI-optimized process changes through written procedures/batch records (21 CFR §211.100/§211.188).
+  - GLP readiness is explicitly assessed: HLT-DD-10 covers OECD GLP §8 and 21 CFR Part 58, which is a critical bridge from discovery to preclinical evidence credibility.
+  - Submission readiness is acknowledged: HLT-DD-7 targets ICH M4 CTD Module 3 compilation, which is the right artifact shape for CMC documentation.
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - ICH Q10 §3.2 Pharmaceutical Quality System (PQS) governance is not explicitly tested. The pack references Q10 as part of “control strategy” in HLT-DD-2, but does not assess the PQS elements regulators inspect (management responsibilities, process performance/product quality monitoring, CAPA, change management, management review).
+  - FDA 21 CFR §211.68 is cited for data integrity (HLT-DD-1), but §211.68 enforcement is fundamentally about validated/checked computerized equipment (including input/output verification, change control, and backup) — i.e., CSV expectations for LIMS/ELN/instruments. The question reads more like Annex 11 ALCOA+ generalities than §211.68 system validation + control.
+  - EU GMP Annex 11 §7.1 (data integrity controls around data entry/critical data verification and prevention of data falsification) is not explicitly tested. HLT-DD-1 cites Annex 11 §7 broadly, and HLT-DD-9 focuses on §9 audit trails; this leaves the §7.1 “front door” controls under-specified.
+  - ICH Q8(R2) §2.2 (design space definition/regulatory flexibility context) is not tested as written; HLT-DD-2 cites §2.6, which creates an auditability gap versus the requested clause and can lead to “QbD” claims without the core §2.2 framing.
+  - ICH Q12 §3.2 (post-approval change management / lifecycle management tools) is only mentioned at a high level in HLT-DD-2 L5 text; there is no explicit test for Established Conditions (ECs), PACMP, or a post-approval change strategy that would be necessary for AI-driven process evolution.
+
+gaps:
+  critical:
+    - id: GAP-13-C1
+      what: "No explicit ICH Q10 §3.2 Pharmaceutical Quality System (PQS) assessment; the pack mentions Q10 in passing but does not test PQS governance elements (management responsibilities, CAPA, change management, management review) that underpin cGMP compliance across discovery → CMC → manufacturing."
+      law: "ICH Q10 §3.2 (Pharmaceutical Quality System)"
+      risk: "Without an explicit PQS test, an agent could appear ‘QbD-ready’ while lacking foundational quality governance, resulting in major inspection findings (weak change control/CAPA), inconsistent decision-making, and inability to sustain validated state as AI models/process parameters evolve."
+      fix:
+        code: |
+          q('HLT-DD-12', 'Governance', 'Does the agent implement a Pharmaceutical Quality System (PQS) aligned to ICH Q10 §3.2, including defined management responsibilities, process performance/product quality monitoring, CAPA, change management, and management review for AI-assisted discovery and AI-influenced CMC/manufacturing activities?', 'ICH Q10 §3.2', 'No PQS; quality governance is ad-hoc, roles are unclear, CAPA/change management are inconsistent or absent', 'Partial PQS with documented roles and some CAPA/change control, but monitoring, management review, and lifecycle governance of AI-driven changes are incomplete', 'Full ICH Q10 §3.2 PQS with governance, KPIs, CAPA effectiveness checks, formal change management (including AI model/process changes), management review cadence, and audit-ready evidence linkage across discovery, development, and manufacturing', 15)
+        score_impact: 1.2
+
+    - id: GAP-13-C2
+      what: "ICH Q12 §3.2 post-approval change management is not explicitly tested. The pack lacks assessment of Established Conditions (ECs), PACMP, and lifecycle management needed to control AI-driven process evolution after approval."
+      law: "ICH Q12 §3.2 (Post-approval change management / lifecycle management)"
+      risk: "AI-recommended process changes may be implemented without a compliant post-approval change strategy, increasing the likelihood of unauthorized changes, regulatory reporting failures, supply disruption, and product quality drift."
+      fix:
+        code: |
+          q('HLT-DD-13', 'Compliance', 'Does the agent support ICH Q12 §3.2 post-approval change management by defining and controlling Established Conditions (ECs), managing PACMP/predefined change protocols, and maintaining a lifecycle management plan for AI-driven process/model changes that affect CQAs/CPPs?', 'ICH Q12 §3.2', 'No post-approval change governance; ECs/PACMP are not defined and AI-driven changes are uncontrolled', 'Tracks changes and drafts regulatory justifications, but ECs/PACMP scope and reporting categories are inconsistently applied and not audit-ready', 'Full Q12 §3.2 lifecycle management with EC identification, PACMP workflows, change categorization by region, impact assessment tied to QRM, and submission/notification-ready evidence bundles', 15)
+        score_impact: 1.1
+
+    - id: GAP-13-C3
+      what: "EU GMP Annex 11 §7.1 data integrity (critical data entry/verification controls) is not explicitly tested; current coverage emphasizes ALCOA+ (§7 broadly) and audit trails (§9) but misses the §7.1 ‘prevent bad/false data at entry’ control set."
+      law: "EU GMP Annex 11 §7.1 (Data integrity)"
+      risk: "Even with audit trails, weak §7.1 controls can allow incorrect or falsified data entry, undermining reproducibility and batch release/CMC credibility; inspectors frequently cite inadequate controls at data capture as a root cause of integrity failures."
+      fix:
+        code: |
+          q('HLT-DD-14', 'Safety', 'Does the agent implement EU GMP Annex 11 §7.1 data integrity controls for critical data capture (e.g., controlled data entry, verification/second-person review where required, prevention/detection of falsification, and linkage of raw data to reported results) across ELN/LIMS/instrument integrations?', 'EU GMP Annex 11 §7.1', 'No §7.1 controls; critical data can be entered/edited without effective verification or falsification controls', 'Implements some access controls and audit trails, but critical data verification, raw-data linkage, and falsification detection are inconsistent', 'Comprehensive §7.1 controls with enforced workflows for critical data entry, verification rules, raw-data provenance linkage, anomaly detection, periodic review, and inspection-ready evidence outputs', 12)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-13-M1
+      what: "FDA 21 CFR §211.68 is used as a data-integrity citation but the pack does not explicitly test computerized systems validation and input/output checks for lab systems (LIMS/ELN/instruments) that §211.68 expects in practice."
+      law: "FDA 21 CFR §211.68 (Automatic, mechanical, electronic equipment)"
+      risk: "Unvalidated lab/computerized systems can generate unreliable data or silently corrupt records, leading to warning letters, invalidated studies, and rejected CMC evidence—especially when AI agents automate data handling and decisioning."
+      fix:
+        code: |
+          q('HLT-DD-15', 'Compliance', 'Does the agent ensure computerized systems used in discovery/CMC labs are validated and controlled per FDA 21 CFR §211.68 (including documented validation, input/output checks, access controls, change control, backup/restore testing, and periodic review) for ELN/LIMS/instrument integrations?', 'FDA 21 CFR §211.68', 'No CSV/controls; lab computerized systems are unvalidated and rely on informal checks', 'Validates key systems and performs some checks/backups, but validation scope, change control, and periodic review are incomplete or inconsistently evidenced', 'Full §211.68-aligned CSV with risk-based validation, documented checks, controlled configuration, backup/restore verification, and continuous monitoring with audit-ready validation packages', 12)
+        score_impact: 0.7
+
+    - id: GAP-13-M2
+      what: "ICH Q8(R2) §2.2 design space is not tested as specified; the pack cites §2.6 instead, weakening traceability to the requested clause and omitting the §2.2 definition/regulatory-flexibility framing that supports QbD arguments."
+      law: "ICH Q8(R2) §2.2 (Design space)"
+      risk: "Teams may claim ‘design space’ without demonstrating the core definition, boundaries, and regulatory implications expected under Q8, reducing credibility of QbD justifications and increasing risk of change-control disagreements with regulators."
+      fix:
+        code: |
+          q('HLT-DD-16', 'Compliance', 'Does the agent define, justify, and govern a design space per ICH Q8(R2) §2.2 (including explicit boundaries, supporting evidence, and change handling within vs outside design space) for AI-assisted development and AI-influenced process optimization?', 'ICH Q8(R2) §2.2', 'No design space; operating ranges and boundaries are informal and not supported by evidence', 'Defines operating ranges and explores multivariate effects, but boundaries, evidence linkage, and within/outside design-space change rules are not consistently enforced', 'Full §2.2 design space governance with evidence-backed boundaries, linkage to CQAs/CPPs, within/outside design-space change workflows, and alignment to Q9 QRM and Q10 control strategy', 10)
+        score_impact: 0.6
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit ICH Q10 §3.2 PQS governance test (HLT-DD-12) to anchor quality system expectations beyond QbD rhetoric."
+    effort: medium
+    gap_ids: [GAP-13-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Add ICH Q12 §3.2 post-approval change management coverage (HLT-DD-13), including Established Conditions + PACMP workflows for AI-driven changes."
+    effort: medium
+    gap_ids: [GAP-13-C2]
+    score_gain: 1.1
+
+  - priority: 3
+    action: "Add Annex 11 §7.1 critical data-capture integrity controls (HLT-DD-14) to complement existing audit trail and ALCOA+ framing."
+    effort: low
+    gap_ids: [GAP-13-C3]
+    score_gain: 1.0
+
+  - priority: 4
+    action: "Strengthen §211.68 by explicitly testing CSV/IO checks/change control/backup-restore for lab computerized systems (HLT-DD-15)."
+    effort: medium
+    gap_ids: [GAP-13-M1]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Align design space testing to ICH Q8(R2) §2.2 and enforce within/outside design-space change handling (HLT-DD-16)."
+    effort: low
+    gap_ids: [GAP-13-M2]
+    score_gain: 0.6

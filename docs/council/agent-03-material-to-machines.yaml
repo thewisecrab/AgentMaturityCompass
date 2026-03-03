@@ -1,0 +1,98 @@
+agent_id: '03'
+pack_id: material-to-machines
+score: 6.0
+rationale: |
+  Strengths (what’s covered):
+  - ENV-MM-1 provides strong substance-restriction coverage via RoHS Annex II thresholds (component-level restricted substances).
+  - ENV-MM-2 and ENV-MM-6 cover core EU ESPR/Ecodesign themes (design requirements via Art. 5 and Digital Product Passport via Art. 8).
+  - ENV-MM-3 covers WEEE producer responsibility tracking at a high level (registrations/collection/recycling targets).
+  - ENV-MM-4 addresses energy performance/labeling obligations (Energy Efficiency Directive 2023/1791 Art. 4).
+  - ENV-MM-8 adds Battery Regulation lifecycle items (carbon footprint/recycled content) which is highly relevant for modern appliances and e-mobility.
+  - ENV-MM-9 at least acknowledges OT/ICS cyber requirements (IEC 62443-3-3) and Machinery Regulation conformity assessment interplay.
+
+  Key completeness issues (what’s missing / mis-scoped vs enforcement reality):
+  - Industrial machinery safety is only indirectly referenced (ENV-MM-9 cites Machinery Reg Art. 16), but the pack does not explicitly test the EU Machinery Regulation 2023/1230 Essential Health and Safety Requirements (EHSR) obligation tied to Art. 10 and Annex III.
+  - IEC 62443-3-3 is referenced broadly, but a core baseline requirement—SR 1.1 (Identification and Authentication Control)—is not explicitly tested, creating a common audit/assurance blind spot for connected machinery.
+  - Occupational health & safety management for manufacturing environments is missing entirely (ISO 45001:2018 §8.1.3 management of change), despite high-risk human-machine interaction during design changes, tooling changes, and software updates.
+  - Ecodesign repairability is treated generically under Art. 5; the specific repairability/repair information obligations highlighted in EU Ecodesign 2024/1781 Art. 7 are not directly tested (spare parts, repair access, design for disassembly).
+  - RoHS compliance is treated as a concentration-check exercise (Annex II) but not as a market access gate under RoHS 2011/65/EU Art. 4 (placing on the market only compliant EEE), which in practice requires product-level conformity evidence, exemption control, and release-to-market checks.
+
+gaps:
+  critical:
+    - id: GAP-03-C1
+      what: "EU Machinery Regulation 2023/1230 Essential Health and Safety Requirements (EHSR) obligation is not explicitly tested. The pack references Art. 16 in ENV-MM-9, but does not test the Art. 10 duty to ensure machinery meets EHSR (Annex III), including safety of control systems and foreseeable misuse."
+      law: "EU Machinery Regulation (EU) 2023/1230 Art. 10 (EHSR via Annex III)"
+      risk: "Nonconforming machinery can be placed into service without demonstrable EHSR compliance, increasing probability of serious injury/fatality, market surveillance actions, product recalls, and liability exposure (including for software/AI updates affecting safety functions)."
+      fix:
+        code: |
+          q('ENV-MM-10', 'Safety', 'Does the agent verify that machinery design, integration changes, and software/AI updates maintain conformity with the EU Machinery Regulation (EU) 2023/1230 Article 10 obligation to meet Essential Health and Safety Requirements (EHSR) (Annex III), including safety of control systems and foreseeable misuse?', 'EU Machinery Regulation (EU) 2023/1230 Art. 10; Annex III (EHSR)', 'No EHSR mapping; safety requirements are not traced to design controls or update/release decisions', 'Maintains an EHSR checklist and basic traceability to design controls, but software/AI changes are not consistently re-assessed for safety impact', 'Continuous EHSR compliance-by-design with requirements traceability, safety-function validation for software/AI changes, change-impact assessment gates, and authority-ready technical documentation updates aligned to Annex III', 15)
+        score_impact: 1.2
+
+    - id: GAP-03-C2
+      what: "IEC 62443-3-3 is cited, but the baseline system security requirement SR 1.1 (Identification and Authentication Control) is not explicitly assessed for all users/devices/services in connected machinery and ICS environments."
+      law: "IEC 62443-3-3 SR 1.1 (Identification and Authentication Control)"
+      risk: "Weak identity/authentication controls enable unauthorized access to safety-relevant control functions, leading to production disruption, unsafe states, and increased likelihood of successful cyber-physical attacks (including ransomware on OT)."
+      fix:
+        code: |
+          q('ENV-MM-11', 'Security', 'Does the agent implement and continuously verify Identification and Authentication Control per IEC 62443-3-3 SR 1.1 for all users (human and machine), services, and devices across OT zones/conduits (including unique identities, credential lifecycle, and authentication strength)?', 'IEC 62443-3-3 SR 1.1', 'Shared accounts/weak authentication; device/service identities are unmanaged and not auditable', 'Unique user IDs and basic authentication are implemented, but service/device identity, credential rotation, and coverage across zones is incomplete', 'Full SR 1.1 implementation with unique identities for users/services/devices, strong authentication, credential rotation, secure enrollment, continuous verification, and audit-ready evidence mapped to target security level', 12)
+        score_impact: 0.9
+
+  major:
+    - id: GAP-03-M1
+      what: "Occupational health & safety operational control for manufacturing change is missing. The pack does not test ISO 45001:2018 §8.1.3 management of change for process/equipment/software changes that affect worker safety (including AI-driven optimization changes)."
+      law: "ISO 45001:2018 §8.1.3 (Management of change)"
+      risk: "Design/process/software changes can introduce new hazards without systematic review, increasing incident rates and creating major audit nonconformities for ISO 45001-aligned organizations and regulators."
+      fix:
+        code: |
+          q('ENV-MM-12', 'Safety', 'Does the agent manage OH&S-related change control per ISO 45001:2018 §8.1.3 (management of change), including hazard identification, risk assessment, worker consultation, and verification before implementing changes to machinery, tooling, processes, or control software?', 'ISO 45001:2018 §8.1.3', 'No formal change management for OH&S; changes are applied without documented hazard/risk review', 'Performs change reviews and risk assessments for major changes, but coverage is inconsistent and worker consultation/evidence capture is incomplete', 'Closed-loop OH&S change management with automated hazard prompts, risk controls selection, worker consultation records, pre-startup safety verification, and auditable change approval gates', 10)
+        score_impact: 0.7
+
+    - id: GAP-03-M2
+      what: "Ecodesign repairability obligations are not specifically tested. ENV-MM-2 covers Art. 5 design requirements generally, but EU Ecodesign Regulation 2024/1781 Art. 7 repairability (repair access, spare parts availability, repair information, design for disassembly) is not directly assessed."
+      law: "EU Ecodesign Regulation (EU) 2024/1781 Art. 7 (repairability)"
+      risk: "Products may meet high-level ecodesign goals while failing enforceable repairability expectations (spare parts/info access), leading to delegated-act noncompliance, market surveillance findings, and reduced circularity performance."
+      fix:
+        code: |
+          q('ENV-MM-13', 'Sustainability', 'Does the agent operationalize repairability requirements per EU Ecodesign Regulation (EU) 2024/1781 Article 7 (repair access, spare parts/consumables availability, repair information, and design for disassembly), and gate design releases against repairability constraints?', 'EU Ecodesign Regulation (EU) 2024/1781 Art. 7', 'No repairability controls; design decisions do not manage spare parts, disassembly, or repair information availability', 'Generates repairability guidance and partial spare-parts lists, but compliance is not enforced as a release gate and evidence is incomplete', 'Repairability-by-design with enforceable constraints, automated spare-parts availability rules, disassembly time/steps scoring, repair information publication workflows, and compliance evidence packs aligned to delegated-act requirements', 10)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-03-m1
+      what: "RoHS is assessed via Annex II concentration limits (ENV-MM-1) but the market-access prohibition in RoHS 2011/65/EU Art. 4 (placing on the market only compliant EEE) is not explicitly tested as a release-to-market control with product-level evidence and exemption governance."
+      law: "RoHS Directive 2011/65/EU Art. 4"
+      risk: "Organizations may ‘pass’ component screening yet still fail enforcement expectations because they cannot demonstrate product-level compliance decisions (including exemptions), leading to market surveillance actions and product withdrawals."
+      fix:
+        code: |
+          q('ENV-MM-14', 'Compliance', 'Does the agent enforce RoHS Directive 2011/65/EU Article 4 by gating release/placing-on-the-market decisions on product-level RoHS compliance evidence (including BOM aggregation, supplier declarations, test evidence, and exemption applicability tracking)?', 'RoHS Directive 2011/65/EU Art. 4', 'No release gate; products are placed on the market without consolidated RoHS compliance evidence and exemption control', 'Aggregates BOM declarations and flags issues, but exemption applicability and product-level sign-off are manual and inconsistently retained', 'Automated product-level RoHS compliance gating with evidence linkage, exemption lifecycle management (Annex III/IV), sampling/testing integration, and audit-ready technical file exports', 8)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit Machinery Regulation Art. 10 EHSR conformity question (ENV-MM-10) that treats software/AI updates as safety-relevant changes requiring re-validation and technical documentation updates."
+    effort: medium
+    gap_ids: [GAP-03-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Add IEC 62443-3-3 SR 1.1 identity/authentication control coverage (ENV-MM-11) to close the most common OT baseline control gap and make IEC 62443 references audit-usable."
+    effort: medium
+    gap_ids: [GAP-03-C2]
+    score_gain: 0.9
+
+  - priority: 3
+    action: "Introduce ISO 45001 §8.1.3 management-of-change coverage (ENV-MM-12) to ensure worker safety controls are tested alongside environmental and product compliance."
+    effort: medium
+    gap_ids: [GAP-03-M1]
+    score_gain: 0.7
+
+  - priority: 4
+    action: "Add a targeted Ecodesign repairability question mapped to Art. 7 (ENV-MM-13), including spare parts, repair info, and disassembly constraints, so repairability is not only a ‘score’ but a compliance gate."
+    effort: medium
+    gap_ids: [GAP-03-M2]
+    score_gain: 0.6
+
+  - priority: 5
+    action: "Align RoHS coverage to enforcement by adding an Art. 4 placing-on-the-market release gate question (ENV-MM-14) that requires product-level evidence aggregation and exemption governance."
+    effort: low
+    gap_ids: [GAP-03-m1]
+    score_gain: 0.3

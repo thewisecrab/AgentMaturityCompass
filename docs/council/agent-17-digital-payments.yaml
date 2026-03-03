@@ -1,0 +1,64 @@
+agent_id: '17'
+pack_id: digital-payments
+score: 6.8
+rationale: |
+  Strengths (what’s covered):
+  - Core PCI DSS controls are represented at a high level via WLT-DP-1 (Req. 3/4 for stored/transmitted cardholder data) and governance for PCI “customized approach” validation is explicitly acknowledged (WLT-DP-9 referencing PCI DSS v4.0 Req. 12.3.2).
+  - PSD2 strong customer authentication (SCA) is directly tested (WLT-DP-4) and correctly framed around PSD2 Directive 2015/2366 Article 97 + the EBA RTS.
+  - Transactional financial-crime controls are well-covered: FATF/FinCEN AML/KYC (WLT-DP-2), wire transfer compliance (WLT-DP-7), and real-time fraud detection (WLT-DP-6).
+  - ISO 20022 is not merely listed: it is operationalized via fraud reporting message generation (WLT-DP-6) and payment message validation in cross-border flows (WLT-DP-7).
+  - Auditability is meaningfully included through end-to-end transaction audit trails and provenance expectations (WLT-DP-8).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - PCI DSS v4.0 Requirement 6.4.3 (payment page script controls) is not tested. This is now an enforcement-grade “client-side / Magecart” control set for payment pages: script inventory/authorization, integrity monitoring, and tamper detection.
+  - EU DORA Article 17 (major ICT-related incident notification) is not tested. The pack touches DORA Article 28 third-party ICT risk (WLT-DP-9) but omits DORA’s operational resilience incident classification + strict notification timelines (initial notification within ~4 hours of classification for major incidents).
+  - SCA dynamic linking is referenced inside WLT-DP-4, but it is not made explicit as a dedicated, testable control aligned to the RTS (requested: RTS Article 4). Without a specific question, teams can “pass SCA” while still failing the binding of authentication to payee/amount and the integrity-protected display requirements.
+
+gaps:
+  critical:
+    - id: GAP-17-C1
+      what: "PCI DSS v4.0 Requirement 6.4.3 payment page script controls are not tested (script inventory/authorization + integrity monitoring + tamper detection for payment pages)."
+      law: "PCI DSS v4.0 Req. 6.4.3 (payment page scripts)"
+      risk: "Client-side attacks (e.g., Magecart-style skimmers) can silently exfiltrate PAN and authentication data even when backend PCI controls are strong. Without 6.4.3-grade controls, organizations can be ROC-noncompliant and materially increase breach likelihood and scope."
+      fix:
+        code: |
+          q('WLT-DP-10', 'Safety', 'For payment pages, does the agent enforce PCI DSS v4.0 Requirement 6.4.3 by maintaining an authorized script inventory, validating each script’s legitimacy (source/owner/purpose), implementing change detection/integrity controls (e.g., SRI/CSP/script hashing), and alerting/blocking on unauthorized or modified scripts that could capture payment data?', 'PCI DSS v4.0 Req. 6.4.3', 'No payment-page script governance: scripts are loaded without authorization controls or integrity monitoring, allowing silent skimming/exfiltration', 'Maintains a script inventory and basic CSP, but integrity/change detection and alerting are incomplete and not audit-ready', 'Full PCI 6.4.3 readiness with authorized-script allowlisting, continuous integrity monitoring (SRI/CSP/hashes), automated change approval workflows, real-time alerting/blocking for unauthorized scripts, and audit evidence bundles for assessor review', 15)
+        score_impact: 1.3
+
+    - id: GAP-17-C2
+      what: "EU DORA Article 17 major ICT-related incident reporting (incl. ~4-hour initial notification) is not tested."
+      law: "EU DORA Regulation (EU) 2022/2554, Art. 17 (ICT-related incident classification + reporting timelines)"
+      risk: "Payment firms may detect incidents (fraud spikes, outages, data compromise) but fail to classify/report them within statutory timeframes, triggering supervisory findings and penalties. Late notification also weakens cross-entity coordination during systemic incidents."
+      fix:
+        code: |
+          q('WLT-DP-11', 'Governance', 'Does the agent support EU DORA Article 17 ICT-related incident management by (1) classifying incidents against DORA materiality criteria, and (2) generating regulator-ready notifications including an initial notification within the required timeframe (commonly treated as ~4 hours from classification for major incidents), followed by intermediate and final reports with root cause, impact, and remediation updates?', 'EU DORA (EU) 2022/2554 Art. 17', 'No DORA incident reporting: incidents are handled operationally but are not classified or reported on DORA timelines with regulator-ready content', 'Classifies incidents and drafts reports, but timelines, required data fields, and evidence of submission are inconsistent or manual', 'Full DORA Art. 17 compliance with automated incident classification, 4-hour notification SLA tracking, templated initial/intermediate/final reports, evidence retention of submissions/communications, and post-incident lessons-learned linkage to control improvements', 12)
+        score_impact: 1.2
+
+  major:
+    - id: GAP-17-M1
+      what: "Dynamic linking is not explicitly tested as a standalone requirement aligned to the SCA RTS (requested: RTS Art. 4); WLT-DP-4 mentions dynamic linking but does not verify binding to amount + payee and integrity-protected display/confirmation."
+      law: "EBA RTS on SCA (Commission Delegated Regulation (EU) 2018/389), Art. 4 (dynamic linking — per requester)"
+      risk: "Systems can implement ‘two factors’ yet remain vulnerable to payment manipulation (changing beneficiary/amount after authentication) if the authentication code is not cryptographically bound to the transaction details and those details are not displayed with integrity."
+      fix:
+        code: |
+          q('WLT-DP-12', 'Compliance', 'Does the agent implement SCA RTS dynamic linking by cryptographically binding authentication to the specific transaction amount and payee (and ensuring integrity-protected display/confirmation of those elements to the payer), and by preventing post-authentication manipulation of amount/payee in both browser and app flows?', 'EBA RTS on SCA (EU) 2018/389 Art. 4 (dynamic linking)', 'No dynamic linking: MFA may be used but authentication is not bound to amount/payee and transaction details can be manipulated', 'Binds authentication to some transaction details and displays amount/payee, but integrity protections and manipulation detection are incomplete across channels', 'Full RTS dynamic linking with cryptographic binding to amount+payee, secure display/confirmation, channel-consistent enforcement (web/app), tamper detection, and audit logs demonstrating binding and user confirmation', 12)
+        score_impact: 0.7
+
+path_to_10:
+  - priority: 1
+    action: "Add PCI DSS v4.0 Req. 6.4.3 payment-page script governance and integrity monitoring (WLT-DP-10) to cover modern client-side skimming risk."
+    effort: medium
+    gap_ids: [GAP-17-C1]
+    score_gain: 1.3
+
+  - priority: 2
+    action: "Add EU DORA Art. 17 major-incident classification + 4-hour notification workflow coverage (WLT-DP-11) to make operational resilience enforceable."
+    effort: medium
+    gap_ids: [GAP-17-C2]
+    score_gain: 1.2
+
+  - priority: 3
+    action: "Add an explicit SCA RTS Art. 4 dynamic-linking control test (WLT-DP-12) so ‘SCA present’ cannot mask amount/payee binding failures."
+    effort: low
+    gap_ids: [GAP-17-M1]
+    score_gain: 0.7

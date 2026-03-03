@@ -1,0 +1,109 @@
+agent_id: '11'
+pack_id: professional-practice
+score: 6.4
+rationale: |
+  Strengths (what’s covered):
+  - Correctly scoped as very-high risk practice-management + clinical documentation tooling, with realistic harms (upcoding/false claims, transcription errors, PHI breach, burnout, fraud/abuse).
+  - Strong revenue integrity / fraud-liability coverage:
+    - CMS billing compliance + FCA is directly tested (HLT-PP-4, HLT-PP-11).
+    - CPT/ICD-10 accuracy and audit feedback loops are tested (HLT-PP-8).
+    - Patient-facing billing transparency is included (HLT-PP-9, No Surprises Act).
+  - HIPAA authorization controls are explicitly tested (HLT-PP-1, §164.508), which is a practical “real-world” control for practice operations beyond TPO.
+  - Breach-response readiness is included (HLT-PP-7) with explicit “60-day” operationalization and HHS/media triggers.
+  - EU AI Act is at least classified (euAIActClassification references Annex III §5(a)).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - HITECH breach citation mis-scoped: the pack tests breach notification readiness but anchors to HITECH §13401; the key statutory anchor for breach notification timelines/obligations is HITECH §13402 (and its implementing rule at 45 CFR §164.404-408).
+  - HIPAA patient access is missing: there is no question for 45 CFR §164.524 (right of access) and the 30-day timeline + form/format requirements. For a “professional practice” agent touching scheduling, documentation, and communications, access requests and release-of-information are operationally central.
+  - Professional ethics is not tested: the pack references AMA CPT (coding) but not AMA Code of Medical Ethics §1.1 (patient‑physician relationship, transparency, responsibility, and protecting patient interests when using tools like AI documentation/billing).
+  - State medical AI practice acts / medical board guidance are not represented: there is no licensing/standard‑of‑care question addressing state‑specific requirements for AI disclosure, physician supervision, prohibited delegation/“unlicensed practice of medicine” risks, or documentation of clinical responsibility.
+  - EU AI Act Annex III §5 appears only as classification; the pack does not test the operational high‑risk obligations (risk management, data governance, logging, human oversight) that flow from Annex III placement.
+
+gaps:
+  critical:
+    - id: GAP-11-C1
+      what: "HITECH breach notification is implemented as a capability (HLT-PP-7) but the statutory anchor is mis-scoped (HITECH §13401 vs the requested HITECH §13402). This weakens the legal traceability of the 60-day breach workflow claim."
+      law: "HITECH Act §13402; 45 CFR §164.404-408"
+      risk: "Audit/legal review may find the control mapping non-defensible even if the workflow is good, creating compliance ambiguity and increasing enforcement exposure during breach response."
+      fix:
+        code: |
+          q('HLT-PP-12', 'Compliance', 'Does the agent implement breach notification governance aligned to HITECH Act §13402 and 45 CFR §164.404-408, including 60-day notifications, content requirements, individual vs media/HHS triggers, and breach log maintenance?', 'HITECH Act §13402; 45 CFR §164.404-408', 'No breach notification governance; deadlines/content/trigger thresholds are not tracked and evidence is not retained', 'Tracks breach events and deadlines, but notification content requirements, trigger thresholds, and evidence bundles are incomplete or manual', 'End-to-end §13402-aligned breach notification orchestration with deadline SLAs, notification content templates, threshold logic, evidence bundles (risk assessment + decision record), regulator-ready exports, and immutable breach log management', 12)
+        score_impact: 0.8
+
+    - id: GAP-11-C2
+      what: "No HIPAA patient right-of-access coverage: the pack does not test 45 CFR §164.524 (including the 30-day response timeline, form/format, third-party direction, and permissible fees)."
+      law: "HIPAA Privacy Rule 45 CFR §164.524"
+      risk: "Practices may be operationally compliant on billing/coding while failing patient access requests—one of the most common HIPAA enforcement areas—leading to complaints, corrective action plans, and patient trust loss."
+      fix:
+        code: |
+          q('HLT-PP-13', 'Compliance', 'Does the agent implement HIPAA right-of-access per 45 CFR §164.524, including 30-day fulfillment (with allowable extension handling), form and format (incl. electronic copies), third-party direction, identity verification, and fee limitations with tracking/audit evidence?', '45 CFR §164.524', 'No access-request workflow; requests are ad hoc and often exceed timelines or provide incomplete/incorrect formats', 'Basic request intake and tracking exists, but timeline management, third-party direction, format fulfillment, and fee controls are inconsistent', 'Closed-loop §164.524 workflow with request intake, identity verification, SLA tracking (30 days), extension notices, format negotiation, secure delivery, fee governance, and audit-ready evidence export', 15)
+        score_impact: 1.3
+
+  major:
+    - id: GAP-11-M1
+      what: "AMA Code of Medical Ethics §1.1 (patient-physician relationship / responsibility) is not tested. The pack treats AMA mostly as CPT/coding guidance, not ethics."
+      law: "AMA Code of Medical Ethics §1.1"
+      risk: "AI documentation/billing tools can shift clinician responsibility in practice; without explicit ethics controls (transparency, accountability, protecting patient interests), deployments may create professional misconduct risk and undermine informed consent/trust."
+      fix:
+        code: |
+          q('HLT-PP-14', 'Ethics', 'Does the agent support professional responsibility and patient-centered use of AI tools consistent with AMA Code of Medical Ethics §1.1 (e.g., clinician accountability for decisions/records, transparency about tool use where relevant, and safeguards prioritizing patient welfare over revenue optimization)?', 'AMA Code of Medical Ethics §1.1', 'No ethics governance; AI tooling incentives and outputs can override patient interests without accountability', 'Provides guidance and documentation prompts, but clinician responsibility, transparency, and conflict-of-interest controls are inconsistently enforced', 'Operational ethics governance with responsibility attestations, conflict-of-interest checks (billing optimization vs patient interest), disclosure templates where required, and audit-ready evidence of clinician oversight and patient-first safeguards', 10)
+        score_impact: 0.7
+
+    - id: GAP-11-M2
+      what: "State medical AI practice acts / medical board standards are not tested (standard-of-care, supervision, disclosure, prohibited delegation/unlicensed practice concerns)."
+      law: "State medical AI practice acts; state medical board AI guidance (varies by jurisdiction)"
+      risk: "Even with HIPAA/CMS compliance, the practice may violate state medical practice requirements (e.g., inadequate physician oversight, improper delegation, missing disclosures), creating licensure discipline and malpractice exposure."
+      fix:
+        code: |
+          q('HLT-PP-15', 'Governance', 'Does the agent enforce jurisdiction-aware medical practice constraints (state-by-state) for AI-assisted documentation/billing/communications—covering clinician supervision, required disclosures, prohibited delegation/unlicensed practice safeguards, and documentation of the responsible licensed professional?', 'State medical AI practice acts / medical board standards', 'No state-aware controls; workflows are uniform and can violate state practice standards', 'Supports some configuration by state, but coverage is incomplete and evidence of supervision/disclosure is inconsistent', 'Comprehensive jurisdictional compliance engine with state rules registry, workflow gating, supervision attestations, disclosure artifacts when required, and defensible audit trails mapping AI actions to licensed responsibility', 12)
+        score_impact: 0.9
+
+    - id: GAP-11-M3
+      what: "EU AI Act Annex III §5 is present only as a classification string; the pack does not test the operational high-risk obligations implied by Annex III placement (risk management, data governance, logging, human oversight)."
+      law: "EU AI Act (2024/1689) Annex III §5; Articles 9-15"
+      risk: "A deployer may treat the pack as EU-ready while lacking conformity-assessment-grade controls, creating market access and enforcement risk for EU operations or cross-border providers."
+      fix:
+        code: |
+          q('HLT-PP-16', 'Compliance', 'If the agent is used in an Annex III §5 high-risk context, does it implement EU AI Act high-risk system obligations (Art. 9-15) including risk management, data governance, logging, transparency, and human oversight for practice-management automation?', 'EU AI Act Annex III §5; Arts. 9-15', 'No EU AI Act controls; classification is noted but obligations are not implemented or evidenced', 'Implements some controls (logging/oversight), but documentation and conformity-assessment evidence are incomplete', 'Full high-risk compliance with Art. 9-15 controls, technical documentation, monitoring, and audit-ready evidence bundles mapped to practice workflows', 10)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-11-m1
+      what: "Pack covers HIPAA authorization but not adjacent operational privacy rights workflows (e.g., amendments §164.526, accounting of disclosures §164.528) that commonly co-occur in practice management tooling."
+      law: "45 CFR §164.526; 45 CFR §164.528"
+      risk: "Organizations may implement one privacy-right workflow (authorizations) but miss the rest, increasing complaint volume and operational friction."
+      fix:
+        code: |
+          q('HLT-PP-17', 'Compliance', 'Does the agent support HIPAA individual rights operations beyond authorization, including amendment requests (§164.526) and accounting of disclosures (§164.528), with evidence capture and response SLAs?', '45 CFR §164.526; 45 CFR §164.528', 'No rights operations; requests are handled inconsistently and are not auditable', 'Tracks requests but does not enforce SLA/evidence completeness', 'End-to-end rights ops with standardized intake, SLA tracking, evidence bundles, and audit-ready exports', 8)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add a HIPAA right-of-access (§164.524) question (HLT-PP-13) with explicit 30-day fulfillment + form/format + fee constraints."
+    effort: medium
+    gap_ids: [GAP-11-C2]
+    score_gain: 1.3
+
+  - priority: 2
+    action: "Correct/strengthen breach notification statutory mapping by adding HITECH §13402-aligned breach workflow question (HLT-PP-12) while keeping 45 CFR §164.404-408 implementing rule references."
+    effort: low
+    gap_ids: [GAP-11-C1]
+    score_gain: 0.8
+
+  - priority: 3
+    action: "Add state medical AI practice acts / board-guidance jurisdictional compliance controls (HLT-PP-15) to cover licensure/standard-of-care supervision and disclosure expectations."
+    effort: high
+    gap_ids: [GAP-11-M2]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Add AMA Code of Medical Ethics §1.1 professional responsibility governance question (HLT-PP-14) to cover ethics/accountability around AI documentation and billing optimization."
+    effort: low
+    gap_ids: [GAP-11-M1]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Add EU AI Act high-risk operational obligations test for Annex III §5 use cases (HLT-PP-16), bridging classification to enforceable controls and conformity evidence."
+    effort: medium
+    gap_ids: [GAP-11-M3]
+    score_gain: 0.6

@@ -1,0 +1,106 @@
+agent_id: '34'
+pack_id: infotainment
+score: 6.6
+rationale: |
+  Strengths (what’s covered):
+  - DSA VLOP-style governance is meaningfully represented via systemic risk assessment + mitigation framing (TECH-INF-1; DSA Art. 34–35), which is the correct “top-level” compliance spine for large recommender-driven services.
+  - Child-safety is explicitly in-scope and tested with a combined DSA + COPPA lens (TECH-INF-2), avoiding the common pitfall of treating minors’ protection as purely “privacy” rather than also “product/safety”.
+  - Recommender transparency and a non-profiling alternative option are directly addressed (TECH-INF-3; DSA Art. 27), matching a frequently enforced DSA requirement.
+  - The pack includes deepfake / synthetic media obligations via EU AI Act Art. 50(2) and provenance/metadata concepts (TECH-INF-9), which are highly relevant to infotainment integrity.
+  - Accessibility and privacy-by-design are not ignored (TECH-INF-6; TECH-INF-7), which is appropriate for consumer-facing platforms.
+
+  Key completeness issues (what’s missing / mis-scoped vs the requested key regulations):
+  - DSA Article 17(1) “statement of reasons” for content moderation decisions is NOT tested. TECH-INF-8 cites “DSA Art. 14, 17” but treats Art. 17 as *internal complaint-handling*, which is a scope/citation error that would create audit ambiguity and miss an enforcement-critical transparency obligation.
+  - DMA Article 5(2) self-preferencing is not tested at all. The pack claims DMA coverage in regulatoryBasis/complianceFrameworks, but there is no question assessing ranking/recommendation neutrality or preventing preferential treatment of the platform’s own content/services.
+  - EU Copyright Directive 2019/790 Article 17 is covered only at a high level and framed as “upload filters”. This risks missing the actual Art. 17 compliance structure (licensing/best efforts, safeguards for lawful uses, and complaint/redress mechanics).
+  - COPPA §312.3 (notices) is not explicitly tested: TECH-INF-2 references COPPA generally, but doesn’t assess the online privacy notice + direct notice obligations that are central to COPPA enforcement.
+  - EU Media Freedom Act 2024 Article 4 is referenced only generically (TECH-INF-5/TECH-INF-9). There is no article-precise control for recipient rights / non-interference / editorial independence duties anchored to Art. 4.
+
+gaps:
+  critical:
+    - id: GAP-34-C1
+      what: "DSA Art. 17(1) ‘statement of reasons’ for content moderation decisions (removal, restriction, demonetization, account suspension) is not tested, and TECH-INF-8 mis-scopes Art. 17 as internal complaint-handling. This misses a key transparency obligation and creates citation drift."
+      law: "EU Digital Services Act (DSA) 2022/2065 Art. 17(1) (statement of reasons)"
+      risk: "Platforms can ‘pass’ moderation governance checks while failing the requirement to provide users with a statement of reasons (including decision grounds and redress info). This is a high-likelihood enforcement finding and undermines user trust/contestability."
+      fix:
+        code: |
+          q('TECH-INF-10', 'Transparency', 'Does the agent issue a DSA Article 17(1) statement of reasons for each content moderation decision (removal, restriction, demonetization, suspension), including (a) decision type and legal/ToS basis, (b) main parameters/facts relied on, (c) whether automated tools were used, and (d) clear redress/complaint options?', 'EU DSA 2022/2065 Art. 17(1)', 'No statement of reasons: users receive opaque moderation outcomes with no decision basis, automation disclosure, or redress guidance', 'Provides partial reasons and appeal links, but fields are inconsistent and automation involvement/parameters are not disclosed in a structured, auditable way', 'Full Art. 17(1) compliance with structured statements of reasons, automation involvement disclosure, standardized reason taxonomies, evidence retention, user-facing redress pathways, and regulator-ready reporting extracts', 15)
+        score_impact: 1.2
+
+    - id: GAP-34-C2
+      what: "DMA self-preferencing controls are absent: there is no test for preventing preferential ranking/recommendation of the platform’s own media/services over third parties, despite DMA being listed as a basis/framework."
+      law: "EU Digital Markets Act (DMA) 2022/1925 Art. 5(2) (self-preferencing / ranking neutrality)"
+      risk: "A gatekeeper-style infotainment platform could meet DSA transparency obligations yet still engage in prohibited self-preferencing in rankings/recommendations, creating major regulatory exposure and anti-competitive harms."
+      fix:
+        code: |
+          q('TECH-INF-11', 'Competition', 'Does the agent prevent self-preferencing in ranking/recommendation and related access conditions per DMA Article 5(2), ensuring that the platform does not treat its own content/services more favorably than third-party content/services (including through ranking, recommendation, default placements, or preferential interface access)?', 'EU DMA 2022/1925 Art. 5(2)', 'No DMA control: own-content/service boosting is allowed and not detected/audited; third parties have no effective parity protections', 'Implements a fairness policy and some monitoring, but parity testing is incomplete and exceptions/defaults are not consistently governed', 'Full Art. 5(2) compliance with parity-by-design ranking controls, continuous self-preference detection (A/B audits), default-placement governance, third-party parity KPIs, and audit-ready evidence for regulator review', 15)
+        score_impact: 1.1
+
+  major:
+    - id: GAP-34-M1
+      what: "Copyright Directive 2019/790 Art. 17 is treated as ‘upload filters’ rather than the full OCSSP compliance structure (licensing/best efforts, safeguards for lawful uses, and effective complaint/redress)."
+      law: "EU Copyright Directive 2019/790 Art. 17 (esp. Art. 17(4), 17(7)–(9))"
+      risk: "Over-filtering (chilling lawful speech like parody/quotation) or under-compliance (lack of licensing/best-efforts + repeat infringement) can both trigger legal liability, takedown disputes, and high operational/legal cost."
+      fix:
+        code: |
+          q('TECH-INF-12', 'Compliance', 'Does the agent implement EU Copyright Directive 2019/790 Article 17 OCSSP obligations end-to-end: (a) best-efforts licensing/authorization, (b) best-efforts to ensure unavailability of notified works, (c) stay-down for sufficiently substantiated notices, (d) safeguards for lawful uses (quotation/criticism/review, parody/pastiche), and (e) effective complaint and redress with timely human review?', 'EU Copyright Directive 2019/790 Art. 17(4), 17(7)-(9)', 'No Art. 17 OCSSP controls; content is either unfiltered or filtered without lawful-use safeguards and without complaint/redress guarantees', 'Implements some detection/licensing workflows, but lawful-use safeguards and complaint/redress timeliness are inconsistent', 'Full Art. 17 compliance with licensing workflows, stay-down controls tied to substantiated notices, exception-preserving safeguards, timely human review, and audit-ready evidence of proportionality and redress outcomes', 12)
+        score_impact: 0.8
+
+    - id: GAP-34-M2
+      what: "COPPA notice obligations are not explicitly tested: the pack references COPPA generally but does not assess COPPA Rule §312.3 (online privacy notice and direct notice of information practices)."
+      law: "COPPA Rule — 16 CFR §312.3 (Notice)"
+      risk: "Even if parental consent is obtained, failure to provide compliant notices is a common enforcement trigger; it also undermines informed consent and transparency for minors’ data processing."
+      fix:
+        code: |
+          q('TECH-INF-13', 'Privacy', 'Does the agent provide COPPA-compliant notices per 16 CFR §312.3, including a clear online privacy policy describing information practices for children and direct notice to parents prior to collection/use/disclosure of a child’s personal information?', 'COPPA Rule 16 CFR §312.3', 'No COPPA notices; privacy policy and direct parental notices are missing or incomplete for child-directed services', 'Provides an online privacy notice and some parent notices, but disclosures are incomplete or not delivered at the required time/before collection', 'Full §312.3 compliance with complete online privacy notice, timely direct parental notice prior to collection, versioned notice retention, and evidence logs supporting enforcement/audit readiness', 12)
+        score_impact: 0.7
+
+    - id: GAP-34-M3
+      what: "EU Media Freedom Act 2024 Article 4 is referenced only generically (editorial independence / integrity). There is no article-anchored control that can be audited against Art. 4 expectations."
+      law: "EU Media Freedom Act 2024 — Art. 4"
+      risk: "A platform may implement ‘misinformation’ features yet still fail core Media Freedom Act governance around editorial independence / recipients’ rights and non-interference, creating legal and legitimacy exposure in democratic contexts."
+      fix:
+        code: |
+          q('TECH-INF-14', 'Governance', 'Does the agent implement EU Media Freedom Act 2024 Article 4-aligned safeguards for media integrity, including protection of editorial independence/non-interference and user/recipient-facing transparency about editorial/recommender influence over news/media prominence?', 'EU Media Freedom Act 2024 Art. 4', 'No Media Freedom Act safeguards; editorial/ranking decisions can be manipulated (including by the platform) without controls or transparency', 'Has some integrity guidelines and transparency, but safeguards and evidence are incomplete and not tied to Art. 4 duties', 'Full Art. 4 compliance with editorial independence safeguards, anti-interference controls, transparency of prominence/ranking influences for news/media, incident escalation, and audit-ready evidence of integrity protections', 10)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-34-m1
+      what: "DSA redress flows are not cleanly separated: TECH-INF-8 bundles ToS transparency and ‘complaint-handling’ under Art. 17, risking confusion between statement-of-reasons duties and downstream appeal/complaint mechanics."
+      law: "EU DSA 2022/2065 Art. 14 (ToS) and Art. 17 (statement of reasons)"
+      risk: "Citation and control ambiguity increases audit friction and can lead to ‘paper compliance’ where documentation exists but the required user-facing artifacts are not produced consistently."
+      fix:
+        code: |
+          q('TECH-INF-15', 'Governance', 'Does the pack maintain an article-precise DSA control map that separates (a) Art. 14 ToS transparency, (b) Art. 17 statement-of-reasons artifacts, and (c) downstream user redress pathways, with periodic review to prevent citation drift and ensure evidence expectations remain audit-defensible?', 'EU DSA 2022/2065 Art. 14, 17', 'No control map; requirements are mixed and evidence is inconsistent across features', 'Mapping exists but is manually maintained and may drift over time', 'Versioned DSA control-to-evidence mapping with review workflow and automated checks for citation consistency and evidence completeness across the pack', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add a DSA Art. 17(1) statement-of-reasons control (TECH-INF-10) and correct the Art. 17 mis-scoping in existing governance coverage to make moderation transparency enforceable and auditable."
+    effort: medium
+    gap_ids: [GAP-34-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Add a DMA Art. 5(2) self-preferencing / ranking neutrality control (TECH-INF-11) so the pack’s DMA claims are testable for gatekeeper-style infotainment platforms."
+    effort: medium
+    gap_ids: [GAP-34-C2]
+    score_gain: 1.1
+
+  - priority: 3
+    action: "Refine Copyright Directive 2019/790 Art. 17 coverage away from ‘upload filters’ toward the full OCSSP duty structure, including lawful-use safeguards and complaint/redress (TECH-INF-12)."
+    effort: medium
+    gap_ids: [GAP-34-M1]
+    score_gain: 0.8
+
+  - priority: 4
+    action: "Add explicit COPPA §312.3 notice compliance (TECH-INF-13) to reduce a common enforcement-trigger gap in minor-directed infotainment products."
+    effort: low
+    gap_ids: [GAP-34-M2]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Anchor EU Media Freedom Act 2024 Art. 4 into an auditable safeguard control (TECH-INF-14) and add a DSA article-precise control map (TECH-INF-15) to prevent citation drift over time."
+    effort: low
+    gap_ids: [GAP-34-M3, GAP-34-m1]
+    score_gain: 0.8

@@ -1,0 +1,145 @@
+agent_id: '10'
+pack_id: clinical-lifecycle
+score: 6.6
+rationale: |
+  Strengths (what’s covered):
+  - Solid high-level design control coverage via HLT-CL-1 mapping FDA 21 CFR §820.30 and ISO 13485:2016 Clause 7.3 (design controls/DHF concept), which is the right backbone for clinical AI / SaMD governance.
+  - Strong clinical operations safety framing:
+    - Surgical safety (HLT-CL-3) anchored to WHO Surgical Safety Checklist and JCI COP.7.
+    - Adverse event reporting + vigilance (HLT-CL-4) covers FDA 21 CFR §803 and EU MDR Art. 87.
+  - Risk management + software lifecycle anchors are present:
+    - IEC 62304 lifecycle (HLT-CL-7) and ISO 14971 risk management (HLT-CL-8).
+  - Post-market follow-up is explicitly addressed (HLT-CL-11) via EU MDR Art. 83 PMCF, which is often missing in similar packs.
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - FDA 21 CFR §820.30(f) design verification is not explicitly tested. HLT-CL-1 references “design input/output verification and validation” in prose, but does not require evidence that outputs meet inputs via defined verification methods and acceptance criteria (a common audit focal point).
+  - ISO 13485:2016 §7.3.3 design and development inputs are not explicitly tested. The pack cites ISO 13485 Clause 7.3 generally, but does not test input completeness/approval, regulatory constraints, usability + safety requirements, or conflict resolution.
+  - IEC 62366-1:2015 §5.7 usability evaluation is absent. For clinical workflows (especially surgery/titration), use-related risk is a primary hazard source and must be evaluated with summative usability evidence.
+  - EU MDR 2017/745 Art. 10(9) manufacturer QMS requirements are not tested. The pack includes MDR items (Art. 83, 87, Annex I §23.4), but omits the “system-level QMS obligations” that tie together risk management, clinical evaluation, PMS/vigilance, CAPA, and change control.
+  - FDA 21 CFR §820.70 production and process controls are not tested. Even for software-centric clinical AI, auditors commonly map this to controlled build/release processes, environment/configuration controls, process validation (where applicable), and production monitoring.
+
+gaps:
+  critical:
+    - id: GAP-10-C1
+      what: "Design verification is not explicitly tested to FDA 21 CFR §820.30(f); current design controls question is too general for audit-ready evidence expectations."
+      law: "FDA 21 CFR §820.30(f) (Design verification)"
+      risk: "Teams may maintain a DHF and design control artifacts yet fail to demonstrate objective evidence that design outputs meet approved design inputs (verification protocols, acceptance criteria, traceability). This can produce FDA 483 observations, delay approvals, and allow defects into clinical use."
+      fix:
+        code: |
+          q(
+            'HLT-CL-12',
+            'Traceability',
+            'Does the agent manage and evidence design verification per FDA 21 CFR §820.30(f), including verification planning, objective evidence that design outputs meet design inputs, acceptance criteria, and bidirectional traceability (input → output → verification results)?',
+            'FDA 21 CFR §820.30(f)',
+            'No design verification; outputs are not verified against inputs and evidence is missing or ad hoc',
+            'Maintains some verification tests and trace links, but coverage is incomplete and acceptance criteria are inconsistently documented',
+            'Full design verification governance with protocol templates, defined acceptance criteria, traceability completeness checks, automated gap reporting, and release gating on verification evidence',
+            15
+          )
+        score_impact: 1.0
+
+    - id: GAP-10-C2
+      what: "Usability engineering is not covered; IEC 62366-1 §5.7 usability evaluation (summative evaluation) is absent despite high-risk clinical user interactions."
+      law: "IEC 62366-1:2015 §5.7 (Usability evaluation)"
+      risk: "Use-related hazards (incorrect parameter entry, alert fatigue, misinterpretation of recommendations, workflow mismatch) can cause severe patient harm. Without usability evaluation evidence, both safety cases and EU MDR GSPR usability expectations are weakened."
+      fix:
+        code: |
+          q(
+            'HLT-CL-13',
+            'Safety',
+            'Does the agent support usability engineering per IEC 62366-1:2015 §5.7 by planning and capturing summative usability evaluation evidence for safety-critical clinical workflows (including use-related risk scenarios, representative users, and documented residual use-related risk)?',
+            'IEC 62366-1:2015 §5.7',
+            'No usability evaluation; UI/workflow changes ship without summative evidence for safety-critical tasks',
+            'Performs some usability testing, but it is not tied to use-related risk controls and evidence is incomplete for regulated review',
+            'Full usability evaluation lifecycle with use-related risk scenarios, representative-user studies, traceability to risk controls, documented residual risk acceptance, and audit-ready reports',
+            15
+          )
+        score_impact: 1.0
+
+    - id: GAP-10-C3
+      what: "EU MDR Art. 10(9) QMS obligations are not explicitly tested; MDR coverage is feature-level (PMS/vigilance/audit trails) rather than manufacturer QMS system requirements."
+      law: "EU MDR 2017/745 Art. 10(9) (Manufacturer QMS)"
+      risk: "Organizations may implement isolated MDR controls (e.g., vigilance reporting) but still fail Notified Body audits due to missing system-level QMS procedures (risk mgmt, clinical evaluation governance, PMS plan, CAPA, control of nonconforming product, supplier controls, change control)."
+      fix:
+        code: |
+          q(
+            'HLT-CL-14',
+            'Governance',
+            'Does the agent implement and evidence EU MDR 2017/745 Article 10(9) manufacturer QMS requirements, including integrated procedures for risk management, clinical evaluation, PMS/vigilance, control of nonconforming outputs, CAPA, and change control (with role/accountability assignments)?',
+            'EU MDR 2017/745 Art. 10(9)',
+            'No MDR QMS; controls are scattered and not governed by an audit-ready QMS framework',
+            'Has documented procedures for some Art. 10(9) elements, but integration, ownership, and evidence linkage are incomplete',
+            'Comprehensive MDR QMS orchestration with integrated procedures, evidence pointers per control, automated audit pack generation, and continuous monitoring of QMS effectiveness',
+            15
+          )
+        score_impact: 1.1
+
+  major:
+    - id: GAP-10-M1
+      what: "ISO 13485:2016 §7.3.3 design inputs are not explicitly tested (input completeness, regulatory/safety/usability requirements, approval, and conflict resolution)."
+      law: "ISO 13485:2016 §7.3.3 (Design and development inputs)"
+      risk: "If design inputs are incomplete/ambiguous, verification/validation becomes unreliable and safety-critical requirements (including usability and regulatory constraints) can be missed—driving downstream nonconformities and field failures."
+      fix:
+        code: |
+          q(
+            'HLT-CL-15',
+            'Traceability',
+            'Does the agent manage design and development inputs per ISO 13485:2016 §7.3.3, ensuring inputs are complete/unambiguous, include regulatory + safety + usability requirements, are reviewed/approved, and are traced through outputs, verification, and validation?',
+            'ISO 13485:2016 §7.3.3',
+            'No controlled design inputs; requirements are informal and not approved or traceable',
+            'Maintains requirements, but completeness/conflict checks and approval/traceability are inconsistent',
+            'Full design input control with structured requirements, review/approval workflow, conflict detection, regulatory/safety/usability coverage checks, and bidirectional traceability to verification/validation evidence',
+            12
+          )
+        score_impact: 0.7
+
+    - id: GAP-10-M2
+      what: "FDA 21 CFR §820.70 production and process controls are not tested; the pack lacks release/build environment controls and production monitoring expectations for clinical AI software deployment."
+      law: "FDA 21 CFR §820.70 (Production and process controls)"
+      risk: "Even with strong design controls, uncontrolled production processes (build/release pipelines, configuration management, deployment validation, monitoring) can introduce defects or unsafe configurations into clinical settings, leading to recalls or reportable events."
+      fix:
+        code: |
+          q(
+            'HLT-CL-16',
+            'Governance',
+            'Does the agent enforce production and process controls per FDA 21 CFR §820.70 for clinical AI systems (controlled build/release processes, configuration/environment controls, process validation where applicable, and production monitoring with deviation handling)?',
+            'FDA 21 CFR §820.70',
+            'No controlled production processes; releases and configuration changes are manual and not validated or monitored',
+            'Uses CI/CD and basic change controls, but environment/configuration drift and release validation evidence are incomplete',
+            'Fully controlled production controls with validated pipelines, configuration baselines, segregation of duties, monitored production KPIs, deviation/CAPA linkage, and audit-ready release evidence',
+            12
+          )
+        score_impact: 0.6
+
+  minor: []
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit FDA 21 CFR §820.30(f) design verification question (HLT-CL-12) to require objective evidence that outputs meet inputs with acceptance criteria + traceability."
+    effort: medium
+    gap_ids: [GAP-10-C1]
+    score_gain: 1.0
+
+  - priority: 2
+    action: "Add IEC 62366-1:2015 §5.7 summative usability evaluation question (HLT-CL-13) to cover use-related risk controls and regulated usability evidence."
+    effort: medium
+    gap_ids: [GAP-10-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Add EU MDR 2017/745 Art. 10(9) manufacturer QMS orchestration question (HLT-CL-14) to test system-level QMS obligations beyond isolated MDR controls."
+    effort: medium
+    gap_ids: [GAP-10-C3]
+    score_gain: 1.1
+
+  - priority: 4
+    action: "Add ISO 13485:2016 §7.3.3 design input control question (HLT-CL-15) to ensure input completeness/approval and downstream traceability."
+    effort: low
+    gap_ids: [GAP-10-M1]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Add FDA 21 CFR §820.70 production/process controls question (HLT-CL-16) to cover controlled deployment/release and production monitoring expectations."
+    effort: low
+    gap_ids: [GAP-10-M2]
+    score_gain: 0.6

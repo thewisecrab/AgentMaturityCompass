@@ -1,0 +1,145 @@
+agent_id: '14'
+pack_id: clinical-trials
+score: 6.4
+rationale: |
+  Strengths (what’s covered):
+  - Core GCP and trial-operations coverage is strong for a “baseline readiness” pack:
+    - Safety monitoring + FDA safety reporting are explicitly tested (HLT-CT-1: ICH E6(R2) §5.18.3; FDA 21 CFR §312.32).
+    - Informed consent is tested with appropriately detailed expectations (HLT-CT-2: FDA 21 CFR §50.25; ICH E6(R2) §4.8).
+    - Electronic trial record integrity is addressed (HLT-CT-6: ICH E6(R2) §5.5.3; 21 CFR Part 11).
+    - Ethics committee / IRB workflow coverage exists (HLT-CT-4: 21 CFR Part 56; EU CTR 536/2014 Art. 4).
+    - Data standards and transparency are included (HLT-CT-3 CDISC; HLT-CT-8 CONSORT; HLT-CT-7 registration).
+  - Modernization is acknowledged via an E6(R3) transition question (HLT-CT-11), which is forward-looking and useful for organizations preparing for updated quality management expectations.
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - ICH E6(R2) §5.18.4(e) (monitor responsibilities; electronic/remote monitoring expectations) is not explicitly tested. Current monitoring coverage is limited to §5.18.3 “risk-based monitoring” conceptually, without requirements for electronic monitoring access controls, source verification approach, and audit-ready evidence for remote monitoring.
+  - EU CTR 536/2014 Art. 37 safety reporting is only mentioned as a citation inside HLT-CT-11, but the question is scoped to ICH E6(R3) quality management. This leaves EU CTR safety reporting obligations under-tested as a first-class requirement (e.g., SUSAR reporting workflows, annual safety reporting, EU portal/workflow alignment).
+  - FDA 21 CFR §312.62 investigator record retention / case history requirements are absent. The pack covers Part 11 integrity but does not explicitly test investigator obligations for maintaining/retaining adequate and accurate records (and the retention time triggers), which is an inspection focal point.
+  - Declaration of Helsinki §23 (research ethics committee review/approval prior to study start and independence) is not referenced. While IRB oversight exists, Helsinki is often used in multi-jurisdiction ethics governance and sponsor/institution policies.
+  - GDPR Art. 9(2)(j) scientific research condition (and associated Art. 89 safeguards) is not tested. The pack references “participant management” and data integrity, but does not assess the lawful basis for special-category health data processing in research and safeguards (pseudonymisation, access controls, minimization, retention).
+
+gaps:
+  critical:
+    - id: GAP-14-C1
+      what: "Electronic/remote monitoring requirements are not explicitly tested to ICH E6(R2) §5.18.4(e); current monitoring coverage is high-level (§5.18.3) and does not require audit-ready controls for electronic monitoring access, evidence capture, and source verification approach."
+      law: "ICH E6(R2) §5.18.4(e) (Monitor responsibilities; electronic monitoring)"
+      risk: "Sponsors/CROs may claim RBM compliance yet fail inspection expectations for remote/electronic monitoring (controlled access to EDC/eSource, monitor activity logging, source data verification approach, and documented monitoring findings/follow-up). This can lead to inspection findings, delayed database lock, and compromised data integrity."
+      fix:
+        code: |
+          q(
+            'HLT-CT-12',
+            'Governance',
+            'Does the agent support electronic/remote monitoring per ICH E6(R2) §5.18.4(e) by enforcing controlled monitor access to electronic systems (eSource/EDC/eTMF), logging monitor activities/findings, supporting documented SDV/SDR approaches, and ensuring follow-up actions are tracked to closure?',
+            'ICH E6(R2) §5.18.4(e)',
+            'No electronic monitoring controls; monitor access is unmanaged and monitoring evidence/follow-up is incomplete or not audit-ready',
+            'Implements basic remote monitoring access and findings tracking, but activity logging, SDV approach documentation, and closure evidence are inconsistent',
+            'Full electronic monitoring governance with role-based monitor access, immutable activity logs, SDV/SDR plan management, centralized + on-site monitoring evidence consolidation, CAPA linkage, and inspection-ready monitoring reports',
+            15
+          )
+        score_impact: 1.1
+
+    - id: GAP-14-C2
+      what: "EU CTR 536/2014 Article 37 safety reporting is not tested as a dedicated control; it is only cited within an E6(R3) transition question, creating scope ambiguity and leaving EU safety-reporting workflows (SUSAR/annual safety reporting) unvalidated."
+      law: "EU CTR 536/2014 Art. 37 (Safety reporting)"
+      risk: "Organizations may implement FDA-centric safety reporting (21 CFR §312.32) but fail EU CTR-specific reporting pathways and timelines, risking regulatory non-compliance, delayed safety signal escalation, and potential trial suspension or enforcement action in EU member states."
+      fix:
+        code: |
+          q(
+            'HLT-CT-13',
+            'Safety',
+            'Does the agent implement EU CTR 536/2014 Article 37 safety reporting workflows (including SUSAR reporting and periodic/annual safety reporting), with jurisdiction-aware timelines, submission readiness tracking, and reconciliation against case processing to ensure completeness and timeliness?',
+            'EU CTR 536/2014 Art. 37',
+            'No EU CTR safety reporting; SUSAR/periodic safety reporting is manual, inconsistent, or not traceable to source safety cases',
+            'Tracks EU safety cases and reporting deadlines, but reconciliation, completeness checks, and submission evidence are incomplete',
+            'Full EU CTR safety reporting automation with SUSAR + periodic safety report orchestration, case/report reconciliation, submission evidence retention, audit trails, and continuous compliance monitoring across member states',
+            15
+          )
+        score_impact: 1.0
+
+    - id: GAP-14-C3
+      what: "Investigator recordkeeping and retention requirements are not tested; FDA 21 CFR §312.62 (case histories, drug disposition, retention triggers) is absent despite being a recurring inspection focal point."
+      law: "FDA 21 CFR §312.62 (Investigator recordkeeping and record retention)"
+      risk: "Even with Part 11-compliant systems, investigators/sites can fail to retain complete case histories and required records for the correct duration (e.g., 2 years after marketing approval or discontinuation/withdrawal), causing Form FDA 483 observations, data exclusion, and sponsor audit findings."
+      fix:
+        code: |
+          q(
+            'HLT-CT-14',
+            'Compliance',
+            'Does the agent enforce investigator recordkeeping and retention per FDA 21 CFR §312.62, including complete case histories, drug disposition records, and retention scheduling based on regulatory triggers (e.g., 2 years after marketing application approval or discontinuation/withdrawal notice)?',
+            'FDA 21 CFR §312.62',
+            'No retention governance; site records are incomplete or retention periods are not tracked/enforced',
+            'Maintains records and basic retention policies, but trigger-based retention scheduling, completeness checks, and retrieval readiness are inconsistent',
+            'Full §312.62 compliance with record completeness checks, trigger-based retention automation, defensible destruction holds, rapid retrieval/export for inspection, and cross-system linkage (EDC/eSource/pharmacy/IRB) with audit logs',
+            15
+          )
+        score_impact: 1.1
+
+  major:
+    - id: GAP-14-M1
+      what: "Ethics governance is not anchored to Declaration of Helsinki §23; current IRB/Ethics Committee question focuses on US/EU legal frameworks but omits Helsinki’s widely-adopted ethics committee independence + pre-study review expectation used in global sponsor policies."
+      law: "Declaration of Helsinki §23 (Research ethics committee review/approval)"
+      risk: "Multi-country programs may meet minimum local legal requirements yet fail sponsor policy, publication requirements, or partner expectations referencing Helsinki, increasing protocol approval friction and creating inconsistent ethics governance across sites."
+      fix:
+        code: |
+          q(
+            'HLT-CT-15',
+            'Ethics',
+            'Does the agent implement research ethics committee governance consistent with Declaration of Helsinki §23 by ensuring protocol/materials are submitted for independent ethics review and approval prior to trial start, tracking conditions/approvals, and preventing study activities prior to documented approval?',
+            'Declaration of Helsinki §23',
+            'No Helsinki governance; approvals are not reliably tracked and study activities can proceed without confirmed independent ethics approval',
+            'Tracks ethics approvals, but enforcement (no-start gating) and condition/continuing oversight tracking are inconsistent',
+            'Full Helsinki-aligned ethics governance with no-start/no-change gates, approval condition tracking, continuing oversight reminders, deviation/escalation workflows, and audit-ready ethics committee evidence exports',
+            12
+          )
+        score_impact: 0.6
+
+    - id: GAP-14-M2
+      what: "GDPR special-category data processing for research is not tested; GDPR Art. 9(2)(j) + Art. 89 safeguards (pseudonymisation, minimization, retention, access controls) are absent, leaving EU data protection posture under-defined for clinical trial operations."
+      law: "GDPR Art. 9(2)(j) (Scientific research) + Art. 89(1) safeguards"
+      risk: "Sponsors/sites may rely on consent alone or apply inconsistent lawful bases for health data processing, increasing risk of regulatory action, data subject complaints, and cross-border transfer/secondary use constraints that disrupt trial operations and analytics."
+      fix:
+        code: |
+          q(
+            'HLT-CT-16',
+            'Compliance',
+            'Does the agent implement GDPR special-category health data processing for scientific research under Art. 9(2)(j), including Art. 89 safeguards (pseudonymisation where possible, purpose limitation, data minimization, access controls, and retention governance) for clinical trial datasets and operational systems?',
+            'GDPR Art. 9(2)(j); Art. 89(1)',
+            'No GDPR research basis/safeguards; health data is processed without a documented Art. 9(2)(j) basis or consistent safeguards',
+            'Documents a research basis and applies some safeguards (e.g., pseudonyms), but minimization, retention, and access governance are inconsistent across systems/vendors',
+            'Full GDPR research governance with documented lawful basis, safeguards-by-default across EDC/eSource/analytics, automated retention + access reviews, DPIA linkage, and audit-ready evidence for supervisory authorities and partners',
+            12
+          )
+        score_impact: 0.7
+
+  minor: []
+
+path_to_10:
+  - priority: 1
+    action: "Add ICH E6(R2) §5.18.4(e) electronic/remote monitoring control (HLT-CT-12) to make RBM inspection-ready beyond the current §5.18.3 high-level framing."
+    effort: medium
+    gap_ids: [GAP-14-C1]
+    score_gain: 1.1
+
+  - priority: 2
+    action: "Add a dedicated EU CTR 536/2014 Art. 37 safety reporting question (HLT-CT-13) distinct from E6(R3) transition coverage to remove scope ambiguity and validate EU reporting workflows."
+    effort: medium
+    gap_ids: [GAP-14-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Add FDA 21 CFR §312.62 investigator recordkeeping/retention control (HLT-CT-14) to cover inspection-critical retention triggers and retrieval readiness."
+    effort: low
+    gap_ids: [GAP-14-C3]
+    score_gain: 1.1
+
+  - priority: 4
+    action: "Add Declaration of Helsinki §23 ethics committee governance gating (HLT-CT-15) to support global sponsor ethics-policy expectations and publication norms."
+    effort: low
+    gap_ids: [GAP-14-M1]
+    score_gain: 0.6
+
+  - priority: 5
+    action: "Add GDPR Art. 9(2)(j) + Art. 89 safeguard control (HLT-CT-16) to ensure EU research lawful basis and safeguards are explicit and auditable across trial systems."
+    effort: medium
+    gap_ids: [GAP-14-M2]
+    score_gain: 0.7

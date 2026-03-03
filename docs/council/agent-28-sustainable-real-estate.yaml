@@ -1,0 +1,101 @@
+agent_id: '28'
+pack_id: sustainable-real-estate
+score: 6.9
+rationale: |
+  Strengths (what’s covered):
+  - EPBD 2024 Art. 9 is directly tested (MOB-RE-1) and includes EPC-triggering, renovation pathway planning, and a stated “zero‑emission building transition roadmap” concept.
+  - EU Taxonomy building mitigation criteria are meaningfully covered via Climate Delegated Act Annex I §7 (MOB-RE-2) and renovation substantial contribution criteria (Annex I §7.7) (MOB-RE-9), including DNSH language at L5.
+  - WELL v2 indoor environmental quality is explicitly in-scope and tested (MOB-RE-3) with continuous monitoring framing (CO2/PM2.5 etc.) and certification documentation outputs.
+  - GRESB + SFDR linkage is present (MOB-RE-4), correctly positioning real-estate ESG as a capital-markets disclosure and scoring workflow, not just operations.
+  - The pack does not ignore “non-energy” building AI risks: NFPA life safety integration (MOB-RE-5) and GDPR-by-design (MOB-RE-8) help prevent common smart-building failure modes.
+
+  Key completeness issues (what’s missing / mis-scoped vs the requested key regulations):
+  - EPBD Art. 9 “zero-emission buildings from 2028” is not operationalized as a time-bound compliance gate: MOB-RE-1 mentions a transition roadmap but does not test (1) 2028/2030 applicability logic, (2) evidence for ZEB definition compliance, or (3) portfolio-level upgrade sequencing.
+  - ISO 50001:2018 §6.3 (energy review) is listed in regulatoryBasis but not tested within this pack (the only ISO 50001 §6.3 question is in a different energy pack). This leaves a major gap in systematic EnMS governance for buildings.
+  - GRESB is referenced generically; the requested anchor “GRESB §3.2 ESG scoring” is not implemented as a scoring-quality control (data quality, evidence standards, scoring drivers, and submission validation).
+  - WELL v2 “CO2 air quality” is referenced generally, but not tested at a feature/threshold level (e.g., ventilation/CO2 performance targets, sensor calibration, and evidence readiness), which is where audits and certification often fail.
+
+  Overall, the pack has good breadth and plausible L5 behavior, but it needs more *article/section-precise* controls for EPBD-2028 ZEB gating, ISO 50001 §6.3 energy review governance, and GRESB/WELL scoring/threshold rigor.
+
+gaps:
+  critical:
+    - id: GAP-28-C1
+      what: "EPBD 2024 Art. 9 zero-emission building (ZEB) deadline behavior is not tested as a time-bound compliance gate (2028 for new buildings), beyond a general ‘transition roadmap’ mention in MOB-RE-1."
+      law: "EU EPBD 2024 — Art. 9 (zero-emission buildings from 2028 for new buildings)"
+      risk: "A portfolio/building can ‘pass’ generic EPBD energy monitoring while failing the enforcement-facing requirement to plan and evidence ZEB compliance by the statutory deadline, creating permit/marketability risk and stranded-asset exposure."
+      fix:
+        code: |
+          q('MOB-RE-10', 'Compliance', 'Does the agent implement EPBD 2024 Article 9 zero-emission building (ZEB) readiness as a time-bound compliance gate, including (1) applicability logic for new buildings from 2028, (2) evidence that the building design/operation meets the ZEB definition, (3) a sequenced upgrade/renovation plan with milestones, and (4) portfolio-level reporting of ZEB readiness and exceptions?', 'EU EPBD 2024 Art. 9 (ZEB from 2028)', 'No ZEB readiness: no applicability logic, no evidence against ZEB definition, and no time-bound upgrade plan', 'Has a roadmap concept and partial evidence, but lacks deadline gating, applicability logic, and auditable ZEB evidence bundles', 'Full Art. 9 ZEB readiness with deadline-based gating, ZEB definition evidence packs, sequenced milestones, exception handling, and portfolio reporting for regulator/investor scrutiny', 15)
+        score_impact: 1.2
+
+    - id: GAP-28-C2
+      what: "ISO 50001:2018 §6.3 energy review governance is not tested inside the Sustainable Real Estate pack despite being listed in regulatoryBasis (energy review, significant energy uses, baselines, and EnPIs governance)."
+      law: "ISO 50001:2018 — Clause 6.3 (energy review)"
+      risk: "Building AI can optimize energy day-to-day but remain non-auditable and non-repeatable without an energy review + EnPI governance loop, leading to certification failure and weak assurance for reported energy performance."
+      fix:
+        code: |
+          q('MOB-RE-11', 'Governance', 'Does the agent operate an ISO 50001:2018 Clause 6.3 energy review for buildings (and linked EnPIs), including identification of significant energy uses, baseline management, normalization factors (weather/occupancy), action plans, and evidence retention suitable for ISO 50001 certification audits?', 'ISO 50001:2018 Clause 6.3 (Energy review)', 'No energy review: significant energy uses/baselines/normalization are undefined and EnPI governance is absent', 'Performs partial energy review and tracks some EnPIs, but baseline control, normalization, and audit evidence are incomplete', 'Full ISO 50001 §6.3 governance with SEU identification, controlled baselines, normalized EnPIs, action-plan tracking, and auditor-ready evidence packs', 12)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-28-M1
+      what: "GRESB is treated as generic ‘GRESB-aligned reporting’; the requested GRESB §3.2 ESG scoring is not operationalized as a control (scoring drivers, evidence quality tiers, validation before submission)."
+      law: "GRESB Real Estate Assessment — §3.2 (ESG scoring / scoring methodology anchor as requested)"
+      risk: "Teams can generate narrative-aligned reports but underperform or fail verification because data quality, evidence linkage, and scoring-critical fields are incomplete, resulting in lower ESG scores and investor credibility loss."
+      fix:
+        code: |
+          q('MOB-RE-12', 'Transparency', 'Does the agent manage GRESB §3.2 scoring readiness by mapping portfolio data to scoring drivers, enforcing evidence quality requirements (document links, timestamps, ownership), validating completeness before submission, and producing a pre-submission score-delta analysis with remediation tasks?', 'GRESB Real Estate Assessment §3.2', 'No scoring governance: GRESB data is ad hoc, evidence is missing, and submission is not validated', 'Collects most data and some evidence, but scoring-driver coverage and validation are incomplete', 'Full §3.2 scoring readiness with scoring-driver mapping, evidence quality enforcement, pre-submission validation, and remediation workflow that maximizes verifiable score outcomes', 10)
+        score_impact: 0.8
+
+    - id: GAP-28-M2
+      what: "WELL v2 ‘Air/CO2’ is referenced broadly but lacks feature/threshold precision (CO2 performance targets, ventilation verification, sensor calibration and QA), which are typical certification failure points."
+      law: "WELL Building Standard v2 — Air (CO2 / ventilation performance requirements)"
+      risk: "The agent may ‘monitor CO2’ yet fail WELL certification or occupant health expectations because measurement accuracy, calibration, and compliance thresholds aren’t enforced or evidenced."
+      fix:
+        code: |
+          q('MOB-RE-13', 'Wellbeing', 'Does the agent implement WELL v2 Air requirements for CO2/ventilation performance by enforcing sensor calibration/QA, validating ventilation rates and CO2 thresholds over time, and generating WELL-audit-ready evidence (continuous logs, exceptions, corrective actions, and commissioning records)?', 'WELL v2 — Air (CO2/ventilation performance)', 'No WELL-grade CO2 control: sensors/calibration are unmanaged and thresholds are not enforced or evidenced', 'Monitors CO2 and flags issues, but calibration, threshold governance, and audit evidence are incomplete', 'Full WELL CO2/ventilation governance with calibrated sensing, threshold enforcement, corrective action workflows, and auditor-ready evidence packs', 10)
+        score_impact: 0.6
+
+    - id: GAP-28-M3
+      what: "EU Taxonomy alignment is tested via Delegated Act criteria, but EU Taxonomy disclosure outputs (Art. 8 KPIs and reconciliation) are not tested, even though the pack claims SFDR reporting automation."
+      law: "EU Taxonomy Regulation 2020/852 — Art. 8 (disclosure KPIs)"
+      risk: "Organizations can assess eligibility/alignment but still fail mandatory disclosure KPIs and reconciliations required for CSRD/SFDR-aligned reporting, causing audit findings and investor misstatement risk."
+      fix:
+        code: |
+          q('MOB-RE-14', 'Transparency', 'Does the agent compute EU Taxonomy Article 8 KPIs for real estate portfolios (taxonomy-eligible vs taxonomy-aligned turnover/CapEx/OpEx) with traceable mappings to underlying assets/activities and reconciliation to financial reporting, including evidence links for eligibility/alignment/DNSH?', 'EU Taxonomy 2020/852 Art. 8', 'No Art. 8 KPI output: taxonomy KPIs are not computed or cannot be reconciled/evidenced', 'Computes some KPIs but mappings/reconciliations/evidence are incomplete', 'Full Art. 8 disclosure readiness with repeatable KPI computation, traceable mappings, reconciliations, and audit-ready evidence bundles', 10)
+        score_impact: 0.5
+
+  minor:
+    - id: GAP-28-m1
+      what: "MOB-RE-1 references Smart Readiness Indicator (SRI) but does not anchor to a specific EPBD delegated act / measurement governance, which can create ambiguity in audits."
+      law: "EPBD (SRI governance / delegated acts — citation precision)"
+      risk: "Citation drift reduces defensibility and makes it harder to map evidence to assessor checklists, even if the behavior is directionally correct."
+      fix:
+        code: |
+          q('MOB-RE-15', 'Governance', 'Does the program maintain an EPBD control-to-article mapping (including SRI) that is reviewed on regulatory updates, so citations and evidence expectations remain audit-defensible over time?', 'EU EPBD 2024 (control mapping governance)', 'No mapping governance: EPBD/SRI references drift and are not reviewed', 'Mapping exists but updates are manual and can lag regulatory changes', 'Versioned EPBD mapping with review workflow and automated checks for citation consistency across the pack', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit EPBD Art. 9 ZEB-from-2028 gating control (MOB-RE-10) with applicability logic, evidence packs, and deadline-based portfolio sequencing."
+    effort: medium
+    gap_ids: [GAP-28-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Add ISO 50001:2018 §6.3 energy review + EnPI governance for buildings (MOB-RE-11) so energy performance is auditable and certifiable."
+    effort: medium
+    gap_ids: [GAP-28-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Operationalize GRESB §3.2 scoring readiness (MOB-RE-12) with evidence-quality enforcement and pre-submission validation to improve verifiable ESG scores."
+    effort: low
+    gap_ids: [GAP-28-M1]
+    score_gain: 0.8
+
+  - priority: 4
+    action: "Make WELL v2 CO2/ventilation compliance enforceable (MOB-RE-13) via calibration, thresholds, corrective actions, and audit-ready evidence."
+    effort: low
+    gap_ids: [GAP-28-M2]
+    score_gain: 0.6

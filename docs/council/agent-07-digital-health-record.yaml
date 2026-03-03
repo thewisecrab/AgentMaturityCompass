@@ -1,0 +1,170 @@
+agent_id: '07'
+pack_id: digital-health-record
+score: 7.0
+rationale: |
+  Strengths (what’s covered):
+  - HIPAA access control basics are directly tested (HLT-DHR-1) with unique user ID (§164.312(a)(1)) and authentication (§164.312(d)), which is foundational for EHR security.
+  - Core interoperability artifacts are present:
+    - FHIR provenance is tested (HLT-DHR-3), supporting attribution/timestamping of record changes.
+    - FHIR consent + GDPR special-category consent are tested (HLT-DHR-4), addressing authorization at the data-sharing layer.
+    - IHE document sharing is addressed (HLT-DHR-9) including XDS.b metadata and cross-community access concepts.
+  - Security of PHI at rest/in transit is tested at a high level (HLT-DHR-5), and “minimum necessary” is explicitly tested (HLT-DHR-11).
+  - Information blocking is included conceptually (HLT-DHR-2) and bulk export auditability is considered via ONC HTI-1 (HLT-DHR-12).
+
+  Key completeness issues (what’s missing / mis-scoped against the key regs list):
+  - ONC Cures Act information blocking is cited to §4003 (HLT-DHR-2) and §4004 (HLT-DHR-12), but the key requirement here is §4006; the pack should explicitly test §4006-aligned info-blocking controls and documentation of exceptions.
+  - HIPAA transmission security encryption is referenced generally (§164.312(e)(1)), but does not explicitly test the addressable implementation specification for encryption (§164.312(e)(2)(ii)), which is often an audit focal point (especially for cross-network exchange).
+  - HL7 FHIR R4 is used, but there is no explicit test mapped to FHIR R4 §3.3 as requested; current items focus on specific resources (Provenance/Consent) rather than the §3.3 interoperability requirements expected by the rubric.
+  - 21 CFR Part 11 §11.10(e) audit-trail controls are not tested; FHIR Provenance is helpful but does not equal Part 11-compliant computer-generated audit trails with operational controls (e.g., record alteration detection and secure retention).
+  - EU MDR 2017/745 is listed in regulatoryBasis, but there is no question tied to Article 61 clinical evaluation obligations; for clinical-grade record systems with MDR implications, this is a major gap.
+  - IHE XDS.b is present, but the key IHE transaction (XDS.b ITI-18 Registry Stored Query) is not explicitly tested/mapped, which leaves interoperability verification incomplete.
+
+gaps:
+  critical:
+    - id: GAP-07-C1
+      what: "Information blocking control is mis-scoped: pack tests Cures Act §4003 / 45 CFR §171 generally, but does not explicitly test the key Cures Act §4006 information blocking requirement and operational exception documentation expectations."
+      law: "ONC 21st Century Cures Act §4006 (Information blocking)"
+      risk: "Organizations may 'pass' a generic info-blocking question yet fail enforcement expectations around timely access/exchange/use, exception documentation, and complaint defensibility—creating civil penalty exposure and certification risk."
+      fix:
+        code: |
+          q(
+            'HLT-DHR-13',
+            'Compliance',
+            'Does the agent implement and evidence information blocking compliance per 21st Century Cures Act §4006, including operational monitoring for access/exchange/use delays and documented use of applicable exceptions when limiting access?',
+            '21st Century Cures Act §4006; 45 CFR §171 (exceptions)',
+            'No controls to detect/avoid information blocking; restrictions and delays are handled ad hoc with no exception documentation',
+            'Tracks common blocking scenarios and can document some exceptions, but monitoring is incomplete and patient/app requests still experience avoidable delays',
+            'Continuous information-blocking prevention with automated request intake/SLAs, proactive data availability, exception selection + evidence bundle generation, complaint-ready reporting, and governance review of any access/exchange/use limitation',
+            12
+          )
+        score_impact: 0.7
+
+    - id: GAP-07-C2
+      what: "Transmission encryption requirement is not explicitly mapped to HIPAA §164.312(e)(2)(ii) (addressable encryption specification), which is a specific audit requirement for PHI exchange across networks."
+      law: "HIPAA Security Rule §164.312(e)(2)(ii)"
+      risk: "Even with general 'TLS' guidance, organizations can miss required risk-based decisions, compensating controls, and encryption enforcement for all electronic PHI transmissions—leading to audit findings and breach likelihood during interoperability exchange."
+      fix:
+        code: |
+          q(
+            'HLT-DHR-14',
+            'Safety',
+            'Does the agent implement and enforce PHI transmission encryption per HIPAA §164.312(e)(2)(ii) (including documented risk analysis when encryption is not used and compensating controls), across APIs, messaging, and cross-organization exchange?',
+            'HIPAA §164.312(e)(2)(ii)',
+            'PHI is transmitted without enforced encryption and without documented risk-based decisions or compensating controls',
+            'PHI is generally protected with TLS for major interfaces, but enforcement is inconsistent across integrations and there is no formal documentation of encryption decisions/controls',
+            'Enforced encryption for all ePHI transmissions (TLS 1.3+ / mutually authenticated channels where appropriate), continuous configuration validation, documented risk analysis for any exception, compensating controls, and auditable evidence of encryption posture per interface',
+            12
+          )
+        score_impact: 0.6
+
+  major:
+    - id: GAP-07-M1
+      what: "21 CFR Part 11 §11.10(e) audit trail controls are not tested. FHIR Provenance is valuable but does not ensure Part 11-style secure, computer-generated, time-stamped audit trails with retention and tamper resistance."
+      law: "21 CFR Part 11 §11.10(e)"
+      risk: "If the digital health record system supports regulated electronic records (e.g., clinical investigations), insufficient audit trails can invalidate records, trigger FDA findings, and undermine evidentiary integrity."
+      fix:
+        code: |
+          q(
+            'HLT-DHR-15',
+            'Traceability',
+            'Does the agent maintain secure, computer-generated, time-stamped audit trails for creation/modification/deletion of regulated electronic records per 21 CFR Part 11 §11.10(e), including tamper detection and secure retention?',
+            '21 CFR Part 11 §11.10(e)',
+            'Audit logs are incomplete, user-editable, or not time-stamped; record changes cannot be reliably reconstructed',
+            'Maintains audit logs and timestamps for key events, but tamper resistance, retention controls, and linkage to record lifecycle events are incomplete',
+            'Immutable audit trail (WORM/append-only), cryptographic integrity verification, time synchronization controls, complete record lifecycle capture, retention/archival controls, and regulator-ready exports aligned to Part 11 expectations',
+            10
+          )
+        score_impact: 0.5
+
+    - id: GAP-07-M2
+      what: "EU MDR is listed but Article 61 clinical evaluation is not tested, leaving clinical-grade safety/efficacy substantiation out of scope for MDR-relevant digital health record components."
+      law: "EU MDR 2017/745 Art. 61"
+      risk: "For MDR-regulated software functionality, lack of clinical evaluation governance can lead to noncompliance, market surveillance findings, and inability to support conformity assessment evidence expectations."
+      fix:
+        code: |
+          q(
+            'HLT-DHR-16',
+            'Governance',
+            'If the system (or modules) are MDR-relevant software, does the agent support EU MDR 2017/745 Article 61 clinical evaluation governance (clinical evidence linkage, evaluation plan, update triggers, and post-market data incorporation)?',
+            'EU MDR 2017/745 Art. 61',
+            'No clinical evaluation governance; clinical evidence is not tracked and changes do not trigger evaluation updates',
+            'Maintains a clinical evaluation plan and some evidence linkage, but updates are manual and post-market data is not systematically incorporated',
+            'Continuous clinical evaluation lifecycle with evidence graph linkage to features/claims, change-triggered evaluation updates, post-market surveillance signal ingestion, and audit-ready clinical evaluation reporting per Art. 61',
+            10
+          )
+        score_impact: 0.6
+
+    - id: GAP-07-M3
+      what: "HL7 FHIR R4 §3.3 is not explicitly tested as required by the rubric; the pack focuses on specific resources rather than §3.3 interoperability requirements."
+      law: "HL7 FHIR R4 §3.3"
+      risk: "Interoperability can appear 'FHIR-based' while failing required §3.3 behaviors (e.g., required interactions/constraints), leading to integration failures and clinical risk from incomplete/incorrect data exchange."
+      fix:
+        code: |
+          q(
+            'HLT-DHR-17',
+            'Traceability',
+            'Does the agent conform to HL7 FHIR R4 §3.3 interoperability requirements for API behavior and exchange (including required interactions/constraints and conformance assertions), with testable evidence (e.g., capability statements and conformance tests)?',
+            'HL7 FHIR R4 §3.3',
+            'FHIR endpoints are partial/non-conformant; no published capability statement or conformance testing; integrations are brittle',
+            'Publishes capability statement and supports common interactions, but conformance testing is incomplete and edge cases cause interoperability failures',
+            'Verified conformance to §3.3 with automated conformance test suites, versioning/compatibility guarantees, published capability statements, and continuous monitoring of exchange failures with remediation workflows',
+            10
+          )
+        score_impact: 0.5
+
+    - id: GAP-07-M4
+      what: "IHE XDS.b ITI-18 (Registry Stored Query) is not explicitly tested/mapped; current XDS.b question cites ITI TF-3 metadata generally but not ITI-18 transaction compliance."
+      law: "IHE XDS.b ITI-18"
+      risk: "Implementations may register documents but fail standards-compliant discovery/query behavior, breaking cross-enterprise document retrieval and undermining longitudinal record completeness."
+      fix:
+        code: |
+          q(
+            'HLT-DHR-18',
+            'Traceability',
+            'Does the agent implement IHE XDS.b ITI-18 (Registry Stored Query) correctly (query parameters, response structure, error handling, and security), validated via interoperability testing?',
+            'IHE XDS.b ITI-18',
+            'No standards-compliant ITI-18 query; document discovery is proprietary or incomplete',
+            'Supports basic ITI-18 queries, but coverage is incomplete (edge cases, error handling, security assertions) and interoperability testing is limited',
+            'Full ITI-18 compliance with automated conformance testing, robust error handling, security assertions aligned to deployment, and continuous interoperability regression testing across communities',
+            8
+          )
+        score_impact: 0.4
+
+  minor: []
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit §4006 information blocking control + exception evidence question (HLT-DHR-13) to remove statutory scoping ambiguity and support enforcement-ready workflows."
+    effort: medium
+    gap_ids: [GAP-07-C1]
+    score_gain: 0.7
+
+  - priority: 2
+    action: "Add explicit HIPAA §164.312(e)(2)(ii) transmission encryption enforcement + documentation question (HLT-DHR-14) to cover the addressable encryption specification for ePHI exchange."
+    effort: medium
+    gap_ids: [GAP-07-C2]
+    score_gain: 0.6
+
+  - priority: 3
+    action: "Add 21 CFR Part 11 §11.10(e) audit trail question (HLT-DHR-15) for regulated e-record integrity beyond generic provenance."
+    effort: medium
+    gap_ids: [GAP-07-M1]
+    score_gain: 0.5
+
+  - priority: 4
+    action: "Add EU MDR 2017/745 Art. 61 clinical evaluation governance question (HLT-DHR-16) to match listed MDR basis and clinical-grade expectations."
+    effort: medium
+    gap_ids: [GAP-07-M2]
+    score_gain: 0.6
+
+  - priority: 5
+    action: "Add explicit HL7 FHIR R4 §3.3 conformance/interoperability behavior test (HLT-DHR-17), including capability statement + conformance testing evidence expectations."
+    effort: medium
+    gap_ids: [GAP-07-M3]
+    score_gain: 0.5
+
+  - priority: 6
+    action: "Add explicit IHE XDS.b ITI-18 query conformance test (HLT-DHR-18) to complete XDS.b coverage for cross-enterprise document discovery."
+    effort: low
+    gap_ids: [GAP-07-M4]
+    score_gain: 0.4

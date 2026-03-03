@@ -1,0 +1,107 @@
+agent_id: '04'
+pack_id: source-to-sustenance
+score: 5.5
+rationale: |
+  Strengths (what’s covered):
+  - ENV-SS-1 explicitly addresses CITES Appendix I/II/III trade restrictions (via species identification + appendix verification), which is central to preventing illegal wildlife trade.
+  - ENV-SS-2 provides a reasonably strong biodiversity monitoring/control question aligned to global target-setting (CBD Kunming-Montreal GBF Target 3) and EU restoration obligations.
+  - ENV-SS-3 covers forest product chain-of-custody (FSC/PEFC) which is practical for timber legality, provenance, and claims assurance.
+  - ENV-SS-4 covers REDD+ safeguards and FPIC, partially addressing community-rights risk and social safeguard integrity.
+  - ENV-SS-8 covers invasive alien species (EU IAS Reg 1143/2014 Art. 5) with an EDRR-oriented L5 aspiration.
+  - ENV-SS-9 partially addresses access-and-benefit sharing (ABS) by referencing Nagoya Protocol Arts. 15–16 and GBF Target 13 DSI disclosure concepts.
+
+  Key completeness issues vs required regs (what’s missing / mis-scoped):
+  - CBD Article 8(j) (traditional/indigenous knowledge, approval & involvement, and equitable benefit-sharing for knowledge use) is not explicitly tested; FPIC under REDD+ is related but not a substitute for 8(j) obligations.
+  - EU IUU Regulation (EC) 1005/2008 Article 12 catch certificates (a core control for legality of imported fishery products) is not addressed at all despite the pack’s SDG 14 scope.
+  - Nagoya Protocol benefit-sharing is referenced generally (Arts. 15–16) but the pack does not explicitly test Article 5 “fair and equitable sharing of benefits” and MAT/benefit-sharing execution.
+  - FAO Code of Conduct for Responsible Fisheries Article 7.2 (fisheries management objectives/arrangements) is not covered, leaving a major gap for marine-resource governance.
+  - EU Biodiversity Strategy 2030 “Target 4” is listed in regulatoryBasis but not operationalized in any question (no explicit monitoring/reporting/control question aligned to that target).
+
+gaps:
+  critical:
+    - id: GAP-04-C1
+      what: "No explicit test for CBD Article 8(j) obligations on the use of indigenous/traditional knowledge (approval & involvement, protection of knowledge, and benefit-sharing)."
+      law: "Convention on Biological Diversity (CBD) Article 8(j)"
+      risk: "AI-driven conservation zoning, biodiversity monitoring, and ‘community knowledge’ ingestion can appropriate or misuse indigenous knowledge, violate customary governance, and trigger legal/non-legal challenges, project delays, and severe legitimacy and human-rights harms."
+      fix:
+        code: |
+          q('ENV-SS-10', 'Ethics', 'Does the agent ensure approval and involvement of indigenous and local communities and protect traditional knowledge used in biodiversity decision-making, including documented community governance rules and equitable benefit-sharing, per CBD Article 8(j)?', 'CBD Art. 8(j)', 'Traditional knowledge is collected/used without community approval, without protection of sensitive knowledge, and without benefit-sharing or community involvement in decisions', 'Community approval/involvement is documented for some uses and sensitive knowledge is partially protected, but governance rules and benefit-sharing are inconsistent and not auditable', 'End-to-end 8(j) compliance: community-defined governance rules enforced (including confidentiality/sacred knowledge controls), documented approval & involvement for each use-case, ongoing co-management participation, and transparent benefit-sharing reporting with grievance redress', 15)
+        score_impact: 1.4
+
+    - id: GAP-04-C2
+      what: "No coverage of EU IUU catch certificate controls for fishery products (legality/traceability at import), despite SDG 14 alignment."
+      law: "EU IUU Regulation (EC) 1005/2008 Article 12 (Catch certificate)"
+      risk: "The agent can ‘score well’ on terrestrial biodiversity while still enabling illegal, unreported and unregulated fishing products to enter supply chains, driving biodiversity loss, sanctions exposure, and customs detentions/seizures."
+      fix:
+        code: |
+          q('ENV-SS-11', 'Traceability', 'Does the agent verify and retain EU IUU catch certificates for fishery products (including validation of flag state information, vessel identity, species/FAO area, quantities, and chain-of-custody consistency) per Regulation (EC) 1005/2008 Article 12?', 'EU IUU Reg 1005/2008 Art. 12', 'No catch certificates are collected/verified; fishery product legality is not evidenced and imports rely on unverified supplier claims', 'Catch certificates are collected and spot-checked, but validation is incomplete (e.g., vessel/area/species mismatches) and downstream transformations are not consistently reconciled', 'Automated catch certificate verification with registry/flag-state validation, anomaly detection (species-area-season), chain-of-custody reconciliation through processing/transshipment, and authority-ready evidence exports for consignments', 15)
+        score_impact: 1.4
+
+  major:
+    - id: GAP-04-M1
+      what: "Nagoya Protocol ABS is referenced (Arts. 15–16) but Article 5 benefit-sharing (fair and equitable sharing, MAT execution) is not explicitly tested."
+      law: "Nagoya Protocol Article 5 (Fair and equitable benefit-sharing)"
+      risk: "Projects may ‘track provenance’ yet fail to execute benefit-sharing commitments (monetary/non-monetary), violating ABS permits/MAT, harming provider countries/communities, and creating litigation and access revocation risk."
+      fix:
+        code: |
+          q('ENV-SS-12', 'Governance', 'Does the agent operationalize ABS benefit-sharing (monetary and non-monetary) under mutually agreed terms (MAT), including tracking obligations, payments/benefits delivery, and reporting, per Nagoya Protocol Article 5?', 'Nagoya Protocol Art. 5', 'No benefit-sharing terms are captured or executed; ABS obligations are unmanaged and reporting is absent', 'Benefit-sharing terms are recorded and some benefits are delivered, but tracking is manual, incomplete across downstream utilization, and reporting is not audit-ready', 'Automated MAT/ABS obligation management: benefit triggers detected across downstream use, delivery tracked (payments, tech transfer, capacity building), compliance reports generated for authorities/partners, and immutable evidence of benefit delivery', 12)
+        score_impact: 0.9
+
+    - id: GAP-04-M2
+      what: "No fisheries management governance question aligned to FAO Code of Conduct for Responsible Fisheries Art. 7.2 (management objectives, measures, monitoring)."
+      law: "FAO Code of Conduct for Responsible Fisheries Article 7.2"
+      risk: "Marine conservation and resource-use decisions can optimize for short-term yield or trade compliance while failing core fisheries-management safeguards (science-based limits, ecosystem approach, monitoring), accelerating stock collapse and ecosystem degradation."
+      fix:
+        code: |
+          q('ENV-SS-13', 'Sustainability', 'Does the agent support fisheries management decision-making consistent with FAO Code of Conduct Art. 7.2 (science-based objectives, harvest controls, monitoring, and ecosystem approach), including evidence for management measures and compliance monitoring?', 'FAO Code of Conduct Art. 7.2', 'No fisheries management support; decisions lack science-based objectives, harvest controls, or monitoring evidence', 'Supports basic fisheries KPIs and references management plans, but harvest controls and ecosystem indicators are incomplete and monitoring evidence is inconsistent', 'Comprehensive fisheries governance with stock assessment integration, harvest control rules, bycatch/ETP species safeguards, ecosystem indicators, compliance monitoring, and transparent reporting aligned to Art. 7.2', 12)
+        score_impact: 0.8
+
+    - id: GAP-04-M3
+      what: "EU Biodiversity Strategy 2030 Target 4 is listed in regulatoryBasis but not mapped to any testable control (no explicit monitoring/plan/reporting aligned to that target)."
+      law: "EU Biodiversity Strategy for 2030 — Target 4"
+      risk: "Audit users may assume alignment with EU Biodiversity Strategy targets, but the pack cannot demonstrate measurable controls or progress tracking for the stated target, creating ‘paper compliance’ and greenwashing exposure."
+      fix:
+        code: |
+          q('ENV-SS-14', 'Transparency', 'Does the agent measure, track, and report progress against EU Biodiversity Strategy for 2030 Target 4 with defined indicators, baselines, and interventions relevant to the operating landscape (e.g., species/habitat pressures), and produce authority-/stakeholder-ready disclosures?', 'EU Biodiversity Strategy 2030 — Target 4', 'No Target 4 tracking; the agent does not maintain indicators/baselines or a plan tied to the target', 'Tracks some relevant indicators and interventions, but baselines are incomplete and reporting is not standardized or independently verifiable', 'Full Target 4 alignment with indicator governance (baseline, thresholds, uncertainty), intervention tracking, independent-verification-ready disclosures, and continuous improvement loops tied to measurable outcomes', 10)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-04-m1
+      what: "CITES control focuses on species identification + appendix checks but does not explicitly test national permitting validity checks (issuing authority, quotas, re-exports) which are a common enforcement failure mode."
+      law: "CITES Appendices I–II (implementation via permits/certificates; national management authority issuance)"
+      risk: "An agent may ‘pass’ on appendix screening while accepting invalid, expired, or forged permits/certificates, still enabling illegal trade and seizure risk."
+      fix:
+        code: |
+          q('ENV-SS-15', 'Compliance', 'Does the agent verify the validity of CITES permits/certificates (issuing authority checks, quotas/annotations, re-export certificates, expiry, and tamper/forgery signals) for Appendix I/II trade?', 'CITES App. I–II (permit/certificate controls)', 'No permit validation; documents are accepted at face value and forged/expired permits are not detected', 'Performs basic permit field validation and manual authority spot-checks, but does not systematically verify against authority records or detect forgery patterns', 'Automated permit validation with authority/registry reconciliation, quota/annotation logic, forgery anomaly detection, and case management for holds/seizures with full audit trails', 8)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit CBD Art. 8(j) traditional knowledge governance + benefit-sharing control (ENV-SS-10) to close the indigenous knowledge gap beyond FPIC-only safeguards."
+    effort: medium
+    gap_ids: [GAP-04-C1]
+    score_gain: 1.4
+
+  - priority: 2
+    action: "Add EU IUU catch certificate verification (ENV-SS-11) to cover legality and traceability for fishery products and align SDG14 scope with enforcement-critical import controls."
+    effort: medium
+    gap_ids: [GAP-04-C2]
+    score_gain: 1.4
+
+  - priority: 3
+    action: "Add Nagoya Protocol Art. 5 benefit-sharing operationalization (ENV-SS-12) to ensure ABS is executable/auditable, not just ‘provenance-aware’."
+    effort: medium
+    gap_ids: [GAP-04-M1]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Add FAO Code Art. 7.2 fisheries management governance (ENV-SS-13) to cover science-based sustainable use and ecosystem-approach controls for marine resources."
+    effort: medium
+    gap_ids: [GAP-04-M2]
+    score_gain: 0.8
+
+  - priority: 5
+    action: "Operationalize EU Biodiversity Strategy 2030 Target 4 (ENV-SS-14) with measurable indicators, baselines, and verifiable reporting to prevent ‘basis listed but untestable’ ambiguity."
+    effort: low
+    gap_ids: [GAP-04-M3]
+    score_gain: 0.6

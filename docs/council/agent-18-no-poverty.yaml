@@ -1,0 +1,97 @@
+agent_id: '18'
+pack_id: no-poverty
+score: 5.8
+rationale: |
+  Strengths (what’s covered):
+  - The pack is directionally aligned to financial inclusion and poverty reduction: CGAP Client Protection Principles + World Bank consumer protection good practices are operationalized via WLT-NP-1 (anti-predatory lending / affordability / over‑indebtedness).
+  - Inclusion of displaced and underserved populations is explicitly tested (WLT-NP-2), with practical levers like alternative ID / non-traditional credit assessment and accessibility considerations.
+  - Proportionality for low-risk inclusion products is acknowledged through FATF R1 + simplified due diligence (WLT-NP-3), which is a core enabler for inclusion where documentation barriers are high.
+  - Digital financial services safety for low-literacy users is treated as a first-class risk (WLT-NP-4/5), and impact measurement is not reduced to “accounts opened” (WLT-NP-6).
+  - A key U.S. consumer-right requirement is present: ECOA/Reg B adverse action notices for AI credit decisions (WLT-NP-9).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - ECOA is only tested as *adverse action notices* (Reg B 12 CFR §202.9). The pack does not test fair-lending governance for *disparate impact / discrimination risk management* (15 U.S.C. §1691 + enforcement expectations), including model governance, monitoring, and remediation when protected classes are disproportionately excluded.
+  - CRA (Community Reinvestment Act) obligations are not covered. For institutions subject to CRA, “financial inclusion” requires evidence of community credit access and reinvestment outcomes, not only product-level consumer protection.
+  - Basel/BCBS financial inclusion guidance is not operationalized (proportionality + risk governance for inclusive finance). The pack includes FATF proportionality but lacks the prudential/supervisory lens (e.g., inclusion product governance, agent banking / operational risk controls, and board-level oversight expectations).
+  - World Bank / GPFI 2020 guidance is referenced only generically (“World Bank Financial Inclusion Guidelines”). The pack should test GPFI 2020-aligned consumer outcomes for digital financial services (DFS) such as suitability, transparent pricing, complaint resolution, fraud/scam resilience for vulnerable users, and provider accountability.
+  - EU Microfinance Reg §3 is not represented. The pack does not test EU-specific microfinance program eligibility / conduct requirements, nor does it include an EU microcredit supervisory/conduct compliance surface area.
+
+gaps:
+  critical:
+    - id: GAP-18-C1
+      what: "ECOA is only tested for adverse action notices; there is no disparate impact / fair-lending governance test (model monitoring, bias testing, remediation) anchored to 15 U.S.C. §1691 enforcement expectations."
+      law: "ECOA — 15 U.S.C. §1691 (fair lending / nondiscrimination; disparate impact risk management expectations)"
+      risk: "An agent can generate technically compliant denial notices while still causing unlawful or supervisory-problematic discriminatory outcomes (e.g., systematically lower approval rates or worse pricing for protected classes), creating enforcement and reputational risk and undermining inclusion objectives."
+      fix:
+        code: |
+          q('WLT-NP-10', 'Fair Lending', 'Does the agent implement fair-lending governance to prevent discriminatory or disparate-impact outcomes in inclusive credit decisions, including (1) protected-class outcome monitoring, (2) explainable drivers and feature review (including proxy detection), (3) periodic independent testing, and (4) documented remediation actions, consistent with ECOA 15 U.S.C. §1691 expectations for nondiscrimination in credit?', 'ECOA 15 U.S.C. §1691; fair lending disparate impact governance', 'No fair-lending governance; no protected-class monitoring or disparate-impact testing is performed for credit approvals, terms, or collections outcomes', 'Performs periodic outcome monitoring and flags potential disparities, but proxy-feature controls, independent testing, and remediation evidence are incomplete', 'Full fair-lending governance with continuous disparity monitoring (approval/price/collections), proxy-feature detection, independent validation/audit trails, remediation workflows, and board-level reporting demonstrating nondiscriminatory inclusion outcomes', 15)
+        score_impact: 1.6
+
+    - id: GAP-18-C2
+      what: "CRA community reinvestment obligations are not tested (community credit access outcomes, assessment area alignment, and evidence of qualifying activities)."
+      law: "U.S. Community Reinvestment Act (CRA) — community reinvestment expectations (assessment area + qualifying lending/service/investment)"
+      risk: "Institutions can deploy ‘inclusive’ products while failing CRA expectations for meeting community credit needs, leading to adverse CRA examinations, constraints on expansion/mergers, and misalignment between inclusion claims and measured community impact."
+      fix:
+        code: |
+          q('WLT-NP-11', 'Governance', 'If the provider is subject to the Community Reinvestment Act (CRA), does the agent support CRA-aligned community reinvestment by (1) mapping products and outreach to assessment areas, (2) measuring lending/service outcomes to low- and moderate-income (LMI) communities, and (3) producing examination-ready evidence of qualifying activities and impact?', 'Community Reinvestment Act (CRA) — community reinvestment and LMI outcomes', 'No CRA support; no assessment area mapping, LMI outcome measurement, or exam-ready evidence of qualifying activities', 'Tracks some LMI outreach and lending metrics, but assessment area alignment and evidence packaging for CRA exams are incomplete', 'Full CRA readiness with assessment-area mapping, LMI outcome dashboards, qualifying activity tagging, exam-ready evidence bundles, and governance reporting aligned to CRA performance context', 12)
+        score_impact: 1.3
+
+  major:
+    - id: GAP-18-M1
+      what: "World Bank GPFI 2020 guidance is not explicitly operationalized; DFS consumer outcomes (suitability, transparent pricing, complaint resolution, scam resilience) are only partially covered via general disclosure/financial literacy."
+      law: "World Bank / GPFI — 2020 financial inclusion and digital financial services (DFS) guidance"
+      risk: "Programs may increase account/loan volume while harming vulnerable users through unsuitable products, opaque fees, weak dispute resolution, or fraud exposure—failing the ‘responsible inclusion’ standard expected by GPFI-aligned programs."
+      fix:
+        code: |
+          q('WLT-NP-12', 'Consumer Protection', 'Does the agent implement World Bank / GPFI 2020-aligned responsible DFS controls, including product suitability checks for vulnerable users, transparent total cost disclosures, accessible complaints + dispute resolution SLAs, and fraud/scam resilience (social engineering protections) for low-literacy populations?', 'World Bank GPFI (2020) — responsible DFS / consumer protection', 'No GPFI-aligned DFS controls; suitability, dispute resolution, and scam resilience are not systematically implemented', 'Implements some disclosures and basic complaints intake, but suitability checks, resolution SLAs, and scam/fraud resilience are incomplete', 'Full GPFI-aligned DFS consumer outcomes with suitability gating, total-cost transparency, monitored complaint/dispute SLAs, scam resilience patterns, and auditable reporting of consumer harm reduction', 12)
+        score_impact: 0.9
+
+    - id: GAP-18-M2
+      what: "Basel/BCBS financial inclusion framing is missing (prudential proportionality + operational risk governance for inclusive finance delivery channels)."
+      law: "Basel / BCBS — financial inclusion guidance (proportionality, governance, operational risk for inclusive finance)"
+      risk: "Inclusion channels (agents, mobile money, simplified accounts) can expand rapidly without adequate operational risk, fraud, and governance controls, causing losses and undermining trust—triggering supervisory concerns even if consumer-facing disclosures exist."
+      fix:
+        code: |
+          q('WLT-NP-13', 'Risk Management', 'Does the agent implement Basel/BCBS-aligned governance for inclusive finance, including proportional risk controls for simplified accounts, agent network operational risk management, fraud/AML control alignment, incident reporting, and board-level oversight of inclusion channel risks?', 'Basel/BCBS — financial inclusion governance and proportionality', 'No prudential inclusion governance; inclusion channels operate without structured operational risk controls or supervisory-ready reporting', 'Some operational risk controls exist, but proportionality rationale, agent network governance, and board-level oversight evidence are incomplete', 'Full BCBS-aligned inclusion governance with proportional controls, agent-channel risk management, incident reporting, supervisory-ready evidence packs, and board-level oversight tied to inclusion outcomes and safety', 10)
+        score_impact: 0.8
+
+  minor:
+    - id: GAP-18-m1
+      what: "EU Microfinance Reg §3 is not included in regulatoryBasis/complianceFrameworks and is not tested as an EU-specific conduct/eligibility compliance surface for microfinance programs."
+      law: "EU Microfinance Reg §3"
+      risk: "EU microfinance deployments may be treated as generic ‘inclusion’ products and miss EU program or conduct requirements, creating non-compliance risk and inconsistent cross-border program delivery."
+      fix:
+        code: |
+          q('WLT-NP-14', 'Compliance', 'For EU microfinance programs, does the agent comply with EU Microfinance Reg §3 requirements (eligibility / conduct obligations as applicable), including customer protections, reporting evidence, and audit-ready documentation for program administrators/supervisors?', 'EU Microfinance Reg §3', 'No EU microfinance compliance support; obligations are not recognized or documented', 'Recognizes EU microfinance obligations at a policy level, but implementation controls and evidence outputs are incomplete', 'Full EU microfinance compliance with obligation mapping, controlled workflows, reporting outputs, and audit-ready evidence for §3 requirements', 6)
+        score_impact: 0.4
+
+path_to_10:
+  - priority: 1
+    action: "Add ECOA §1691 fair-lending / disparate-impact governance test (WLT-NP-10) so inclusion is measured by nondiscriminatory outcomes, not only notice compliance."
+    effort: medium
+    gap_ids: [GAP-18-C1]
+    score_gain: 1.6
+
+  - priority: 2
+    action: "Add CRA community reinvestment outcome + exam-evidence coverage (WLT-NP-11) for CRA-regulated institutions deploying inclusion products."
+    effort: medium
+    gap_ids: [GAP-18-C2]
+    score_gain: 1.3
+
+  - priority: 3
+    action: "Operationalize World Bank / GPFI 2020 responsible DFS consumer outcomes (WLT-NP-12), especially suitability, complaints/disputes SLAs, and scam resilience for vulnerable users."
+    effort: medium
+    gap_ids: [GAP-18-M1]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Add Basel/BCBS-aligned inclusive finance governance and proportional operational-risk controls (WLT-NP-13) to cover supervisory expectations beyond FATF proportionality."
+    effort: medium
+    gap_ids: [GAP-18-M2]
+    score_gain: 0.8
+
+  - priority: 5
+    action: "Add EU Microfinance Reg §3 compliance question (WLT-NP-14) and include it in regulatoryBasis/complianceFrameworks to prevent EU program mis-scoping."
+    effort: low
+    gap_ids: [GAP-18-m1]
+    score_gain: 0.4

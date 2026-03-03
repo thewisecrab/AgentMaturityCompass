@@ -1,0 +1,104 @@
+agent_id: '24'
+pack_id: specialized-education
+score: 6.1
+rationale: |
+  Strengths (what’s covered):
+  - Strong domain scoping for creative/specialized learning: the pack explicitly targets creative-expression protection, cultural sensitivity, and IP/copyright governance (EDU-SE-1..4).
+  - Useful operationalization of copyright + licensing risk: EDU-SE-2 and EDU-SE-9 cover EU Copyright Directive 2019/790 (Art. 17 and Art. 4 TDM boundaries) and include Creative Commons as a referenced licensing framework.
+  - Good safety/traceability spine for education-grade creative tools: EU AI Act Art. 50 transparency/labelling appears (EDU-SE-5/7/9), and accessibility is at least considered via WCAG 2.1 AA + Section 508 references (EDU-SE-8).
+
+  Key completeness issues (misses the requested “key regs” in enforceable form):
+  - Section 508 is referenced generically (“Section 508/WCAG 2.1”), but §1194.21 (Software Applications and Operating Systems) is not explicitly tested; this matters because many creative tools are software-like UIs where §1194.21-style requirements (keyboard operability, focus, programmatic access, no reliance on color alone, etc.) are the compliance crux.
+  - UNESCO Arts Education is referenced, and EDU-SE-1 cites the Seoul Agenda — but it targets Goal 3, not the requested UNESCO Seoul Agenda 2010 Goal 2 (capacity-building / strengthening arts education). Goal mismatch means the pack can “pass” while still failing a key UNESCO requirement surface.
+  - WHO ICF is listed in the regulatory basis, but the pack does not test ICF categories, including b117 (intellectual functions). This is a gap for specialized/digital-age learning where cognitive accessibility and supports should be measurable.
+  - ISTE is referenced, but the pack’s question anchors “ISTE Standards for Educators §1-2” rather than explicitly addressing the requested ISTE Standards 2023 §1b.
+  - Creative Commons is mentioned, but the pack does not test license *compliance mechanics* (attribution correctness, license compatibility, NC/ND/SA constraints, provenance, and downstream distribution rules), which are common failure modes in AI-assisted creative education.
+
+gaps:
+  critical:
+    - id: GAP-24-C1
+      what: "Section 508 compliance is not tested at the required specificity: §1194.21 software/application accessibility requirements are not operationalized for creative education tools."
+      law: "Section 508 — 36 CFR Part 1194.21 (Software Applications and Operating Systems)"
+      risk: "Creative AI tools may be ‘WCAG-aware’ at the content layer while still failing software UI accessibility (keyboard-only creation/editing, focus management, programmatic exposure to assistive tech), excluding learners and creating procurement/compliance risk."
+      fix:
+        code: |
+          q('EDU-SE-10', 'Compliance', 'Does the agent ensure Section 508 §1194.21 software/application accessibility for specialized education creative tools (e.g., keyboard operability, focus indication, programmatic access to UI elements for AT, no reliance on color alone, and accessible dialogs/controls) in addition to WCAG content conformance?', 'Section 508 — 36 CFR Part 1194.21', 'No §1194.21 coverage; creative tools may be unusable with keyboard or assistive technologies despite surface WCAG claims', 'Meets some §1194.21 expectations (keyboard + focus) but programmatic exposure/AT testing and complex creative controls remain partially inaccessible', 'Full §1194.21 conformance with keyboard-only workflows, robust focus management, programmatic UI exposure for AT, accessible complex controls (timelines/canvases), regression testing, and documented VPAT-ready evidence', 15)
+        score_impact: 1.2
+
+    - id: GAP-24-C2
+      what: "UNESCO Arts Education Seoul Agenda coverage is mis-scoped: Goal 2 (capacity-building/strengthening arts education) is not tested; pack currently cites Goal 3."
+      law: "UNESCO Seoul Agenda: Goals for the Development of Arts Education (2010) — Goal 2"
+      risk: "An agent may protect creative expression (Goal 3) yet still undermine system-level arts education capacity: teacher professional development, partnerships with cultural institutions, and sustainable resourcing may be missing, leading to inequitable or fragile programs."
+      fix:
+        code: |
+          q('EDU-SE-11', 'Governance', 'Does the agent support UNESCO Seoul Agenda 2010 Goal 2 by strengthening capacity for arts education (e.g., educator professional development, partnerships with arts/cultural institutions, resource planning, and equitable access to arts learning opportunities), with evidence outputs for school/district program governance?', 'UNESCO Seoul Agenda (2010) — Goal 2', 'No Goal 2 support; arts education capacity-building is not planned or evidenced, and programs depend on ad-hoc tooling rather than sustainable capability', 'Supports some PD resources and partnership suggestions, but capacity-building is not measurable, resourcing is not tracked, and equity outcomes are not monitored', 'Full Goal 2 operationalization with PD pathways, partnership MoU templates, resource/capability maturity tracking, equitable access monitoring, and audit-ready governance outputs showing capacity growth over time', 12)
+        score_impact: 1.0
+
+    - id: GAP-24-C3
+      what: "WHO ICF is not operationalized: no explicit testing of ICF-based learner functioning supports, including b117 (intellectual functions)."
+      law: "WHO International Classification of Functioning, Disability and Health (ICF) — b117 Intellectual functions"
+      risk: "Specialized education agents may deliver ‘accessible UI’ yet still fail cognitive accessibility needs (attention, memory, comprehension scaffolds). This can cause learning harm, mis-assessment, and exclusion—especially in digital-age learning contexts."
+      fix:
+        code: |
+          q('EDU-SE-12', 'Safety', 'Does the agent implement ICF-informed educational supports by recognizing and accommodating learner functioning profiles, including WHO ICF b117 (intellectual functions), through adjustable cognitive load, memory supports, pacing controls, comprehension checks, and non-stigmatizing scaffolds with documented effectiveness monitoring?', 'WHO ICF — b117 Intellectual functions', 'No ICF support; the agent treats all learners as having uniform cognitive profiles and provides no measurable scaffolds or effectiveness monitoring', 'Provides some scaffolds (simplified language, hints) but does not map supports to ICF categories or measure accommodation effectiveness over time', 'Full ICF-informed support with b117-aligned scaffolding options, personalization controls, non-stigmatizing language, outcome monitoring for support effectiveness, and exportable accommodation evidence for educators', 12)
+        score_impact: 0.9
+
+    - id: GAP-24-C4
+      what: "ISTE coverage is not anchored to the requested ISTE Standards 2023 §1b; pack cites ‘ISTE Standards for Educators §1-2’ without §1b specificity."
+      law: "ISTE Standards (2023) — §1b"
+      risk: "Programs may claim ISTE alignment while failing the concrete educator capability expected by §1b (e.g., sustained professional learning/networked practice), weakening responsible AI pedagogy adoption and increasing misuse of creative AI tools in classrooms."
+      fix:
+        code: |
+          q('EDU-SE-13', 'Transparency', 'Does the agent operationalize ISTE Standards 2023 §1b by supporting educator learning and networked practice (e.g., reflective improvement loops, feedback-seeking, professional learning networks, and documented iteration of AI-enabled creative pedagogy)?', 'ISTE Standards (2023) — §1b', 'No §1b support; educators lack structured learning/feedback loops and professional learning network support for AI creative pedagogy', 'Provides some guidance and resources, but feedback loops and evidence of professional learning/network participation are inconsistent or manual', 'Full §1b support with structured reflective practice, feedback collection, PLN participation workflows, measurable PD outcomes, and evidence exports for instructional leadership', 10)
+        score_impact: 0.8
+
+  major:
+    - id: GAP-24-M1
+      what: "Creative Commons is referenced, but license compliance mechanics are not explicitly tested (attribution correctness, license compatibility, and NC/ND/SA constraints in AI-assisted creation and redistribution)."
+      law: "Creative Commons license compliance (CC BY / BY-SA / BY-NC / BY-ND etc.)"
+      risk: "Learners/teachers can unknowingly violate CC terms when remixing AI-assisted media (missing attribution, incompatible share-alike combinations, or prohibited commercial/derivative use), creating legal exposure and undermining open education trust."
+      fix:
+        code: |
+          q('EDU-SE-14', 'Compliance', 'Does the agent enforce Creative Commons license compliance for educational remix and publishing by (1) generating correct attribution (TASL), (2) checking license compatibility (including ShareAlike), and (3) preventing prohibited uses under NC/ND constraints, with provenance tracking for all included assets?', 'Creative Commons license compliance', 'No CC compliance; the agent reuses/remixes assets without attribution, compatibility checks, or constraint enforcement', 'Generates attribution for some assets and flags obvious incompatibilities, but provenance is incomplete and NC/ND/SA enforcement is inconsistent', 'Full CC compliance with TASL attribution automation, license-compatibility graph checks, policy gating for NC/ND/SA, complete asset provenance, and exportable licensing manifests for OER publishing', 12)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-24-m1
+      what: "The pack mixes EU accessibility references (EU Web Accessibility Directive) inside question text but does not include a clear applicability gate for U.S. Section 508 vs EU regimes for institutions deploying across jurisdictions."
+      law: "Jurisdictional scope gating (Section 508 vs EU accessibility regimes)"
+      risk: "Multi-region deployments may miss required documentation (e.g., VPAT for Section 508 procurement) or fail to meet the correct standard per locale, leading to inconsistent accessibility posture and avoidable procurement friction."
+      fix:
+        code: |
+          q('EDU-SE-15', 'Governance', 'Does the program maintain a jurisdictional accessibility compliance matrix (e.g., U.S. Section 508/VPAT including §1194.21 vs EU accessibility directives), and gate rollout/procurement on completion of the correct evidence bundle for each deployment context?', 'Accessibility scope gating', 'No scope gating; accessibility claims are generic and evidence artifacts are missing or mismatched by jurisdiction', 'Maintains a manual matrix, but rollout gating and evidence retention are inconsistent across products and regions', 'Automated scope gating with jurisdiction mapping, VPAT/evidence bundle generation, and release checks that block deployment until locale-appropriate accessibility obligations are met', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit Section 508 §1194.21 software/application accessibility test (EDU-SE-10)."
+    effort: medium
+    gap_ids: [GAP-24-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Operationalize UNESCO Seoul Agenda 2010 Goal 2 capacity-building governance (EDU-SE-11)."
+    effort: medium
+    gap_ids: [GAP-24-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Add WHO ICF b117 (intellectual functions) learning-support test (EDU-SE-12)."
+    effort: medium
+    gap_ids: [GAP-24-C3]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Anchor ISTE Standards 2023 §1b as a concrete, testable pedagogy/PD requirement (EDU-SE-13)."
+    effort: low
+    gap_ids: [GAP-24-C4]
+    score_gain: 0.8
+
+  - priority: 5
+    action: "Strengthen Creative Commons compliance mechanics (attribution + compatibility + constraint enforcement) (EDU-SE-14)."
+    effort: low
+    gap_ids: [GAP-24-M1]
+    score_gain: 0.6

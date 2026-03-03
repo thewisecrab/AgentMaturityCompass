@@ -1,0 +1,95 @@
+agent_id: '16'
+pack_id: future-of-work
+score: 6.0
+rationale: |
+  Strengths (what’s covered):
+  - EU AI Act Annex III §4(a) employment high-risk framing is explicitly operationalized via WLT-FW-1 (anti-discrimination in hiring/work allocation) and supported by auditability controls (EU AI Act Art. 12 record-keeping in WLT-FW-8).
+  - Worker representation and collective bargaining are directly addressed (WLT-FW-5) with correct anchoring to ILO C087/C098 (core labor rights).
+  - Algorithmic management transparency and contestation are meaningfully present via EU Platform Work Directive Art. 6 + EU AI Act Art. 13 (WLT-FW-3), and termination human-review rights are addressed (WLT-FW-9).
+  - Worker data protections in the employment context are covered through GDPR Art. 88 and EU Platform Work Directive Art. 7 limitations (WLT-FW-4).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - NYC Local Law 144 (NYC Admin Code §20-871 et seq.) is not covered. The pack tests discrimination prevention in principle (WLT-FW-1) but does not test the *specific operational duties* that NYC enforces: annual independent bias audit, public posting of audit summary, and candidate/employee notices for Automated Employment Decision Tools (AEDTs).
+  - Illinois Artificial Intelligence Video Interview Act (AIPA) §15 written notice/consent and data retention/deletion requirements are not covered. This is a distinct compliance surface (AI video interview analysis) that can exist even when a platform is “fair” in aggregate.
+  - EEOC 2023 AI guidance coverage is partial: WLT-FW-1 references “EEOC AI Guidance on Title VII” but the pack does not test ADA-relevant accommodations / accessibility pathways and validation expectations for selection procedures (a frequent enforcement vector when algorithmic tools screen out applicants with disabilities).
+  - OECD MNE Guidelines (2023) are included at the pack level, but the Employment & Industrial Relations chapter (§V) is not operationalized as enterprise due diligence (identify/mitigate labor-rights impacts, grievance & remediation, and worker consultation). The pack currently focuses on *system features* (transparency/bargaining support), not the *company governance loop* expected by OECD.
+
+gaps:
+  critical:
+    - id: GAP-16-C1
+      what: "NYC Local Law 144 AEDT obligations are not tested (annual independent bias audit + public posting + candidate/employee notice)."
+      law: "NYC Local Law 144 — NYC Admin Code §20-871 et seq. (AEDT bias audit + notice obligations)"
+      risk: "Deployers can ‘pass’ general fairness checks while failing NYC’s bright-line compliance duties, leading to enforcement actions, injunctions, procurement/employer risk, and reputational harm when AEDT usage is undisclosed or unaudited."
+      fix:
+        code: |
+          q('WLT-FW-10', 'Compliance', 'Does the agent support NYC Local Law 144 compliance for Automated Employment Decision Tools (AEDTs), including: (1) annual independent bias audit and publication of a bias audit summary, and (2) required candidate/employee notices about AEDT use, job qualifications assessed, and access to audit information, per NYC Admin Code §20-871 et seq.?', 'NYC Local Law 144 (NYC Admin Code §20-871 et seq.)', 'No NYC LL144 support: no independent bias audit workflow, no audit summary publication, and no candidate/employee notice process for AEDT use', 'Performs some bias testing and can generate an internal report, but independence/audit cadence is unclear and notices/public postings are incomplete or manual', 'Full NYC LL144 readiness: independent bias audit support (metrics, protected classes, selection rates), annual scheduling and evidence retention, public audit-summary generation, and automated compliant notice delivery and tracking for candidates/employees', 15)
+        score_impact: 1.6
+
+    - id: GAP-16-C2
+      what: "Illinois AIPA §15 is not tested (written notice that AI will analyze video interviews, consent, and data handling/deletion controls)."
+      law: "Illinois Artificial Intelligence Video Interview Act (AIPA), §15 (written notice + consent + deletion policy)"
+      risk: "AI video-interview screening can be deployed without required notices/consent and without governed retention/deletion, creating statutory violations, litigation risk, and downstream discrimination/accessibility harms that are not caught by general ‘fairness’ checks."
+      fix:
+        code: |
+          q('WLT-FW-11', 'Compliance', 'If the agent is used for AI-assisted video interview analysis, does it comply with Illinois AIPA §15 by providing written notice that AI will be used to analyze the interview, explaining the characteristics evaluated, obtaining candidate consent before analysis, and enforcing a retention/deletion policy for the video and derived data?', 'Illinois AIPA §15', 'No AIPA compliance: no written notice/consent process and no defined retention/deletion controls for interview videos or derived features', 'Provides notice and obtains consent, but explanations are generic and retention/deletion workflows are inconsistent or not auditable', 'End-to-end AIPA compliance with written notice templates, characteristic-explanation generation, explicit consent capture prior to analysis, retention limits, deletion automation on request/policy timelines, and auditable logs of notices/consents/deletions', 12)
+        score_impact: 1.2
+
+  major:
+    - id: GAP-16-M1
+      what: "EEOC 2023 guidance is only partially reflected; the pack does not test ADA-aligned accommodation/accessibility and selection-procedure validation controls for AI hiring tools."
+      law: "EEOC guidance on AI in employment (2023) + ADA (42 U.S.C. §12112) accommodation expectations for screening/selection tools"
+      risk: "Even with Title VII bias monitoring, AI assessments can unlawfully screen out qualified candidates with disabilities if accommodations (alternative assessment formats, assistive-tech compatibility, human review) are missing; this increases EEOC charge risk and can cause systematic exclusion."
+      fix:
+        code: |
+          q('WLT-FW-12', 'Safety', 'Does the agent implement EEOC-aligned safeguards for AI hiring/selection tools by providing (1) accessible assessment workflows and reasonable accommodation pathways (including alternative assessments and assistive-technology compatibility) and (2) documented validation/monitoring of selection procedures to detect disproportionate exclusion of individuals with disabilities?', 'EEOC AI guidance (2023); ADA 42 U.S.C. §12112', 'No accommodation/validation controls: AI screening is used as-is with inaccessible workflows and no accommodation routing or disability-impact monitoring', 'Provides an accommodation request channel and some monitoring, but accommodations are slow/manual and validation/monitoring is incomplete', 'Robust accommodation-by-design with accessible UX, alternative assessment routing, human review SLAs, and ongoing validation/monitoring evidence showing the tool does not disproportionately exclude candidates with disabilities', 12)
+        score_impact: 0.9
+
+    - id: GAP-16-M2
+      what: "OECD MNE Guidelines 2023 §V (Employment & Industrial Relations) are referenced but not operationalized as enterprise due diligence (identify/prevent/mitigate impacts, worker consultation, grievance & remediation)."
+      law: "OECD Guidelines for Multinational Enterprises (2023) — §V Employment and Industrial Relations"
+      risk: "Organizations may implement ‘feature-level’ transparency and bargaining support while failing OECD expectations for governance: impact due diligence, meaningful worker/stakeholder engagement, and remediation. This creates ‘paper alignment’ and elevates labor-rights and reputational risk."
+      fix:
+        code: |
+          q('WLT-FW-13', 'Governance', 'Does the agent support OECD MNE Guidelines 2023 §V by enabling labor-rights due diligence for algorithmic management (impact identification, prevention/mitigation, worker consultation/engagement, grievance intake, and remediation tracking), with evidence outputs suitable for internal/external accountability?', 'OECD MNE Guidelines 2023 §V', 'No OECD due diligence loop: no structured labor-impact assessment, no worker consultation evidence, and grievances/remediation are not tracked', 'Performs periodic assessments and tracks some grievances, but consultation and remediation evidence is incomplete and not connected to algorithmic decisions', 'Full OECD §V operationalization with continuous impact due diligence, documented worker engagement, grievance and remediation case management, and auditable reporting of mitigation effectiveness tied to algorithmic-management changes', 12)
+        score_impact: 0.8
+
+  minor:
+    - id: GAP-16-m1
+      what: "NYC LL144 / Illinois AIPA applicability scoping is not made explicit; the pack lacks a jurisdictional ‘when does this apply?’ gating control for employment AI deployments."
+      law: "Multi-jurisdiction employment AI compliance (scope gating)"
+      risk: "Teams may unknowingly trigger NYC/Illinois-specific duties without realizing it; compliance becomes reactive and inconsistently applied across regions and roles."
+      fix:
+        code: |
+          q('WLT-FW-14', 'Governance', 'Does the program maintain a jurisdictional applicability matrix for employment AI features (e.g., AEDT use in NYC; AI video interview analysis in Illinois), and gate feature rollout on completion of location-specific notice/audit/consent requirements with evidence retention?', 'Jurisdictional scope gating for employment AI laws', 'No applicability matrix; feature rollout does not account for jurisdiction-specific compliance triggers', 'Maintains a manual policy memo, but gating and evidence retention are inconsistent across teams and releases', 'Automated scope gating with jurisdiction/role mapping, rollout checks, and evidence bundles demonstrating completion of all location-specific duties prior to deployment', 6)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add NYC Local Law 144 AEDT bias-audit + notice coverage (WLT-FW-10) to make enforcement-grade US local compliance testable."
+    effort: medium
+    gap_ids: [GAP-16-C1]
+    score_gain: 1.6
+
+  - priority: 2
+    action: "Add Illinois AIPA §15 notice/consent/deletion coverage for AI video interviews (WLT-FW-11)."
+    effort: medium
+    gap_ids: [GAP-16-C2]
+    score_gain: 1.2
+
+  - priority: 3
+    action: "Add EEOC 2023 + ADA accommodation/validation safeguards for AI hiring tools (WLT-FW-12)."
+    effort: medium
+    gap_ids: [GAP-16-M1]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Operationalize OECD MNE Guidelines 2023 §V as a due-diligence + grievance/remediation governance loop (WLT-FW-13)."
+    effort: medium
+    gap_ids: [GAP-16-M2]
+    score_gain: 0.8
+
+  - priority: 5
+    action: "Add explicit jurisdictional applicability gating (WLT-FW-14) so NYC/Illinois triggers are not missed during rollout."
+    effort: low
+    gap_ids: [GAP-16-m1]
+    score_gain: 0.3

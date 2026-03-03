@@ -1,0 +1,97 @@
+agent_id: '31'
+pack_id: cognition-to-intelligence
+score: 6.6
+rationale: |
+  Strengths (what’s covered):
+  - EU AI Act transparency is present in-scope via TECH-CI-9 (EU AI Act Art. 50) and is paired with an org-governance control reference (NIST AI RMF GOVERN 1.1), which is a good “policy + product behavior” pairing.
+  - Explainability is operationalized (TECH-CI-1) with a dual anchor (EU AI Act Art. 13 + IEEE 7001), and the L5 target behavior is written in a way that implies stakeholder-accessible explanations, not only technical attribution.
+  - Automated decision-discrimination risk is explicitly addressed (TECH-CI-2) with both GDPR Art. 22 and EU AI Act Art. 10(3) data governance, including “continuous bias monitoring” language at L5.
+  - The pack covers privacy engineering controls beyond notice/consent: data minimization + erasure (TECH-CI-5) and robustness/security controls (TECH-CI-8).
+
+  Key completeness issues vs required key regs (what’s missing / mis-scoped):
+  - EU AI Act Art. 50 is referenced, but the pack does not specifically test the requested Art. 50(1) GPAI transparency obligations (as requested by the council brief): disclosure scope, provenance, and consistent disclosure at the point of use.
+  - GDPR Art. 22(3) is not explicitly tested as a rights workflow (human intervention + ability to express viewpoint + contestation). TECH-CI-2 mentions “human review”, but not the procedural safeguards and audit evidence expected for Article 22(3).
+  - IEEE 7001 is referenced, but the required IEEE 7001:2021 §6.3 “Level 3” transparency behavior is not specifically anchored or tested as a maturity gate.
+  - ISO/IEC 42001 is tested at Annex A control level (TECH-CI-3), but the requested ISO/IEC 42001:2023 §6.1 planning/actions-to-address-risks-and-opportunities is not tested, leaving a gap in management-system planning evidence.
+  - NIST AI RMF GOVERN appears only as GOVERN 1.1 in TECH-CI-9; broader GOVERN expectations (roles, escalation, incident governance, third-party governance) are not explicitly assessed.
+
+  Overall: strong baseline pack with credible questions, but it under-tests the *procedural* transparency/redress mechanisms that convert “principle coverage” into regulator-facing evidence for consequential intelligence/profiling systems.
+
+gaps:
+  critical:
+    - id: GAP-31-C1
+      what: "EU AI Act Art. 50 is referenced (TECH-CI-9) but the requested Art. 50(1) GPAI transparency obligation is not tested as an end-to-end disclosure/provenance requirement (what is disclosed, where, and with what evidence)."
+      law: "EU AI Act Art. 50(1) (GPAI transparency)"
+      risk: "Systems can appear 'transparent' in policy, but fail to reliably disclose AI-generated intelligence/provenance at point-of-use. This creates enforcement and trust risk (users are misled; downstream decisions are made without awareness of AI mediation)."
+      fix:
+        code: |
+          q('TECH-CI-10', 'Transparency', 'Does the agent implement EU AI Act Article 50(1) GPAI transparency by (1) clearly disclosing when outputs are AI-generated/AI-assisted, (2) providing provenance (model/system identity, version, and data sources categories), and (3) ensuring disclosures persist across downstream exports/APIs and are auditable (logs/evidence bundles)?', 'EU AI Act Art. 50(1)', 'No GPAI transparency: outputs are presented as human-authored or source-verified with no disclosure or provenance', 'Discloses AI use in some UI surfaces, but provenance and persistence across exports/APIs are inconsistent and not auditable', 'Full Art. 50(1) transparency with consistent disclosure, machine-readable provenance metadata, downstream persistence, and audit-ready disclosure logs for every intelligence artifact', 15)
+        score_impact: 1.0
+
+    - id: GAP-31-C2
+      what: "GDPR Art. 22(3) safeguard rights (human intervention, ability to express viewpoint, contestation) are not explicitly tested as a workflow; TECH-CI-2 mentions human review but not the full rights + evidence cycle."
+      law: "GDPR Art. 22(3)"
+      risk: "Individuals affected by significant automated decisions may have no effective route to human intervention or contestation. This increases legal exposure, undermines fairness claims, and makes adverse decision outcomes harder to defend in audits/regulatory inquiries."
+      fix:
+        code: |
+          q('TECH-CI-11', 'Rights', 'For decisions with legal or similarly significant effects, does the agent implement GDPR Article 22(3) safeguards by enabling (1) human intervention, (2) user ability to express their point of view, and (3) contestation/appeal with documented outcomes, timelines, and audit trails?', 'GDPR Art. 22(3)', 'No safeguard workflow; users cannot request human review or contest outcomes, and decisions are final/opaque', 'Offers a manual escalation path, but viewpoint capture, decision logging, and appeal outcomes are inconsistently recorded', 'End-to-end Art. 22(3) rights workflow with SLA-tracked human review, user submissions, reasoned decisions, outcome notifications, and immutable audit logs linking model outputs to human determinations', 15)
+        score_impact: 1.1
+
+    - id: GAP-31-C3
+      what: "ISO/IEC 42001 is tested via Annex A controls (TECH-CI-3) but ISO/IEC 42001:2023 §6.1 planning/actions to address risks and opportunities is not tested, leaving management-system planning evidence gaps."
+      law: "ISO/IEC 42001:2023 §6.1"
+      risk: "An organization can implement scattered controls without demonstrating the AIMS planning loop (risk/opportunity identification, actions, integration into processes, and evaluation). This commonly fails certification audits and weakens governance defensibility."
+      fix:
+        code: |
+          q('TECH-CI-12', 'Governance', 'Does the agent support ISO/IEC 42001:2023 §6.1 planning by maintaining an AI risk/opportunity register, defining actions with owners and due dates, integrating actions into operational processes (change/release), and tracking effectiveness metrics with evidence suitable for AIMS audit?', 'ISO/IEC 42001:2023 §6.1', 'No planning loop; risks are informal, actions are undocumented, and improvements are ad hoc', 'Maintains a basic risk register and some actions, but integration into ops processes and effectiveness evidence is incomplete', 'Full §6.1 planning with versioned registers, accountable action plans, operational integration, effectiveness measurement, and audit-ready evidence packs', 12)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-31-M1
+      what: "IEEE 7001:2021 is referenced (TECH-CI-1) but IEEE 7001:2021 §6.3 Level 3 transparency is not explicitly tested as a maturity threshold (traceable, stakeholder-usable explanations with documented transparency process artifacts)."
+      law: "IEEE 7001:2021 §6.3 (Level 3)"
+      risk: "The system may generate 'explanations' that are not traceable or usable for oversight (e.g., marketing-grade explanations). This causes transparency failures in high-stakes environments where reviewers need reproducible evidence."
+      fix:
+        code: |
+          q('TECH-CI-13', 'Transparency', 'Does the agent achieve IEEE 7001:2021 §6.3 Level 3 transparency by producing traceable, reproducible explanations (inputs, transformations, uncertainty), role-appropriate explanation views, and maintained transparency-process artifacts (templates, logs, review records) for each intelligence output?', 'IEEE 7001:2021 §6.3 (Level 3)', 'No IEEE 7001 transparency process; explanations are absent or purely narrative with no traceability', 'Provides explanations and some logs, but lacks Level-3 traceability, reproducibility, and maintained process artifacts', 'Meets Level 3 with traceable explanation records, uncertainty disclosure, role-specific views, and complete transparency-process documentation & review evidence', 10)
+        score_impact: 0.7
+
+    - id: GAP-31-M2
+      what: "NIST AI RMF GOVERN is only partially represented (GOVERN 1.1 in TECH-CI-9); broader governance (roles, escalation, incident governance, third-party accountability) is not explicitly tested for intelligence/profiling deployments."
+      law: "NIST AI RMF 1.0 GOVERN (broader categories beyond GOVERN 1.1)"
+      risk: "Governance can exist on paper while operational accountability is unclear during incidents (bias events, harmful recommendations, model drift), leading to delayed response and inconsistent risk decisions."
+      fix:
+        code: |
+          q('TECH-CI-14', 'Governance', 'Does the agent operationalize NIST AI RMF GOVERN by defining accountable roles (RACI), escalation triggers (harm, drift, bias), incident response playbooks, and third-party/model-provider governance (due diligence, monitoring, and termination criteria) for intelligence systems?', 'NIST AI RMF 1.0 GOVERN', 'No operational governance; no defined roles, triggers, or incident playbooks for AI issues', 'Defines some roles and incident handling, but escalation triggers, third-party governance, and evidence are incomplete', 'Full GOVERN implementation with accountable roles, measurable triggers, incident playbooks, third-party governance, and audit-ready governance evidence', 10)
+        score_impact: 0.6
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit EU AI Act Art. 50(1) GPAI transparency/provenance question (TECH-CI-10) to ensure point-of-use disclosure is consistent and auditable."
+    effort: low
+    gap_ids: [GAP-31-C1]
+    score_gain: 1.0
+
+  - priority: 2
+    action: "Add GDPR Art. 22(3) human review + contestation workflow question (TECH-CI-11) to make significant automated decisions legally defensible and user-redress capable."
+    effort: medium
+    gap_ids: [GAP-31-C2]
+    score_gain: 1.1
+
+  - priority: 3
+    action: "Add ISO/IEC 42001:2023 §6.1 planning/actions evidence question (TECH-CI-12) to close AIMS certification planning gaps."
+    effort: medium
+    gap_ids: [GAP-31-C3]
+    score_gain: 1.0
+
+  - priority: 4
+    action: "Add IEEE 7001:2021 §6.3 Level 3 transparency maturity gate (TECH-CI-13) to ensure explanations are traceable and process-backed."
+    effort: low
+    gap_ids: [GAP-31-M1]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Expand NIST AI RMF GOVERN operational coverage (TECH-CI-14) for roles, escalation, incident governance, and third-party accountability."
+    effort: low
+    gap_ids: [GAP-31-M2]
+    score_gain: 0.6

@@ -1,0 +1,91 @@
+agent_id: '38'
+pack_id: petition-to-law
+score: 6.1
+rationale: |
+  Strengths (what’s covered):
+  - The pack is correctly scoped to e-petitions → consultation → drafting → enactment, and it treats the domain as very-high risk with clear democratic-integrity risks (manipulation, opacity, exclusion).
+  - GDPR Art. 6(1)(e) public-task processing is directly operationalized in GOV-PL-4 with necessity/proportionality framing and special-category safeguards (Art. 9) for sensitive petitions.
+  - Open-government and transparency controls are substantial (GOV-PL-1, GOV-PL-7, GOV-PL-9): public accountability artifacts, FOIA/access-to-information handling, and oversight/assessment concepts.
+  - The open data control (GOV-PL-3) correctly includes EU Open Data Directive 2019/1024 and INSPIRE as an explicit requirement for publishing legislative data in open formats.
+
+  Key completeness issues vs the required key regulations (what’s missing / mis-anchored):
+  - EU Open Data Directive 2019/1024 **Article 5** (modalities for making documents available: machine-readability, metadata, APIs/bulk download for dynamic data) is not explicitly tested. GOV-PL-3 cites “Articles 3-5” but does not require Art. 5-specific evidence (APIs, metadata quality, update frequency, access conditions).
+  - EU INSPIRE Directive 2007/2/EC **Article 7** (interoperability of spatial datasets and services via implementing rules) is not operationalized. GOV-PL-3 references INSPIRE generally, but does not test interoperability-rule alignment (harmonisation, schemas, code lists) for geospatial legislative datasets.
+  - ISO 25000 SQuaRE **§2512** is included in the pack’s basis/framework lists, but there is no clause-precise, evidence-producing quality control for legislative/petition datasets (quality model + metrics + publication of quality reports).
+  - UN E-Government Survey is referenced, but GOV-PL-2 anchors to “UN E-Government Survey 2024”; the Council-required reference is **UN E-Government Survey 2022**. This is a traceability issue and may cause citation drift in audits.
+
+  Overall: a strong democratic-governance pack with meaningful transparency/privacy/consultation coverage, but only partially “audit-ready” for the specific open-data + spatial-interoperability + quality-measurement anchors required by the Council.
+
+gaps:
+  critical:
+    - id: GAP-38-C1
+      what: "EU Open Data Directive 2019/1024 Article 5 is not explicitly tested (machine-readability + metadata + APIs/bulk download for dynamic data); current control cites Art. 3-5 without Art. 5 evidence requirements."
+      law: "EU Open Data Directive (EU) 2019/1024 — Art. 5"
+      risk: "Legislative/petition datasets can be published in ‘open formats’ but still fail Art. 5 obligations around machine-readability, metadata completeness, dynamic-data access (APIs), and reuse practicality—creating legal non-compliance and undermining civic reuse and scrutiny."
+      fix:
+        code: |
+          q('GOV-PL-10', 'Open Data', 'Does the agent implement EU Open Data Directive (EU) 2019/1024 Article 5 by ensuring legislative/petition documents and datasets are made available (1) in machine-readable formats, (2) with complete metadata, (3) with bulk download and—where data is dynamic—API access, (4) with publication/update SLAs, and (5) with evidence artifacts (metadata schema, API docs, change logs, uptime metrics) to demonstrate ongoing compliance?', 'EU Open Data Directive (EU) 2019/1024 Art. 5', 'No Art. 5 implementation: data is not machine-readable, lacks metadata, and provides no API/bulk access for reuse', 'Some open formats/feeds exist, but metadata, API/bulk access, update SLAs, and compliance evidence are incomplete', 'Full Art. 5 compliance with machine-readable releases, metadata completeness, API + bulk access for dynamic datasets, publication/update SLAs, and audit-ready evidence artifacts', 18)
+        score_impact: 1.4
+
+    - id: GAP-38-C2
+      what: "EU INSPIRE Directive 2007/2/EC Article 7 (interoperability of spatial datasets and services) is referenced only generally; there is no test for implementing-rule alignment (harmonised schemas/code lists) for geospatial legislative data."
+      law: "EU INSPIRE Directive 2007/2/EC — Art. 7"
+      risk: "Geographic aspects of petitions/legislation (e.g., constituency boundaries, affected areas, infrastructure corridors) may be published but not interoperable across jurisdictions, blocking cross-border analysis and creating non-compliance with INSPIRE interoperability expectations."
+      fix:
+        code: |
+          q('GOV-PL-11', 'Interoperability', 'For any geospatial legislative datasets (affected regions, constituency maps, project locations, zoning overlays), does the agent implement INSPIRE Directive 2007/2/EC Article 7 interoperability by aligning datasets/services to INSPIRE implementing rules (harmonised data models, schemas, code lists), validating conformance, and publishing conformance reports and transformation pipelines as evidence?', 'EU INSPIRE 2007/2/EC Art. 7', 'No INSPIRE interoperability: geospatial legislative data is ad hoc and cannot be harmonised or validated against INSPIRE implementing rules', 'Some geospatial data is published, but schema harmonisation, conformance validation, and evidence reports are incomplete', 'Full Art. 7 interoperability with INSPIRE-aligned models, automated conformance validation, documented transformations, and published conformance reports suitable for oversight', 15)
+        score_impact: 1.2
+
+  major:
+    - id: GAP-38-M1
+      what: "ISO 25000 SQuaRE §2512 is not operationalized as a measurable, evidence-producing quality-control regime for petition/legislative datasets (quality model, metrics, and published quality reports)."
+      law: "ISO 25000 SQuaRE — §2512"
+      risk: "Open legislative data can be technically ‘available’ while being low quality (incomplete, inconsistent, untimely), undermining democratic accountability and increasing the risk of erroneous downstream civic-tech analysis and policy conclusions."
+      fix:
+        code: |
+          q('GOV-PL-12', 'Quality', 'Does the agent implement ISO 25000 SQuaRE §2512 by defining a data/system quality model for petition-to-law datasets (e.g., completeness, accuracy, timeliness, consistency, provenance), computing quality measures, publishing quality dashboards/reports with each release, and retaining audit evidence (measurement definitions, sampling, defect logs, remediation actions)?', 'ISO 25000 SQuaRE §2512', 'No SQuaRE quality measurement: datasets lack defined quality measures, dashboards, or remediation evidence', 'Some quality checks exist, but measures are incomplete, not tied to §2512, or not published with evidence of remediation', 'Full §2512 operationalization with defined quality measures, automated measurement, published quality reports per release, defect/remediation tracking, and audit-ready evidence bundles', 12)
+        score_impact: 0.8
+
+    - id: GAP-38-M2
+      what: "UN E-Government Survey reference is not anchored to the Council-required UN E-Government Survey 2022; the pack uses 2024 in GOV-PL-2, creating citation drift and weakening traceability."
+      law: "UN E-Government Survey 2022"
+      risk: "In a legislative audit context, mismatched anchors can cause avoidable rework and disputes about which measurement framework is being used (e-participation components, benchmarking criteria, and reporting expectations)."
+      fix:
+        code: |
+          q('GOV-PL-13', 'Participation', 'Does the agent implement inclusive public consultation and e-participation in a way that is explicitly mapped to the UN E-Government Survey 2022 e-participation framework (e-information, e-consultation, e-decision-making), including multi-channel participation, accessibility, representativeness monitoring, and published participation metrics suitable for annual benchmarking?', 'UN E-Government Survey 2022 (e-participation)', 'No UN EGov 2022 mapping: participation features are ad hoc and not benchmarkable against 2022 criteria', 'Some participation measures exist, but mapping to UN EGov 2022 components and benchmarking metrics is incomplete', 'Full UN EGov Survey 2022 alignment with mapped participation services, accessibility + inclusion controls, representativeness monitoring, and published benchmark-ready metrics', 10)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-38-m1
+      what: "The open-data and access-to-information controls include legacy PSI Directive 2003/98 references; a versioned citation mapping is not shown, increasing the chance of inconsistent statutory anchors across outputs."
+      law: "Control-to-law mapping governance (PSI 2003/98 → Open Data Directive 2019/1024)"
+      risk: "Citation drift can undermine defensibility even when operational behavior is correct, slowing legal review and procurement acceptance."
+      fix:
+        code: |
+          q('GOV-PL-14', 'Governance', 'Does the program maintain a versioned control-to-citation map for PSI/Open-Data and access-to-information obligations (e.g., mapping any legacy 2003/98 references to 2019/1024 where required), with periodic review and automated checks to keep statutory anchors consistent across questions, datasets, and evidence exports?', 'Citation mapping governance', 'No citation governance: references drift and anchors are inconsistent across artifacts', 'Some mapping exists but is manual and inconsistently applied', 'Versioned mapping with periodic review and automated consistency checks ensuring audit-defensible statutory anchors', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit EU Open Data Directive 2019/1024 Art. 5 control requiring machine-readability, metadata, and API/bulk access evidence (not just ‘open formats’)."
+    effort: medium
+    gap_ids: [GAP-38-C1]
+    score_gain: 1.4
+
+  - priority: 2
+    action: "Operationalize INSPIRE 2007/2/EC Art. 7 interoperability for geospatial legislative datasets with conformance validation and published conformance reports."
+    effort: medium
+    gap_ids: [GAP-38-C2]
+    score_gain: 1.2
+
+  - priority: 3
+    action: "Add ISO 25000 SQuaRE §2512 quality measurement (metrics + published quality reports) for petition/legislative data releases."
+    effort: low
+    gap_ids: [GAP-38-M1]
+    score_gain: 0.8
+
+  - priority: 4
+    action: "Align participation/inclusivity control citations to UN E-Government Survey 2022 e-participation framework and produce benchmarkable participation metrics."
+    effort: low
+    gap_ids: [GAP-38-M2]
+    score_gain: 0.6

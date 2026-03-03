@@ -1,0 +1,119 @@
+agent_id: '25'
+pack_id: differently-abled
+score: 7.3
+rationale: |
+  Strengths (what’s covered):
+  - Strong inclusive-education spine: UDL is explicitly operationalized (EDU-DA-1) and inclusion/anti-segregation is tested (EDU-DA-8) with direct linkage to CRPD Art. 24(2).
+  - Core U.S. special-education execution is present: IEP/504 implementation is directly tested against IDEA §614(d) (EDU-DA-4), including effectiveness tracking and progress monitoring.
+  - Accessibility is treated as an engineering + governance concern, not a one-time checkbox:
+    - WCAG 2.1 AA + Section 508 alignment is explicitly tested for learner-facing interfaces (EDU-DA-2).
+    - Assistive technology interoperability is explicitly tested (EDU-DA-5) and grounded in ISO 9241-171 and ETSI EN 301 549.
+  - Human-rights framing beyond usability is included: dignity/autonomy (EDU-DA-3), anti-discrimination + disability data protections (EDU-DA-6), and accessible explanations (EDU-DA-7).
+  - The pack is forward-looking on EU enforcement: it adds WCAG 2.2 + European Accessibility Act obligations (EDU-DA-9).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - CRPD accessibility obligations for ICT are not explicitly anchored to CRPD Art. 9(2)(b). Current CRPD references emphasize education (Art. 24) and information access (Art. 21), but do not explicitly test the duty to promote access to ICT (including procurement and platform lifecycle governance) required by Art. 9(2)(b).
+  - WCAG 2.1 is cited generally, but WCAG 2.1 §1.4.3 Contrast (Minimum) (4.5:1) is not explicitly tested. Because contrast is a frequent measurable defect in educational UI and AI-generated content, the current “WCAG 2.1 AA” check may pass on paper while failing in practice.
+  - Section 508 is referenced, but the legacy codification Section 508 §1194.22 (Web-based intranet and internet information and applications) is not explicitly included as a testable requirement; for many U.S. education vendors, this is still how compliance is evidenced and audited in contracts.
+  - UNESCO Salamanca is referenced, but the pack cites §2-3 rather than §7; §7 is commonly invoked for the “ordinary schools should accommodate all children” implementation posture (resourcing, teacher preparation, individualized supports) and is worth testing explicitly.
+
+gaps:
+  critical:
+    - id: GAP-25-C1
+      what: "CRPD Art. 9(2)(b) accessible ICT obligations are not explicitly tested (procurement/lifecycle governance for accessible ICT beyond general WCAG compliance)."
+      law: "CRPD Art. 9(2)(b) — accessible information and communications technologies (ICT)"
+      risk: "An agent may be ‘WCAG-compliant’ at a UI surface level yet fail the CRPD accessibility duty in practice because accessibility is not governed across procurement, AI content generation, updates, third-party tools (LMS, proctoring, plugins), and ongoing monitoring. This creates systemic exclusion risk and rights-violation exposure in disability education contexts."
+      fix:
+        code: |
+          q(
+            'EDU-DA-10',
+            'Governance',
+            'Does the agent implement CRPD Article 9(2)(b) accessible-ICT governance by ensuring (1) accessibility-by-design requirements in procurement/third-party integrations (LMS, assessment tools, plugins), (2) accessibility regression testing for releases and AI-generated content, (3) accessible documentation/support channels, and (4) remediation SLAs and accountability for accessibility defects affecting learners with disabilities?',
+            'CRPD Art. 9(2)(b) (accessible ICT); accessibility-by-design procurement and lifecycle governance',
+            'No CRPD Art. 9(2)(b) ICT governance; accessibility is treated as ad hoc UI fixes with no procurement controls, regression testing, or remediation accountability',
+            'Has basic accessibility requirements and some testing, but does not cover third-party procurement controls, AI-generated content checks, or remediation SLAs/accountability end-to-end',
+            'Full CRPD Art. 9(2)(b) compliance with procurement accessibility clauses, end-to-end accessibility QA (including AI-generated content), third-party conformance evidence, tracked defect remediation SLAs, and governance reporting on accessibility outcomes',
+            15
+          )
+        score_impact: 1.3
+
+  major:
+    - id: GAP-25-M1
+      what: "WCAG 2.1 §1.4.3 Contrast (Minimum) (4.5:1) is not explicitly tested; contrast failures can persist even if ‘WCAG 2.1 AA’ is claimed broadly."
+      law: "WCAG 2.1 §1.4.3 — Contrast (Minimum) 4.5:1"
+      risk: "Low-contrast UI and AI-generated materials (charts, highlighted feedback, inline hints) reduce access for low-vision users, color-vision deficiencies, and some cognitive disabilities, undermining inclusive learning and causing frequent accessibility audit failures."
+      fix:
+        code: |
+          q(
+            'EDU-DA-11',
+            'Safety',
+            'Does the agent meet WCAG 2.1 Success Criterion 1.4.3 (Contrast Minimum) by enforcing a 4.5:1 contrast ratio for text (and 3:1 for large text), including for AI-generated content (e.g., overlays, annotations, charts), and by maintaining auditable contrast test results and remediation tracking?',
+            'WCAG 2.1 SC 1.4.3 (Contrast Minimum) — 4.5:1',
+            'No contrast controls; text and AI-generated visual elements do not meet 4.5:1 and there is no testing evidence',
+            'Meets contrast in most templates, but AI-generated content and dynamic states are not systematically checked and evidence is incomplete',
+            'Full 1.4.3 compliance with automated contrast testing (including dynamic/AI-generated states), design token enforcement, exception handling, and audit-ready evidence + defect remediation tracking',
+            12
+          )
+        score_impact: 0.8
+
+    - id: GAP-25-M2
+      what: "Section 508 §1194.22 is not explicitly referenced/tested (legacy but commonly contract-audited web accessibility requirements)."
+      law: "Section 508 — 36 CFR Part 1194.22 (Web-based intranet and internet information and applications)"
+      risk: "Vendors may pass a generic ‘Section 508’ checklist but fail customer/agency procurement audits that still require §1194.22-mapped evidence, delaying adoption and creating contractual noncompliance risk."
+      fix:
+        code: |
+          q(
+            'EDU-DA-12',
+            'Compliance',
+            'For U.S. federal/agency procurement contexts, does the agent provide Section 508 §1194.22-mapped evidence for web accessibility (including keyboard access, non-text equivalents, and accessible forms), with conformance documentation that can be packaged for procurement and audit review?',
+            'Section 508 — 36 CFR Part 1194.22',
+            'No §1194.22 mapping; cannot produce procurement/audit-ready evidence aligned to legacy Section 508 web criteria',
+            'Provides partial mapping and some evidence, but coverage and traceability to §1194.22 criteria are incomplete',
+            'Full §1194.22 mapping with conformance matrix, test evidence attachments, traceability from criteria to implementation, and procurement-ready reporting bundles',
+            10
+          )
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-25-m1
+      what: "UNESCO Salamanca Statement §7 is not explicitly cited/tested; current inclusion question cites §2-3 but not the operational ‘ordinary schools accommodate all children’ posture in §7."
+      law: "UNESCO Salamanca Statement §7"
+      risk: "Systems can avoid overt segregation while still failing practical inclusion (insufficient supports, lack of teacher training, and weak resourcing), resulting in de facto exclusion and poorer outcomes for learners with disabilities."
+      fix:
+        code: |
+          q(
+            'EDU-DA-13',
+            'Governance',
+            'Does the agent support Salamanca Statement §7 implementation by enabling ordinary-school inclusion through (1) individualized supports in mainstream settings, (2) educator training/support workflows, (3) resourcing and service coordination (e.g., speech/OT/AT), and (4) monitoring inclusion outcomes (participation, attainment, wellbeing) rather than placement alone?',
+            'UNESCO Salamanca Statement §7',
+            'No Salamanca §7 operational support; inclusion is measured only by placement labels, with no supports/resourcing/training workflows',
+            'Tracks some supports and outcomes, but coordination, training workflows, and inclusion outcome monitoring are incomplete',
+            'Full Salamanca §7 operationalization with coordinated supports, educator enablement, service delivery tracking, and inclusion outcome dashboards tied to continuous improvement',
+            8
+          )
+        score_impact: 0.4
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit CRPD Art. 9(2)(b) accessible-ICT governance question (EDU-DA-10) to cover procurement + lifecycle accessibility controls beyond generic WCAG claims."
+    effort: medium
+    gap_ids: [GAP-25-C1]
+    score_gain: 1.3
+
+  - priority: 2
+    action: "Add explicit WCAG 2.1 SC 1.4.3 contrast enforcement (EDU-DA-11) because contrast is a frequent measurable accessibility failure in educational UI and AI-generated content."
+    effort: low
+    gap_ids: [GAP-25-M1]
+    score_gain: 0.8
+
+  - priority: 3
+    action: "Add Section 508 §1194.22 evidence-mapping question (EDU-DA-12) to improve procurement/audit readiness in U.S. education vendor contexts."
+    effort: low
+    gap_ids: [GAP-25-M2]
+    score_gain: 0.6
+
+  - priority: 4
+    action: "Add Salamanca §7 operational inclusion support question (EDU-DA-13) to ensure inclusion is resourced and measured by participation/outcomes, not just placement."
+    effort: medium
+    gap_ids: [GAP-25-m1]
+    score_gain: 0.4

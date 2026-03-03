@@ -1,0 +1,105 @@
+agent_id: '05'
+pack_id: ubiquity-to-utility
+score: 6.7
+rationale: |
+  Strengths (what’s covered):
+  - ENV-UU-1 provides broad Bulk Electric System (BES) critical infrastructure coverage by referencing NERC CIP-002-5.1a through CIP-014-2, and correctly calls out CIP-005/CIP-007 as core access-control baselines.
+  - ENV-UU-8 correctly includes grid-connected energy storage safety monitoring aligned to IEC 62933-5-2.
+  - ENV-UU-9 meaningfully addresses supply chain risk management and inverter-based resources (IBR) model validation by referencing NERC CIP-013 and FERC Order 887.
+  - The pack covers EU RED III targets (Art. 3) and Guarantees of Origin (Art. 19), plus ISO 50001 energy management (Clauses 6.3–6.4).
+
+  Key completeness issues (what’s missing / mis-scoped):
+  - NERC CIP-007-6 R1 (Ports and Services) is enforcement-critical for BES Cyber Systems but is not explicitly tested. ENV-UU-1 references CIP-007 generally, which can allow an “on paper” pass without verifying required ports/services baselining, enablement justification, and evidence.
+  - NERC CIP-013 version mismatch: ENV-UU-9 cites CIP-013-2, but many organizations and compliance programs still reference CIP-013-1; the pack should explicitly test the baseline CIP-013-1 requirements (procurement controls, vendor notifications, and risk management plan implementation) to avoid audit ambiguity.
+  - IEC 62351-8 (RBAC for power system communications) is not covered. For utility OT environments (SCADA, substation automation, DERMS), RBAC is a key control to prevent unauthorized switching/dispatch actions and to align access governance with IEC security profiles.
+  - IEC 61850 interoperability/security is not covered. The pack uses CIM (IEC 61968/61970) for enterprise/grid model interoperability, but misses substation automation protocols (IEC 61850 MMS/GOOSE/SV) that drive many real-time control and protection workflows; omitting this leaves a major gap for “grid management” scope.
+  - EU RED III 2023/2413 Art. 15 (permit-granting process / administrative streamlining for renewables) is not tested. For “generation to consumption” value chain claims, permitting and grid-connection process compliance is a practical gating item for renewable projects.
+
+gaps:
+  critical:
+    - id: GAP-05-C1
+      what: "NERC CIP-007-6 R1 (Ports and Services) is not explicitly tested; CIP-007 is referenced generally in ENV-UU-1 but does not verify required port/service enablement, baselines, and evidence for BES Cyber Systems."
+      law: "NERC CIP-007-6 R1"
+      risk: "Unauthorized or unnecessary ports/services can remain enabled on BES Cyber Systems, increasing attack surface and leading to material compliance findings during CIP audits (evidence gaps around baseline and justification are common)."
+      fix:
+        code: |
+          q("ENV-UU-10", "Security", "Does the agent enforce NERC CIP-007-6 R1 Ports and Services controls by maintaining baselines of enabled logical ports/services on each BES Cyber System, approving and documenting required services, and detecting/alerting on unauthorized enablement?", "NERC CIP-007-6 R1", "No ports/services baselines exist; services are enabled ad-hoc and unauthorized exposure is not detected", "Maintains a baseline for most BES Cyber Systems and alerts on some deviations, but approvals/justifications and evidence retention are incomplete", "Continuous CIP-007-6 R1 compliance with automated baselining, change approvals with documented business need, authenticated service inventories, drift detection, and audit-ready evidence bundles per BES Cyber System", 15)
+        score_impact: 1.2
+
+    - id: GAP-05-C2
+      what: "IEC 62351-8 RBAC is not covered; the pack does not test role engineering, role assignment, and authorization enforcement for power system control actions in OT environments."
+      law: "IEC 62351-8"
+      risk: "Inadequate authorization controls can allow inappropriate operator/vendor access and unsafe switching/dispatch actions; also increases likelihood of nonconformance with utility cybersecurity programs that adopt IEC 62351 profiles for OT access governance."
+      fix:
+        code: |
+          q("ENV-UU-11", "Security", "Does the agent implement role-based access control for power system operations per IEC 62351-8 (role definition, role assignment, access rights mapping, and authorization enforcement for control actions)?", "IEC 62351-8", "No OT RBAC model; control actions and configuration changes are not governed by standardized roles/rights", "Defines roles and limits some actions, but role engineering is incomplete and authorization decisions are inconsistently enforced across OT interfaces", "IEC 62351-8-aligned RBAC with formal role engineering, least-privilege rights mapping to IEC 61850/SCADA control points, strong authentication binding, break-glass governance, and complete authorization/audit evidence", 15)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-05-M1
+      what: "IEC 61850 (substation automation / protection and control interoperability) is not tested; CIM coverage (IEC 61968/61970) is necessary but insufficient for real-time OT communications and control-plane interoperability."
+      law: "IEC 61850"
+      risk: "Agent may be ‘interoperable’ at the enterprise/grid-model layer while failing to safely integrate with substation protection/control systems; increases integration defects, mis-operations, and cybersecurity exposure at the OT protocol layer."
+      fix:
+        code: |
+          q("ENV-UU-12", "Safety", "Does the agent support secure interoperability with substation automation systems per IEC 61850 (including data modeling, MMS/GOOSE/Sampled Values messaging constraints, and configuration management via SCL) for grid monitoring and control use cases?", "IEC 61850", "No IEC 61850 interoperability; substation integration relies on proprietary mappings or manual operations", "Supports partial IEC 61850 data models and messaging, but configurations and change control are manual and security constraints are inconsistently applied", "Full IEC 61850 interoperability with validated SCL workflows, deterministic control messaging support, protection/control coordination safeguards, and standardized integration testing for substation automation", 12)
+        score_impact: 0.8
+
+    - id: GAP-05-M2
+      what: "EU RED III 2023/2413 Art. 15 (permit-granting process streamlining) is not tested; pack covers Art. 3 and Art. 19 but omits the administrative/permit compliance gating for renewable deployment."
+      law: "EU RED III 2023/2413 Art. 15"
+      risk: "Renewable projects can miss statutory permitting timelines, documentation obligations, and ‘one-stop shop’ process requirements, leading to deployment delays and regulatory noncompliance that undermines decarbonization claims."
+      fix:
+        code: |
+          q("ENV-UU-13", "Compliance", "Does the agent manage renewable project permitting workflows per EU RED III 2023/2413 Article 15 (permit-granting process), including required documentation, timeline tracking, and coordination across competent authorities/one-stop shop procedures?", "EU RED III 2023/2413 Art. 15", "No permitting workflow support; permit documentation and timelines are unmanaged", "Tracks key permit milestones and documents, but does not provide end-to-end timeline compliance monitoring or multi-authority coordination", "End-to-end Art. 15 compliance with automated permit dossier generation, statutory timeline monitoring, authority coordination workflows, grid-connection dependency tracking, and audit-ready permitting evidence packs", 10)
+        score_impact: 0.5
+
+    - id: GAP-05-M3
+      what: "Supply chain control is version-ambiguous: ENV-UU-9 cites NERC CIP-013-2, but does not explicitly test baseline CIP-013-1 procurement/supply-chain controls and evidence expectations."
+      law: "NERC CIP-013-1"
+      risk: "Audit ambiguity and incomplete evidence for procurement controls (vendor notification requirements, software integrity expectations, and risk management plan implementation), potentially leading to compliance findings and unmanaged vendor risk."
+      fix:
+        code: |
+          q("ENV-UU-14", "Governance", "Does the agent implement NERC CIP-013-1 supply chain risk management by enforcing procurement controls (including vendor risk evaluation, security requirements, and vendor incident/notification obligations) and maintaining evidence that the supply chain risk management plan is implemented?", "NERC CIP-013-1", "No CIP-013-1 procurement controls; vendor security requirements and notifications are not managed", "Implements some procurement controls and tracks vendors, but requirements, notification obligations, and evidence retention are inconsistent", "Full CIP-013-1 lifecycle with procurement control templates, vendor assurance and notification monitoring, software/firmware integrity verification, and continuously collected audit evidence mapped to CIP-013-1 requirements", 12)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-05-m1
+      what: "FERC Order 887 is referenced in ENV-UU-9, but the question does not explicitly test ongoing IBR model performance monitoring and re-validation triggers (e.g., after firmware/control changes or observed grid events)."
+      law: "FERC Order 887"
+      risk: "IBR models can drift from real-world behavior, degrading planning/operations studies and increasing reliability risk; compliance posture may be overstated if validation is treated as a one-time activity."
+      fix:
+        code: |
+          q("ENV-UU-15", "Safety", "Does the agent continuously monitor inverter-based resource (IBR) model performance and trigger re-validation/updates (e.g., after control/firmware changes or event analysis) to maintain Order 887-aligned model accuracy for planning and operations studies?", "FERC Order 887", "No ongoing validation; IBR models are static and not updated after changes/events", "Performs periodic validation, but triggers and evidence for updates after changes/events are inconsistent", "Continuous Order 887-aligned model governance with automated drift detection, event-based re-validation triggers, controlled model updates, and evidence exports for planning coordinator/ISO submissions", 8)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit CIP-007-6 R1 Ports & Services control question (ENV-UU-10) to make enforcement-grade OT hardening testable rather than implied by a general CIP reference."
+    effort: medium
+    gap_ids: [GAP-05-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Add IEC 62351-8 RBAC coverage (ENV-UU-11) to close the OT authorization governance gap for power system control actions."
+    effort: medium
+    gap_ids: [GAP-05-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Add IEC 61850 interoperability/safety question (ENV-UU-12) to ensure substation automation/control-plane integration is covered alongside CIM enterprise/grid-model interoperability."
+    effort: medium
+    gap_ids: [GAP-05-M1]
+    score_gain: 0.8
+
+  - priority: 4
+    action: "Add EU RED III Art. 15 permitting workflow compliance test (ENV-UU-13) to cover administrative gating for renewable deployment."
+    effort: medium
+    gap_ids: [GAP-05-M2]
+    score_gain: 0.5
+
+  - priority: 5
+    action: "Resolve CIP-013 version ambiguity by adding a CIP-013-1-specific question (ENV-UU-14) and mapping evidence expectations to procurement controls and vendor notifications."
+    effort: low
+    gap_ids: [GAP-05-M3]
+    score_gain: 0.6

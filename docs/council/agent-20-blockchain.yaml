@@ -1,0 +1,105 @@
+agent_id: '20'
+pack_id: blockchain
+score: 6.3
+rationale: |
+  Strengths (what’s covered):
+  - MiCA core CASP governance is meaningfully operationalized via WLT-BC-1 (Title V Arts. 59–74), including prudential/segregation/complaints/conflicts/outsourcing elements that regulators actually inspect.
+  - A travel-rule control exists (WLT-BC-3) and includes interoperability + counterparty VASP verification concepts, which is directionally aligned with real-world FATF implementation expectations.
+  - Stablecoin reserve monitoring is explicitly tied to MiCA Title III Arts. 36–39 (WLT-BC-5) and is paired with BIS CPMI guidance, giving a credible reserve/attestation audit surface.
+  - Token classification is addressed (WLT-BC-4) with SEC Howey + MiCA Art. 2 type definitions (ART/EMT/other), which is a key gating function for lawful issuance, distribution, and marketing.
+  - Transaction/auditability expectations are present (WLT-BC-8) and the pack distinguishes EU TFR obligations from MiCA (WLT-BC-9), which is an important compliance separation.
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - MiCA market abuse is partially covered (WLT-BC-7 references Art. 91/92), but the requested anchor “MiCA Art. 68 market abuse” is not implemented as written, and the pack does not clearly test the *full market abuse controls* expected for CASPs/venues (surveillance, STOR-style reporting workflows, controls over listings/communications) in an article-precise way.
+  - FATF “travel rule $1000” thresholding is not explicitly tested per the requested “FATF R15 §76” framing; the pack discusses “above threshold” but does not enforce the bright-line threshold logic and evidence bundle expected by supervisors.
+  - EU Transfer of Funds Regulation traceability is tested via Art. 4–7 completeness (WLT-BC-9), but the requested “EU TFR Art. 14 traceability” control is missing (notably around traceability/risk controls for certain transfer types and operational handling of missing/failed information).
+  - U.S. regulatory perimeter gaps: the pack does not test CFTC commodity-status analysis (CEA §1a(9)) which is critical for derivatives/spot enforcement posture, nor does it reflect SEC v. Ripple-style security-token analysis for “investment contract” fact patterns specific to token distributions and secondary sales.
+
+gaps:
+  critical:
+    - id: GAP-20-C1
+      what: "MiCA market-abuse obligation is not anchored to the requested MiCA Art. 68 and is not tested as an enforcement-grade surveillance + reporting + controls program (beyond generic wash-trade/front-running detection)."
+      law: "MiCA Regulation 2023/1114 — Art. 68 (market abuse per requested key reg) + Title VI market abuse controls (surveillance, detection, reporting)"
+      risk: "A DeFi/CASP agent can ‘pass’ basic manipulation pattern detection while failing regulator expectations for a market-abuse compliance program (governance, surveillance coverage, escalation, reporting, evidence retention). This increases enforcement risk, venue de-authorization risk, and client-harm exposure during volatile events."
+      fix:
+        code: |
+          q('WLT-BC-10', 'Compliance', 'Does the agent implement MiCA market-abuse controls (requested anchor: MiCA Art. 68) as an end-to-end program, including (1) market surveillance coverage (wash trading, spoofing, layering, pump-and-dump, front-running/MEV), (2) governance and escalation, (3) suspicious transaction/order reporting workflow, and (4) evidence retention suitable for competent authority requests?', 'MiCA 2023/1114 Art. 68 (market abuse) / Title VI market abuse', 'No market-abuse program: only ad-hoc flags; no escalation, reporting, or evidence retention', 'Detects some patterns and flags incidents, but coverage, escalation, and reporting/evidence bundles are incomplete or manual', 'Full market-abuse compliance program with surveillance coverage mapping, calibrated alerts, case management + escalation SLAs, STOR-style reporting workflow, audit-ready evidence retention, and periodic effectiveness testing', 15)
+        score_impact: 1.3
+
+    - id: GAP-20-C2
+      what: "Travel rule thresholding is not explicit per FATF R15 §76 ($/€1000) and does not test bright-line operational behavior for transfers at/above threshold."
+      law: "FATF Recommendation 15 (new technologies) — §76 travel rule threshold ($/€1000) (per requested key reg)"
+      risk: "Supervisors often test travel rule compliance via threshold-driven samples. If the agent cannot deterministically apply the $/€1000 rule (incl. batching/splitting, fees, FX conversion, and record retention), the organization can fail examinations even if it ‘generally collects travel rule data’."
+      fix:
+        code: |
+          q('WLT-BC-11', 'Traceability', 'Does the agent enforce travel rule application at the FATF R15 §76 threshold ($/€1000) by deterministically (1) calculating transfer value (incl. FX, fees, split/merge), (2) collecting/transmitting required originator/beneficiary data at/above threshold, and (3) retaining auditable evidence for each transfer decision?', 'FATF R15 §76 (Travel Rule threshold $/€1000)', 'No threshold enforcement: transfers proceed without deterministic $/€1000 calculation or consistent travel rule data exchange', 'Applies threshold logic in common cases, but struggles with edge cases (FX/fees/splitting) and evidence retention is incomplete', 'Full threshold enforcement with deterministic valuation rules, split/merge detection, interoperability (TRISA/OpenVASP), counterparty verification, and immutable audit logs proving compliance decisions per transfer', 15)
+        score_impact: 1.1
+
+    - id: GAP-20-C3
+      what: "EU TFR Art. 14 traceability control is not tested; current coverage focuses on Art. 4–7 data completeness and Art. 15 reporting, missing traceability/risk handling expectations tied to Art. 14 in the user’s key regs list."
+      law: "EU Transfer of Funds Regulation 2023/1113 — Art. 14 (traceability)"
+      risk: "Firms may collect the right data fields yet still fail traceability obligations in operational reality (e.g., handling of missing info, rejection/repair workflows, high-risk transfer routing, and evidence that traceability is maintained end-to-end)."
+      fix:
+        code: |
+          q('WLT-BC-12', 'Traceability', 'Does the agent implement EU TFR 2023/1113 Art. 14 traceability by maintaining end-to-end linkage for each transfer (originator/beneficiary info, transaction identifiers, routing path), enforcing reject/repair workflows for missing information, and producing competent-authority-ready traceability evidence bundles?', 'EU TFR 2023/1113 Art. 14', 'No traceability: transfers lack end-to-end linkage and missing-info handling is ad hoc', 'Maintains some linkage and can repair some missing fields, but reject/repair, escalation, and evidence exports are inconsistent', 'Full Art. 14 traceability with end-to-end linkage, deterministic reject/repair workflows, escalations, monitoring KPIs, and audit-ready exports covering transfer lineage and remediation actions', 12)
+        score_impact: 0.9
+
+  major:
+    - id: GAP-20-M1
+      what: "No CFTC commodity-perimeter test (CEA §1a(9)) for digital assets; pack lacks a control for ‘commodity’ status and resulting CFTC posture (esp. for derivatives, leveraged/financed retail products, and anti-manipulation authority)."
+      law: "CFTC / Commodity Exchange Act — §1a(9) (commodity definition)"
+      risk: "Teams may treat token classification as purely SEC/Howey + MiCA, overlooking that many cryptoassets are treated as commodities for CFTC purposes. This can lead to incorrect compliance design for products that touch swaps/futures or CFTC anti-manipulation jurisdiction."
+      fix:
+        code: |
+          q('WLT-BC-13', 'Governance', 'Does the agent assess whether a digital asset or related product implicates the CFTC commodity perimeter under CEA §1a(9) (and downstream compliance implications for derivatives/leveraged products and CFTC anti-manipulation posture), with documented reasoning and escalation to legal/compliance?', 'CEA §1a(9) (commodity definition)', 'No CFTC perimeter assessment; products are classified only via SEC/Howey or EU categories', 'Performs a basic commodity vs security analysis, but does not connect results to product-type implications or maintain audit-ready rationale', 'Comprehensive CFTC perimeter governance with documented §1a(9) analysis, product-type mapping (spot vs derivatives/leveraged), escalation gates, and periodic reassessment as guidance/enforcement evolves', 12)
+        score_impact: 0.7
+
+    - id: GAP-20-M2
+      what: "SEC v. Ripple security-token fact-pattern analysis is not explicitly tested; Howey coverage exists, but Ripple-style distribution/secondary market nuances are missing from the control surface."
+      law: "SEC v. Ripple Labs (security token / investment contract analysis)"
+      risk: "Projects can ‘pass’ a generic Howey analysis while failing to identify Ripple-like risk areas (e.g., marketing statements, purchaser expectations, distribution mechanics, and secondary sales context), increasing enforcement/litigation risk and exchange/listing exposure."
+      fix:
+        code: |
+          q('WLT-BC-14', 'Compliance', 'Does the agent perform security-token risk analysis incorporating SEC v. Ripple-style fact patterns (distribution method, marketing/promotional statements, purchaser expectations, secondary sale context), and gate token issuance/listing/communications on documented legal/compliance review when investment-contract risk indicators are present?', 'SEC v. Ripple Labs; Howey test application in token distributions', 'No Ripple-aware analysis; token distribution and marketing risks are not assessed', 'Flags some promotional language and distribution risks, but secondary-sale context and evidence retention are inconsistent', 'Full Ripple-aware control with structured fact intake, risk scoring, communications gating, escalation workflows, and audit-ready evidence bundles supporting the organization’s securities-law posture', 10)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-20-m1
+      what: "MiCA Art. 68 is referenced in-pack as a record-keeping anchor (WLT-BC-8), creating potential citation ambiguity against the requested ‘Art. 68 market abuse’ key-reg list."
+      law: "MiCA Regulation 2023/1114 — Art. 68 (citation alignment)"
+      risk: "Even if the control behavior is acceptable, article mis-citation undermines audit defensibility and makes it harder for compliance teams to map evidence to supervisory checklists."
+      fix:
+        code: |
+          q('WLT-BC-15', 'Governance', 'Does the program maintain a MiCA article-to-control mapping that is internally consistent (e.g., ensuring Art. 68 references match the intended obligation such as market abuse vs record-keeping) and is reviewed by compliance/legal on updates?', 'MiCA 2023/1114 (internal control mapping governance)', 'No control mapping governance; citations drift and are not reviewed', 'Citations are reviewed periodically, but drift can persist across pack updates', 'Strong mapping governance with compliance/legal review, versioning, and automated checks for citation consistency across all controls', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add an enforcement-grade MiCA market-abuse control anchored to the requested Art. 68 framing (WLT-BC-10) with surveillance + escalation + reporting + evidence retention."
+    effort: medium
+    gap_ids: [GAP-20-C1]
+    score_gain: 1.3
+
+  - priority: 2
+    action: "Make FATF travel rule threshold behavior explicit at $/€1000 per FATF R15 §76 (WLT-BC-11), including split/merge/FX/fees and auditable decision logs."
+    effort: medium
+    gap_ids: [GAP-20-C2]
+    score_gain: 1.1
+
+  - priority: 3
+    action: "Add EU TFR Art. 14 traceability + reject/repair workflows (WLT-BC-12) to ensure traceability is operational, not just field-complete."
+    effort: medium
+    gap_ids: [GAP-20-C3]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Add CFTC commodity perimeter assessment (CEA §1a(9)) for token/product design and enforcement posture clarity (WLT-BC-13)."
+    effort: low
+    gap_ids: [GAP-20-M1]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Add explicit SEC v. Ripple-aware security-token risk control (WLT-BC-14) to capture distribution/marketing/secondary sale nuances beyond generic Howey."
+    effort: low
+    gap_ids: [GAP-20-M2]
+    score_gain: 0.6

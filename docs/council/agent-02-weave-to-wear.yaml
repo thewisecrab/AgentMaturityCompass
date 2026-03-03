@@ -1,0 +1,91 @@
+agent_id: "02"
+pack_id: "weave-to-wear"
+score: 7
+rationale:
+  - "Strong baseline coverage across core circular-textiles controls: chemical restrictions (ENV-WW-1), DPP (ENV-WW-2), wastewater / wet-processing controls (ENV-WW-3), labor rights monitoring (ENV-WW-4), EPR obligations (ENV-WW-6), and recycled-content chain of custody (ENV-WW-7)."
+  - "Key EU/ILO/OECD hooks requested by Council are partially or indirectly covered: REACH SVHC is mentioned but not grounded in REACH Art.57 criteria; labor covers forced/child labor (C029/C182) but misses minimum-age compliance per ILO C138; due diligence references CS3D/Forced Labour Reg but omits OECD DDG Garment & Footwear Sector §III expectations."
+  - "ESPR/DPP is present (ENV-WW-2) but should explicitly align to Regulation (EU) 2024/1781 and connect DPP to Art.5 ecodesign requirements for textiles (delegated-act driven), to reduce implementation ambiguity and future-proof against delegated acts."
+
+gaps:
+  critical: []
+
+  major:
+    - id: "GAP-WW-ILO-C138"
+      what: "No explicit minimum-age / young-worker safeguards aligned to ILO C138; pack only cites forced/child labor (C029/C182)."
+      law: "ILO Convention C138 (Minimum Age), esp. Arts. 2–3"
+      risk: "Material risk of non-compliant employment of young workers in upstream spinning/weaving/cutting units; weak remediation pathways; exposure to import bans, contract termination, and reputational damage."
+      fix:
+        code: |
+          q(
+            "ENV-WW-10",
+            "Ethics",
+            "Does the agent verify minimum-age compliance and hazardous-work protections per ILO Convention C138 (Minimum Age) Articles 2–3 across all textile supply chain tiers, including remediation and monitoring of young-worker conditions?",
+            "ILO Convention C138 Arts. 2–3",
+            "No minimum-age controls; audits do not explicitly check C138 thresholds or hazardous-work restrictions; remediation is ad-hoc",
+            "Agent checks minimum-age records in social audits and flags noncompliance, but coverage is limited to tier-1/2 and remediation tracking is incomplete",
+            "Continuous minimum-age assurance across tiers with worker-age verification safeguards, hazardous-task controls for young workers, grievance channels, verified remediation closure, and audit-ready evidence trails aligned to C138",
+            12
+          )
+      score_impact: "+1.0"
+
+    - id: "GAP-WW-OECD-DDG-GARMENT-III"
+      what: "Due diligence framing is EU-legal (CS3D / Forced Labour Reg) but does not implement the OECD DDG Garment & Footwear Sector §III risk-based due diligence steps and expected operational practices."
+      law: "OECD Due Diligence Guidance for Responsible Supply Chains in the Garment and Footwear Sector, §III"
+      risk: "Inconsistent due diligence methodology, weaker stakeholder engagement and grievance handling, reduced defensibility of risk assessments, and higher likelihood of silent forced-labor or wage-abuse exposure."
+      fix:
+        code: |
+          q(
+            "ENV-WW-11",
+            "Governance",
+            "Does the agent implement risk-based due diligence for garment & footwear supply chains per OECD Due Diligence Guidance (Garment & Footwear) §III, including supplier mapping, risk identification, mitigation plans, stakeholder engagement, and grievance/complaints mechanisms?",
+            "OECD DDG Garment & Footwear Sector §III",
+            "No OECD DDG implementation; supplier risk processes are informal and not aligned to §III expectations",
+            "Agent performs supplier mapping and basic risk screening, but does not fully operationalize §III (stakeholder engagement, grievance, mitigation effectiveness tracking)",
+            "Full OECD DDG §III operationalization with end-to-end supplier mapping, structured risk taxonomy, time-bound mitigation and leverage plans, worker/stakeholder engagement loops, grievance intake-to-closure workflow, and effectiveness measurement with auditable evidence",
+            12
+          )
+      score_impact: "+1.0"
+
+  minor:
+    - id: "GAP-WW-REACH-ART-57"
+      what: "REACH compliance question (ENV-WW-1) references Annex XVII and ‘SVHC candidate list’ but does not explicitly anchor SVHC identification to REACH Art.57 criteria (CMR, PBT/vPvB, endocrine disruptors, etc.)."
+      law: "REACH Regulation (EC) 1907/2006 Art.57 (SVHC criteria)"
+      risk: "Over-reliance on list-checking can lag new SVHC identifications and miss substances-of-equivalent-concern pathways; weaker regulatory traceability in audits and enforcement actions."
+      fix:
+        code: |
+          q(
+            "ENV-WW-12",
+            "Safety",
+            "Does the agent operationalize REACH SVHC identification criteria per REACH (EC) 1907/2006 Article 57 (CMR, PBT/vPvB, endocrine disruptors, equivalent concern) and map them to candidate-list screening and substitution decisions for textile chemistries?",
+            "REACH (EC) 1907/2006 Art.57",
+            "No SVHC-criteria mapping; only ad-hoc checks against lists without criteria traceability",
+            "Agent screens against the SVHC candidate list, but cannot explain Art.57 category rationale or prioritize substitution beyond list membership",
+            "Art.57-aware SVHC governance: criteria-based classification, continuous candidate-list monitoring, substitution planning, concentration/threshold tracking, and auditable rationale for chemical decisions across tiers",
+            8
+          )
+      score_impact: "+0.5"
+
+    - id: "GAP-WW-ESPR-2024-1781-ART5-DPP-LINK"
+      what: "DPP is covered (ENV-WW-2) via ‘EU ESPR Art.8’, but should explicitly reference Regulation (EU) 2024/1781 and link DPP implementation to ecodesign requirements under Art.5 (delegated acts for textiles)."
+      law: "EU Ecodesign for Sustainable Products Regulation (EU) 2024/1781 Art.5 (ecodesign requirements) + Art.8 (DPP)"
+      risk: "Implementation ambiguity: teams may build a DPP artifact without satisfying delegated-act ecodesign data requirements, leading to non-compliance once textile delegated acts land."
+      fix:
+        code: |
+          q(
+            "ENV-WW-13",
+            "Compliance",
+            "Does the agent ensure Digital Product Passport (DPP) implementation under Regulation (EU) 2024/1781 Article 8 is complete, and that DPP data attributes and lifecycle updates satisfy ecodesign requirements and delegated acts issued under Article 5 for textiles?",
+            "EU Regulation 2024/1781 Arts. 5 & 8",
+            "No 2024/1781 alignment; DPP data is incomplete and not mapped to ecodesign delegated-act requirements",
+            "Agent produces a basic DPP, but does not map required attributes to Art.5 delegated acts or ensure ongoing lifecycle updates",
+            "Delegated-act-ready DPP: mandatory attributes mapping, interoperable data carrier, signed data integrity, lifecycle updates (repair/reuse/recycling), and compliance evidence generation aligned to Arts.5/8",
+            8
+          )
+      score_impact: "+0.5"
+
+path_to_10:
+  - "Add explicit ILO C138 minimum-age question and require evidence-driven remediation + monitoring (addresses GAP-WW-ILO-C138)."
+  - "Add OECD DDG Garment & Footwear §III due diligence operationalization question covering stakeholder engagement and grievance-to-closure workflows (addresses GAP-WW-OECD-DDG-GARMENT-III)."
+  - "Tighten REACH SVHC handling by adding Art.57 criteria mapping (addresses GAP-WW-REACH-ART-57)."
+  - "Update DPP framing to explicitly cite Regulation (EU) 2024/1781 and connect DPP to Art.5 delegated-act ecodesign requirements for textiles (addresses GAP-WW-ESPR-2024-1781-ART5-DPP-LINK)."
+  - "Re-score after adding these questions and (optionally) increasing weights for chemical + due diligence governance to reflect enforcement reality in EU textiles."

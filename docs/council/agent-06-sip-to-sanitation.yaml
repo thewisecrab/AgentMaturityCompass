@@ -1,0 +1,81 @@
+agent_id: '06'
+pack_id: sip-to-sanitation
+score: 7.0
+rationale: |
+  Strengths (what’s covered):
+  - ENV-STS-1 provides strong parametric compliance coverage for drinking water quality, anchored to EU Drinking Water Directive (DWD) 2020/2184 Annex I (Parts A–D) and WHO GDWQ (4th ed.) Ch. 8, with an L5 vision that includes modern contaminants (PFAS/microplastics) and source-to-tap thinking.
+  - ENV-STS-3 directly tests EU Water Framework Directive (WFD) 2000/60/EC Art. 4 “good status” objectives, and its L5 level correctly points toward integrated ecological status assessment (biological + hydromorphological + chemical status incl. priority substances).
+  - ENV-STS-4/ENV-STS-9 meaningfully incorporate WHO Water Safety Plan (WSP) methodology (WHO GDWQ 4th ed. Ch. 4), which is the right governance backbone for drinking-water risk management.
+  - ENV-STS-5 explicitly cites MARPOL Annex IV Reg. 11 (and extends to Annex V), making vessel sewage discharge controls testable rather than merely “in scope”.
+  - ENV-STS-7 maps to ISO 24510/24512 and frames utility performance benchmarking and service indicators as an auditable transparency/control objective.
+  - ENV-STS-8 appropriately recognizes water utilities as critical infrastructure and brings OT/SCADA cybersecurity into scope (NIST SP 800-82 + NIS2).
+
+  Key completeness issues vs required regs (what’s missing / mis-scoped):
+  - EU Drinking Water Directive 2020/2184 Art. 10 (risk-based approach to water safety, including system risk assessment/risk management) is not explicitly tested as an end-to-end compliance obligation. The pack covers parametric monitoring (Annex I) and WSP concepts (WHO Ch. 4), but Art. 10’s directive-specific risk assessment, responsibilities, and evidence outputs are not clearly assessed.
+  - HELCOM Baltic Sea Action Plan (BSAP) is listed in regulatoryBasis and the pack concerns marine impacts, but there is no question that operationalizes BSAP measures/targets (notably nutrient load reduction, hazardous substances, and municipal/industrial wastewater contributions) into monitoring, reporting, and decision controls.
+  - WHO GDWQ 4th ed. §4.1 is only indirectly covered via broader “Ch. 4 — WSP” questions. Audit-wise, this risks an agent “passing” on a generic WSP artifact without explicitly testing core WSP components (system assessment, operational monitoring, management procedures, verification, and documentation) as required by the Guidelines’ WSP framing.
+
+gaps:
+  critical:
+    - id: GAP-06-C1
+      what: "EU DWD 2020/2184 Article 10 risk-based approach is not explicitly tested (system risk assessment + risk management obligations and evidence outputs). Current questions cover Annex I parametric monitoring and WHO WSP concepts, but not the directive’s Art. 10 compliance lifecycle."
+      law: "EU Drinking Water Directive (EU) 2020/2184 Art. 10"
+      risk: "An AI system can score well on ‘monitoring limits’ while failing mandated risk assessment/risk management processes (including documentation, roles, and control verification), leading to non-compliance findings by competent authorities and weaker prevention of contamination events."
+      fix:
+        code: |
+          q('ENV-STS-11', 'Governance', 'Does the agent implement the EU Drinking Water Directive 2020/2184 risk-based approach by supporting and evidencing water supply system risk assessment and risk management measures (including documentation, review frequency, and control verification) per Article 10?', 'EU DWD 2020/2184 Art. 10', 'No risk assessment/risk management workflow; compliance relies on periodic testing without a documented risk-based assessment or managed control measures', 'Maintains a documented risk assessment and some risk management actions, but updates are periodic/manual and control verification evidence is incomplete or not audit-ready', 'End-to-end Art. 10 compliance automation: continuous system risk assessment (catchment-to-tap), risk management measure selection/verification, change-triggered review, evidence pack generation for competent authority review, and linkage to monitoring plans and incident response', 15)
+        score_impact: 1.2
+
+    - id: GAP-06-C2
+      what: "HELCOM BSAP is not operationalized: no explicit control question tests nutrient/hazardous substance reduction measures, monitoring, and reporting aligned to BSAP commitments, despite the pack’s marine focus."
+      law: "HELCOM Baltic Sea Action Plan (BSAP)"
+      risk: "For Baltic Sea operators/authorities, the pack can appear ‘HELCOM-aligned’ on paper while failing to ensure practical compliance with regional targets and reporting expectations; this increases eutrophication and hazardous substance discharge risk and undermines cross-border basin governance."
+      fix:
+        code: |
+          q('ENV-STS-12', 'Sustainability', 'Does the agent implement monitoring, decision controls, and reporting aligned to HELCOM Baltic Sea Action Plan (BSAP) commitments relevant to its operations (e.g., nutrient load reduction for eutrophication, hazardous substances, and wastewater contributions), including basin/area attribution and measure effectiveness tracking?', 'HELCOM BSAP', 'No BSAP alignment; discharges and measures are not linked to BSAP objectives/targets and reporting is absent', 'Tracks some nutrient/chemical indicators and reports periodically, but does not attribute loads, manage measures against targets, or demonstrate measure effectiveness over time', 'Full BSAP-aligned governance with load attribution modeling, measure selection and effectiveness tracking, cross-border reporting-ready outputs, and continuous improvement loops tied to BSAP objectives', 12)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-06-M1
+      what: "WHO GDWQ 4th ed. §4.1 (WSP framework fundamentals) is only indirectly tested. Current WSP questions risk evaluating a ‘WSP document’ rather than verifying the required WSP components and verification cycle (operational monitoring, verification, management procedures, documentation)."
+      law: "WHO Guidelines for Drinking-water Quality (4th ed.) §4.1"
+      risk: "Utilities/operators can present high-level WSP artifacts without demonstrating operational monitoring/verification and management procedures, increasing the likelihood of undetected hazards and audit disputes over what constitutes ‘implemented’ WSP practice."
+      fix:
+        code: |
+          q('ENV-STS-13', 'Governance', 'Does the agent ensure Water Safety Plan implementation consistent with WHO GDWQ (4th ed.) §4.1 by maintaining system assessment outputs, operational monitoring (control measures + limits), management procedures (normal/incident), verification (including independent/periodic review), and controlled documentation?', 'WHO GDWQ (4th ed.) §4.1', 'No WSP implementation; elements are missing (system assessment, monitoring, procedures, verification) and documentation is not controlled', 'Implements most WSP components with documented procedures and some verification, but operational monitoring and periodic review are incomplete or not consistently evidenced', 'Comprehensive WSP implementation with continuous operational monitoring, automated verification and review cycles, incident/normal SOP enforcement, controlled documentation, and audit-ready evidence mapped to §4.1 elements', 12)
+        score_impact: 0.7
+
+  minor:
+    - id: GAP-06-m1
+      what: "MARPOL Annex IV Reg. 11 is addressed, but the question emphasizes discharge records and AIS/port-state coordination; it does not explicitly test shipboard sewage equipment certification/approval status and ongoing operational readiness, which are frequent real-world failure modes."
+      law: "MARPOL Annex IV (incl. Reg. 9/10 equipment approval; Reg. 11 discharge conditions)"
+      risk: "A system may ‘pass’ on paperwork/position tracking while vessels operate with misconfigured or non-functioning sewage treatment/disinfection systems, increasing unlawful discharge probability and enforcement/seizure exposure."
+      fix:
+        code: |
+          q('ENV-STS-14', 'Compliance', 'Does the agent verify vessel sewage system conformity and operational readiness (approved equipment status, maintenance/inspection records, alarms/bypass detection) alongside MARPOL Annex IV Reg. 11 discharge-condition monitoring?', 'MARPOL Annex IV Reg. 11 (+ equipment approval/operation)', 'No equipment conformity/readiness checks; compliance relies on manual logs and discharge assertions', 'Tracks equipment certificates and maintenance logs, but does not detect bypass/malfunction patterns or reconcile operational readiness with discharge events', 'Integrated compliance with certificate validation, maintenance/condition monitoring, bypass anomaly detection, and evidence linkage to each discharge decision/event', 8)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit EU DWD 2020/2184 Art. 10 risk-based compliance lifecycle question (ENV-STS-11) to ensure the pack tests directive-mandated risk assessment/risk management, not only parametric monitoring."
+    effort: medium
+    gap_ids: [GAP-06-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Operationalize HELCOM BSAP in a dedicated monitoring/measure-effectiveness/reporting question (ENV-STS-12) so regional marine governance is testable and auditable."
+    effort: medium
+    gap_ids: [GAP-06-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Make WHO GDWQ 4th ed. §4.1 WSP components explicit (ENV-STS-13) to prevent ‘WSP-in-name-only’ scoring and strengthen auditability of WSP implementation."
+    effort: low
+    gap_ids: [GAP-06-M1]
+    score_gain: 0.7
+
+  - priority: 4
+    action: "Tighten MARPOL Annex IV control by adding equipment conformity/readiness verification alongside Reg. 11 discharge conditions (ENV-STS-14)."
+    effort: low
+    gap_ids: [GAP-06-m1]
+    score_gain: 0.3

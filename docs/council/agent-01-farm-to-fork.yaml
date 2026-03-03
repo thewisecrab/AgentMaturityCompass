@@ -1,0 +1,117 @@
+agent_id: '01'
+pack_id: farm-to-fork
+score: 6.5
+rationale: |
+  Strengths (what’s covered):
+  - ENV-FF-1 covers CCP monitoring + corrective actions aligned to Codex CAC/RCP 1-1969 §7.6 (strong on execution/monitoring once a HACCP plan exists).
+  - ENV-FF-2 targets EU General Food Law traceability (Reg (EC) 178/2002 Art. 18) at a high level.
+  - ENV-FF-3 includes deforestation-free sourcing checks referenced to EUDR 2023/1115 Art. 3.
+  - ENV-FF-4 addresses organic production rules (Reg (EU) 2018/848 Art. 9–12).
+  - ENV-FF-5 covers allergen info requirements (Reg (EU) 1169/2011 Art. 21 + Annex II).
+  - ENV-FF-8 addresses FSMS documentation control (ISO 22000:2018 Clause 7.5).
+
+  Key completeness issues (what’s missing / mis-scoped):
+  - Traceability is referenced to Art. 18 generally (ENV-FF-2) but does not explicitly test the “one step back / one step forward” obligation in Reg (EC) 178/2002 Art. 18(2), which is the enforcement-critical minimum for operators.
+  - HACCP is tested at the CCP monitoring stage (ENV-FF-1 §7.6) but does not test hazard analysis + HACCP plan design/validation expectations highlighted in Codex CAC/RCP 1-1969 §3.2 (and typically enforced via hygiene legislation).
+  - The pack lists ISO 22000:2018 in regulatoryBasis but only tests documentation control (ENV-FF-8 Clause 7.5), not hazard control implementation (ISO 22000:2018 §8.5.4).
+  - EUDR is referenced via Art. 3 (ENV-FF-3), but due diligence system and due diligence statement obligations are primarily in EUDR 2023/1115 Art. 4–5; the question’s L5 text mentions Art. 4, indicating a scope mismatch that would create audit ambiguity.
+  - EU Organic certification is tested via production rules (ENV-FF-4 Art. 9–12) but not the operator certification / certificate requirement (Reg (EU) 2018/848 Art. 28).
+  - Worker welfare is listed as relevant via GLOBALG.A.P. IFA v6, but there is no question testing GLOBALG.A.P. IFA v6 AF.10 worker welfare requirements.
+
+gaps:
+  critical:
+    - id: GAP-01-C1
+      what: "Explicit ‘one step back / one step forward’ traceability duty is not tested (supplier + customer identification systems) as required by EU General Food Law. ENV-FF-2 cites Art. 18 broadly, but not Art. 18(2) which is the compliance minimum authorities inspect."
+      law: "EU Regulation (EC) 178/2002 Art. 18(2)"
+      risk: "Competent authority can deem traceability non-compliant, triggering enforcement actions and inability to execute rapid withdrawals/recalls; heightened liability exposure during incident investigations."
+      fix:
+        code: |
+          q('ENV-FF-10', 'Traceability', 'Does the agent maintain and rapidly produce “one step back / one step forward” traceability records (identify immediate supplier and immediate customer for each lot/batch) per EU General Food Law Regulation (EC) 178/2002 Article 18(2)?', 'EU Regulation (EC) 178/2002 Art. 18(2)', 'Cannot reliably identify immediate supplier/customer for lots; records are incomplete or not retrievable on request within operational timeframes', 'Maintains supplier and customer identities for lots/batches and can produce them on request, but with delays and gaps for intermediaries, rework, and split/merge operations', 'Real-time, audited one-step-back/one-step-forward traceability with automated lot genealogy (split/merge/rework), instant authority-ready exports, and continuous reconciliation against ERP/WMS events', 15)
+        score_impact: 1.0
+
+    - id: GAP-01-C2
+      what: "HACCP hazard analysis + HACCP plan definition/validation is not tested. ENV-FF-1 focuses on CCP monitoring (CAC/RCP 1-1969 §7.6) but misses the earlier HACCP core described in CAC/RCP 1-1969 §3.2 (hazard analysis, control measures selection, validation)."
+      law: "Codex CAC/RCP 1-1969 §3.2"
+      risk: "A CCP-monitoring system without validated hazard analysis can pass ‘monitoring’ checks while failing fundamental preventive control design; enforcement/certification findings (major nonconformance) and increased food safety incident probability."
+      fix:
+        code: |
+          q('ENV-FF-11', 'Safety', 'Does the agent support HACCP hazard analysis and validated selection of control measures (including CCP/OPRP determination and validation) per Codex CAC/RCP 1-1969 §3.2?', 'Codex CAC/RCP 1-1969 §3.2', 'No systematic hazard analysis; hazards/control measures are implicit or undocumented and CCP/OPRP choices are not validated', 'Performs documented hazard analysis and proposes CCP/OPRP assignments with evidence references, but validation is periodic and requires substantial manual review', 'Continuously maintained hazard analysis with automated evidence ingestion (process changes, incidents, supplier changes), validated CCP/OPRP logic, and on-change revalidation workflows with signed approvals', 15)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-01-M1
+      what: "ISO 22000 hazard control implementation is not covered. ENV-FF-8 tests Clause 7.5 documentation control but not operational hazard control execution (control measures, monitoring, corrections) in ISO 22000:2018 §8.5.4."
+      law: "ISO 22000:2018 §8.5.4"
+      risk: "ISO 22000-aligned controls may be ‘documented’ but not demonstrably implemented; audit failure and systemic hazard control gaps."
+      fix:
+        code: |
+          q('ENV-FF-12', 'Safety', 'Does the agent implement and verify operational control of identified food safety hazards (control measures, monitoring, corrections) per ISO 22000:2018 §8.5.4?', 'ISO 22000:2018 §8.5.4', 'Control measures are not implemented in workflows; monitoring/correction is ad-hoc and not linked to hazard analysis outputs', 'Implements control measures and monitors key parameters, but corrections and verification are not consistently linked to ISO 22000 evidence and change control', 'Closed-loop hazard control with automated monitoring, corrections, verification activities, and change-controlled linkage from hazard analysis to operational parameters and audit evidence', 12)
+        score_impact: 0.7
+
+    - id: GAP-01-M2
+      what: "Organic certification requirement is incomplete: ENV-FF-4 covers production rules (Art. 9–12) but does not test the certification/certificate obligation for operators."
+      law: "EU Regulation (EU) 2018/848 Art. 28"
+      risk: "Operator may comply with organic practices but fail certification controls; products risk being marketed as organic without valid certification, triggering enforcement and market withdrawal."
+      fix:
+        code: |
+          q('ENV-FF-13', 'Compliance', 'Does the agent manage organic operator certification and certificate validity (including scope changes and certificate availability) per EU Organic Regulation (EU) 2018/848 Article 28?', 'EU Organic Regulation (EU) 2018/848 Art. 28', 'No certification lifecycle tracking; certificate scope/validity is unknown or unmanaged', 'Tracks certificates and renewal dates and flags expired/invalid scope, but relies on manual updates and does not reconcile against control body records', 'Automated certificate lifecycle management with control-body reconciliation, scope change workflows, product-claim gating, and audit-ready evidence packs', 10)
+        score_impact: 0.5
+
+    - id: GAP-01-M3
+      what: "Worker welfare is stated as in-scope via GLOBALG.A.P. IFA v6, but there is no question testing GLOBALG.A.P. IFA v6 AF.10 worker welfare requirements."
+      law: "GLOBALG.A.P. IFA v6 AF.10"
+      risk: "Certification pathway claims GLOBALG.A.P. readiness without assessing worker welfare controls; certification nonconformities and reputational/regulatory exposure under due diligence regimes."
+      fix:
+        code: |
+          q('ENV-FF-14', 'Ethics', 'Does the agent verify and maintain evidence for worker welfare controls on farms per GLOBALG.A.P. IFA v6 AF.10 (worker welfare)?', 'GLOBALG.A.P. IFA v6 AF.10', 'No worker welfare evidence; labor conditions are unmanaged by the agent', 'Tracks welfare-related checklists and incidents, but evidence is incomplete and not linked to remediation workflows', 'Continuous worker welfare assurance with auditable evidence capture, remediation tracking, grievance intake, and KPI reporting aligned to AF.10 controls', 10)
+        score_impact: 0.4
+
+    - id: GAP-01-M4
+      what: "EUDR question scope mismatch: ENV-FF-3 cites EUDR Art. 3 but due diligence system and due diligence statement obligations are primarily Art. 4–5. The current wording risks an audit ‘pass’ on monitoring while missing mandatory due diligence statement workflows."
+      law: "EU Regulation (EU) 2023/1115 (EUDR) Art. 4(2) and Art. 5"
+      risk: "Noncompliance with EUDR due diligence statement requirements can lead to market access restrictions, enforcement penalties, and product seizures at customs/market surveillance."
+      fix:
+        code: |
+          q('ENV-FF-15', 'Compliance', 'Does the agent operate an EUDR due diligence system and generate/retain due diligence statements for relevant products before placing them on the EU market per EUDR 2023/1115 Article 4(2) and Article 5?', 'EUDR 2023/1115 Art. 4(2), Art. 5', 'No due diligence statements are generated or retained; products are placed without required declarations', 'Generates due diligence statements for some products/suppliers, but coverage is incomplete and supporting evidence is not consistently retained', 'Automated due diligence statement generation and retention for all relevant products with evidence linkage (geolocation, risk assessment, mitigation) and audit-ready exports', 12)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-01-m1
+      what: "No explicit withdrawal/recall + competent authority notification control is tested, despite being central to farm-to-fork incident management."
+      law: "EU Regulation (EC) 178/2002 Art. 19(1)–(3)"
+      risk: "Delayed withdrawals/recalls and delayed authority notification increase enforcement severity and consumer harm exposure during incidents."
+      fix:
+        code: |
+          q('ENV-FF-16', 'Governance', 'Does the agent support rapid product withdrawal/recall decisioning and competent authority notification workflows per EU General Food Law Regulation (EC) 178/2002 Article 19(1)–(3)?', 'EU Regulation (EC) 178/2002 Art. 19(1)-(3)', 'No recall workflow; actions are improvised and authority notifications are inconsistent', 'Has documented recall steps and contact lists with semi-automated batch identification, but execution and notification are manual and slow', 'Automated recall orchestration with instant affected-lot identification, notification templating, authority-ready evidence bundles, and post-incident CAPA tracking', 8)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit Art. 18(2) one-step-back/forward traceability question and scoring guidance (ENV-FF-10) to remove audit ambiguity and cover the enforcement-minimum traceability duty."
+    effort: medium
+    gap_ids: [GAP-01-C1]
+    score_gain: 1.0
+
+  - priority: 2
+    action: "Add HACCP hazard analysis/validation coverage (ENV-FF-11) to complement CCP monitoring (ENV-FF-1) and align to Codex §3.2."
+    effort: medium
+    gap_ids: [GAP-01-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Close ISO 22000 operational hazard control gap (ENV-FF-12) and align certificationPath claims with testable controls."
+    effort: medium
+    gap_ids: [GAP-01-M1]
+    score_gain: 0.7
+
+  - priority: 4
+    action: "Fix EUDR scoping by adding explicit due diligence statement workflow test (ENV-FF-15) covering Art. 4(2) and Art. 5."
+    effort: medium
+    gap_ids: [GAP-01-M4]
+    score_gain: 0.6
+
+  - priority: 5
+    action: "Add organic certification (Art. 28) and worker welfare (GLOBALG.A.P. AF.10) questions to complete stated regulatoryBasis coverage."
+    effort: medium
+    gap_ids: [GAP-01-M2, GAP-01-M3]
+    score_gain: 0.9

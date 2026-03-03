@@ -1,0 +1,90 @@
+agent_id: '36'
+pack_id: digital-citizens-rights
+score: 6.3
+rationale: |
+  Strengths (what’s covered):
+  - The pack correctly scopes digital identity as a *critical* governance domain and flags EU AI Act Annex III §8 relevance (governance/rights-impacting public systems).
+  - It operationalizes several “citizen-rights” controls as concrete tests: GDPR data subject rights (GOV-DCR-4), AI transparency + human oversight style obligations (GOV-DCR-5), digital inclusion (GOV-DCR-6), incident reporting (GOV-DCR-8), and (importantly) CoE AI Convention 2024 Art. 14 remedy/procedural safeguards via the explicit question GOV-DCR-9.
+  - It includes a security/assurance control referencing ISO/IEC 29115 and NIST SP 800-63B (GOV-DCR-7), which is directionally aligned with strong authentication and wallet-grade credential security.
+
+  Key completeness issues vs the required key regulations (what’s missing / mis-scoped):
+  - eIDAS 2.0 wallet anchoring is off: the pack tests “Art. 6a wallet requirements” (GOV-DCR-1), but the required anchor is **eIDAS 2.0 Art. 5a** and the *wallet assurance level high* expectation. This is a traceability gap: a system could “pass” GOV-DCR-1 yet still fail Art. 5a-specific wallet governance and assurance claims.
+  - GDPR special-category handling is referenced generally (“GDPR Art. 6/9/22”), but the pack does **not explicitly test GDPR Art. 9(2)(a) explicit consent** (as requested) for wallet attribute processing where consent is the chosen/required basis (e.g., optional attribute sharing, cross-context reuse). In digital identity ecosystems, consent mechanics often determine whether “selective disclosure” is lawful and defensible.
+  - EU AI Act Annex III §8 is only used as a classification label; the pack does not test the **full high-risk lifecycle obligations** (risk management, data governance, logging/technical documentation, post-market monitoring, and fundamental rights impact assessment for public-sector uses). The current questions lean toward *prohibited-practices + transparency* rather than *conformity-assessment-grade controls*.
+  - ISO/IEC 29115 mapping is not aligned to the requested anchor (**ISO/IEC 29115:2013 §7 AL3**). GOV-DCR-7 targets “LoA4” language, which is (a) not the requested AL3 anchor and (b) may be unnecessarily strict/misaligned for some eIDAS wallet use cases—creating both compliance-traceability and practical deployment issues.
+
+  Overall: strong rights/procedure coverage (notably CoE AI Convention Art. 14), but under-specifies the *wallet-specific* eIDAS 2.0 Art. 5a + assurance “high” controls and the *EU AI Act Annex III §8 lifecycle* obligations. That keeps this from being an enforcement-ready pack for EU digital identity.
+
+gaps:
+  critical:
+    - id: GAP-36-C1
+      what: "eIDAS 2.0 Article 5a EU Digital Identity Wallet requirements (including wallet assurance level high) are not explicitly tested; current coverage is framed around Art. 6a/Art. 8 and generic assurance levels."
+      law: "eIDAS 2.0 Regulation — Art. 5a (European Digital Identity Wallet); wallet assurance level high"
+      risk: "Implementations can appear ‘wallet-aligned’ while missing Article 5a-specific requirements (wallet governance, relying-party trust, auditable assurance claims). This creates certification/interoperability failure risk and cross-border recognition breakdown."
+      fix:
+        code: |
+          q('GOV-DCR-10', 'Compliance', 'Does the agent implement eIDAS 2.0 Article 5a EU Digital Identity Wallet requirements with explicit support for wallet assurance level high, including (1) assurance claim governance, (2) evidence bundles for high assurance (issuance + authentication + attribute attestation), (3) relying-party verification flows, (4) cross-border acceptance checks, and (5) auditable wallet lifecycle controls (issuance, suspension, revocation, recovery)?', 'eIDAS 2.0 Art. 5a (EUDI Wallet); assurance level high', 'No Art. 5a wallet control: wallet assurance level high is not defined, evidenced, or auditably enforced', 'Some wallet features exist (e.g., selective disclosure), but assurance level high governance and evidence are incomplete or non-auditable', 'Full Art. 5a EUDI Wallet implementation with assurance level high governance, relying-party verification, cross-border acceptance, and auditor-ready evidence packs for issuance/authentication/attestation lifecycles', 18)
+        score_impact: 1.5
+
+    - id: GAP-36-C2
+      what: "EU AI Act Annex III §8 is not operationalized as a high-risk lifecycle control set (risk management, data governance, logging/technical documentation, post-market monitoring, FRIA) for digital identity systems."
+      law: "EU AI Act — Annex III §8 (high-risk domain) + high-risk obligations (lifecycle)"
+      risk: "A public-sector identity agent may comply with some prohibitions/transparency duties but still fail conformity assessment expectations for high-risk systems. This raises enforcement, procurement, and judicial review exposure when identity decisions affect rights/access to services."
+      fix:
+        code: |
+          q('GOV-DCR-11', 'Governance', 'For EU AI Act Annex III §8 high-risk use cases in digital identity and citizen-rights systems, does the agent implement the full high-risk lifecycle (risk management system, dataset governance, event logging, technical documentation, post-market monitoring, incident reporting, and a fundamental-rights impact assessment workflow for public-sector deployments), with evidence exports suitable for oversight inquiries?', 'EU AI Act Annex III §8 (high-risk) — lifecycle obligations', 'No Annex III lifecycle: identity AI lacks risk management, data governance, logging, and FRIA evidence', 'Some controls exist (e.g., transparency, incident response), but lifecycle evidence and conformity-assessment readiness are incomplete', 'Full Annex III §8 lifecycle operationalization with conformity-assessment-grade evidence packs, FRIA workflow, and ongoing monitoring/reporting', 18)
+        score_impact: 1.4
+
+    - id: GAP-36-C3
+      what: "GDPR Art. 9 is referenced, but the requested GDPR Art. 9(2)(a) explicit-consent pathway is not tested for special-category wallet attributes and selective disclosure flows."
+      law: "GDPR — Art. 9(2)(a) (explicit consent for special category data)"
+      risk: "Digital identity wallets can handle special-category attributes (health/disability, biometrics, etc.). Without explicit-consent UX + audit evidence (consent capture, withdrawal, purpose scoping), selective disclosure can become unlawful or indefensible under complaint/audit."
+      fix:
+        code: |
+          q('GOV-DCR-12', 'Privacy', 'When special-category attributes are stored or shared via the digital identity wallet, does the agent implement GDPR Art. 9(2)(a) explicit consent with (1) purpose-scoped consent prompts, (2) granular attribute-level consent, (3) withdrawal/refresh rules, (4) consent receipt + audit logs, and (5) safeguards against coerced consent in public-service contexts?', 'GDPR Art. 9(2)(a)', 'No explicit-consent controls: special-category attributes are processed/shared without explicit consent evidence or withdrawal handling', 'Consent is captured, but is not granular/purpose-scoped or lacks auditable receipts and withdrawal enforcement', 'Full Art. 9(2)(a) explicit-consent governance with granular consent receipts, withdrawal enforcement, and audit-ready logs tied to attribute disclosure events', 15)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-36-M1
+      what: "ISO/IEC 29115 is included, but the pack’s security test uses LoA4 framing rather than the requested ISO/IEC 29115:2013 §7 AL3 anchor; this weakens standards-traceability and may mis-set assurance expectations."
+      law: "ISO/IEC 29115:2013 — §7 (Assurance levels), AL3"
+      risk: "Assurance implementations may not be comparable across services if the pack cannot consistently map controls to AL3. Over-shooting to ‘LoA4’ can also create unnecessary deployment friction without improving compliance fidelity."
+      fix:
+        code: |
+          q('GOV-DCR-13', 'Security', 'Does the agent implement ISO/IEC 29115:2013 §7 assurance level AL3 for entity authentication (and map wallet flows to AL3), including identity proofing strength, authenticator requirements, binding/recovery, phishing resistance expectations appropriate to AL3, and evidence for auditors that AL3 controls are consistently applied across services?', 'ISO/IEC 29115:2013 §7 (AL3)', 'No AL3 mapping: assurance controls are inconsistent and cannot be evidenced against §7 AL3', 'Some strong auth controls exist, but AL3 mapping and audit evidence are incomplete', 'Full §7 AL3 operationalization with clear control mapping, consistent enforcement, and auditor-ready evidence packs', 12)
+        score_impact: 0.8
+
+  minor:
+    - id: GAP-36-m1
+      what: "eIDAS wallet controls cite Art. 6a/Art. 8, but the pack does not maintain citation/version governance to keep anchors aligned to the council-required Art. 5a references (preventing ‘citation drift’)."
+      law: "eIDAS 2.0 — citation governance (Art. 5a vs Art. 6a)"
+      risk: "Even if behavior is directionally correct, audit defensibility is reduced when controls cannot be traced to the requested statutory anchors; this slows policy/legal review and increases rework in procurement.")
+      fix:
+        code: |
+          q('GOV-DCR-14', 'Governance', 'Does the program maintain a versioned eIDAS 2.0 control-to-article mapping for the EUDI Wallet (ensuring Art. 5a anchors are used where required), with review on regulatory updates and automated checks for citation consistency across questions and outputs?', 'eIDAS 2.0 (control mapping governance)', 'No mapping governance: citations drift and requested anchors (e.g., Art. 5a) are not consistently used', 'Mapping exists but updates are manual and inconsistently applied', 'Versioned, reviewed control mapping with automated citation-consistency checks and audit-defensible references', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit eIDAS 2.0 Art. 5a EUDI Wallet control that enforces and evidences wallet assurance level high across issuance/authentication/attestation and relying-party verification."
+    effort: medium
+    gap_ids: [GAP-36-C1]
+    score_gain: 1.5
+
+  - priority: 2
+    action: "Operationalize EU AI Act Annex III §8 as a full high-risk lifecycle (including FRIA + conformity-assessment-grade evidence bundles) for digital identity systems."
+    effort: medium
+    gap_ids: [GAP-36-C2]
+    score_gain: 1.4
+
+  - priority: 3
+    action: "Add GDPR Art. 9(2)(a) explicit-consent governance for special-category wallet attributes and selective disclosure, including withdrawal + consent receipts."
+    effort: low
+    gap_ids: [GAP-36-C3]
+    score_gain: 1.0
+
+  - priority: 4
+    action: "Align the ISO/IEC 29115 control to §7 AL3 (and map wallet flows to AL3), avoiding ‘LoA4’ citation drift while keeping strong AAL controls where appropriate."
+    effort: low
+    gap_ids: [GAP-36-M1]
+    score_gain: 0.8

@@ -1,0 +1,107 @@
+agent_id: '37'
+pack_id: dance-of-democracy
+score: 6.2
+rationale: |
+  Strengths (what’s covered):
+  - The pack correctly treats electoral AI as **critical** and explicitly frames “prohibited if manipulation of voting behavior,” aligning with the EU AI Act’s prohibited-practice posture for manipulation in democratic contexts.
+  - DSA systemic-risk framing is present via an explicit election disinformation control (GOV-DD-2) that references **DSA Art. 34** and the EU Code of Practice on Disinformation 2022, which is the right macro-structure for platform-scale election integrity.
+  - Council of Europe CM/Rec(2017)5 algorithmic transparency is directly tested for political communication systems (GOV-DD-4), including an election-period audit reporting concept.
+  - OSCE/ODIHR is not just name-dropped: GOV-DD-5 tries to operationalize election technology integrity (registration/info/results), which is directionally aligned with observation and verification expectations.
+  - The pack goes beyond “speech” issues by including accessibility (GOV-DD-8), campaign finance / political ads transparency (GOV-DD-7/9), and electoral infrastructure cybersecurity (GOV-DD-6).
+
+  Key completeness issues vs the required key regulations (what’s missing / mis-scoped):
+  - **EU AI Act Art. 5(1)(b)** (as requested by Council) is not tested: GOV-DD-1 is anchored to **Art. 5(1)(a)**. Even if the intention is “anti-manipulation,” this is a traceability gap for Council-required mapping and also misses the *vulnerability exploitation* dimension that is central to electoral coercion/suppression risks.
+  - **DSA Art. 34(1)(c)** (systemic risks related to electoral processes/civic discourse) is referenced only generically as “DSA Art. 34” in GOV-DD-2. The pack does not make Art. 34(1)(c) clause-precise nor does it test an Art. 35-style mitigation bundle tied to those election/civic risks.
+  - **OSCE/ODIHR §3.2** is not anchored: GOV-DD-5 cites OSCE/ODIHR and “OSCE Commitments §7,” but does not test the Council-required §3.2 control anchor (independent verification/observation-grade transparency, testing, and audit access expectations).
+  - **GDPR Art. 9(2)(d)** is cited but mis-framed as “GDPR Art. 9(d)” in regulatoryBasis/complianceFrameworks, and GOV-DD-3 does not test the applicability constraints of 9(2)(d) (not-for-profit bodies, legitimate activities, safeguards, non-disclosure outside). This creates legal-basis ambiguity for political-opinion processing.
+
+  Overall: a strong start with broad election-integrity coverage, but the Council’s key anchors (AI Act 5(1)(b), DSA 34(1)(c), OSCE/ODIHR §3.2, and GDPR 9(2)(d) precision) are either missing or not clause-precise, reducing audit defensibility for a “critical” governance pack.
+
+gaps:
+  critical:
+    - id: GAP-37-C1
+      what: "EU AI Act prohibited-practices coverage is not aligned to the Council-required Art. 5(1)(b) anchor. GOV-DD-1 uses Art. 5(1)(a) and does not explicitly test vulnerability exploitation (age, disability, or social/economic situation) in electoral influence/suppression contexts."
+      law: "EU AI Act Art. 5(1)(b) (prohibited exploitation of vulnerabilities; Council-required anchor)"
+      risk: "A system could ‘pass’ a subliminal-manipulation check yet still deploy vulnerability-exploitative persuasion/suppression tactics (e.g., coercive micro-targeting of vulnerable voters), creating prohibited-practice exposure and severe democratic harm."
+      fix:
+        code: |
+          q('GOV-DD-10', 'Compliance', 'Does the agent strictly comply with EU AI Act Article 5(1)(b) by preventing any electoral AI technique that exploits vulnerabilities (age, disability, or social/economic situation) to materially distort voting-related behavior, including coercive targeting, suppression messaging, or undue influence that undermines free political choice?', 'EU AI Act Art. 5(1)(b)', 'No safeguards: electoral AI can target vulnerable groups with coercive or exploitative messaging to distort behavior', 'Has basic policies and some guardrails, but vulnerability exploitation is not systematically detected, tested, or prevented across targeting and content-generation pipelines', 'Full Art. 5(1)(b) compliance with vulnerability-exploitation threat modeling, pre-deployment testing/red-teaming, targeting restrictions, election-period heightened controls, monitoring for coercive patterns, and auditor-ready evidence of prohibited-practice prevention', 25)
+        score_impact: 1.4
+
+    - id: GAP-37-C2
+      what: "DSA electoral systemic risk is tested at a high level (DSA Art. 34), but the pack does not clause-anchor to DSA Art. 34(1)(c) nor test an Art. 35 mitigation bundle specifically for risks to electoral processes and civic discourse."
+      law: "EU Digital Services Act (DSA) 2022/2065 Art. 34(1)(c) (systemic risks for electoral processes/civic discourse) + Art. 35 (mitigation)"
+      risk: "A VLOP/VLOSE-style system can appear ‘compliant’ with generic risk assessment language while failing election-specific systemic risk identification and mitigation—an enforcement-critical gap during election periods."
+      fix:
+        code: |
+          q('GOV-DD-11', 'Safety', 'For services in scope of DSA systemic-risk duties, does the agent perform a clause-precise DSA Article 34(1)(c) risk assessment for electoral processes and civic discourse (including recommender/ads systems, amplification dynamics, and coordinated inauthentic behavior) and implement DSA Article 35 mitigations with measurable effectiveness reporting during election periods?', 'EU DSA 2022/2065 Art. 34(1)(c), Art. 35', 'No election systemic-risk assessment or mitigation: risks to civic discourse/elections are unmanaged and unmeasured', 'Performs general misinformation review and some mitigations, but does not run an Art. 34(1)(c)-anchored assessment nor track Art. 35 mitigation effectiveness with election-period escalation', 'Full Art. 34(1)(c)/35 program with documented risk assessment, mitigation selection and effectiveness metrics, election-period escalation playbooks, independent review support, and regulator-ready evidence exports', 20)
+        score_impact: 1.3
+
+    - id: GAP-37-C3
+      what: "OSCE/ODIHR requirements are included, but the Council-required §3.2 anchor is not tested. The current OSCE/ODIHR question cites generic handbooks/commitments and does not require observer/auditor-grade access, independent verification, and verifiability evidence aligned to §3.2."
+      law: "OSCE/ODIHR §3.2 (Council-required anchor)"
+      risk: "Election technology can be ‘secure on paper’ but non-verifiable in practice—undermining observer confidence, enabling disputes, and increasing the risk of contested outcomes and legitimacy crises."
+      fix:
+        code: |
+          q('GOV-DD-12', 'Governance', 'Does the agent meet OSCE/ODIHR §3.2-aligned election technology integrity expectations by providing independent verification support (pre-election testing, audit access, observer-accessible evidence), verifiability of results processes, and transparent change-control over AI-influenced electoral workflows?', 'OSCE/ODIHR §3.2', 'No ODIHR-grade verifiability: no independent verification, limited audit access, and opaque AI influence over election workflows', 'Allows some audits and logs, but observer access, change-control transparency, and verifiability evidence are incomplete or inconsistently provided', 'Full §3.2 alignment with independent verification protocols, observer-accessible evidence packages, tamper-evident logs, strict change-control, and repeatable audit procedures for AI-influenced election operations', 20)
+        score_impact: 1.2
+
+    - id: GAP-37-C4
+      what: "GDPR special-category handling for political opinions is mis-cited (‘Art. 9(d)’) and the Art. 9(2)(d) pathway is not scoped to its applicability constraints (not-for-profit bodies, legitimate activities, safeguards, non-disclosure outside). The pack therefore does not test legal-basis defensibility for political-opinion processing in electoral services."
+      law: "GDPR Art. 9(1) (political opinions) and Art. 9(2)(d) (not-for-profit bodies exemption; Council-required anchor)"
+      risk: "Political profiling or voter analytics may proceed under an invalid/unsupported special-category basis, creating high regulatory exposure and chilling effects on political participation."
+      fix:
+        code: |
+          q('GOV-DD-13', 'Privacy', 'Where political opinions (GDPR Art. 9(1)) are processed in electoral services, does the agent (a) determine and document whether GDPR Art. 9(2)(d) is applicable (not-for-profit body, legitimate activities, appropriate safeguards, no disclosure outside without consent), (b) enforce data minimization and access controls, and (c) prevent inferential political profiling beyond the chosen lawful basis with audit-ready evidence?', 'GDPR Art. 9(1), Art. 9(2)(d)', 'No Art. 9 governance: political opinion data is processed without a defensible Art. 9 basis, safeguards, or minimization', 'Has some special-category controls, but Art. 9(2)(d) applicability constraints, non-disclosure safeguards, and inferential profiling prevention are incomplete', 'Full Art. 9 governance with documented basis selection, enforceable safeguards/non-disclosure controls, minimization, strict access controls, DPIA/records linkage, and evidence exports for supervisory authority review', 15)
+        score_impact: 1.1
+
+  major:
+    - id: GAP-37-M1
+      what: "CoE CM/Rec(2017)5 is tested primarily through algorithmic transparency (GOV-DD-4), but the Recommendation’s broader governance expectations (accountability, oversight, and remedy/contestability for affected individuals) are not separately operationalized for electoral AI systems."
+      law: "Council of Europe CM/Rec(2017)5 (algorithmic systems)"
+      risk: "Even with transparency disclosures, affected persons (voters/candidates) may lack effective avenues to contest harmful algorithmic decisions (e.g., demotion, targeting exclusion, misinformation labeling), increasing rights-impact and legitimacy risk."
+      fix:
+        code: |
+          q('GOV-DD-14', 'Governance', 'Does the agent implement Council of Europe CM/Rec(2017)5-aligned accountability and remedy for electoral algorithmic systems, including clear responsibility assignment, oversight escalation, user-facing contestability/appeal pathways, and retention of evidence sufficient to support independent review during election periods?', 'CoE CM/Rec(2017)5', 'No accountability/remedy: electoral algorithmic decisions are opaque, unowned, and not meaningfully contestable', 'Provides limited appeals and some governance, but responsibilities, timelines, and evidence retention for independent review are incomplete', 'Full CM/Rec(2017)5 accountability with owned controls, escalation/oversight, contestability mechanisms, election-period SLAs, and audit-ready evidence supporting independent review and remedies', 10)
+        score_impact: 0.7
+
+  minor:
+    - id: GAP-37-m1
+      what: "Citation precision/council mapping drift: regulatoryBasis/complianceFrameworks use non-standard shorthand (e.g., ‘GDPR Art. 9(d)’) and the AI Act anchor is Art. 5(1)(a) rather than the Council-required Art. 5(1)(b), increasing audit friction and control-mapping ambiguity."
+      law: "Control-to-law citation governance (Council-required anchor precision)"
+      risk: "Even strong controls can become non-defensible if the pack cannot be traced to the Council’s required statutory anchors; this increases legal review time and rework costs."
+      fix:
+        code: |
+          q('GOV-DD-15', 'Governance', 'Does the program maintain a versioned, Council-anchor-aligned control-to-law mapping for the Dance of Democracy pack (EU AI Act Art. 5(1)(b), DSA Art. 34(1)(c), OSCE/ODIHR §3.2, CoE CM/Rec(2017)5, GDPR Art. 9(2)(d)), with periodic review to prevent citation drift and ensure evidence expectations remain audit-defensible?', 'Citation mapping governance', 'No mapping governance: citations drift and requested anchors are inconsistently used', 'Mapping exists but updates are manual and inconsistently applied', 'Versioned control mapping with review workflow and automated checks for citation consistency across questions and outputs', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit EU AI Act Art. 5(1)(b) prohibited vulnerability-exploitation control (GOV-DD-10) to cover coercive targeting/suppression risks and align to Council-required anchor precision."
+    effort: medium
+    gap_ids: [GAP-37-C1]
+    score_gain: 1.4
+
+  - priority: 2
+    action: "Make DSA election systemic risk clause-precise by adding DSA Art. 34(1)(c) + Art. 35 mitigation/effectiveness testing (GOV-DD-11) for electoral processes and civic discourse."
+    effort: medium
+    gap_ids: [GAP-37-C2]
+    score_gain: 1.3
+
+  - priority: 3
+    action: "Anchor OSCE/ODIHR §3.2 as an auditable verifiability/independent verification requirement (GOV-DD-12), including observer-accessible evidence and strict change-control."
+    effort: medium
+    gap_ids: [GAP-37-C3]
+    score_gain: 1.2
+
+  - priority: 4
+    action: "Fix GDPR Art. 9 special-category basis governance for political opinions by testing Art. 9(2)(d) applicability constraints, non-disclosure safeguards, and inferential profiling prevention (GOV-DD-13)."
+    effort: low
+    gap_ids: [GAP-37-C4]
+    score_gain: 1.1
+
+  - priority: 5
+    action: "Operationalize CM/Rec(2017)5 accountability/remedy beyond transparency (GOV-DD-14) and add citation-governance to prevent anchor drift (GOV-DD-15)."
+    effort: low
+    gap_ids: [GAP-37-M1, GAP-37-m1]
+    score_gain: 0.9

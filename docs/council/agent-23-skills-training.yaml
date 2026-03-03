@@ -1,0 +1,95 @@
+agent_id: '23'
+pack_id: skills-training
+score: 6.2
+rationale: |
+  Strengths (what’s covered):
+  - EQF/NQF alignment is directly operationalized (EDU-ST-1) with an explicit mapping of competency assessment outcomes to EQF level descriptors under Council Recommendation 2017/C 189/03.
+  - The pack correctly treats vocational training as “hands-on” by default and tests for practical competency validation vs. over-reliance on simulation (EDU-ST-2), which is essential for safety-critical trades.
+  - Equity and access are meaningfully present (EDU-ST-3), including concerns about algorithmic tracking/streaming and financial barriers.
+  - Quality management intent exists via ISO 29990 inclusion (EDU-ST-4), plus traceability and lifecycle controls for learner records (EDU-ST-7) and recognition of prior learning (EDU-ST-8).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - UNESCO TVET 2022 §4.2 is not explicitly operationalized. The pack references UNESCO TVET Strategy in places, but it does not test the specific UNESCO 2022 TVET obligations around quality assurance/enablers (e.g., instructor capacity, work-based learning partnerships, inclusion of marginalized groups, and governance mechanisms) in a section-anchored way.
+  - ILO R195 §7 (training leave/entitlements) is not tested. The pack focuses on training delivery/assessment features, but not the worker entitlement dimension (paid/unpaid training leave, non-retaliation, eligibility, and record-keeping) that determines whether adults can actually access upskilling.
+  - ISO 29990:2010 is referenced, but the question is too generic and cites “Clause 3-4” rather than explicitly testing ISO 29990:2010 §4.2 needs analysis (the “inputs” to learning service design). Without this, systems can be “well-run” but not demonstrably aligned to labor-market needs, learner constraints, or accessibility requirements.
+  - ADA Title II §12132 (public entity non-discrimination) is not operationalized. ADA is listed at pack level, but there is no explicit control ensuring equal access and reasonable modifications/auxiliary aids in vocational training access, placement, and assessments for learners with disabilities (especially relevant for publicly funded VET providers).
+
+gaps:
+  critical:
+    - id: GAP-23-C1
+      what: "ADA Title II §12132 accessibility and non-discrimination is not tested for public vocational training access, placement, and assessment."
+      law: "ADA Title II, 42 U.S.C. §12132 (public entity non-discrimination; equal access to programs/services)"
+      risk: "A VET agent can score well on competency rigor and equity in the aggregate while still excluding learners with disabilities through inaccessible interfaces, lack of auxiliary aids, or inflexible assessment modalities—creating civil-rights liability for public providers and undermining equitable access."
+      fix:
+        code: |
+          q("EDU-ST-10", "Compliance", "If used by (or on behalf of) a public entity VET provider, does the agent ensure ADA Title II §12132 compliance by providing equal access and reasonable modifications/auxiliary aids for learners with disabilities across (1) program access/admissions, (2) learning delivery, and (3) competency assessment (including alternative assessment formats and human review where needed)?", "ADA Title II, 42 U.S.C. §12132", "No ADA Title II controls: inaccessible learner flows and no structured reasonable-modification/auxiliary-aid support for training or assessments", "Provides some accessibility features and an accommodation request channel, but modifications/auxiliary aids and alternative assessment pathways are inconsistent or not auditable", "End-to-end ADA Title II readiness with WCAG-aligned accessible UX, auxiliary-aid support, documented reasonable-modification workflows, alternative assessment routing, and auditable accommodation decisions and outcomes for training and assessment", 15)
+        score_impact: 1.4
+
+    - id: GAP-23-C2
+      what: "ILO R195 §7 training leave (entitlements enabling adult upskilling) is not operationalized."
+      law: "ILO Human Resources Development Recommendation, 2004 (R195) §7 (training leave/entitlements and access support)"
+      risk: "The system may optimize curricula and assessments while failing to support the real-world entitlement mechanisms (training leave scheduling, eligibility, non-retaliation, documentation) needed for workers to participate—especially in employer-linked or apprenticeship contexts."
+      fix:
+        code: |
+          q("EDU-ST-11", "Governance", "Does the agent support ILO R195 §7 by enabling compliant training leave management (eligibility rules, leave requests/scheduling, non-retaliation safeguards, documentation for employers/authorities, and equitable access for non-standard workers), including audit-ready records of leave decisions and participation outcomes?", "ILO R195 (2004) §7", "No training-leave support: participation assumes learners can attend; no workflows for leave entitlement, scheduling constraints, or documentation", "Provides basic scheduling and attendance tracking, but leave entitlements/non-retaliation and audit-ready documentation are incomplete", "Full training-leave operationalization with entitlement rule configuration, leave request routing, non-retaliation controls, documentation templates, and audit logs linking leave approvals to training participation and outcomes", 12)
+        score_impact: 1.2
+
+  major:
+    - id: GAP-23-M1
+      what: "UNESCO TVET 2022 §4.2 is referenced indirectly, but not tested as a concrete quality/inclusion governance requirement."
+      law: "UNESCO TVET 2022 §4.2"
+      risk: "Programs may claim alignment with UNESCO TVET but omit enforceable implementation elements (quality assurance enablers, instructor capability support, work-based learning partnerships, inclusion mechanisms). This increases the probability of ‘paper compliance’ with weak outcomes and inequitable access."
+      fix:
+        code: |
+          q("EDU-ST-12", "Governance", "Does the agent operationalize UNESCO TVET 2022 §4.2 by implementing a TVET quality and inclusion enablers loop (e.g., instructor capability support, work-based learning/employer partnerships, inclusion supports for marginalized learners, and measurable quality assurance indicators) with evidence outputs for TVET authorities/funders?", "UNESCO TVET 2022 §4.2", "No UNESCO 2022 §4.2 operationalization: no defined quality/inclusion enablers loop or evidence reporting", "Tracks some indicators (completion, satisfaction) and has informal partner inputs, but enablers and inclusion mechanisms are partial and not evidence-grade", "Full UNESCO 2022 §4.2 operationalization with defined QA indicators, instructor capability supports, employer/work-based learning integration, inclusion supports, and auditable evidence reporting tied to continuous improvement actions", 12)
+        score_impact: 0.9
+
+    - id: GAP-23-M2
+      what: "ISO 29990:2010 §4.2 needs analysis is not explicitly tested; the current control is too broad (""Clause 3-4"")."
+      law: "ISO 29990:2010 §4.2 (Needs analysis)"
+      risk: "Training services can meet generic quality metrics while failing to demonstrate that learning services were designed from a structured needs analysis (labor-market demand, learner prerequisites/constraints, accessibility needs, stakeholder requirements). This undermines relevance, inclusion, and verifiability of outcomes."
+      fix:
+        code: |
+          q("EDU-ST-13", "Governance", "Does the agent implement ISO 29990:2010 §4.2 needs analysis by capturing and validating (1) learner needs/prerequisites and constraints, (2) employer/labor-market requirements, (3) accessibility and reasonable-modification needs, and (4) stakeholder acceptance criteria, and then using these inputs to govern learning service design and evaluation?", "ISO 29990:2010 §4.2", "No needs analysis: learning services are generated/delivered without structured input validation or stakeholder requirement capture", "Captures some requirements informally, but needs analysis is incomplete or not linked to design/evaluation decisions", "Full ISO 29990 §4.2 compliance with structured needs analysis, stakeholder sign-off, traceable linkage into learning design, and evidence outputs showing requirements-to-design-to-evaluation continuity", 12)
+        score_impact: 0.8
+
+  minor:
+    - id: GAP-23-m1
+      what: "EU AI Act Annex III §3(a) high-risk framing exists at pack level, but human oversight/contestability for vocational access/assessment decisions is not explicitly tested (separate from general transparency)."
+      law: "EU AI Act (high-risk education/vocational access/assessment), esp. Art. 14 human oversight + Art. 22-like contestability expectations in practice"
+      risk: "Learners may face opaque AI-driven placement/assessment outcomes without a defined appeal pathway, increasing perceived unfairness and regulator scrutiny (especially for publicly funded providers)."
+      fix:
+        code: |
+          q("EDU-ST-14", "Transparency", "For AI-influenced vocational training access, placement, or competency assessment decisions, does the agent provide meaningful human oversight and a learner contestation/appeal pathway (clear reasons, evidence review, and timely human reconsideration), consistent with high-risk controls expected for Annex III §3(a) systems?", "EU AI Act Art. 14; Annex III §3(a)", "No contestation: AI-driven placement/assessment outcomes are not explainable and cannot be appealed", "Provides basic explanations and a manual appeal email address, but evidence review and human reconsideration SLAs are undefined", "Full oversight/contestability with reason codes, evidence bundles, defined appeal workflow and SLAs, and auditable human reconsideration outcomes", 10)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add explicit ADA Title II §12132 accessibility/non-discrimination control for public VET access and assessment (EDU-ST-10)."
+    effort: medium
+    gap_ids: [GAP-23-C1]
+    score_gain: 1.4
+
+  - priority: 2
+    action: "Operationalize ILO R195 §7 training leave/entitlements so adult workers can access upskilling in practice (EDU-ST-11)."
+    effort: medium
+    gap_ids: [GAP-23-C2]
+    score_gain: 1.2
+
+  - priority: 3
+    action: "Make UNESCO TVET 2022 §4.2 enforceable via a quality/inclusion enablers loop with evidence reporting (EDU-ST-12)."
+    effort: medium
+    gap_ids: [GAP-23-M1]
+    score_gain: 0.9
+
+  - priority: 4
+    action: "Tighten ISO 29990 compliance by explicitly testing §4.2 needs analysis inputs and traceability into design/evaluation (EDU-ST-13)."
+    effort: low
+    gap_ids: [GAP-23-M2]
+    score_gain: 0.8
+
+  - priority: 5
+    action: "Add an explicit human oversight + learner contestation pathway for high-risk vocational access/assessment decisions (EDU-ST-14)."
+    effort: low
+    gap_ids: [GAP-23-m1]
+    score_gain: 0.3

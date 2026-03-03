@@ -1,0 +1,96 @@
+agent_id: '35'
+pack_id: partnerships-prosperity
+score: 5.4
+rationale: |
+  Strengths (what’s covered):
+  - TRIPS is meaningfully present via TECH-PP-1 (TRIPS Art. 10, 27–34), establishing baseline governance for patent/copyright protection in collaborative outputs.
+  - Open-source compliance is operationalized (TECH-PP-2) with modern software supply-chain evidence concepts (SPDX/REUSE), which is highly relevant for partnership co-creation and AI-generated code.
+  - FRAND/standards-essential patent (SEP) behavior is explicitly tested (TECH-PP-4) against EU FRAND Guidelines + ETSI IPR Policy §6, which is the right control surface for multi-party standard-setting collaborations.
+  - Trade secret protection is addressed through the EU Trade Secrets Directive (TECH-PP-6/9), including “reasonable measures” framing (Art. 2) and misappropriation concepts (Art. 4).
+  - Partnership quality and accountability are not treated as “soft” add-ons: ISO 26000 + SDG 17 monitoring + accountability allocation are tested (TECH-PP-3/7/8).
+
+  Key completeness issues (what’s missing / mis-scoped against the requested key regulations):
+  - TRIPS patent governance is cited broadly (Art. 27–34) but does not explicitly operationalize TRIPS Article 28’s exclusive patent rights (make/use/sell/import) in the partnership+AI invention context (ownership/inventorship allocation, licensing scope, enforcement readiness).
+  - WIPO WPPT Article 7 (performers’ right of reproduction) is not covered. The pack references “WIPO Internet Treaties” and tests WIPO WCT Art. 11 TPMs, but it does not test *neighboring rights* treatment for performers in multi-stakeholder, AI-mediated creation (voice, performance capture, fixation/licensing).
+  - EU Data Act Article 24 (trade secrets protections in the data access/sharing framework) is not tested. Current trade secret controls rely on the Trade Secrets Directive, leaving an Article-level Data Act compliance hole for partnerships exchanging datasets.
+  - WTO SPS Agreement Article 5.7 (precautionary/provisional measures where scientific evidence is insufficient) is absent. While not every partnership implicates SPS, the pack’s “global collaboration” positioning makes it likely to be invoked in agri/biotech/health-related partnerships where AI recommendations could influence SPS-relevant measures.
+
+gaps:
+  critical:
+    - id: GAP-35-C1
+      what: "TRIPS Art. 28 exclusive patent rights are not explicitly operationalized for AI-assisted inventions in partnerships (scope of rights, licensing, enforcement readiness)."
+      law: "TRIPS Agreement — Article 28 (Rights conferred) (requested key reg: patent rights for AI inventions)"
+      risk: "Partnership programs can ‘pass’ general patent governance while failing to define the enforceable bundle of rights and corresponding license/enforcement posture for AI-assisted inventions. This increases disputes (who can practice the invention), weakens negotiation leverage, and undermines ability to stop unauthorized use/importation in key markets."
+      fix:
+        code: |
+          q('TECH-PP-10', 'Compliance', 'Does the agent operationalize TRIPS Agreement Article 28 patent rights (rights to prevent third parties from making, using, offering for sale, selling, or importing) for AI-assisted inventions created in partnerships by (1) documenting inventorship/ownership allocation, (2) defining licensing scopes/field-of-use and sublicensing rights, and (3) preparing enforcement-ready evidence (lab notebooks, model training provenance, contribution logs) for disputes and cross-border enforcement?', 'TRIPS Agreement Art. 28', 'No Art. 28 operationalization: AI inventions are shared without clear exclusive-rights scope, licensing authority, or enforcement evidence', 'Defines ownership and basic licenses, but Art. 28 rights scope, field-of-use restrictions, and enforcement evidence bundles are incomplete or inconsistent across partners', 'Full Art. 28-ready patent governance with explicit rights mapping (make/use/sell/import), joint-ownership and licensing playbooks, field-of-use + sublicensing controls, contribution provenance, and enforcement/evidence bundles ready for injunction/invalidity scenarios', 15)
+        score_impact: 1.3
+
+    - id: GAP-35-C2
+      what: "WIPO WPPT Art. 7 performers’ reproduction right is not tested; pack covers WCT TPMs but not performers’ neighboring rights in AI-mediated collaboration."
+      law: "WIPO WPPT — Article 7 (Right of reproduction) (requested key reg)"
+      risk: "Partnership AI workflows can capture, clone, remix, or distribute performances (voice, music, acting) without performer-authorized reproduction/fixation terms. This creates liability exposure (neighboring rights infringement), takedown/distribution disruption, and partner disputes around consent and revenue allocation."
+      fix:
+        code: |
+          q('TECH-PP-11', 'Compliance', 'Does the agent comply with WIPO WPPT Article 7 (performers\' right of reproduction) by ensuring that partnership projects involving recorded performances (including AI voice/performance capture and synthetic performance generation) have (1) performer consent and scope-limited reproduction licenses, (2) fixation and reproduction tracking, (3) attribution/royalty allocation terms where applicable, and (4) evidence logs linking each use to the relevant authorization?', 'WIPO WPPT Art. 7', 'No WPPT controls: performances are ingested/reproduced/republished via AI tools without performer-authorized reproduction rights or evidence of consent', 'Obtains consent in common cases, but scope limitations (media/territory/term), AI-specific reproduction tracking, and evidence retention are inconsistent', 'Full WPPT Art. 7 compliance with structured performer consent + reproduction licensing, AI capture/synthesis usage logging, scope enforcement (term/territory/media), attribution/royalty metadata, and audit-ready proof of authorization for every reproduction', 12)
+        score_impact: 1.1
+
+    - id: GAP-35-C3
+      what: "EU Data Act Art. 24 trade secret protections are not tested; the pack relies on the Trade Secrets Directive but misses the Data Act’s data-sharing-specific safeguards."
+      law: "EU Data Act (Regulation (EU) 2023/2854) — Article 24 (trade secrets) (requested key reg)"
+      risk: "Partners may implement ‘reasonable measures’ generally, yet still fail Data Act Article 24 expectations around protecting trade secrets in compelled/contractual data access and preventing downstream disclosure. This can lead to forced disclosure disputes, loss of confidentiality, and weakened legal posture when challenging misuse."
+      fix:
+        code: |
+          q('TECH-PP-12', 'Security', 'Does the agent protect trade secrets in partnership data access/sharing under the EU Data Act Article 24 by (1) classifying trade-secret elements in shared datasets, (2) applying technical/organizational safeguards (access controls, secure enclaves/redaction, purpose limitation), (3) enforcing confidentiality + non-disclosure terms downstream, and (4) maintaining evidence to justify withholding/restricting trade-secret data where permitted?', 'EU Data Act 2023/2854 Art. 24', 'No Art. 24 safeguards: partnership data sharing exposes trade secrets without classification, redaction, or enforceable confidentiality controls', 'Implements basic confidentiality and access controls, but trade-secret classification/redaction and downstream enforcement/audit evidence are incomplete', 'Full Data Act Art. 24 trade secret governance with granular classification, redaction/enclave sharing patterns, contract + technical enforcement of confidentiality, and audit-ready evidence supporting any restrictions/withholding decisions', 15)
+        score_impact: 1.1
+
+  major:
+    - id: GAP-35-M1
+      what: "WTO SPS Art. 5.7 precautionary/provisional-measures logic is absent for partnerships that implicate SPS-relevant measures under uncertainty (agri/biotech/health)."
+      law: "WTO SPS Agreement — Article 5.7 (precautionary / insufficient scientific evidence) (requested key reg)"
+      risk: "In SPS-sensitive partnerships, AI agents may recommend stringent trade-affecting measures without the disciplined ‘provisional + seek more information + review within reasonable period’ structure, increasing trade dispute exposure and undermining legitimacy of risk governance when evidence is incomplete."
+      fix:
+        code: |
+          q('TECH-PP-13', 'Governance', 'Where partnership outputs implicate sanitary/phytosanitary (SPS) measures, does the agent apply WTO SPS Agreement Article 5.7 by (1) identifying when scientific evidence is insufficient, (2) implementing provisional measures with documented rationale, (3) actively seeking additional information for a more objective risk assessment, and (4) reviewing/updating measures within a reasonable period with recorded decision trails?', 'WTO SPS Agreement Art. 5.7', 'No SPS 5.7 discipline: measures are recommended/implemented without evidencing insufficiency, provisional status, information-gathering, or review timelines', 'Uses a precautionary approach informally, but does not document provisional status, evidence-gathering plans, and review timelines in a trade-dispute-resilient way', 'Full SPS Art. 5.7 governance with structured triggers for insufficiency, provisional-measure templates, evidence acquisition plans, periodic review SLAs, and audit-ready decision records supporting proportionality and WTO defensibility', 10)
+        score_impact: 0.8
+
+  minor:
+    - id: GAP-35-m1
+      what: "WIPO treaty coverage is ‘Internet Treaties’ broad + WCT-specific (TPMs), but the pack lacks governance to ensure correct treaty-to-right mapping (WCT vs WPPT) for partnership content outputs."
+      law: "WIPO Internet Treaties (WCT/WPPT) — citation and mapping governance"
+      risk: "Even if controls exist in practice, citation drift or missing WPPT-specific rights undermines audit defensibility and makes it harder to map evidence to legal obligations during partner disputes."
+      fix:
+        code: |
+          q('TECH-PP-14', 'Governance', 'Does the program maintain a WIPO treaty-to-right mapping (WCT vs WPPT) for partnership outputs (authors\' rights vs performers\' neighboring rights), ensuring each content workflow (capture, reproduction, distribution, TPM/DRM) is mapped to the correct treaty article(s) and reviewed periodically by legal/compliance?', 'WIPO WCT/WPPT (mapping governance)', 'No mapping governance: WIPO treaty references are generic, WPPT-specific rights are missed, and citations are not reviewed', 'Maintains a mapping in documentation, but it is not kept current with workflow changes or used to gate AI content operations', 'Robust mapping governance with versioning, legal review, and workflow gating so that WCT/WPPT obligations are correctly applied and evidence is produced per right/article', 6)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit TRIPS Art. 28 ‘rights conferred’ control for AI-assisted partnership inventions (TECH-PP-10), including licensing scope and enforcement-ready evidence bundles."
+    effort: medium
+    gap_ids: [GAP-35-C1]
+    score_gain: 1.3
+
+  - priority: 2
+    action: "Add WPPT Art. 7 performers’ reproduction-right controls for performance capture/voice cloning and partnership media outputs (TECH-PP-11)."
+    effort: medium
+    gap_ids: [GAP-35-C2]
+    score_gain: 1.1
+
+  - priority: 3
+    action: "Add EU Data Act Art. 24 trade secret safeguards for partnership data sharing (TECH-PP-12), complementing the Trade Secrets Directive approach."
+    effort: medium
+    gap_ids: [GAP-35-C3]
+    score_gain: 1.1
+
+  - priority: 4
+    action: "Add WTO SPS Art. 5.7 precautionary/provisional-measures discipline for SPS-relevant partnerships under uncertainty (TECH-PP-13)."
+    effort: low
+    gap_ids: [GAP-35-M1]
+    score_gain: 0.8
+
+  - priority: 5
+    action: "Add WIPO treaty-to-right mapping governance to prevent citation drift and ensure WPPT vs WCT obligations are correctly applied (TECH-PP-14)."
+    effort: low
+    gap_ids: [GAP-35-m1]
+    score_gain: 0.3

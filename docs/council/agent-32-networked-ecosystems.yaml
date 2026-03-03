@@ -1,0 +1,82 @@
+agent_id: '32'
+pack_id: networked-ecosystems
+score: 6.9
+rationale: |
+  Strengths (what’s covered):
+  - EU Data Act Chapter II is directly in scope (TECH-NE-1) with explicit references to Art. 4–8 and L5 language that anticipates “product data access” (Art. 4), portability interfaces (Art. 5), and third‑party sharing governance (Art. 6–8).
+  - Portability is covered as a first-class ecosystem capability (TECH-NE-4) with GDPR Art. 20 and CCPA §1798.100(d) explicitly tied to structured exports and direct transmission.
+  - OWASP API Security Top 10 2023 is present (TECH-NE-2) and explicitly calls out Broken Object Level Authorization (API1) as well as misconfiguration themes, which are the dominant real-world failure modes in ecosystem/API platforms.
+  - Identity federation is addressed (TECH-NE-6) using OpenID Connect / OAuth 2.1, plus identity assurance concepts (NIST SP 800-63-3), which is directionally correct for cross-ecosystem access management.
+  - EU Data Governance Act (DGA) data intermediation is included (TECH-NE-3), acknowledging neutrality/registration expectations for data sharing services.
+
+  Key completeness issues vs the required key regulations (what’s missing / mis-scoped):
+  - OAuth 2.1 §4.1 PKCE is not explicitly required/tested. The pack references OAuth 2.1 generally, but without a PKCE-specific control you can “pass” OAuth while remaining vulnerable to authorization-code interception (especially for mobile/public clients).
+  - DGA Article 12 is not explicitly operationalized. TECH-NE-3 references DGA Chapter III broadly (Art. 10–15), but does not test the enforcement-relevant Art. 12-style obligations as a concrete set of operational behaviors (separation/non-use of data for other purposes, security measures, auditable neutrality constraints).
+  - OWASP API1 (BOLA) is name-checked, but is bundled inside a general “OWASP Top 10” question. This risks insufficient depth on resource-level authorization invariants and how they are verified (tests, policy enforcement points, tenant/object ownership checks).
+
+  Overall: strong directional coverage for ecosystem connectivity (Data Act + portability + OWASP + federation), but missing PKCE and a more article-specific DGA Art. 12 control leaves the pack below “audit-grade” for the requested anchors.
+
+gaps:
+  critical:
+    - id: GAP-32-C1
+      what: "OAuth 2.1 is referenced, but PKCE is not explicitly required/tested (requested anchor: OAuth 2.1 §4.1 PKCE), leaving authorization-code flows vulnerable to interception and downgrade behaviors."
+      law: "OAuth 2.1 §4.1 (PKCE for authorization code flow)"
+      risk: "Ecosystem agents frequently integrate native apps, SPAs, and partner clients. Without PKCE (S256), strict redirect URI validation, and state/nonce handling, an attacker can intercept authorization codes and mint tokens, leading to cross-tenant data exfiltration via otherwise ‘authenticated’ APIs."
+      fix:
+        code: |
+          q('TECH-NE-10', 'Security', 'Does the agent implement OAuth 2.1 authorization code flow with PKCE per OAuth 2.1 §4.1 (S256), including strict redirect URI matching, state/nonce anti-CSRF protections, prevention of PKCE downgrade, and auditable evidence (logs/telemetry) that PKCE is enforced for all public clients?', 'OAuth 2.1 §4.1 (PKCE)', 'No PKCE enforcement; authorization code flows can proceed without code_challenge / code_verifier or allow insecure downgrade, and evidence is missing', 'PKCE is implemented for some clients, but enforcement is inconsistent (e.g., legacy exceptions), redirect/state handling is incomplete, or evidence is not audit-ready', 'Full OAuth 2.1 §4.1 PKCE enforcement (S256) for all public clients, strict redirect URI + state/nonce validation, downgrade prevention, continuous conformance testing, and immutable audit logs demonstrating PKCE policy compliance', 15)
+        score_impact: 1.2
+
+    - id: GAP-32-C2
+      what: "DGA compliance is scoped broadly (Ch. III Art. 10–15) but the requested anchor EU Data Governance Act Art. 12 is not explicitly tested as an enforcement-grade set of obligations for data intermediation services."
+      law: "EU Data Governance Act (Regulation (EU) 2022/868) — Article 12"
+      risk: "A service can claim ‘DGA intermediary compliance’ while still using shared data for its own purposes, failing neutrality/separation expectations, or lacking technical/organizational measures that competent authorities expect. This creates regulatory exposure and undermines ecosystem trust."
+      fix:
+        code: |
+          q('TECH-NE-11', 'Governance', 'If the agent provides data intermediation services, does it operationalize DGA Art. 12 by enforcing neutrality and separation (no data use for other purposes, ring-fenced operations), implementing appropriate technical and organizational measures for secure intermediation, and maintaining audit-ready evidence (policies, access logs, segregation controls, and periodic compliance attestations)?', 'EU DGA 2022/868 Art. 12', 'No Art. 12 controls; intermediary operations are commingled, data may be reused for other purposes, and evidence is missing', 'Some neutrality/separation controls exist, but segregation, security measures, and audit evidence are incomplete or inconsistently enforced across services/partners', 'Full Art. 12 implementation with enforced non-use constraints, operational separation, technical/organizational controls, continuous monitoring, and audit-ready evidence bundles aligned to competent authority expectations', 15)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-32-M1
+      what: "OWASP API Security Top 10 2023 is included and API1 is mentioned, but BOLA (API1) is not tested as a dedicated, resource-level authorization invariant with verification evidence (tests, policy enforcement points, tenant/object ownership checks)."
+      law: "OWASP API Security Top 10 2023 — API1: Broken Object Level Authorization"
+      risk: "Teams often implement authentication and still fail object-level authorization (IDOR/BOLA). Without an explicit API1 control, an agent can ‘pass OWASP’ while remaining vulnerable to simple parameter tampering that exposes ecosystem data at scale."
+      fix:
+        code: |
+          q('TECH-NE-12', 'Security', 'Does the agent prevent OWASP API1 (Broken Object Level Authorization) by enforcing object ownership/tenant isolation on every object access, using centralized authorization (policy enforcement points), and maintaining automated authorization test coverage (positive/negative cases) with logs suitable for incident reconstruction?', 'OWASP API Top 10 2023 — API1', 'No object-level authorization; endpoints rely on client-provided identifiers without ownership/tenant checks and lack authorization tests', 'Implements some object/tenant checks, but coverage is inconsistent, authorization logic is duplicated, or test evidence is incomplete', 'Full API1 prevention with centralized authorization, consistent ownership/tenant checks, automated authZ test suites per endpoint/resource, and audit-ready access decision logs', 12)
+        score_impact: 0.6
+
+  minor:
+    - id: GAP-32-m1
+      what: "EU Data Act Art. 4 ‘access obligation’ is referenced (via Art. 4–8), but the question does not explicitly test access-interface properties that commonly matter in audits (timeliness/continuity, secure access interface design, and evidence of ‘no undue delay’ service levels)."
+      law: "EU Data Act 2023/2854 — Article 4 (access obligation)"
+      risk: "Organizations may provide a nominal export while failing continuous/timely access expectations, leading to disputes with users/third parties and compliance findings that the interface is not ‘practically usable’ under the Act."
+      fix:
+        code: |
+          q('TECH-NE-13', 'Compliance', 'Does the agent implement EU Data Act Art. 4 access obligations in an operationally usable way (secure access interface, timely/continuous access where applicable, SLA evidence for ‘no undue delay’, and audit logs proving access was provided to users upon request)?', 'EU Data Act 2023/2854 Art. 4', 'Access is ad hoc/manual; interfaces are insecure or slow, and timeliness/continuity evidence is missing', 'Access interfaces exist, but timeliness/continuity SLAs and evidence are incomplete or inconsistently met', 'Full Art. 4 operationalization with secure interfaces, timeliness/continuity controls, SLA monitoring, and audit-ready access evidence bundles', 8)
+        score_impact: 0.3
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit OAuth 2.1 §4.1 PKCE control (TECH-NE-10) to make ecosystem authorization flows interception-resistant and audit-evidenced."
+    effort: low
+    gap_ids: [GAP-32-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Operationalize EU Data Governance Act Art. 12 (TECH-NE-11) with concrete neutrality/separation + security controls and audit-ready evidence."
+    effort: medium
+    gap_ids: [GAP-32-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Split out a dedicated OWASP API1 (BOLA) question (TECH-NE-12) to force resource-level authorization invariants + verification evidence."
+    effort: low
+    gap_ids: [GAP-32-M1]
+    score_gain: 0.6
+
+  - priority: 4
+    action: "Make EU Data Act Art. 4 access-interface properties explicit (TECH-NE-13): secure interface + timeliness/continuity + SLA evidence."
+    effort: low
+    gap_ids: [GAP-32-m1]
+    score_gain: 0.3

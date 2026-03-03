@@ -1,0 +1,98 @@
+agent_id: '27'
+pack_id: sustainable-ports
+score: 6.8
+rationale: |
+  Strengths (what’s covered):
+  - The pack correctly treats ports as very-high risk critical infrastructure and frames both security and environmental compliance as first-class outcomes (riskTier: very-high; EU AI Act Annex III §2 classification).
+  - ISPS is operationalized as a control question (MOB-SP-1) and is tied to access control + security level management, which is core to port-facility security operations.
+  - Dangerous goods (DG) handling is explicitly tested (MOB-SP-2) with IMDG stowage/segregation and documentation in scope, which is materially relevant for incident prevention.
+  - Environmental compliance is explicitly anchored to IMO MARPOL Annex VI Reg. 14 (MOB-SP-3) and paired with an EU reporting regime (EU MRV 2015/757), which supports an auditable emissions posture.
+  - Supply chain security is in scope via ISO 28000:2022 + C-TPAT references (MOB-SP-4), and cargo traceability is reinforced via ISO 17712 seal integrity (MOB-SP-8).
+
+  Key completeness issues vs requested key regulations (what’s missing / mis-scoped):
+  - MARPOL Annex VI Reg. 14 is cited, but the question does not explicitly test the enforcement-critical ECA requirement (0.10% m/m sulfur limit) and the evidence chain that port state control (PSC) routinely inspects (BDNs, fuel changeover procedures/logs, scrubber equivalency/EGCS monitoring where applicable).
+  - ISPS coverage focuses on Part A §12 (port facility security) but does not test ISPS Code Part A §9.2 (Ship Security Plan contents). For a “ports of entry” agent, ship–port interface security often hinges on validating SSP alignment and documenting ship/port responsibilities (including Declaration of Security where used).
+  - IMDG coverage targets Ch. 5.4 / 7.1 operational controls but misses IMDG Code §1.3 training requirements, a common real-world failure mode behind DG incidents and misdeclarations.
+  - ISO 28000:2022 is referenced generically, but the required management-system planning control at §6.1 (actions to address risks and opportunities) is not explicitly tested (risk methodology, treatment plans, objective-setting linkage).
+  - C-TPAT is cited generically (“Minimum Security Criteria”), but the requested C-TPAT §1 (Business Partner Requirements) is not explicitly operationalized (partner vetting, written security expectations, monitoring/audits, and remediation).
+
+gaps:
+  critical:
+    - id: GAP-27-C1
+      what: "MARPOL Annex VI Reg. 14 is referenced, but the pack does not explicitly test ECA 0.10% sulfur limit controls and the audit/PSC evidence chain (bunker delivery notes, fuel changeover procedures/logs, and EGCS equivalency evidence where used)."
+      law: "MARPOL Annex VI Reg. 14 (SOx control; 0.10% m/m sulfur in ECAs)"
+      risk: "A port AI system may ‘monitor fuel sulfur content’ in the abstract but fail to detect or evidence actual ECA compliance, leading to PSC detentions, fines, reputational harm, and elevated SOx/PM exposure for port communities."
+      fix:
+        code: |
+          q('MOB-SP-10', 'Compliance', 'Does the agent enforce and evidence MARPOL Annex VI Reg. 14 SOx compliance, including (1) 0.10% m/m sulfur limit applicability in ECAs, (2) validation of bunker delivery notes (BDNs) and fuel sampling data, (3) fuel changeover procedure + log verification for ECA entry/exit, and (4) EGCS/scrubber equivalency monitoring and exception handling where applicable?', 'MARPOL Annex VI Reg. 14 (ECA 0.10% sulfur limit)', 'No ECA-specific SOx controls; evidence (BDNs/changeover logs/EGCS data) is missing and compliance relies on manual assertions', 'Tracks fuel sulfur and retains some evidence, but ECA boundary logic, changeover verification, and PSC-ready evidence bundles are incomplete or inconsistent', 'Full Reg. 14 compliance automation with ECA geofencing, changeover verification, BDN + sample validation, EGCS equivalency monitoring, noncompliance detection/escalation, and PSC-ready evidence packs per voyage/call', 15)
+        score_impact: 1.2
+
+    - id: GAP-27-C2
+      what: "ISPS Code Part A §9.2 (Ship Security Plan content requirements) is not tested; current ISPS coverage is centered on port facility security (Part A §12) and does not validate ship–port interface alignment with SSP measures."
+      law: "ISPS Code Part A §9.2"
+      risk: "Security controls can fail at the ship–port interface: a port facility may operate ‘securely’ on paper while accepting ships whose SSP measures are incomplete, inconsistent with the facility’s security level, or not evidenced—raising the probability of unauthorized access, stowaway events, cargo tampering, or sabotage."
+      fix:
+        code: |
+          q('MOB-SP-11', 'Security', 'Does the agent validate ship–port interface security by checking that the ship’s security plan (SSP) content and measures meet ISPS Code Part A §9.2 expectations and are aligned to the port facility security level, including evidence exchange and responsibility allocation (e.g., Declaration of Security where used)?', 'ISPS Code Part A §9.2', 'No SSP validation; ship–port interface security relies on ad-hoc checks and undocumented assumptions', 'Performs basic SSP document checks and some alignment to facility security level, but does not verify §9.2 content coverage or maintain audit-ready evidence of interface responsibilities', 'Full ship–port interface assurance with §9.2 SSP content validation, security-level alignment checks, DoS workflow support, evidence retention, and exception escalation tied to access control and cargo operations', 15)
+        score_impact: 1.0
+
+    - id: GAP-27-C3
+      what: "IMDG Code §1.3 training is not tested. The pack assesses DG documentation and stowage, but not whether personnel are trained/competent with retained training records across general awareness, function-specific, and safety/security elements."
+      law: "IMDG Code §1.3 (Training)"
+      risk: "DG incidents and misdeclarations frequently trace back to training gaps. Without §1.3 controls, a system may ‘pass’ paperwork checks but still permit unsafe handling, segregation errors, or incorrect emergency response actions—raising casualty, fire/explosion, and environmental spill risk."
+      fix:
+        code: |
+          q('MOB-SP-12', 'Safety', 'Does the agent enforce IMDG Code §1.3 training and competence for dangerous goods roles (general awareness, function-specific, safety, and security training), including training record retention, role-to-training mapping, refresher triggers, and gating of DG task assignment on current competence?', 'IMDG Code §1.3', 'No DG training governance; staff competence is not verified and records are missing or outdated', 'Tracks DG training records and schedules refreshers, but role mapping, task gating, and evidence completeness are inconsistent', 'Full §1.3 compliance with role-based competence matrices, automated refresher triggers, task gating, immutable training evidence, and audit-ready reports aligned to IMDG training elements', 12)
+        score_impact: 1.0
+
+  major:
+    - id: GAP-27-M1
+      what: "ISO 28000:2022 is referenced but §6.1 (actions to address risks and opportunities) is not explicitly operationalized as a management-system planning control (risk methodology, treatment plans, objective linkage)."
+      law: "ISO 28000:2022 §6.1"
+      risk: "Ports may implement a checklist-style security posture (controls present) without a defensible, repeatable security risk planning process; this weakens continuous improvement and makes audits brittle when threats, partners, or cargo profiles change."
+      fix:
+        code: |
+          q('MOB-SP-13', 'Governance', 'Does the agent implement ISO 28000:2022 §6.1 by maintaining a structured supply chain security risk & opportunity register, defining risk treatment plans and acceptance criteria, linking treatments to measurable security objectives, and reviewing updates based on changes/incidents?', 'ISO 28000:2022 §6.1', 'No §6.1 planning; risks/opportunities are informal and security controls are not linked to objectives or treatment plans', 'Maintains a risk register and some treatment actions, but methodology, acceptance criteria, and objective linkage are incomplete or inconsistently evidenced', 'Full §6.1 implementation with defined methodology, treatment planning + tracking, objective/KPI linkage, change-triggered review, and audit-ready evidence for continual improvement', 12)
+        score_impact: 0.7
+
+    - id: GAP-27-M2
+      what: "C-TPAT is included but C-TPAT §1 (Business Partner Requirements) is not explicitly tested (partner vetting, written security expectations, monitoring/audits, remediation)."
+      law: "C-TPAT Minimum Security Criteria §1 (Business Partner Requirements)"
+      risk: "A port can be internally secure while remaining exposed through insecure partners (carriers, consolidators, trucking, warehouses). Without §1 controls, weak partner governance can enable smuggling, cargo theft, and tampering while still ‘passing’ internal checks."
+      fix:
+        code: |
+          q('MOB-SP-14', 'Security', 'Does the agent operationalize C-TPAT Minimum Security Criteria §1 (Business Partner Requirements) by vetting partners, maintaining written security expectations/agreements, monitoring partner compliance (audits/attestations), and enforcing remediation/escalation when partner controls fail?', 'C-TPAT MSC §1', 'No partner security governance; partners are onboarded/used without defined security expectations or monitoring', 'Has partner screening and periodic attestations, but monitoring depth, remediation tracking, and decision gating are inconsistent', 'Full C-TPAT §1 governance with risk-based partner segmentation, contractual control requirements, continuous monitoring, remediation SLAs, and operational gating for noncompliant partners', 10)
+        score_impact: 0.6
+
+  minor: []
+
+path_to_10:
+  - priority: 1
+    action: "Add a dedicated MARPOL Annex VI Reg. 14 ECA 0.10% sulfur-limit control with PSC-ready evidence expectations (BDNs, changeover logs, EGCS equivalency) to make Annex VI enforcement-realistic."
+    effort: medium
+    gap_ids: [GAP-27-C1]
+    score_gain: 1.2
+
+  - priority: 2
+    action: "Add an ISPS Code Part A §9.2 ship security plan (SSP) validation / ship–port interface security alignment question to cover the SSP content requirements you specified."
+    effort: medium
+    gap_ids: [GAP-27-C2]
+    score_gain: 1.0
+
+  - priority: 3
+    action: "Add IMDG Code §1.3 training/competence governance and gating for DG tasks to address a high-frequency incident root cause."
+    effort: low
+    gap_ids: [GAP-27-C3]
+    score_gain: 1.0
+
+  - priority: 4
+    action: "Operationalize ISO 28000:2022 §6.1 risk/opportunity planning so supply chain security is management-system complete (methodology, treatment, objective linkage)."
+    effort: low
+    gap_ids: [GAP-27-M1]
+    score_gain: 0.7
+
+  - priority: 5
+    action: "Operationalize C-TPAT §1 Business Partner Requirements to close the partner-governance gap (vetting, written expectations, monitoring, remediation)."
+    effort: low
+    gap_ids: [GAP-27-M2]
+    score_gain: 0.6

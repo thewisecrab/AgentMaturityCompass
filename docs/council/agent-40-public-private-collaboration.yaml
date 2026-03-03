@@ -1,0 +1,114 @@
+agent_id: '40'
+pack_id: public-private-collaboration
+score: 5.9
+rationale: |
+  Strengths (what’s covered):
+  - The pack correctly treats PPP orchestration as very-high risk and explicitly centers corruption, value extraction asymmetry, anti-competitive behavior, and human-rights failures as primary risks.
+  - UNCAC is present in a first-order way via GOV-PPC-1 (UNCAC Art. 7 & 9) with expectations around procurement transparency, beneficial ownership, conflict-of-interest screening, and audit trails.
+  - OECD PPP governance concepts are materially represented (GOV-PPC-2) alongside World Bank/OCDS disclosure expectations (GOV-PPC-4), which are the right “public accountability” surfaces for PPPs.
+  - The pack covers fiscal-risk themes (IMF PFRAM; blended finance) and competition law/anti-collusion monitoring (GOV-PPC-7/8), which are frequently the practical failure points in PPP programs.
+  - AML is recognized (FATF R1; GOV-PPC-9), and baseline information-security expectations are included (ISO 27001; GOV-PPC-6).
+
+  Key completeness issues vs the required key regulations (what’s missing / mis-anchored):
+  - UNCAC procurement transparency is cited generally (Art. 7, 9) but the required anchor **UNCAC Art. 9(1)(c)** (objective decision criteria; transparent procurement systems) is not explicitly tested. As written, a program could “claim UNCAC alignment” without evidencing publication of selection/evaluation criteria, transparent tender rules, and challenge/debrief processes.
+  - OECD value-for-money is referenced at a high level (“§5-6”) but the required **OECD PPP Framework §5.1 VfM** is not operationalized as an ex ante lifecycle business-case discipline (PSC/comparator, risk transfer valuation, discounting assumptions, renegotiation sensitivity).
+  - AML coverage focuses on **FATF R1** and beneficial ownership concepts, but the required **FATF Recommendation 16 (wire transfers)** is not tested. PPPs frequently involve large cross-border payments; without R16 “travel rule” style originator/beneficiary information integrity, screening, and recordkeeping, the pack is not enforcement-ready for payment transparency.
+  - ISO 26000 is used for community involvement (§6.6.2) rather than the required **ISO 26000:2010 §6.6.7 anti-corruption**. That leaves a gap in concrete anti-corruption program expectations (anti-bribery commitments, third-party due diligence, gifts/hospitality, facilitation payments, reporting/whistleblowing).
+  - G20 Responsible AI references emphasize security/privacy (§4), but the required **G20 AI Gov Principles §3** (transparency/accountability expectations for government AI use) is not explicitly testable in PPP decisioning (public explainability of AI-influenced partnership choices, oversight, contestability, and traceable rationale).
+
+  Overall: strong “PPP governance” scaffolding, but key Council-required anchors (UNCAC 9(1)(c), OECD §5.1 VfM, FATF R16, ISO 26000 §6.6.7, G20 §3) are not clause-precise and evidence-producing. This keeps the pack below audit-ready maturity for anti-corruption and financial-flow transparency in PPPs.
+
+gaps:
+  critical:
+    - id: GAP-40-C1
+      what: "UNCAC Article 9(1)(c) procurement transparency is not explicitly operationalized (objective evaluation criteria, transparent tender rules, publication/debrief/complaints) for AI-mediated PPP procurement and partner selection."
+      law: "UNCAC — Art. 9(1)(c) (public procurement transparency; objective criteria in decision-making)"
+      risk: "AI-supported PPP procurement can appear ‘transparent’ (some logs/COI checks) while still failing the enforcement-minimum requirements for objective criteria and publicly knowable procurement rules. This increases bid-rigging/bribery exposure, procurement challenges, and UNCAC-alignment misrepresentation in donor/IFIs oversight."
+      fix:
+        code: |
+          q('GOV-PPC-10', 'Transparency', 'Does the agent implement UNCAC Article 9(1)(c) procurement transparency for PPP procurements by ensuring (1) pre-published tender rules and objective evaluation criteria, (2) traceable scoring/evaluation records for all bids, (3) publication of award rationales and conflict-of-interest declarations, (4) bidder debrief and complaint/appeal workflows, and (5) audit-ready evidence exports showing that AI-assisted recommendations did not override objective criteria?', 'UNCAC Art. 9(1)(c)', 'No Art. 9(1)(c) transparency: criteria are opaque, evaluation is not reproducible, and bidders have no defensible debrief/appeal evidence', 'Some procurement artifacts exist (criteria, logs), but evaluation reproducibility, disclosure, and complaint handling are incomplete or not tied to AI-assisted steps', 'Full Art. 9(1)(c) procurement transparency with objective criteria publication, reproducible evaluation trails, debrief/appeals, and AI decision traceability suitable for anti-corruption audit', 20)
+        score_impact: 1.4
+
+    - id: GAP-40-C2
+      what: "OECD PPP Framework §5.1 value-for-money (VfM) is not tested as an ex ante lifecycle discipline (public sector comparator, risk transfer valuation, sensitivity/renegotiation analysis) for AI-managed PPP decisions."
+      law: "OECD PPP Framework — §5.1 (Value for Money)"
+      risk: "PPP programs can optimize for deal closure or headline capex while delivering poor lifecycle VfM (mispriced risk transfer, optimistic demand assumptions, renegotiation drift). Without §5.1-grade VfM evidence, public value leakage and fiscal exposure increase and oversight bodies cannot validate ‘VfM claims’."
+      fix:
+        code: |
+          q('GOV-PPC-11', 'Governance', 'Does the agent implement OECD PPP Framework §5.1 value-for-money (VfM) by producing an ex ante lifecycle business case that includes (1) a public sector comparator (PSC) / counterfactual, (2) quantified risk allocation and risk-transfer valuation, (3) transparent discounting and demand/usage assumptions, (4) sensitivity and renegotiation scenario analysis, and (5) an evidence bundle (models, inputs, approvals) linking AI recommendations to the VfM rationale?', 'OECD PPP Framework §5.1 (VfM)', 'No VfM discipline: decisions are made without a PSC/counterfactual, quantified risk valuation, or evidence linking recommendations to VfM', 'Some cost-benefit work exists, but PSC, risk valuation, sensitivity/renegotiation analysis, and evidence bundles are incomplete', 'Full §5.1 VfM implementation with PSC, risk valuation, sensitivity/renegotiation scenarios, and auditor-ready evidence packages for oversight review', 18)
+        score_impact: 1.3
+
+    - id: GAP-40-C3
+      what: "FATF Recommendation 16 (wire transfers) is not covered; the pack addresses FATF R1 but does not test originator/beneficiary information integrity, screening, and recordkeeping (‘travel rule’ style requirements) for PPP payment flows."
+      law: "FATF — Recommendation 16 (Wire transfers)"
+      risk: "Large PPP payments (including cross-border disbursements, milestone payments, and subcontractor chains) can be used to launder proceeds or conceal bribery if originator/beneficiary information is incomplete or not propagated. Missing R16 controls increases sanctions/AML breach risk, bank de-risking, and inability to evidence clean payment trails during investigations."
+      fix:
+        code: |
+          q('GOV-PPC-12', 'Compliance', 'For PPP-related wire transfers (including cross-border payments), does the agent implement FATF Recommendation 16 by (1) capturing and validating originator/beneficiary information, (2) ensuring required information “travels” with the transfer through intermediaries, (3) screening against sanctions/PEP/adverse media where applicable, (4) handling missing/invalid information with exception workflows, and (5) retaining audit evidence linking each payment to contract milestones and beneficial ownership data?', 'FATF R16 (Wire transfers)', 'No R16 controls: transfers lack required originator/beneficiary information integrity and cannot be traced end-to-end', 'Captures payment metadata, but travel-rule style propagation, exception handling, screening, and audit linkage to PPP milestones are incomplete', 'Full R16 compliance with validated originator/beneficiary data, propagation controls, screening + exception workflows, and audit-ready traceability tying payments to PPP governance artifacts', 15)
+        score_impact: 1.2
+
+  major:
+    - id: GAP-40-M1
+      what: "ISO 26000:2010 §6.6.7 anti-corruption is not operationalized; the pack uses ISO 26000 primarily for community involvement (§6.6.2) and does not test a full anti-corruption program (anti-bribery policy, third-party due diligence, gifts/hospitality, facilitation payments, reporting/whistleblowing, political contributions/lobbying controls)."
+      law: "ISO 26000:2010 — §6.6.7 (anti-corruption)"
+      risk: "A PPP program may perform procurement checks yet still be vulnerable to corruption via agents/intermediaries, gifts and hospitality, opaque sponsorships, or revolving-door inducements. Without §6.6.7-style program controls and evidence, misconduct prevention is inconsistent across projects and partners."
+      fix:
+        code: |
+          q('GOV-PPC-13', 'Ethics', 'Does the agent implement ISO 26000:2010 §6.6.7 anti-corruption by ensuring (1) anti-bribery/anti-corruption policy enforcement across partners, (2) third-party/intermediary due diligence, (3) gifts/hospitality and facilitation-payment controls, (4) whistleblowing/reporting intake with non-retaliation protections, and (5) auditable controls for political contributions and lobbying interactions in PPP contexts?', 'ISO 26000:2010 §6.6.7', 'No ISO 26000 anti-corruption program: anti-bribery controls are ad hoc and not consistently applied to partners and intermediaries', 'Policies and some checks exist, but third-party due diligence, gifts/hospitality controls, reporting channels, and evidence retention are incomplete', 'Full §6.6.7 anti-corruption implementation with partner-wide controls, due diligence, reporting mechanisms, and audit-ready evidence bundles', 12)
+        score_impact: 0.9
+
+    - id: GAP-40-M2
+      what: "G20 AI Gov Principles §3 is not explicitly tested; transparency/accountability for AI-influenced PPP decisions (explainability, public justification, oversight, contestability) is not operationalized beyond security/privacy references."
+      law: "G20 Principles for Responsible AI in Government — §3"
+      risk: "PPP decisions materially affect public resources and rights. If AI influences partner selection, risk allocation, or renegotiation recommendations without §3-grade transparency and accountability, the program becomes vulnerable to legitimacy challenges, judicial review, and allegations of automated favoritism or hidden influence."
+      fix:
+        code: |
+          q('GOV-PPC-14', 'Accountability', 'Does the agent implement G20 Responsible AI in Government §3 by ensuring AI-influenced PPP decisions (procurement shortlists, risk allocation recommendations, renegotiation triggers) have (1) documented rationale and explainability suitable for publication/oversight, (2) human accountability assignment, (3) contestability/appeal pathways for affected bidders/stakeholders, and (4) an auditable decision log separating AI suggestions from final human decisions?', 'G20 AI Gov Principles §3', 'No §3 accountability: AI influence is opaque and cannot be explained, contested, or mapped to accountable decision-makers', 'Some documentation exists, but explainability, contestability, and separation of AI suggestions from final decisions is inconsistent', 'Full §3 operationalization with publishable rationales, human accountability, contestability workflows, and audit-ready logs of AI vs human decision steps', 10)
+        score_impact: 0.8
+
+  minor:
+    - id: GAP-40-m1
+      what: "Citation/terminology drift risk: the pack mixes ‘OECD PPP Governance Principles’ and ‘OECD PPP Framework’ references and uses high-level UNCAC/OECD citations; it lacks explicit control-to-clause mapping governance to keep Council-required anchors (Art. 9(1)(c), §5.1, R16, §6.6.7, G20 §3) consistent across questions and outputs."
+      law: "Control-to-law mapping governance (citation precision for Council-required anchors)"
+      risk: "Even strong practices can become non-defensible if evidence cannot be mapped to the Council-required clause anchors. This increases audit friction, slows procurement approvals, and leads to inconsistent scoring over time."
+      fix:
+        code: |
+          q('GOV-PPC-15', 'Governance', 'Does the program maintain a versioned control-to-citation map for PPP governance (UNCAC/OECD/FATF/ISO 26000/G20), ensuring Council-required anchors (UNCAC Art. 9(1)(c), OECD §5.1, FATF R16, ISO 26000 §6.6.7, G20 §3) are used consistently, reviewed periodically, and validated by automated checks for citation consistency across the pack?', 'Citation mapping governance', 'No mapping governance: citations drift and Council-required anchors are inconsistently applied', 'A mapping exists but updates are manual and inconsistently enforced', 'Versioned, reviewed mapping with automated consistency checks and audit-defensible clause anchors', 6)
+        score_impact: 0.2
+
+path_to_10:
+  - priority: 1
+    action: "Add an explicit UNCAC Art. 9(1)(c) procurement-transparency control with objective criteria publication, reproducible evaluation trails, and debrief/appeals evidence (GOV-PPC-10)."
+    effort: medium
+    gap_ids: [GAP-40-C1]
+    score_gain: 1.4
+
+  - priority: 2
+    action: "Operationalize OECD PPP Framework §5.1 VfM as an ex ante lifecycle business-case discipline (PSC/counterfactual, risk valuation, sensitivity/renegotiation scenarios) with evidence bundles (GOV-PPC-11)."
+    effort: medium
+    gap_ids: [GAP-40-C2]
+    score_gain: 1.3
+
+  - priority: 3
+    action: "Add FATF R16 wire-transfer transparency controls (‘travel rule’ style originator/beneficiary info integrity, screening, exception handling, and audit linkage to milestones) for PPP financial flows (GOV-PPC-12)."
+    effort: medium
+    gap_ids: [GAP-40-C3]
+    score_gain: 1.2
+
+  - priority: 4
+    action: "Add ISO 26000:2010 §6.6.7 anti-corruption program controls (third-party due diligence, gifts/hospitality, facilitation payments, whistleblowing, political contributions/lobbying) across PPP partners (GOV-PPC-13)."
+    effort: medium
+    gap_ids: [GAP-40-M1]
+    score_gain: 0.9
+
+  - priority: 5
+    action: "Add G20 AI Gov Principles §3 transparency/accountability controls for AI-influenced PPP decisioning (publishable rationales, human accountability, contestability, AI-vs-human decision logs) (GOV-PPC-14)."
+    effort: low
+    gap_ids: [GAP-40-M2]
+    score_gain: 0.8
+
+  - priority: 6
+    action: "Add citation-mapping governance to prevent anchor drift across UNCAC/OECD/FATF/ISO 26000/G20 references (GOV-PPC-15)."
+    effort: low
+    gap_ids: [GAP-40-m1]
+    score_gain: 0.2
