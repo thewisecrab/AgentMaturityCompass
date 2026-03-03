@@ -58,12 +58,17 @@ That's it. `amc init` walks you through everything interactively. The passphrase
 - **A trust score** from L0 to L5 with a clear breakdown
 - **A gap analysis** showing exactly what to fix and how
 - **Auto-generated guardrails** that plug directly into your agent's config
+- **Auto-remediation** — generates config files, CI gates, governance docs
 - **A badge** for your README showing your agent's trust level
+- **HTML reports** for stakeholders (print to PDF)
 
 ```bash
-amc quickscore --share   # Get your score + action plan
-amc badge                # ![AMC L3](https://img.shields.io/badge/AMC-L3-blue)
-amc guide --go           # Auto-fix the biggest gaps
+amc quickscore --share       # Get your score + action plan
+amc evidence collect         # Guided wizard to connect your agent
+amc guide --go               # Auto-apply guardrails to your config
+amc fix                      # Generate remediation files (guardrails, CI gate, governance)
+amc report <id> --html r.html  # Styled report → print to PDF
+amc badge                    # ![AMC L3](https://img.shields.io/badge/AMC-L3-blue)
 ```
 
 > 📖 [Full getting started guide](docs/GETTING_STARTED.md)
@@ -166,13 +171,27 @@ Every pack includes risk tier, EU AI Act classification, SDG alignment, certific
 AMC doesn't just find problems — it fixes them.
 
 ```bash
-amc guide --go           # Detect framework → generate guardrails → apply to config
-amc guide --status       # One-line health check
-amc guide --interactive  # Cherry-pick which gaps to fix
-amc guide --watch        # Continuous monitoring + auto-update
-amc guide --diff         # What improved since last run
-amc guide --ci --target 3  # CI gate: fail build if below L3
+# Guided setup
+amc evidence collect          # Interactive wizard: connect your agent, import logs, or quickscore
+
+# Auto-remediation
+amc fix                       # Generate guardrails.yaml, AGENTS.md, CI gate workflow
+amc fix --target-level L4     # Target a specific maturity level
+amc fix --dry-run             # Preview what would be generated
+amc guide --go                # Detect framework → apply guardrails to config
+
+# Continuous improvement
+amc guide --status            # One-line health check
+amc guide --interactive       # Cherry-pick which gaps to fix
+amc guide --watch             # Continuous monitoring + auto-update
+amc guide --diff              # What improved since last run
+amc guide --ci --target 3     # CI gate: fail build if below L3
 amc guide --compliance EU_AI_ACT  # Map gaps to regulatory obligations
+
+# Reports
+amc report <id> --executive   # Board-friendly terminal summary
+amc report <id> --html r.html # Styled HTML report (print to PDF)
+amc quickscore --eu-ai-act    # EU AI Act risk classification
 ```
 
 - **Auto-detects** your framework from project files
@@ -206,7 +225,9 @@ amc guide --compliance EU_AI_ACT  # Map gaps to regulatory obligations
 ```bash
 amc assurance run --scope full --agent my-agent
 amc assurance run --pack adversarial-robustness --agent my-agent
-amc assurance certs list    # View certificates
+amc assurance run --verbose          # Full scenario detail with payloads
+amc assurance run --format sarif     # SARIF 2.1.0 export for security tools
+amc assurance certs list             # View certificates
 ```
 
 ---

@@ -1001,7 +1001,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
       <li class="nh"><a href="#platform">Platform</a></li>
       <li class="nh"><a href="#how">How It Works</a></li>
       <li class="nh"><a href="#improve">Improve</a></li>
-      <li class="nh"><a href="#sector-packs">Sector Packs</a></li>
+      <li class="nh"><a href="#sector-packs">Domain Packs</a></li>
       <li class="nh"><a href="#scale">Maturity Scale</a></li>
       <li class="nh"><a href="#research">Research</a></li>
       <li class="nh"><a href="#euact">EU AI Act</a></li>
@@ -1018,7 +1018,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   <a href="#platform">Platform</a>
   <a href="#how">How It Works</a>
   <a href="#improve">Improve</a>
-  <a href="#sector-packs">Sector Packs</a>
+  <a href="#sector-packs">Domain Packs</a>
   <a href="#scale">Maturity Scale</a>
   <a href="#research">Research</a>
   <a href="#euact">EU AI Act</a>
@@ -1396,6 +1396,12 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
       </div>
     </div>
 
+    <!-- Auto-Fix -->
+    <div style="margin-top:1.25rem;padding:1.25rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:3px">
+      <div style="font:700 1rem/1.3 var(--mono);color:var(--g);margin-bottom:.5rem">🔧 amc fix — Auto-Remediation</div>
+      <p style="font:400 .85rem/1.5 var(--sans);color:var(--t1);margin:0">Don't just see gaps — fix them. <code style="color:var(--g)">amc fix</code> generates guardrails configs, governance files, and CI gate workflows. Review, apply, re-score.</p>
+    </div>
+
     <!-- Level progression -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin-top:1.5rem">
       <div class="step3 rv" data-n="L1→L2" style="border-top:2px solid var(--a)">
@@ -1511,7 +1517,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 <!-- SECTOR PACKS -->
 <section id="sector-packs" aria-labelledby="sector-h">
 <div class="w">
-  <div class="slabel"><span class="slabel-num">06</span><em>Sector Packs</em></div>
+  <div class="slabel"><span class="slabel-num">06</span><em>Domain Packs</em></div>
   <h2 id="sector-h" class="plat-h2">Enterprise-Grade Vertical Assessment</h2>
   <p class="how-lead">AMC ships with <strong>40 industry-specific assessment packs</strong> containing <strong>593 sector-specific diagnostic questions</strong> — precise, sub-vertical diagnostics with specific regulatory article references, risk tiers, and EU AI Act classifications. Built for regulated enterprises and critical infrastructure.</p>
 
@@ -1520,37 +1526,37 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
       <span class="step3-icon">🌿</span>
       <div class="step3-title">Environment — 6 packs</div>
       <p class="step3-body">Farm-to-fork, textiles supply chains, advanced manufacturing, energy grids, water &amp; sanitation. Refs: EU Farm-to-Fork, REACH Reg., IEC 61850, EU Drinking Water Directive.</p>
-      <span class="step3-code">amc sector score --pack farm-to-fork</span>
+      <span class="step3-code">amc domain score --pack farm-to-fork</span>
     </div>
     <div class="step3 rv d1" data-n="02">
       <span class="step3-icon">🏥</span>
       <div class="step3-title">Health — 9 packs</div>
       <p class="step3-body">EHR systems, clinical trials, drug discovery, precision medicine, medtech devices. Refs: HIPAA §164.312, FDA 21 CFR Part 11, EU MDR 2017/745, GCP E6(R3).</p>
-      <span class="step3-code">amc sector score --pack clinical-trials</span>
+      <span class="step3-code">amc domain score --pack clinical-trials</span>
     </div>
     <div class="step3 rv d2" data-n="03">
       <span class="step3-icon">💰</span>
       <div class="step3-title">Wealth — 5 packs</div>
       <p class="step3-body">Payments, financial inclusion, DeFi/blockchain, circular economy. Refs: MiFID II, PSD2, EU DORA, MiCA, FATF R1/R10.</p>
-      <span class="step3-code">amc sector score --pack digital-payments</span>
+      <span class="step3-code">amc domain score --pack digital-payments</span>
     </div>
     <div class="step3 rv d1" data-n="04">
       <span class="step3-icon">🎓</span>
       <div class="step3-title">Education — 5 packs</div>
       <p class="step3-body">K-12, higher education, skills training, accessibility-first EdTech. Refs: FERPA 20 U.S.C. §1232g, COPPA §312, IDEA, EU AI Act Annex III §3.</p>
-      <span class="step3-code">amc sector score --pack k12-pm3</span>
+      <span class="step3-code">amc domain score --pack k12-pm3</span>
     </div>
     <div class="step3 rv d2" data-n="05">
       <span class="step3-icon">🚇</span>
       <div class="step3-title">Mobility — 5 packs</div>
       <p class="step3-body">Smart cities, sustainable ports, real estate, virtual infrastructure, network privacy &amp; cybersecurity. Refs: EU EPBD 2024, UNECE WP.29 R155 §7, ETSI EN 303 645, EU NIS2.</p>
-      <span class="step3-code">amc sector score --pack privacy-security-mobility</span>
+      <span class="step3-code">amc domain score --pack privacy-security-mobility</span>
     </div>
     <div class="step3 rv" data-n="06">
       <span class="step3-icon">💡</span>
       <div class="step3-title">Technology — 5 packs</div>
       <p class="step3-body">AI intelligence, API ecosystems, digital infra orchestration, content platforms, IP partnerships. Refs: EU AI Act Art. 13, EU Data Act 2023, DSA Art. 34, TRIPS Agreement.</p>
-      <span class="step3-code">amc sector score --pack cognition-to-intelligence</span>
+      <span class="step3-code">amc domain score --pack cognition-to-intelligence</span>
     </div>
   </div>
 
@@ -1558,7 +1564,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
     <span class="step3-icon">🏛️</span>
     <div class="step3-title">Governance — 5 packs</div>
     <p class="step3-body">Digital identity, electoral integrity, legislative AI, citizen services, public-private partnerships. Refs: EU eIDAS 2.0, EU AI Act Art. 5(1)(a) (PROHIBITED), UNCAC Art. 7/9, UNGPs, Council of Europe AI Convention 2024.</p>
-    <span class="step3-code">amc sector score --pack digital-citizens-rights</span>
+    <span class="step3-code">amc domain score --pack digital-citizens-rights</span>
   </div>
 
   <div class="bento" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:2rem 0">
@@ -1571,7 +1577,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   </div>
 
   <p style="text-align:center;margin-top:2rem">
-    <a class="bp" href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/SECTOR_PACKS.md" style="display:inline-block;padding:.75rem 2rem;background:var(--g);color:#000;font:700 .8rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border-radius:3px">Read Sector Packs Docs →</a>
+    <a class="bp" href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/SECTOR_PACKS.md" target="_blank" rel="noopener" style="display:inline-block;padding:.75rem 2rem;background:var(--g);color:#000;font:700 .8rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border-radius:3px">Read Domain Packs Docs →</a>
   </p>
 </div>
 </section>
@@ -1836,7 +1842,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
     <p class="cta-sub">Score your agent in 2 minutes. For free. Forever. MIT licensed open-source trust infrastructure — one command to see where your agent really stands.</p>
     <div class="cta-row">
       <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="bp" target="_blank" rel="noopener">Get Started →</a>
-      <a href="https://github.com/thewisecrab/AgentMaturityCompass/discussions" class="bg" target="_blank" rel="noopener">Join the Community</a>
+      <a href="playground.html" class="bg">Try the Playground →</a>
     </div>
   </div>
   <div class="to rv" style="text-align:center">
@@ -1844,6 +1850,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
     <p class="cta-sub">2,723 tests. 140 questions. 85 assurance packs. 14 framework adapters. Auto-apply guardrails. Cryptographic proof chains. MIT licensed. Your score is waiting.</p>
     <div class="cta-row">
       <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="bp" target="_blank" rel="noopener">npm i -g agent-maturity-compass</a>
+      <a href="playground.html" class="bg">Try the Playground →</a>
       <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/GETTING_STARTED.md" class="bg" target="_blank" rel="noopener">Read the Docs →</a>
     </div>
   </div>
@@ -1856,7 +1863,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
     <ul class="flinks" role="list">
       <li><a href="#platform">Platform</a></li>
       <li><a href="#how">How It Works</a></li>
-      <li><a href="#sector-packs">Sector Packs</a></li>
+      <li><a href="#sector-packs">Domain Packs</a></li>
       <li><a href="#scale">Maturity Scale</a></li>
       <li><a href="#euact">EU AI Act</a></li>
       <li><a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank" rel="noopener">GitHub</a></li>

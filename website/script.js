@@ -38,14 +38,19 @@ document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el)
 
 // ─── COUNTERS ───
 function animateCounter(el) {
-  var target = parseInt(el.dataset.count) || 0;
+  var target = parseInt(el.dataset.target || el.dataset.count) || 0;
+  var suffix = el.dataset.suffix || '';
   var duration = 2000;
   var start = performance.now();
+  function formatNum(n) {
+    if (n >= 1000) return n.toLocaleString();
+    return String(n);
+  }
   function tick(now) {
     var elapsed = now - start;
     var progress = Math.min(elapsed / duration, 1);
     var eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(target * eased);
+    el.textContent = formatNum(Math.round(target * eased)) + suffix;
     if (progress < 1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -56,16 +61,18 @@ window.addEventListener('load', function() {
   document.querySelectorAll('.proof-num').forEach(animateCounter);
 });
 
-// OSS counters — animate on scroll
-var ossObserver = new IntersectionObserver(function(entries) {
+// All other counters — animate on scroll
+var counterObserver = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
     if (entry.isIntersecting) {
       animateCounter(entry.target);
-      ossObserver.unobserve(entry.target);
+      counterObserver.unobserve(entry.target);
     }
   });
 }, { threshold: 0.3 });
-document.querySelectorAll('.oss-num').forEach(function(el) { ossObserver.observe(el); });
+document.querySelectorAll('.oss-num, .hnum, .cap-num, .gauge-num, [data-target]').forEach(function(el) {
+  if (!el.classList.contains('proof-num')) counterObserver.observe(el);
+});
 
 // ─── BAR FILLS on scroll ───
 var barObserver = new IntersectionObserver(function(entries) {
@@ -121,9 +128,20 @@ if (glow && window.matchMedia('(pointer: fine)').matches) {
 }
 
 // ─── MODE TOGGLE (Technical / ELI5) ───
+// Re-animate counters when switching modes (hidden elements miss IntersectionObserver)
+function animateVisibleCounters() {
+  document.querySelectorAll('[data-target]').forEach(function(el) {
+    if (el.offsetParent !== null && (el.textContent.trim() === '0' || el.textContent.trim() === '0pt' || el.textContent.trim() === '0+')) {
+      animateCounter(el);
+    }
+  });
+}
+// Listen for mode changes from the inline setMode() function
+var modeObserver = new MutationObserver(function() { setTimeout(animateVisibleCounters, 100); });
+modeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
 var toggle = document.getElementById('modeToggle');
 if (toggle) {
-  // Check saved preference
   var saved = localStorage.getItem('amc-mode');
   if (saved === 'eli5') document.body.classList.add('eli5-mode');
 
