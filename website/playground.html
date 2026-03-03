@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMC Playground — Score Your AI Agent</title>
+<style>
+  :root { --bg: #020802; --g: #00ff41; --t1: #e0ffe0; --t2: #88aa88; --mono: 'JetBrains Mono', monospace; --bdr: rgba(0,255,65,.12); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--t1); font-family: var(--mono), monospace; min-height: 100vh; padding: 2rem; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { color: var(--g); font-size: 1.8rem; margin-bottom: .5rem; }
+  .subtitle { color: var(--t2); margin-bottom: 2rem; font-size: .85rem; }
+  .dim-section { border: 1px solid var(--bdr); border-radius: 6px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .dim-title { color: var(--g); font-size: 1rem; font-weight: 700; margin-bottom: .75rem; }
+  .dim-desc { color: var(--t2); font-size: .75rem; margin-bottom: 1rem; }
+  .question { margin-bottom: 1rem; padding: .75rem; border-left: 2px solid var(--bdr); }
+  .question:hover { border-left-color: var(--g); }
+  .q-text { font-size: .78rem; margin-bottom: .5rem; line-height: 1.5; }
+  .q-id { color: var(--t2); font-size: .65rem; }
+  .levels { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .level-btn { background: transparent; border: 1px solid var(--bdr); color: var(--t2); padding: .3rem .6rem; border-radius: 3px; font: .7rem var(--mono); cursor: pointer; transition: all .2s; }
+  .level-btn:hover { border-color: var(--g); color: var(--t1); }
+  .level-btn.active { background: var(--g); color: #000; border-color: var(--g); font-weight: 700; }
+  .score-panel { position: sticky; top: 1rem; background: rgba(0,20,0,.95); border: 1px solid var(--g); border-radius: 6px; padding: 1.5rem; margin-bottom: 2rem; }
+  .score-big { font-size: 3rem; color: var(--g); font-weight: 700; text-align: center; }
+  .score-label { text-align: center; color: var(--t2); font-size: .8rem; margin-bottom: 1rem; }
+  .dim-scores { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .dim-score-item { display: flex; justify-content: space-between; font-size: .7rem; padding: .25rem .5rem; border: 1px solid var(--bdr); border-radius: 3px; }
+  .dim-score-val { color: var(--g); font-weight: 700; }
+  .actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center; flex-wrap: wrap; }
+  .btn { background: var(--g); color: #000; border: none; padding: .6rem 1.5rem; font: 700 .8rem var(--mono); border-radius: 3px; cursor: pointer; text-transform: uppercase; letter-spacing: .1em; }
+  .btn:hover { opacity: .9; }
+  .btn-outline { background: transparent; border: 1px solid var(--g); color: var(--g); }
+  .btn-outline:hover { background: rgba(0,255,65,.1); }
+  .badge-output { text-align: center; margin-top: 1rem; padding: 1rem; border: 1px dashed var(--bdr); border-radius: 3px; display: none; }
+  .badge-output code { color: var(--g); font-size: .7rem; word-break: break-all; }
+  .nav-back { color: var(--g); text-decoration: none; font-size: .8rem; display: inline-block; margin-bottom: 1rem; }
+  .progress-bar { height: 4px; background: var(--bdr); border-radius: 2px; margin-bottom: 1rem; }
+  .progress-fill { height: 100%; background: var(--g); border-radius: 2px; transition: width .3s; }
+  @media (max-width: 600px) { .dim-scores { grid-template-columns: 1fr; } .score-big { font-size: 2rem; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <a href="./" class="nav-back">← Back to AMC</a>
+  <h1>🧭 AMC Playground</h1>
+  <p class="subtitle">Rate your AI agent on 15 key questions. Get an instant maturity score. No install required.</p>
+  
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  
+  <div class="score-panel" id="scorePanel">
+    <div class="score-big" id="compositeScore">L0</div>
+    <div class="score-label">AMC Maturity Level · <span id="compositeNum">0</span>/100</div>
+    <div class="dim-scores" id="dimScores"></div>
+    <div class="actions">
+      <button class="btn" onclick="copyBadge()">📋 Copy Badge</button>
+      <button class="btn btn-outline" onclick="exportJSON()">📄 Export JSON</button>
+      <button class="btn btn-outline" onclick="resetAll()">🔄 Reset</button>
+    </div>
+    <div class="badge-output" id="badgeOutput">
+      <code id="badgeCode"></code>
+    </div>
+  </div>
+
+  <div id="questions"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  // Strategic Agent Ops (3 questions)
+  { id: 'SO-01', dim: 'Strategic Agent Ops', text: 'Does your agent have a clear mission statement and defined operational boundaries?', 
+    levels: ['No boundaries defined', 'Informal scope', 'Documented scope', 'Enforced scope with monitoring', 'Self-auditing scope compliance'] },
+  { id: 'SO-02', dim: 'Strategic Agent Ops', text: 'Does the agent have human oversight and escalation paths?',
+    levels: ['No human oversight', 'Ad-hoc oversight', 'Defined escalation rules', 'Measured escalation effectiveness', 'Autonomous oversight with human ratification'] },
+  { id: 'SO-03', dim: 'Strategic Agent Ops', text: 'Are all agent decisions logged with audit trails?',
+    levels: ['No logging', 'Console output only', 'Structured logs', 'Queryable audit trail', 'Immutable cryptographic audit log'] },
+  
+  // Skills (3 questions)
+  { id: 'SK-01', dim: 'Skills', text: 'How does the agent handle prompt injection attempts?',
+    levels: ['No injection defense', 'Basic input filtering', 'Documented defenses', 'Active injection detection + blocking', 'Adversarial-tested + auto-updating defenses'] },
+  { id: 'SK-02', dim: 'Skills', text: 'Does the agent follow least-privilege principles for tool access?',
+    levels: ['Unrestricted tool access', 'Manual permission lists', 'Documented tool policy', 'Runtime permission enforcement', 'Dynamic scoping with audit'] },
+  { id: 'SK-03', dim: 'Skills', text: 'Does the agent prevent data leakage (PII, secrets, credentials)?',
+    levels: ['No DLP controls', 'Ad-hoc filtering', 'Pattern-based DLP', 'Measured DLP with false positive tracking', 'Zero-trust output pipeline'] },
+  
+  // Resilience (3 questions)
+  { id: 'RS-01', dim: 'Resilience', text: 'What happens when the primary model/API is unavailable?',
+    levels: ['Agent crashes', 'Unhandled error', 'Documented fallback', 'Tested failover with SLA', 'Auto-routing to alternatives'] },
+  { id: 'RS-02', dim: 'Resilience', text: 'Does the agent have budget/cost controls?',
+    levels: ['No cost awareness', 'Manual budget checks', 'Hard spending limits', 'Cost-per-task tracking + alerts', 'Auto-optimization across model tiers'] },
+  { id: 'RS-03', dim: 'Resilience', text: 'How does the agent handle unexpected or out-of-scope inputs?',
+    levels: ['Attempts everything', 'Informal scope limits', 'OOD detection documented', 'Automated OOD detection', 'Self-identifying novel inputs'] },
+  
+  // Leadership & Autonomy (3 questions)
+  { id: 'LA-01', dim: 'Leadership & Autonomy', text: 'Can you reconstruct the agent\'s reasoning from production logs?',
+    levels: ['Black box', 'Partial logs', 'Structured traces', 'Full reasoning chain reconstruction', 'Auto-generated explanations'] },
+  { id: 'LA-02', dim: 'Leadership & Autonomy', text: 'Does the agent have defined autonomy levels (supervised → autonomous)?',
+    levels: ['No autonomy model', 'Implicit autonomy', 'Documented tiers', 'Enforced graduated autonomy', 'Self-adjusting autonomy by risk'] },
+  { id: 'LA-03', dim: 'Leadership & Autonomy', text: 'Are agent interactions traceable across multi-step workflows?',
+    levels: ['No tracing', 'Request IDs only', 'Distributed traces', 'Full workflow visualization', 'Auto-anomaly detection in traces'] },
+  
+  // Culture & Alignment (3 questions)
+  { id: 'CA-01', dim: 'Culture & Alignment', text: 'Is the agent regularly tested against adversarial scenarios?',
+    levels: ['Never tested', 'One-time tests', 'Scheduled testing', 'Continuous red team testing', 'Auto-generated attack scenarios'] },
+  { id: 'CA-02', dim: 'Culture & Alignment', text: 'Does the agent demonstrate truthfulness (refusing to make claims without evidence)?',
+    levels: ['No truthfulness controls', 'Ad-hoc fact-checking', 'Evidence-bound claims policy', 'Measured truthfulness with citations', 'Self-verifying with confidence calibration'] },
+  { id: 'CA-03', dim: 'Culture & Alignment', text: 'Does the agent have feedback loops (user feedback → improvement)?',
+    levels: ['No feedback mechanism', 'Informal feedback', 'Structured feedback collection', 'Feedback-driven improvements tracked', 'Autonomous improvement from feedback'] },
+];
+
+const DIM_MAP = {
+  'Strategic Agent Ops': 'strategic-ops',
+  'Skills': 'skills',
+  'Resilience': 'resilience',
+  'Leadership & Autonomy': 'autonomy',
+  'Culture & Alignment': 'alignment',
+};
+
+const responses = {};
+let answered = 0;
+
+function render() {
+  const qContainer = document.getElementById('questions');
+  let currentDim = '';
+  let html = '';
+  
+  QUESTIONS.forEach((q, idx) => {
+    if (q.dim !== currentDim) {
+      if (currentDim) html += '</div>';
+      currentDim = q.dim;
+      html += `<div class="dim-section"><div class="dim-title">${q.dim}</div>`;
+    }
+    html += `<div class="question">
+      <div class="q-text"><span class="q-id">${q.id}</span> ${q.text}</div>
+      <div class="levels">
+        ${q.levels.map((l, li) => `<button class="level-btn ${responses[q.id] === li+1 ? 'active' : ''}" 
+          onclick="setLevel('${q.id}', ${li+1}, this)" title="L${li+1}: ${l}">L${li+1}</button>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  qContainer.innerHTML = html;
+  updateScore();
+}
+
+function setLevel(qId, level, btn) {
+  if (!responses[qId]) answered++;
+  responses[qId] = level;
+  
+  // Update buttons
+  btn.parentElement.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  updateScore();
+}
+
+function updateScore() {
+  const dims = {};
+  for (const [dimName, dimId] of Object.entries(DIM_MAP)) {
+    dims[dimName] = { total: 0, count: 0 };
+  }
+  
+  for (const [qId, level] of Object.entries(responses)) {
+    const q = QUESTIONS.find(q => q.id === qId);
+    if (q && dims[q.dim]) {
+      dims[q.dim].total += (level / 5) * 100;
+      dims[q.dim].count += 1;
+    }
+  }
+  
+  let composite = 0, dimCount = 0;
+  let dimHtml = '';
+  
+  for (const [dimName, d] of Object.entries(dims)) {
+    const score = d.count > 0 ? d.total / d.count : 0;
+    const level = score >= 90 ? 'L5' : score >= 70 ? 'L4' : score >= 50 ? 'L3' : score >= 30 ? 'L2' : score >= 10 ? 'L1' : 'L0';
+    composite += score;
+    dimCount++;
+    dimHtml += `<div class="dim-score-item"><span>${dimName}</span><span class="dim-score-val">${level} · ${Math.round(score)}</span></div>`;
+  }
+  
+  composite = dimCount > 0 ? composite / dimCount : 0;
+  const level = composite >= 90 ? 'L5' : composite >= 70 ? 'L4' : composite >= 50 ? 'L3' : composite >= 30 ? 'L2' : composite >= 10 ? 'L1' : 'L0';
+  
+  document.getElementById('compositeScore').textContent = level;
+  document.getElementById('compositeNum').textContent = Math.round(composite);
+  document.getElementById('dimScores').innerHTML = dimHtml;
+  document.getElementById('progress').style.width = (answered / QUESTIONS.length * 100) + '%';
+}
+
+function copyBadge() {
+  const level = document.getElementById('compositeScore').textContent;
+  const score = document.getElementById('compositeNum').textContent;
+  const badge = `![AMC ${level}](https://img.shields.io/badge/AMC-${level}%20${score}-${level === 'L5' ? '6f42c1' : level === 'L4' ? '007bff' : level === 'L3' ? '28a745' : level === 'L2' ? 'ffc107' : level === 'L1' ? 'fd7e14' : 'dc3545'})`;
+  navigator.clipboard.writeText(badge).then(() => {
+    const out = document.getElementById('badgeOutput');
+    out.style.display = 'block';
+    document.getElementById('badgeCode').textContent = badge;
+  });
+}
+
+function exportJSON() {
+  const result = {
+    agentId: 'playground-assessment',
+    composite: parseInt(document.getElementById('compositeNum').textContent),
+    level: document.getElementById('compositeScore').textContent,
+    responses: responses,
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+  };
+  const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'amc-score.json';
+  a.click();
+}
+
+function resetAll() {
+  Object.keys(responses).forEach(k => delete responses[k]);
+  answered = 0;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

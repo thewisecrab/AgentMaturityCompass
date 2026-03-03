@@ -1,0 +1,69 @@
+name: AMC Score
+
+on:
+  workflow_call:
+    inputs:
+      agent-id:
+        description: 'Agent ID to score'
+        required: false
+        type: string
+        default: 'default'
+      target-level:
+        description: 'Minimum AMC level required (0-5)'
+        required: false
+        type: number
+        default: 0
+      fail-below:
+        description: 'Fail the workflow if score is below target level'
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      score:
+        description: 'AMC composite score'
+        value: ${{ jobs.score.outputs.score }}
+      level:
+        description: 'AMC maturity level (L0-L5)'
+        value: ${{ jobs.score.outputs.level }}
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    outputs:
+      score: ${{ steps.amc.outputs.score }}
+      level: ${{ steps.amc.outputs.level }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install AMC
+        run: npm i -g agent-maturity-compass
+      
+      - name: Initialize AMC workspace
+        run: |
+          amc init --non-interactive --agent ${{ inputs.agent-id }} || true
+      
+      - name: Run AMC Score
+        id: amc
+        run: |
+          RESULT=$(amc quickscore --json --agent ${{ inputs.agent-id }} 2>/dev/null || echo '{"score":0,"level":"L0"}')
+          SCORE=$(echo "$RESULT" | jq -r '.score // 0')
+          LEVEL=$(echo "$RESULT" | jq -r '.level // "L0"')
+          echo "score=$SCORE" >> "$GITHUB_OUTPUT"
+          echo "level=$LEVEL" >> "$GITHUB_OUTPUT"
+          echo "## 🧭 AMC Score: $SCORE ($LEVEL)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "$RESULT" | jq -r '.dimensions // {} | to_entries[] | "| \(.key) | \(.value.score) | \(.value.level) |"' >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+      
+      - name: Check target level
+        if: inputs.fail-below
+        run: |
+          LEVEL_NUM=$(echo "${{ steps.amc.outputs.level }}" | sed 's/L//')
+          if [ "$LEVEL_NUM" -lt "${{ inputs.target-level }}" ]; then
+            echo "❌ AMC score ${{ steps.amc.outputs.level }} is below target L${{ inputs.target-level }}"
+            exit 1
+          fi
+          echo "✅ AMC score ${{ steps.amc.outputs.level }} meets target L${{ inputs.target-level }}"
