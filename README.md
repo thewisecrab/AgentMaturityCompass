@@ -300,8 +300,12 @@ npm run build
 npm link
 ```
 
-### Docker
+### Docker (zero setup — no Node required)
 ```bash
+# Quick score (interactive)
+docker run -it --rm amc/compass amc quickscore
+
+# Full studio with dashboard
 docker run -p 3212:3212 -p 3210:3210 amc/studio
 ```
 
@@ -323,7 +327,9 @@ curl -fsSL https://raw.githubusercontent.com/thewisecrab/AgentMaturityCompass/ma
 | Doc | Description |
 |-----|-------------|
 | [Getting Started](docs/GETTING_STARTED.md) | Install → first score → L5 |
+| [**Executive Overview**](docs/EXECUTIVE_OVERVIEW.md) | **For CTOs & compliance — no terminal required** |
 | [Quickstart Guide](docs/QUICKSTART.md) | 5-minute walkthrough |
+| [**Example Project**](examples/hello-agent/) | **Score a minimal agent in 5 minutes** |
 | [Agent Guide System](docs/AGENT_GUIDE.md) | Guardrails, auto-detect, CI gates |
 | [Domain Packs](docs/SECTOR_PACKS.md) | 40 industry-specific domain packs |
 | [CLI Reference](docs/AMC_MASTER_REFERENCE.md) | All 482+ commands |
@@ -331,7 +337,8 @@ curl -fsSL https://raw.githubusercontent.com/thewisecrab/AgentMaturityCompass/ma
 | [Assurance Lab](docs/ASSURANCE_LAB.md) | Attack packs & red teaming |
 | [EU AI Act Compliance](docs/EU_AI_ACT_COMPLIANCE.md) | Regulatory mapping |
 | [Multi-Agent Trust](docs/MULTI_AGENT_TRUST.md) | Fleet scoring & delegation |
-| [White Paper](whitepaper/AMC_WHITEPAPER_v1.md) | The full research paper |
+| [White Paper](whitepaper/AMC_WHITEPAPER_v1.md) | The full research paper (v2.0) |
+| [**Web Playground**](https://thewisecrab.github.io/AgentMaturityCompass/playground.html) | **Score your agent in the browser — no install** |
 
 ---
 
