@@ -163,7 +163,9 @@ section:first-of-type::before{display:none}
 #hero::before{display:none}
 #cta::before{background:linear-gradient(to bottom,rgba(0,0,0,.5),transparent)}
 .slabel{font:600 .65rem/1 var(--mono);color:var(--t3);letter-spacing:.2em;
-  text-transform:uppercase;margin-bottom:1.25rem}
+  text-transform:uppercase;margin-bottom:1.25rem;position:relative;padding-bottom:.5rem}
+.slabel::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--g);transition:width .6s ease}
+.slabel.in::after{width:3rem}
 .slabel em{color:var(--g);font-style:normal}
 h1,h2,h3,h4{font-family:var(--mono);line-height:1.12}
 
@@ -766,6 +768,7 @@ body.clean-theme .menu-btn span,body.clean-theme .menu-btn span::before,body.cle
 /* ── COMPREHENSIVE LIGHT MODE — catch-all overrides ── */
 /* Section backgrounds and dividers */
 body.clean-theme section { border-color:#e5e7eb }
+body.clean-theme section:nth-child(even) { background:#f8f9fb }
 body.clean-theme .dv { border-color:#e5e7eb }
 body.clean-theme .dv i { background:#e5e7eb }
 body.clean-theme .w { color:#374151 }
@@ -781,6 +784,7 @@ body.clean-theme em { color:#6b7280 }
 
 /* Section labels (01, 02, etc.) */
 body.clean-theme .slabel { color:#9ca3af }
+body.clean-theme .slabel::after { background:#2563eb }
 body.clean-theme .slabel-num { color:#2563eb }
 
 /* Hero section */
@@ -909,6 +913,7 @@ body.clean-theme .feat-card:hover,body.clean-theme .bc:hover,body.clean-theme .p
 .section-visible .slabel{opacity:1;transform:translateY(0)}
 
 @keyframes scrollBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 /* Gap section */
 body.clean-theme .gap-alert { background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.2) }
 body.clean-theme .gap-alert-text { color:#374151 }
@@ -1501,6 +1506,18 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
         <div style="font:.6rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:.75rem">With AMC</div>
         <div style="font:700 2rem/1 var(--mono);color:var(--g);margin-bottom:.25rem">L3 · 3.5/5</div>
         <div style="font:.7rem/1.3 var(--mono);color:var(--t3)">Execution-verified · Ed25519 signed<br>Cryptographic proof of behavior</div>
+      </div>
+    </div>
+    <!-- Animated terminal demo -->
+    <div class="term-demo" id="term-demo" style="margin-top:2rem;background:#0a0a0b;border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden;font:.78rem/1.6 var(--mono);max-width:580px">
+      <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.06)">
+        <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#febc2e"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#28c840"></span>
+        <span style="flex:1;text-align:center;font:.6rem/1 var(--mono);color:rgba(255,255,255,.3);letter-spacing:.08em">TERMINAL</span>
+      </div>
+      <div style="padding:12px 16px;color:#e0e0e0;min-height:180px" id="term-lines">
+        <div><span style="color:#00ff41">$</span> <span id="term-cmd"></span><span id="term-cursor" style="background:#00ff41;color:#0a0a0b;animation:blink 1s step-end infinite">▋</span></div>
       </div>
     </div>
   </div>
@@ -2397,6 +2414,7 @@ window.addEventListener('resize', () => {
 /* ── MATRIX RAIN ────────────────────────────────── */
 (function(){
   const cv = document.getElementById('rain');
+  if(!cv || document.body.classList.contains('clean-theme')) return; /* skip rain in light mode */
   const cx = cv.getContext('2d');
   const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌ∑∞≠≈∂∇∀∃□◆▸';
   let cols, drops, W, H;
@@ -2545,7 +2563,7 @@ window.addEventListener('resize', () => {
     }),
     { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
   );
-  document.querySelectorAll('.rv').forEach(el => io.observe(el));
+  document.querySelectorAll('.rv,.slabel').forEach(el => io.observe(el));
 })();
 
 /* ── OS TABS ─────────────────────────────────────── */
@@ -2560,6 +2578,59 @@ function showTab(id) {
   const pane = document.getElementById('ipane-' + id);
   if(pane) pane.classList.add('on');
 }
+
+/* Terminal demo animation */
+function runTermDemo() {
+  const cmd = 'amc quickscore --agent my-sales-agent';
+  const lines = [
+    {t:'<span style="color:#888">⠋ Initializing AMC gateway...</span>',d:600},
+    {t:'<span style="color:#888">⠙ Connecting to agent runtime...</span>',d:400},
+    {t:'<span style="color:#00ff41">✓</span> Gateway ready · Ed25519 keypair loaded',d:300},
+    {t:'<span style="color:#888">⠸ Running 113 diagnostic probes...</span>',d:800},
+    {t:'<span style="color:#00ff41">✓</span> 113/113 probes complete · 5 dimensions scored',d:400},
+    {t:'',d:200},
+    {t:'<span style="color:#00ff41;font-weight:700">  ┌─────────────────────────────────┐</span>',d:100},
+    {t:'<span style="color:#00ff41;font-weight:700">  │  AMC Score: L3 — Defined       │</span>',d:100},
+    {t:'<span style="color:#00ff41;font-weight:700">  │  Overall: 3.5 / 5.0            │</span>',d:100},
+    {t:'<span style="color:#00ff41;font-weight:700">  └─────────────────────────────────┘</span>',d:200},
+    {t:'',d:100},
+    {t:'  Integrity    <span style="color:#28c840">████████░░</span> 4.1',d:80},
+    {t:'  Autonomy     <span style="color:#28c840">███████░░░</span> 3.8',d:80},
+    {t:'  Resilience   <span style="color:#febc2e">██████░░░░</span> 3.4',d:80},
+    {t:'  Leadership   <span style="color:#febc2e">███████░░░</span> 3.5',d:80},
+    {t:'  Alignment    <span style="color:#ff5f57">████░░░░░░</span> 2.3',d:80},
+    {t:'',d:200},
+    {t:'<span style="color:#888">  Signature: Ed25519:9c4e…a7f8 · verified</span>',d:100},
+    {t:'<span style="color:#888">  Evidence chain: 113 probes → SHA-256 Merkle root</span>',d:100},
+    {t:'<span style="color:#00ff41">  ✓ Score is cryptographically verifiable</span>',d:0}
+  ];
+  const el = document.getElementById('term-cmd');
+  const container = document.getElementById('term-lines');
+  const cursor = document.getElementById('term-cursor');
+  if(!el || !container) return;
+  let i = 0;
+  function typeCmd() {
+    if(i < cmd.length) { el.textContent += cmd[i++]; setTimeout(typeCmd, 35 + Math.random()*30); }
+    else { cursor.style.display = 'none'; setTimeout(()=>showLines(0), 400); }
+  }
+  function showLines(idx) {
+    if(idx >= lines.length) return;
+    const div = document.createElement('div');
+    div.innerHTML = lines[idx].t;
+    container.appendChild(div);
+    setTimeout(()=>showLines(idx+1), lines[idx].d);
+  }
+  typeCmd();
+}
+
+/* Run terminal demo when hero is visible */
+const termObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) { termObs.disconnect(); setTimeout(runTermDemo, 800); }
+  });
+},{threshold:0.3});
+const termEl = document.getElementById('term-demo');
+if(termEl) termObs.observe(termEl);
 
 function toggleArch() {
   const d = document.getElementById('arch-detail');
