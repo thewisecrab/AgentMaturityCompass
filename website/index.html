@@ -811,6 +811,94 @@ body.clean-theme .step3-title { color:var(--g) }
 body.clean-theme .step3-body { color:#6b7280 }
 body.clean-theme .step3-code { background:#f3f4f6!important;color:#1d4ed8!important }
 
+/* ── SCORE CARD COMPONENT ── */
+.score-card{font-family:var(--mono);background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:1.5rem;min-width:260px;max-width:320px;position:relative;overflow:hidden}
+.score-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(0,255,65,.06),transparent 70%);pointer-events:none}
+.score-card-header{font:.65rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:.75rem}
+.score-card-level{font:700 2rem/1 var(--mono);color:var(--g);margin-bottom:.25rem}
+.score-card-name{font:.72rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--g2);margin-bottom:1.25rem}
+.score-card-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-bottom:1.25rem;overflow:hidden}
+.score-card-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g2),var(--g));width:70%;box-shadow:0 0 8px rgba(0,255,65,.4)}
+.score-card-dims{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem}
+.score-card-dim{display:flex;align-items:center;gap:.5rem;font:.68rem/1 var(--mono)}
+.score-card-dim-bar{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.score-card-dim-fill{height:100%;border-radius:2px;background:var(--g2)}
+.score-card-dim-val{color:var(--t2);min-width:2.5rem;text-align:right}
+.score-card-dim-label{color:var(--t3);min-width:5.5rem}
+.score-card-hash{font:.6rem/1 var(--mono);color:var(--t3);border-top:1px solid var(--bdr);padding-top:.75rem;letter-spacing:.04em}
+/* light mode score card */
+body.clean-theme .score-card{background:#fff;border-color:#e5e7eb}
+body.clean-theme .score-card::before{background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(37,99,235,.04),transparent 70%)}
+body.clean-theme .score-card-level{color:#2563eb}
+body.clean-theme .score-card-name{color:#2563eb}
+body.clean-theme .score-card-bar{background:#f3f4f6}
+body.clean-theme .score-card-bar-fill{background:linear-gradient(90deg,#3b82f6,#2563eb);box-shadow:none}
+body.clean-theme .score-card-dim-bar{background:#f3f4f6}
+body.clean-theme .score-card-dim-fill{background:#3b82f6}
+body.clean-theme .score-card-dim-val{color:#6b7280}
+body.clean-theme .score-card-dim-label{color:#9ca3af}
+body.clean-theme .score-card-hash{border-color:#e5e7eb}
+
+/* ── HERO SPLIT LAYOUT ── */
+.hero-split{display:flex;align-items:center;gap:3rem;min-height:70vh}
+.hero-split-text{flex:1 1 55%;min-width:0}
+.hero-split-visual{flex:0 0 320px;display:flex;justify-content:flex-end;animation:heroCardIn .8s ease forwards;opacity:0}
+@keyframes heroCardIn{from{opacity:0;transform:translateY(16px) rotate(1deg)}to{opacity:1;transform:translateY(0) rotate(0deg)}}
+@media(max-width:900px){.hero-split{flex-direction:column;min-height:auto}.hero-split-visual{display:none}}
+
+/* ── TABS (Improve section) ── */
+.tabs-bar{display:flex;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:2rem;overflow-x:auto}
+.tab-btn{font:.72rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:.75rem 1.5rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);cursor:pointer;transition:color .2s,border-color .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--t1)}
+.tab-btn.on{color:var(--g);border-bottom-color:var(--g)}
+.tab-pane{display:none;animation:tabIn .2s ease}
+.tab-pane.on{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+@keyframes tabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.tab-pane.on{grid-template-columns:1fr}}
+body.clean-theme .tabs-bar{border-color:#e5e7eb}
+body.clean-theme .tab-btn.on{color:#2563eb;border-bottom-color:#2563eb}
+body.clean-theme .tab-btn:hover{color:#374151}
+
+/* ── ANIMATED PIPELINE DIAGRAM ── */
+.pipeline{display:flex;align-items:center;gap:0;padding:2rem 0;overflow-x:auto}
+.pipe-node{display:flex;flex-direction:column;align-items:center;gap:.5rem;min-width:100px;flex:1}
+.pipe-node-icon{width:48px;height:48px;border:1px solid var(--bdr);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;background:var(--card);position:relative;z-index:1}
+.pipe-node-icon.active{border-color:var(--g);box-shadow:var(--gsm)}
+.pipe-node-label{font:.65rem/1.3 var(--mono);text-align:center;color:var(--t2);letter-spacing:.06em;text-transform:uppercase}
+.pipe-arrow{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--g) 0,var(--g) 6px,transparent 6px,transparent 12px);background-size:24px 2px;animation:pipeFlow 1.2s linear infinite;min-width:24px;opacity:.6}
+@keyframes pipeFlow{from{background-position:0 0}to{background-position:24px 0}}
+@media(max-width:700px){.pipeline{flex-direction:column}.pipe-arrow{width:2px;height:32px;background:repeating-linear-gradient(180deg,var(--g) 0,var(--g) 6px,transparent 6px,transparent 12px);animation:pipeFlowV 1.2s linear infinite}@keyframes pipeFlowV{from{background-position:0 0}to{background-position:0 24px}}}
+body.clean-theme .pipe-node-icon{background:#fff;border-color:#e5e7eb}
+body.clean-theme .pipe-node-icon.active{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+body.clean-theme .pipe-node-label{color:#6b7280}
+body.clean-theme .pipe-arrow{background:repeating-linear-gradient(90deg,#2563eb 0,#2563eb 6px,transparent 6px,transparent 12px);background-size:24px 2px}
+
+/* Featured cards (Platform section) */
+.feat3{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-bottom:1.5rem}
+@media(max-width:900px){.feat3{grid-template-columns:1fr}}
+.feat-card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:2rem;transition:all .2s}
+.feat-card:hover{transform:translateY(-2px);box-shadow:var(--gsm)}
+.feat-card-icon{font-size:2rem;margin-bottom:1rem}
+.feat-card-title{font:700 .9rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--g);margin-bottom:.75rem}
+.feat-card-body{font:.82rem/1.6 var(--sans);color:var(--t2);margin-bottom:1rem}
+.feat-card-cmd{font:.72rem/1 var(--mono);color:var(--g2);background:var(--bg2);padding:.4rem .75rem;border-radius:3px;display:inline-block}
+body.clean-theme .feat-card{background:#fff;border-color:#e5e7eb}
+body.clean-theme .feat-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+body.clean-theme .feat-card-title{color:#2563eb}
+body.clean-theme .feat-card-body{color:#374151}
+body.clean-theme .feat-card-cmd{color:#1d4ed8;background:#f3f4f6}
+
+/* Collapsible "more" */
+.more-toggle{font:.72rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--t3);background:none;border:1px solid var(--bdr);padding:.5rem 1.25rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:color .2s,border-color .2s;border-radius:3px;margin-bottom:1.5rem}
+.more-toggle:hover{color:var(--t1);border-color:var(--bdr2)}
+.more-toggle .chevron{transition:transform .2s}
+.more-toggle.open .chevron{transform:rotate(180deg)}
+.more-grid{display:none}
+.more-grid.open{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+@media(max-width:700px){.more-grid.open{grid-template-columns:1fr}}
+body.clean-theme .more-toggle{border-color:#e5e7eb;color:#9ca3af}
+body.clean-theme .more-toggle:hover{color:#374151;border-color:#d1d5db}
+
 /* Gap section */
 body.clean-theme .gap-alert { background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.2) }
 body.clean-theme .gap-alert-text { color:#374151 }
@@ -983,6 +1071,25 @@ body.clean-theme .bento { background:rgba(37,99,235,.03) }
 /* Sticky bar text */
 body.clean-theme .sl { color:#374151 }
 body.clean-theme .sdism { color:#9ca3af }
+
+/* ── TYPOGRAPHY: sans-serif body in light mode ── */
+body.clean-theme p,
+body.clean-theme .bc-body,
+body.clean-theme .step3-body,
+body.clean-theme .sdesc,
+body.clean-theme .jour-body,
+body.clean-theme .anode-sub,
+body.clean-theme .prod-body,
+body.clean-theme .pfull-insight,
+body.clean-theme .ddesc,
+body.clean-theme .edesc,
+body.clean-theme .how-step-body,
+body.clean-theme .astep-body {
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif!important;
+  font-size:.88rem;
+  line-height:1.75;
+  letter-spacing:0;
+}
 
 /* Section hardcoded dark backgrounds → light */
 body.clean-theme #hero { background:#fff!important }
@@ -1380,22 +1487,61 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
     </div>
   </div>
 
-  <!-- TECH HERO -->
-  <div class="to rv">
-    <h2 class="h1t" id="hero-h-t">The Credit Score<br>for <strong>AI Agents.</strong></h2>
-    <p class="subt">Execution-verified trust scoring from cryptographic evidence chains.<br>Not self-reported claims. Not documentation. Proof from behavior.</p>
-    <div class="ctas">
-      <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="bp" target="_blank" rel="noopener">npm i -g agent-maturity-compass</a>
-      <a href="playground.html" class="bg">Try Playground →</a>
-      <a href="demo.html" class="bg" style="border-color:rgba(0,255,65,.3)">Watch Demo →</a>
-      <a href="#how" class="bg" style="border-color:rgba(0,255,65,.3)">Architecture →</a>
+  <!-- TECH HERO — Split layout with score card visual -->
+  <div class="to rv hero-split">
+    <div class="hero-split-text">
+      <h2 class="h1t" id="hero-h-t">The Credit Score<br>for <strong>AI Agents.</strong></h2>
+      <p class="subt">Execution-verified trust scoring from cryptographic evidence chains.<br>Not self-reported claims. Not documentation. Proof from behavior.</p>
+      <div class="ctas">
+        <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="bp" target="_blank" rel="noopener">npm i -g agent-maturity-compass</a>
+        <a href="playground.html" class="bg">Try Playground →</a>
+        <a href="demo.html" class="bg" style="border-color:rgba(0,255,65,.3)">Watch Demo →</a>
+        <a href="#how" class="bg" style="border-color:rgba(0,255,65,.3)">Architecture →</a>
+      </div>
+      <div class="hstats">
+        <div class="hstat"><span class="hnum" data-target="2723">0</span><span class="hlabel">Tests Passing</span></div>
+        <div class="hstat"><span class="hnum" data-target="140">0</span><span class="hlabel">Diagnostic Questions</span></div>
+        <div class="hstat"><span class="hnum" data-target="75">0</span><span class="hlabel">Scoring Modules</span></div>
+        <div class="hstat"><span class="hnum" data-target="85">0</span><span class="hlabel">Assurance Packs</span></div>
+        <div class="hstat"><span class="hnum" data-target="482" data-suffix="+">0+</span><span class="hlabel">CLI Commands</span></div>
+      </div>
     </div>
-    <div class="hstats">
-      <div class="hstat"><span class="hnum" data-target="2723">0</span><span class="hlabel">Tests Passing</span></div>
-      <div class="hstat"><span class="hnum" data-target="140">0</span><span class="hlabel">Diagnostic Questions</span></div>
-      <div class="hstat"><span class="hnum" data-target="75">0</span><span class="hlabel">Scoring Modules</span></div>
-      <div class="hstat"><span class="hnum" data-target="85">0</span><span class="hlabel">Assurance Packs</span></div>
-      <div class="hstat"><span class="hnum" data-target="482" data-suffix="+">0+</span><span class="hlabel">CLI Commands</span></div>
+    <!-- SCORE CARD VISUAL -->
+    <div class="hero-split-visual" aria-hidden="true">
+      <div class="score-card">
+        <div class="score-card-header">🧭 AMC Score — my-sales-agent</div>
+        <div class="score-card-level">L3</div>
+        <div class="score-card-name">Defined</div>
+        <div class="score-card-bar"><div class="score-card-bar-fill" style="width:70%"></div></div>
+        <div class="score-card-dims">
+          <div class="score-card-dim">
+            <span class="score-card-dim-label">↑ Integrity</span>
+            <div class="score-card-dim-bar"><div class="score-card-dim-fill" style="width:82%"></div></div>
+            <span class="score-card-dim-val">4.1</span>
+          </div>
+          <div class="score-card-dim">
+            <span class="score-card-dim-label">↑ Autonomy</span>
+            <div class="score-card-dim-bar"><div class="score-card-dim-fill" style="width:76%"></div></div>
+            <span class="score-card-dim-val">3.8</span>
+          </div>
+          <div class="score-card-dim">
+            <span class="score-card-dim-label">↑ Resilience</span>
+            <div class="score-card-dim-bar"><div class="score-card-dim-fill" style="width:68%"></div></div>
+            <span class="score-card-dim-val">3.4</span>
+          </div>
+          <div class="score-card-dim">
+            <span class="score-card-dim-label">↑ Leadership</span>
+            <div class="score-card-dim-bar"><div class="score-card-dim-fill" style="width:70%"></div></div>
+            <span class="score-card-dim-val">3.5</span>
+          </div>
+          <div class="score-card-dim">
+            <span class="score-card-dim-label">△ Alignment</span>
+            <div class="score-card-dim-bar"><div class="score-card-dim-fill" style="width:46%"></div></div>
+            <span class="score-card-dim-val">2.3</span>
+          </div>
+        </div>
+        <div class="score-card-hash">Ed25519: 9c4e…a7f8 · verified 2s ago</div>
+      </div>
     </div>
   </div>
 
@@ -1473,20 +1619,43 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   </div>
 
   <!-- PRODUCT SURFACE GRID -->
-  <div class="prod-grid">
-    <div class="prod-card feat rv"><span class="prod-icon">🖥️</span><div class="prod-title">AMC Studio</div><p class="prod-body">Local control plane with dashboard, API, and real-time monitoring. One command to start everything.</p><span class="prod-cmd">amc up</span></div>
-    <div class="prod-card feat rv d1"><span class="prod-icon">🛡️</span><div class="prod-title">Gateway Proxy</div><p class="prod-body">Transparent MITM proxy that captures every API call with Ed25519 signatures. Your agent doesn't know it's being watched.</p><span class="prod-cmd">amc gateway start</span></div>
-    <div class="prod-card feat rv d2"><span class="prod-icon">🔐</span><div class="prod-title">Encrypted Vault</div><p class="prod-body">Hardware-backed key storage. Ed25519 keypairs, signing keys, and secrets — encrypted at rest, rotatable.</p><span class="prod-cmd">amc vault init</span></div>
+  <!-- Featured 3 modules -->
+  <div class="feat3">
+    <div class="feat-card rv">
+      <div class="feat-card-icon">🖥️</div>
+      <div class="feat-card-title">AMC Studio</div>
+      <p class="feat-card-body">Local control plane with real-time dashboard, API monitoring, and fleet management. One command spins up everything.</p>
+      <span class="feat-card-cmd">amc up</span>
+    </div>
+    <div class="feat-card rv d1">
+      <div class="feat-card-icon">🛡️</div>
+      <div class="feat-card-title">Gateway Proxy</div>
+      <p class="feat-card-body">Transparent MITM proxy that captures every LLM API call with Ed25519 signatures. Your agent doesn't know it's being watched.</p>
+      <span class="feat-card-cmd">amc gateway start</span>
+    </div>
+    <div class="feat-card rv d2">
+      <div class="feat-card-icon">🧭</div>
+      <div class="feat-card-title">Agent Guide</div>
+      <p class="feat-card-body">Personalized guardrails auto-generated from your score. One command applies them to AGENTS.md, CLAUDE.md, .cursorrules — 15 targets.</p>
+      <span class="feat-card-cmd">amc guide --go</span>
+    </div>
+  </div>
+
+  <!-- Collapsible remaining modules -->
+  <button class="more-toggle" onclick="toggleMore()" id="more-btn" aria-expanded="false">
+    <span class="chevron">▼</span> <span id="more-btn-text">And 10 more modules</span>
+  </button>
+  <div class="more-grid" id="more-grid">
+    <div class="prod-card rv"><span class="prod-icon">🔐</span><div class="prod-title">Encrypted Vault</div><p class="prod-body">Hardware-backed key storage. Ed25519 keypairs, signing keys, and secrets — encrypted at rest, rotatable.</p><span class="prod-cmd">amc vault init</span></div>
     <div class="prod-card rv"><span class="prod-icon">⚖️</span><div class="prod-title">Governor &amp; Policy</div><p class="prod-body">Real-time policy enforcement. Signed autonomy policies, dual-control approvals, risk-based policy packs by archetype.</p><span class="prod-cmd">amc governor check</span></div>
-    <div class="prod-card rv d1"><span class="prod-icon">🔬</span><div class="prod-title">Assurance Lab</div><p class="prod-body">85 assurance packs. Scheduled or on-demand. Assurance certificates, temporary waivers, and full run history.</p><span class="prod-cmd">amc assurance run</span></div>
-    <div class="prod-card rv d2"><span class="prod-icon">🚢</span><div class="prod-title">Fleet Management</div><p class="prod-body">Multi-agent orchestration. Trust composition, delegation graphs, cross-agent receipt chains, handoff packets.</p><span class="prod-cmd">amc fleet report</span></div>
+    <div class="prod-card rv"><span class="prod-icon">🔬</span><div class="prod-title">Assurance Lab</div><p class="prod-body">85 assurance packs. Scheduled or on-demand. Assurance certificates, temporary waivers, and full run history.</p><span class="prod-cmd">amc assurance run</span></div>
+    <div class="prod-card rv"><span class="prod-icon">🚢</span><div class="prod-title">Fleet Management</div><p class="prod-body">Multi-agent orchestration. Trust composition, delegation graphs, cross-agent receipt chains, handoff packets.</p><span class="prod-cmd">amc fleet report</span></div>
     <div class="prod-card rv"><span class="prod-icon">🔧</span><div class="prod-title">Mechanic Workbench</div><p class="prod-body">Guided improvement. Gap analysis, upgrade plans, equalizer targets, one-click profiles, simulation before execution.</p><span class="prod-cmd">amc mechanic gap</span></div>
-    <div class="prod-card rv d1"><span class="prod-icon">🧭</span><div class="prod-title">Agent Guide</div><p class="prod-body">Personalized guardrails from your score. Auto-applies to AGENTS.md, .cursorrules, CLAUDE.md — 15 targets. One command: <code>amc guide --go</code></p><span class="prod-cmd">amc guide --go</span></div>
-    <div class="prod-card rv d2"><span class="prod-icon">🪪</span><div class="prod-title">Agent Passport</div><p class="prod-body">Portable trust credential. Cryptographically signed, verifiable offline, shareable across organizations.</p><span class="prod-cmd">amc passport create</span></div>
-    <div class="prod-card rv d2"><span class="prod-icon">📋</span><div class="prod-title">Audit Binder</div><p class="prod-body">Compliance-ready evidence packages. EU AI Act mapping, controlled export, auditor evidence requests, PDF generation.</p><span class="prod-cmd">amc audit binder create</span></div>
+    <div class="prod-card rv"><span class="prod-icon">🪪</span><div class="prod-title">Agent Passport</div><p class="prod-body">Portable trust credential. Cryptographically signed, verifiable offline, shareable across organizations.</p><span class="prod-cmd">amc passport create</span></div>
+    <div class="prod-card rv"><span class="prod-icon">📋</span><div class="prod-title">Audit Binder</div><p class="prod-body">Compliance-ready evidence packages. EU AI Act mapping, controlled export, auditor evidence requests, PDF generation.</p><span class="prod-cmd">amc audit binder create</span></div>
     <div class="prod-card rv"><span class="prod-icon">🔮</span><div class="prod-title">Forecasting</div><p class="prod-body">Evidence-gated maturity forecasting. Predict when you'll reach L3/L4. Scheduled refresh with advisories.</p><span class="prod-cmd">amc forecast refresh</span></div>
-    <div class="prod-card rv d1"><span class="prod-icon">🏗️</span><div class="prod-title">CI/CD Gates</div><p class="prod-body">Release gates that block deploys below your maturity threshold. Portable evidence bundles for pipeline integration.</p><span class="prod-cmd">amc gate --policy</span></div>
-    <div class="prod-card rv d2"><span class="prod-icon">🏢</span><div class="prod-title">Org Graph</div><p class="prod-body">Map agents to teams and functions. Comparative scorecards, org-level education tracking, community governance scoring.</p><span class="prod-cmd">amc org report</span></div>
+    <div class="prod-card rv"><span class="prod-icon">🏗️</span><div class="prod-title">CI/CD Gates</div><p class="prod-body">Release gates that block deploys below your maturity threshold. Portable evidence bundles for pipeline integration.</p><span class="prod-cmd">amc gate --policy</span></div>
+    <div class="prod-card rv"><span class="prod-icon">🏢</span><div class="prod-title">Org Graph</div><p class="prod-body">Map agents to teams and functions. Comparative scorecards, org-level education tracking, community governance scoring.</p><span class="prod-cmd">amc org report</span></div>
   </div>
 
   <!-- CAPABILITY NUMBERS -->
@@ -1710,6 +1879,34 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   <h2 class="how-h2" id="how-h">One line. Every receipt.</h2>
   <p class="how-lead">Point AMC at your agent. It observes everything from a trusted position, signs every event, and produces a score you can verify offline — without trusting the operator.</p>
 
+  <!-- ANIMATED PIPELINE DIAGRAM -->
+  <div class="pipeline rv" aria-label="Data flow diagram" role="img">
+    <div class="pipe-node">
+      <div class="pipe-node-icon">🤖</div>
+      <div class="pipe-node-label">Your<br>Agent</div>
+    </div>
+    <div class="pipe-arrow" aria-hidden="true"></div>
+    <div class="pipe-node">
+      <div class="pipe-node-icon active">🛡️</div>
+      <div class="pipe-node-label">AMC<br>Gateway</div>
+    </div>
+    <div class="pipe-arrow" aria-hidden="true"></div>
+    <div class="pipe-node">
+      <div class="pipe-node-icon">🧠</div>
+      <div class="pipe-node-label">LLM<br>Provider</div>
+    </div>
+    <div class="pipe-arrow" aria-hidden="true"></div>
+    <div class="pipe-node">
+      <div class="pipe-node-icon active">⚙️</div>
+      <div class="pipe-node-label">Scoring<br>Engine</div>
+    </div>
+    <div class="pipe-arrow" aria-hidden="true"></div>
+    <div class="pipe-node">
+      <div class="pipe-node-icon">🧭</div>
+      <div class="pipe-node-label">L0–L5<br>Score</div>
+    </div>
+  </div>
+
   <!-- SIMPLE STEPS -->
   <div class="so">
     <div class="steps3">
@@ -1787,134 +1984,79 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 <section id="improve" aria-label="Getting Better — Agent Improvement">
 <div class="w">
 
-  <!-- SIMPLE -->
-  <div class="so">
-    <div class="slabel"><span class="slabel-num">05</span><em>Getting Better</em></div>
-    <h2 class="how-h2" id="improve-h">AMC doesn't just score.<br>It shows you <strong>how to improve.</strong></h2>
-    <p class="how-lead">One command generates personalized guardrails and applies them directly to your agent's config. Your agent reads the rules and improves itself. Then AMC re-scores from execution evidence to verify it actually worked.</p>
+  <div class="slabel"><span class="slabel-num">05</span><em>Getting Better</em></div>
+  <h2 class="how-h2" id="improve-h">AMC doesn't just score.<br>It shows you <strong>how to improve.</strong></h2>
+  <p class="how-lead">One command generates guardrails and applies them to your agent's config. Your agent reads the rules and improves. AMC re-scores from execution evidence to verify it worked.</p>
 
-    <!-- The Guide System -->
-    <div style="margin-top:2rem;padding:1.5rem;background:var(--g4);border:1px solid rgba(0,255,65,.2);border-radius:3px">
-      <div style="font:700 1.1rem/1.3 var(--mono);color:var(--g);margin-bottom:.75rem">🧭 amc guide --go</div>
-      <p style="font:400 .9rem/1.6 var(--sans);color:var(--t1);margin:0 0 1rem">One command. Auto-detects your framework. Generates guardrails. Applies them to your agent's config file. Done.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem">
-        <div style="padding:.75rem;background:rgba(0,0,0,.3);border-radius:3px;font:.8rem/1.5 var(--sans);color:var(--t2)"><strong style="color:var(--g)">10 frameworks</strong><br>LangChain, CrewAI, AutoGen, OpenAI, LlamaIndex, Semantic Kernel, Claude Code, Gemini, Cursor, Kiro</div>
-        <div style="padding:.75rem;background:rgba(0,0,0,.3);border-radius:3px;font:.8rem/1.5 var(--sans);color:var(--t2)"><strong style="color:var(--g)">15 config targets</strong><br>AGENTS.md, CLAUDE.md, .cursorrules, .kiro/steering, .gemini/style.md, .devin/guidelines.md, and more</div>
-        <div style="padding:.75rem;background:rgba(0,0,0,.3);border-radius:3px;font:.8rem/1.5 var(--sans);color:var(--t2)"><strong style="color:var(--g)">5 compliance frameworks</strong><br>EU AI Act, ISO 42001, NIST AI RMF, SOC 2, ISO 27001 — maps gaps to regulatory obligations</div>
-        <div style="padding:.75rem;background:rgba(0,0,0,.3);border-radius:3px;font:.8rem/1.5 var(--sans);color:var(--t2)"><strong style="color:var(--g)">Severity-tagged</strong><br>🔴 Critical, 🟡 High, 🔵 Medium — so you know what to fix first</div>
-      </div>
+  <!-- IMPROVEMENT TABS -->
+  <div class="tabs-bar" role="tablist" aria-label="Improvement methods">
+    <button class="tab-btn on" role="tab" onclick="showTab('gen')" id="itab-gen" aria-selected="true" aria-controls="ipane-gen">🧭 Generate</button>
+    <button class="tab-btn" role="tab" onclick="showTab('apply')" id="itab-apply" aria-selected="false" aria-controls="ipane-apply">🔧 Apply</button>
+    <button class="tab-btn" role="tab" onclick="showTab('monitor')" id="itab-monitor" aria-selected="false" aria-controls="ipane-monitor">👁 Monitor</button>
+    <button class="tab-btn" role="tab" onclick="showTab('certify')" id="itab-certify" aria-selected="false" aria-controls="ipane-certify">🪪 Certify</button>
+  </div>
+
+  <div class="tab-pane on" id="ipane-gen" role="tabpanel" aria-labelledby="itab-gen">
+    <div>
+      <h3 style="font:700 1.1rem/1.3 var(--mono);color:var(--g);margin-bottom:.75rem">amc guide --go</h3>
+      <p class="how-step-body">One command. Auto-detects your framework from pyproject.toml, package.json, or *.csproj. Generates severity-tagged guardrails and writes them directly to your agent's config file.</p>
+      <p class="how-step-body" style="margin-top:.5rem"><strong style="color:var(--t1)">10 frameworks</strong> — LangChain, CrewAI, AutoGen, OpenAI, LlamaIndex, Semantic Kernel, Claude Code, Gemini, Cursor, Kiro<br><strong style="color:var(--t1)">15 config targets</strong> — AGENTS.md, CLAUDE.md, .cursorrules, .kiro/steering, and more</p>
     </div>
-
-    <!-- Auto-Fix -->
-    <div style="margin-top:1.25rem;padding:1.25rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:3px">
-      <div style="font:700 1rem/1.3 var(--mono);color:var(--g);margin-bottom:.5rem">🔧 amc fix — Auto-Remediation</div>
-      <p style="font:400 .85rem/1.5 var(--sans);color:var(--t1);margin:0">Don't just see gaps — fix them. <code style="color:var(--g)">amc fix</code> generates guardrails configs, governance files, and CI gate workflows. Review, apply, re-score.</p>
-    </div>
-
-    <!-- Level progression -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin-top:1.5rem">
-      <div class="step3 rv" data-n="L1→L2" style="border-top:2px solid var(--a)">
-        <div class="step3-title" style="color:var(--a)">Turn on the lights</div>
-        <p class="step3-body">Most agents jump a full level just by enabling logging and evidence collection. One command.</p>
-        <span class="step3-code">amc evidence collect</span>
-      </div>
-      <div class="step3 rv d1" data-n="L2→L3" style="border-top:2px solid var(--g2)">
-        <div class="step3-title" style="color:var(--g2)">Prove it's safe</div>
-        <p class="step3-body">Run the assurance packs — injection attacks, boundary tests, error recovery. Fix what fails. Your agent earns its score.</p>
-        <span class="step3-code">amc assurance run</span>
-      </div>
-      <div class="step3 rv d2" data-n="L3→L4" style="border-top:2px solid var(--g)">
-        <div class="step3-title" style="color:var(--g)">Battle-tested</div>
-        <p class="step3-body">Advanced packs: zombie persistence, over-compliance, economic DoS. 80%+ evidence coverage. This is production-ready.</p>
-        <span class="step3-code">amc assurance run --scope all</span>
-      </div>
-      <div class="step3 rv d3" data-n="L4→L5" style="border-top:2px solid var(--g)">
-        <div class="step3-title" style="color:var(--g)">Self-governing</div>
-        <p class="step3-body">The agent monitors its own trust score, auto-remediates drift, and maintains evidence chains autonomously. The gold standard.</p>
-        <span class="step3-code">amc guide --watch --apply</span>
-      </div>
-    </div>
-
-    <div style="margin-top:1.5rem;padding:1.25rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:3px">
-      <p style="font:500 .95rem/1.6 var(--sans);color:var(--t1);margin:0"><strong style="color:var(--g)">The closed loop:</strong> Score → generate guardrails → apply to agent → agent follows rules → re-score → guardrails auto-update. Your agent literally improves itself by reading AMC's instructions. AMC verifies the improvement from execution evidence — not claims.</p>
+    <div class="cliblock" style="margin-top:0">
+      <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code">copy</button>
+      <span class="co p">$ <span class="co g">amc guide --go</span></span>
+      <span class="co d" style="display:block;margin-top:.25rem">↳ Detected: LangChain (pyproject.toml)</span>
+      <span class="co d" style="display:block">↳ Score gap: 14 issues (3 critical, 6 high)</span>
+      <span class="co d" style="display:block">↳ Writing guardrails to AGENTS.md...</span>
+      <span class="co g" style="display:block">✓ Applied. Re-score to verify: amc quickscore</span>
     </div>
   </div>
 
-  <!-- TECH -->
-  <div class="to">
-    <div class="slabel"><span class="slabel-num">05</span><em>Agent Guide System</em></div>
-    <h2 class="how-h2" id="improve-h-t">Evidence-Gated Guardrails.<br>Applied Directly to Your Agent.</h2>
-    <p class="how-lead"><code style="color:var(--g)">amc guide</code> generates operational guardrails from your score gaps — not suggestions, rules. Auto-detects your framework, applies to your agent's config file, and continuously monitors for drift.</p>
-
-    <!-- Guide modes grid -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1.5rem">
-      <div style="padding:1rem;background:var(--card);border:1px solid var(--bdr);border-radius:3px;border-top:2px solid var(--g)">
-        <div style="font:700 .8rem/1 var(--mono);color:var(--g);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Zero Friction</div>
-        <div style="font:500 .85rem/1.4 var(--mono);color:var(--t0);margin-bottom:.5rem">amc guide --go</div>
-        <p style="font:400 .8rem/1.5 var(--sans);color:var(--t2);margin:0">Auto-detect framework → generate guardrails → apply to config. One command from zero to guardrails-applied agent.</p>
-      </div>
-      <div style="padding:1rem;background:var(--card);border:1px solid var(--bdr);border-radius:3px;border-top:2px solid var(--a)">
-        <div style="font:700 .8rem/1 var(--mono);color:var(--a);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Mechanic Mode</div>
-        <div style="font:500 .85rem/1.4 var(--mono);color:var(--t0);margin-bottom:.5rem">amc guide --interactive</div>
-        <p style="font:400 .8rem/1.5 var(--sans);color:var(--t2);margin:0">Cherry-pick which gaps to fix. Pre-selects highest-impact items. Generates custom guardrails for your selection.</p>
-      </div>
-      <div style="padding:1rem;background:var(--card);border:1px solid var(--bdr);border-radius:3px;border-top:2px solid rgba(99,102,241,.8)">
-        <div style="font:700 .8rem/1 var(--mono);color:rgba(99,102,241,.8);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Continuous Watch</div>
-        <div style="font:500 .85rem/1.4 var(--mono);color:var(--t0);margin-bottom:.5rem">amc guide --watch --apply</div>
-        <p style="font:400 .8rem/1.5 var(--sans);color:var(--t2);margin:0">Background monitoring. Re-scores on interval. Auto-updates guardrails on drift. Graceful SIGINT shutdown.</p>
-      </div>
-      <div style="padding:1rem;background:var(--card);border:1px solid var(--bdr);border-radius:3px;border-top:2px solid var(--r)">
-        <div style="font:700 .8rem/1 var(--mono);color:var(--r);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">CI Gate</div>
-        <div style="font:500 .85rem/1.4 var(--mono);color:var(--t0);margin-bottom:.5rem">amc guide --ci --target 3</div>
-        <p style="font:400 .8rem/1.5 var(--sans);color:var(--t2);margin:0">Exit non-zero if below target level. JSON schema output. Severity-tagged gaps. Block deploys below your trust threshold.</p>
-      </div>
-      <div style="padding:1rem;background:var(--card);border:1px solid var(--bdr);border-radius:3px;border-top:2px solid #f59e0b">
-        <div style="font:700 .8rem/1 var(--mono);color:#f59e0b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Compliance</div>
-        <div style="font:500 .85rem/1.4 var(--mono);color:var(--t0);margin-bottom:.5rem">amc guide --compliance EU_AI_ACT</div>
-        <p style="font:400 .8rem/1.5 var(--sans);color:var(--t2);margin:0">Maps maturity gaps to regulatory obligations. EU AI Act, ISO 42001, NIST AI RMF, SOC 2, ISO 27001. Per-article remediation.</p>
-      </div>
+  <div class="tab-pane" id="ipane-apply" role="tabpanel" aria-labelledby="itab-apply">
+    <div>
+      <h3 style="font:700 1.1rem/1.3 var(--mono);color:var(--g);margin-bottom:.75rem">amc fix</h3>
+      <p class="how-step-body">Auto-remediation. Generates guardrail configs, governance files, and CI gate workflows from your score gaps. Review what it will change, then apply with one command.</p>
+      <p class="how-step-body" style="margin-top:.5rem">Idempotent — uses <code style="color:var(--g);font-family:var(--mono)">&lt;!-- AMC-GUARDRAILS-START/END --&gt;</code> markers. Re-running replaces only the guardrails block, never your other content. Severity-tagged: 🔴 Critical caps your score.</p>
     </div>
-
-    <!-- Framework + config targets -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem">
-      <div style="padding:1rem;background:var(--card);border:1px solid var(--bdr);border-radius:3px">
-        <div style="font:700 .75rem/1 var(--mono);color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">10 Frameworks (auto-detected)</div>
-        <div style="font:400 .8rem/1.6 var(--sans);color:var(--t2)">LangChain · CrewAI · AutoGen/AG2 · OpenAI Agents SDK · LlamaIndex · Semantic Kernel (C#) · Claude Code · Gemini CLI · Cursor · Kiro</div>
-        <div style="font:400 .75rem/1.5 var(--mono);color:var(--t3);margin-top:.5rem">Detects from: pyproject.toml, requirements.txt, package.json, *.csproj, config files</div>
-      </div>
-      <div style="padding:1rem;background:var(--card);border:1px solid var(--bdr);border-radius:3px">
-        <div style="font:700 .75rem/1 var(--mono);color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.75rem">15 Config Targets (idempotent)</div>
-        <div style="font:400 .8rem/1.6 var(--sans);color:var(--t2)">AGENTS.md · CLAUDE.md · .cursorrules · .cursor/rules · .clinerules · .windsurfrules · .kiro/steering · .gemini/style.md · .amazonq/rules · .openhands · .devin · .roo · copilot-instructions.md · CONVENTIONS.md · .aider.conf.yml</div>
-        <div style="font:400 .75rem/1.5 var(--mono);color:var(--t3);margin-top:.5rem">Uses &lt;!-- AMC-GUARDRAILS-START/END --&gt; markers. Re-run replaces only the guardrails section.</div>
-      </div>
+    <div class="cliblock" style="margin-top:0">
+      <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code">copy</button>
+      <span class="co p">$ <span class="co g">amc fix --dry-run</span></span>
+      <span class="co d" style="display:block;margin-top:.25rem">Would patch: AGENTS.md (3 guardrails)</span>
+      <span class="co d" style="display:block">Would create: .github/workflows/amc-gate.yml</span>
+      <span class="co p" style="display:block;margin-top:.25rem">$ <span class="co g">amc fix --apply</span></span>
+      <span class="co g" style="display:block">✓ 3 files patched. Run amc quickscore to verify.</span>
     </div>
+  </div>
 
-    <!-- Evidence-gated level progression -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin-top:1.5rem">
-      <div class="step3 rv" data-n="L1→L2" style="border-top:2px solid var(--a)">
-        <div class="step3-title" style="color:var(--a)">Evidence Collection</div>
-        <p class="step3-body">Enable the trusted gateway proxy. Capture execution logs with Ed25519 signatures. Basic error handling and retry policies. Evidence coverage ≥20%.</p>
-        <span class="step3-code">amc evidence collect --sign</span>
-      </div>
-      <div class="step3 rv d1" data-n="L2→L3" style="border-top:2px solid var(--g2)">
-        <div class="step3-title" style="color:var(--g2)">Core Assurance</div>
-        <p class="step3-body">Pass injection, boundary, and recovery packs. Documented guardrails. EPES provenance tier ≥ T2 (gateway-observed). Evidence coverage ≥50%.</p>
-        <span class="step3-code">amc assurance run --scope security,resilience</span>
-      </div>
-      <div class="step3 rv d2" data-n="L3→L4" style="border-top:2px solid var(--g)">
-        <div class="step3-title" style="color:var(--g)">Advanced Packs + Full Coverage</div>
-        <p class="step3-body">Zombie persistence, over-compliance (H-Neurons), economic DoS, trust-auth sync. Evidence coverage ≥80%. Merkle-sealed run history.</p>
-        <span class="step3-code">amc assurance run --scope all --seal</span>
-      </div>
-      <div class="step3 rv d3" data-n="L4→L5" style="border-top:2px solid var(--g)">
-        <div class="step3-title" style="color:var(--g)">Autonomous Governance</div>
-        <p class="step3-body">Continuous scoring loop with auto-remediation. Drift detection triggers re-assessment. Self-maintaining evidence chains. Full EPES T3 provenance.</p>
-        <span class="step3-code">amc guide --watch --apply --auto-detect</span>
-      </div>
+  <div class="tab-pane" id="ipane-monitor" role="tabpanel" aria-labelledby="itab-monitor">
+    <div>
+      <h3 style="font:700 1.1rem/1.3 var(--mono);color:var(--g);margin-bottom:.75rem">amc guide --watch --apply</h3>
+      <p class="how-step-body">Continuous monitoring loop. Re-scores on your configured interval. When drift is detected — a new gap opens — guardrails auto-update. Graceful SIGINT shutdown with final report.</p>
+      <p class="how-step-body" style="margin-top:.5rem">Use in <strong style="color:var(--t1)">CI/CD</strong> with <code style="color:var(--g);font-family:var(--mono)">amc guide --ci --target 3</code> to block deploys below your trust threshold.</p>
     </div>
+    <div class="cliblock" style="margin-top:0">
+      <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code">copy</button>
+      <span class="co p">$ <span class="co g">amc guide --watch --apply --interval 30m</span></span>
+      <span class="co d" style="display:block;margin-top:.25rem">[09:00] Score: L3.5 — no drift detected</span>
+      <span class="co d" style="display:block">[09:30] Score: L3.2 — drift in Resilience</span>
+      <span class="co a" style="display:block">↳ Auto-applying updated guardrails...</span>
+      <span class="co g" style="display:block">✓ Patched. Score recovering.</span>
+    </div>
+  </div>
 
-    <div style="margin-top:1.5rem;padding:1.25rem;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.15);border-radius:3px">
-      <p style="font:400 .85rem/1.6 var(--mono);color:var(--t2);margin:0"><strong style="color:var(--g)">Guardrails are rules, not suggestions.</strong> Each rule is severity-tagged (🔴 Critical / 🟡 High / 🔵 Medium), includes prohibited behaviors that cap your score, and per-question verification commands (<code style="color:var(--g)">amc explain &lt;id&gt;</code>). Evidence-gated level caps mean you cannot score above what the evidence supports.</p>
+  <div class="tab-pane" id="ipane-certify" role="tabpanel" aria-labelledby="itab-certify">
+    <div>
+      <h3 style="font:700 1.1rem/1.3 var(--mono);color:var(--g);margin-bottom:.75rem">amc certify + amc passport</h3>
+      <p class="how-step-body">Issue an offline-verifiable Agent Passport — a cryptographically signed trust credential. Share it with your customers, auditors, or board. Verify without calling home to any server.</p>
+      <p class="how-step-body" style="margin-top:.5rem">Includes: L0–L5 level, dimension scores, Ed25519 signature, evidence Merkle root, expiry, and the issuing AMC version. Maps to EU AI Act Article 15 logging requirements.</p>
+    </div>
+    <div class="cliblock" style="margin-top:0">
+      <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code">copy</button>
+      <span class="co p">$ <span class="co g">amc certify && amc passport create</span></span>
+      <span class="co d" style="display:block;margin-top:.25rem">Issuing certificate for: my-sales-agent</span>
+      <span class="co d" style="display:block">Level: L3 (Defined) · Score: 3.47/5.0</span>
+      <span class="co d" style="display:block">Ed25519: 9c4e1a2b...a7f8 ✓</span>
+      <span class="co g" style="display:block">✓ passport.json created — share or embed.</span>
     </div>
   </div>
 
@@ -1922,74 +2064,6 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 </section>
 
 <div class="dv"><i aria-hidden="true"></i></div>
-
-<!-- SECTOR PACKS -->
-<section id="sector-packs" aria-labelledby="sector-h">
-<div class="w">
-  <div class="slabel"><span class="slabel-num">06</span><em>Domain Packs</em></div>
-  <h2 id="sector-h" class="plat-h2">Enterprise-Grade Vertical Assessment</h2>
-  <p class="how-lead">AMC ships with <strong>40 industry-specific assessment packs</strong> containing <strong>593 sector-specific diagnostic questions</strong> — precise, sub-vertical diagnostics with specific regulatory article references, risk tiers, and EU AI Act classifications. Built for regulated enterprises and critical infrastructure.</p>
-
-  <div class="steps3" style="margin:2.5rem 0 2rem">
-    <div class="step3 rv" data-n="01">
-      <span class="step3-icon">🌿</span>
-      <div class="step3-title">Environment — 6 packs</div>
-      <p class="step3-body">Farm-to-fork, textiles supply chains, advanced manufacturing, energy grids, water &amp; sanitation. Refs: EU Farm-to-Fork, REACH Reg., IEC 61850, EU Drinking Water Directive.</p>
-      <span class="step3-code">amc domain score --pack farm-to-fork</span>
-    </div>
-    <div class="step3 rv d1" data-n="02">
-      <span class="step3-icon">🏥</span>
-      <div class="step3-title">Health — 9 packs</div>
-      <p class="step3-body">EHR systems, clinical trials, drug discovery, precision medicine, medtech devices. Refs: HIPAA §164.312, FDA 21 CFR Part 11, EU MDR 2017/745, GCP E6(R3).</p>
-      <span class="step3-code">amc domain score --pack clinical-trials</span>
-    </div>
-    <div class="step3 rv d2" data-n="03">
-      <span class="step3-icon">💰</span>
-      <div class="step3-title">Wealth — 5 packs</div>
-      <p class="step3-body">Payments, financial inclusion, DeFi/blockchain, circular economy. Refs: MiFID II, PSD2, EU DORA, MiCA, FATF R1/R10.</p>
-      <span class="step3-code">amc domain score --pack digital-payments</span>
-    </div>
-    <div class="step3 rv d1" data-n="04">
-      <span class="step3-icon">🎓</span>
-      <div class="step3-title">Education — 5 packs</div>
-      <p class="step3-body">K-12, higher education, skills training, accessibility-first EdTech. Refs: FERPA 20 U.S.C. §1232g, COPPA §312, IDEA, EU AI Act Annex III §3.</p>
-      <span class="step3-code">amc domain score --pack k12-pm3</span>
-    </div>
-    <div class="step3 rv d2" data-n="05">
-      <span class="step3-icon">🚇</span>
-      <div class="step3-title">Mobility — 5 packs</div>
-      <p class="step3-body">Smart cities, sustainable ports, real estate, virtual infrastructure, network privacy &amp; cybersecurity. Refs: EU EPBD 2024, UNECE WP.29 R155 §7, ETSI EN 303 645, EU NIS2.</p>
-      <span class="step3-code">amc domain score --pack privacy-security-mobility</span>
-    </div>
-    <div class="step3 rv" data-n="06">
-      <span class="step3-icon">💡</span>
-      <div class="step3-title">Technology — 5 packs</div>
-      <p class="step3-body">AI intelligence, API ecosystems, digital infra orchestration, content platforms, IP partnerships. Refs: EU AI Act Art. 13, EU Data Act 2023, DSA Art. 34, TRIPS Agreement.</p>
-      <span class="step3-code">amc domain score --pack cognition-to-intelligence</span>
-    </div>
-  </div>
-
-  <div class="step3 rv" style="margin-bottom:2rem" data-n="07">
-    <span class="step3-icon">🏛️</span>
-    <div class="step3-title">Governance — 5 packs</div>
-    <p class="step3-body">Digital identity, electoral integrity, legislative AI, citizen services, public-private partnerships. Refs: EU eIDAS 2.0, EU AI Act Art. 5(1)(a) (PROHIBITED), UNCAC Art. 7/9, UNGPs, Council of Europe AI Convention 2024.</p>
-    <span class="step3-code">amc domain score --pack digital-citizens-rights</span>
-  </div>
-
-  <div class="bento" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:2rem 0">
-    <div class="bc rv"><span class="bc-title">40 Packs</span><p class="bc-body">Across 7 industry stations</p></div>
-    <div class="bc rv d1"><span class="bc-title">593 Questions</span><p class="bc-body">With specific regulatory article refs</p></div>
-    <div class="bc rv d2"><span class="bc-title">4 Risk Tiers</span><p class="bc-body">elevated / high / very-high / critical</p></div>
-    <div class="bc rv d1"><span class="bc-title">EU AI Act Mapped</span><p class="bc-body">Exact Annex III classification per pack</p></div>
-    <div class="bc rv d2"><span class="bc-title">SDG Aligned</span><p class="bc-body">UN Sustainable Development Goals per pack</p></div>
-    <div class="bc rv"><span class="bc-title">L1→L5 Maturity</span><p class="bc-body">Industry-specific descriptors per question</p></div>
-  </div>
-
-  <p style="text-align:center;margin-top:2rem">
-    <a class="bp" href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/SECTOR_PACKS.md" target="_blank" rel="noopener" style="display:inline-block;padding:.75rem 2rem;background:var(--g);color:#000;font:700 .8rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border-radius:3px">Read Domain Packs Docs →</a>
-  </p>
-</div>
-</section>
 
 <div class="dv"><i aria-hidden="true"></i></div>
 
@@ -2168,21 +2242,6 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 </section>
 
 <div class="dv"><i aria-hidden="true"></i></div>
-
-<!-- RESEARCH — compact summary -->
-<section id="research" style="padding:clamp(48px,5vw,64px) 0">
-<div class="w" style="text-align:center">
-  <h2 style="font:700 1.3rem/1.3 var(--mono);color:var(--t0);margin-bottom:.5rem">Built on 20+ Peer-Reviewed arXiv Papers</h2>
-  <p style="color:var(--t2);font:.85rem/1.6 var(--sans);max-width:600px;margin:0 auto 1.5rem">Zombie agents, economic DoS, MCP attacks, over-compliance, trust-auth mismatch — every assurance pack maps to published research.</p>
-  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
-    <span style="font:.75rem var(--mono);color:var(--t3);padding:.4rem .8rem;border:1px solid var(--bdr);border-radius:3px">arXiv 2602.15654 · Zombie Agents</span>
-    <span style="font:.75rem var(--mono);color:var(--t3);padding:.4rem .8rem;border:1px solid var(--bdr);border-radius:3px">arXiv 2512.01797 · H-Neurons</span>
-    <span style="font:.75rem var(--mono);color:var(--t3);padding:.4rem .8rem;border:1px solid var(--bdr);border-radius:3px">arXiv 2601.10955 · Economic DoS</span>
-    <span style="font:.75rem var(--mono);color:var(--t3);padding:.4rem .8rem;border:1px solid var(--bdr);border-radius:3px">arXiv 2510.15994 · MCP Security</span>
-  </div>
-  <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/RESEARCH_PAPERS_2026.md" class="bg" target="_blank" rel="noopener">View All Research References →</a>
-</div>
-</section>
 
 <div class="dv"><i aria-hidden="true"></i></div>
 
@@ -2490,6 +2549,28 @@ window.addEventListener('resize', () => {
 })();
 
 /* ── OS TABS ─────────────────────────────────────── */
+function showTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(t => {
+    t.classList.remove('on');
+    t.setAttribute('aria-selected', 'false');
+  });
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
+  const btn = document.getElementById('itab-' + id);
+  if(btn) { btn.classList.add('on'); btn.setAttribute('aria-selected', 'true'); }
+  const pane = document.getElementById('ipane-' + id);
+  if(pane) pane.classList.add('on');
+}
+
+function toggleMore() {
+  const grid = document.getElementById('more-grid');
+  const btn = document.getElementById('more-btn');
+  const txt = document.getElementById('more-btn-text');
+  const open = grid.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+  txt.textContent = open ? 'Show fewer modules' : 'And 10 more modules';
+}
+
 function showOS(id) {
   document.querySelectorAll('.os-tab').forEach(t => {
     t.classList.remove('on');
