@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Page Not Found | Agent Maturity Compass</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#020802;color:#e0ffe0;font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+h1{font-size:4rem;color:#00ff41;margin-bottom:.5rem;text-shadow:0 0 20px rgba(0,255,65,.3)}
+.code{font-size:1.2rem;color:#88aa88;margin-bottom:2rem}
+.msg{font-size:.9rem;color:#88aa88;max-width:500px;line-height:1.6;margin-bottom:2.5rem}
+.msg strong{color:#00ff41}
+.links{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+.links a{color:#000;background:#00ff41;text-decoration:none;padding:.6rem 1.5rem;border-radius:3px;font:700 .8rem 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em;transition:opacity .2s}
+.links a:hover{opacity:.85}
+.links a.outline{background:transparent;color:#00ff41;border:1px solid #00ff41}
+.links a.outline:hover{background:rgba(0,255,65,.1)}
+.compass{font-size:3rem;margin-bottom:1rem;animation:spin 4s linear infinite}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="compass">🧭</div>
+<h1>404</h1>
+<p class="code">PAGE_NOT_FOUND</p>
+<p class="msg">This page scored <strong>L0 on existence</strong>. Even our most generous rubric can't verify something that isn't here.</p>
+<div class="links">
+  <a href="/AgentMaturityCompass/">← Back to Home</a>
+  <a href="/AgentMaturityCompass/playground.html" class="outline">Try the Playground</a>
+</div>
+</body>
+</html>

@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMC Playground — Score Your AI Agent</title>
+<link rel="manifest" href="manifest.json">
+<script defer data-domain="thewisecrab.github.io" src="https://plausible.io/js/script.js"></script>
 <style>
   :root { --bg: #020802; --g: #00ff41; --t1: #e0ffe0; --t2: #88aa88; --mono: 'JetBrains Mono', monospace; --bdr: rgba(0,255,65,.12); --t0: #1a1a1a; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,6 +25,7 @@
   .levels { display: flex; gap: .5rem; flex-wrap: wrap; }
   .level-btn { background: transparent; border: 1px solid var(--bdr); color: var(--t2); padding: .3rem .6rem; border-radius: 3px; font: .7rem var(--mono); cursor: pointer; transition: all .2s; }
   .level-btn:hover { border-color: var(--g); color: var(--t1); }
+  .level-btn:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
   .level-btn.active { background: var(--g); color: #000; border-color: var(--g); font-weight: 700; }
   .score-panel { position: sticky; top: 1rem; background: rgba(0,20,0,.95); border: 1px solid var(--g); border-radius: 6px; padding: 1.5rem; margin-bottom: 2rem; }
   .score-big { font-size: 3rem; color: var(--g); font-weight: 700; text-align: center; }
@@ -209,9 +212,9 @@ function render() {
     html += `<div class="question">
       <div class="q-text"><span class="q-id">${q.id}</span> ${q.text}</div>
       ${q.eli5 ? `<div class="q-eli5">${q.eli5}</div>` : ''}
-      <div class="levels">
+      <div class="levels" role="radiogroup" aria-label="${q.id}: ${q.text.replace(/"/g, '&quot;')}">
         ${q.levels.map((l, li) => `<button class="level-btn ${responses[q.id] === li+1 ? 'active' : ''}" 
-          onclick="setLevel('${q.id}', ${li+1}, this)" title="L${li+1}: ${l}" aria-label="Level ${li+1}: ${l}">L${li+1}</button>`).join('')}
+          onclick="setLevel('${q.id}', ${li+1}, this)" title="L${li+1}: ${l}" aria-label="Level ${li+1} - ${l}" tabindex="0" role="radio" aria-checked="${responses[q.id] === li+1}">L${li+1}</button>`).join('')}
       </div>
     </div>`;
   });
@@ -225,8 +228,9 @@ function setLevel(qId, level, btn) {
   responses[qId] = level;
   
   // Update buttons
-  btn.parentElement.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  btn.parentElement.querySelectorAll('.level-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
   btn.classList.add('active');
+  btn.setAttribute('aria-checked', 'true');
   
   updateScore();
 }
@@ -331,6 +335,27 @@ render();
 /* ── i18n integration ─────────────────────────── */
 AMC_I18N.createSwitcher(document.getElementById('langSwitcherPlayground'));
 window.addEventListener('amc-lang-change', () => render());
+
+/* ── KEYBOARD NAVIGATION for level buttons ──── */
+document.getElementById('questions').addEventListener('keydown', function(e) {
+  const btn = e.target;
+  if (!btn.classList.contains('level-btn')) return;
+  const group = btn.parentElement;
+  const btns = Array.from(group.querySelectorAll('.level-btn'));
+  const idx = btns.indexOf(btn);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    const next = btns[(idx + 1) % btns.length];
+    next.focus();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const prev = btns[(idx - 1 + btns.length) % btns.length];
+    prev.focus();
+  } else if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    btn.click();
+  }
+});
 
 /* ── THEME TOGGLE ─────────────────────────────── */
 function toggleTheme() {
