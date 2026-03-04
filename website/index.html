@@ -170,8 +170,8 @@ section:first-of-type::before{display:none}
 h1,h2,h3,h4{font-family:var(--mono);line-height:1.12}
 
 /* REVEAL */
-.rv{opacity:0;transform:translateY(22px);
-  transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1)}
+.rv{opacity:0;transform:translateY(16px);
+  transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1)}
 .rv.in{opacity:1;transform:none}
 .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}
 
@@ -735,9 +735,9 @@ body.clean-theme .level-btn { background:#f3f4f6;color:#374151;border-color:#e5e
 body.clean-theme .level-btn.active { background:#2563eb;color:#fff;border-color:#2563eb }
 body.clean-theme .hero-tag::before { background:#2563eb }
 body.clean-theme ::selection { background:rgba(37,99,235,.15);color:#2563eb }
-body.clean-theme .sbar.g { background:linear-gradient(90deg,#1d4ed8,#2563eb) }
+body.clean-theme .sbar.g { background:linear-gradient(90deg,#1d4ed8,#2563eb);box-shadow:0 0 10px rgba(37,99,235,.3) }
 body.clean-theme .gauge-fill-r { stroke:#dc2626 }
-body.clean-theme #scroll-prog { background:#2563eb }
+body.clean-theme #scroll-prog { background:#2563eb;box-shadow:0 0 8px rgba(37,99,235,.4) }
 body.clean-theme .prod-card { background:#fff;border-color:#e5e7eb;color:#374151 }
 body.clean-theme .prod-card.feat { border-left-color:#2563eb }
 body.clean-theme .prod-card h3 { color:#111827 }
@@ -770,7 +770,7 @@ body.clean-theme .menu-btn span,body.clean-theme .menu-btn span::before,body.cle
 body.clean-theme section { border-color:#e5e7eb }
 body.clean-theme section:nth-child(even) { background:#f8f9fb }
 body.clean-theme .dv { border-color:#e5e7eb }
-body.clean-theme .dv i { background:#e5e7eb }
+body.clean-theme .dv i { background:#e5e7eb;box-shadow:none }
 body.clean-theme .w { color:#374151 }
 
 /* ALL headings */
@@ -783,6 +783,9 @@ body.clean-theme strong { color:#111827 }
 body.clean-theme em { color:#6b7280 }
 
 /* Section labels (01, 02, etc.) */
+body.clean-theme .biz-card { background:#f0f4ff!important;border-color:rgba(37,99,235,.15)!important }
+body.clean-theme .biz-card-title { color:#2563eb!important }
+body.clean-theme .biz-link { color:#2563eb!important }
 body.clean-theme .slabel { color:#9ca3af }
 body.clean-theme .slabel::after { background:#2563eb }
 body.clean-theme .slabel-num { color:#2563eb }
@@ -848,6 +851,8 @@ body.clean-theme .score-card-hash{border-color:#e5e7eb}
 .hero-split-text{flex:1 1 55%;min-width:0}
 .hero-split-visual{flex:0 0 320px;display:flex;justify-content:flex-end;animation:heroCardIn .8s ease forwards;opacity:0}
 @keyframes heroCardIn{from{opacity:0;transform:translateY(16px) rotate(1deg)}to{opacity:1;transform:translateY(0) rotate(0deg)}}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+#hero .w{animation:pageIn .6s ease both}
 @media(max-width:900px){.hero-split{flex-direction:column;min-height:auto}.hero-split-visual{display:none}}
 
 /* ── TABS (Improve section) ── */
@@ -959,7 +964,7 @@ body.clean-theme .ditem { background:#fff;border-color:#e5e7eb }
 body.clean-theme .dname { color:#111827 }
 body.clean-theme .ddesc { color:#6b7280 }
 body.clean-theme .dcount { color:#2563eb }
-body.clean-theme .ddot { background:#2563eb }
+body.clean-theme .ddot { background:#2563eb;box-shadow:0 0 6px rgba(37,99,235,.3) }
 body.clean-theme .cap-strip { background:#f9fafb;border-color:#e5e7eb }
 body.clean-theme .cap-item { color:#374151 }
 body.clean-theme .cap-num { color:#2563eb }
@@ -1002,7 +1007,9 @@ body.clean-theme .co.g { color:#4ade80 }
 body.clean-theme .co.a { color:#fbbf24 }
 body.clean-theme .co.d { color:#94a3b8 }
 body.clean-theme .co.b { color:#60a5fa }
-body.clean-theme .copy-btn { color:#94a3b8;border-color:#475569 }
+body.clean-theme .copy-btn { color:#94a3b8;border-color:#475569;background:rgba(37,99,235,.08)!important }
+body.clean-theme .copy-btn:hover { color:#2563eb;border-color:#64748b }
+body.clean-theme .copy-btn.copied { color:#2563eb;border-color:#2563eb }
 
 /* EU AI Act section */
 body.clean-theme .eubox { background:#fff;border-color:#e5e7eb }
@@ -1011,6 +1018,7 @@ body.clean-theme .eubar-track { background:#f3f4f6 }
 body.clean-theme .eubar-name { color:#374151 }
 body.clean-theme .eubar-status { font-weight:600 }
 body.clean-theme .eubar-status.fail { color:#dc2626 }
+body.clean-theme .eubar-fill.g { background:#2563eb;box-shadow:0 0 8px rgba(37,99,235,.3) }
 body.clean-theme .eubar-status.g { color:#059669 }
 body.clean-theme .eucode { background:#1e293b;color:#e2e8f0;border-color:#334155 }
 body.clean-theme .eucode-label { color:#94a3b8 }
@@ -1044,7 +1052,7 @@ body.clean-theme #sticky strong { color:#2563eb }
 body.clean-theme #sticky a { color:#2563eb }
 
 /* Inline style overrides for elements using rgba(0,255,65,...) */
-body.clean-theme [style*="rgba(0,255,65"] { border-color:rgba(37,99,235,.2)!important }
+body.clean-theme [style*="rgba(0,255,65"] { border-color:rgba(37,99,235,.2)!important;background-color:rgba(37,99,235,.04)!important }
 body.clean-theme [style*="color:var(--g)"] { color:#2563eb!important }
 body.clean-theme [style*="border-color:var(--g)"] { border-color:#2563eb!important }
 body.clean-theme [style*="background:var(--g)"] { background:#2563eb!important }
@@ -1589,17 +1597,17 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 <!-- FOR BUSINESS (Simple mode only) -->
 <div class="so rv" style="max-width:var(--max);margin:0 auto 2rem;padding:0 1.5rem">
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem">
-    <div style="padding:1.5rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:6px">
-      <div style="font:700 1rem/1.3 var(--sans);color:var(--g);margin-bottom:.5rem">👔 For Business Leaders</div>
-      <p style="font:.85rem/1.6 var(--sans);color:var(--t1);margin:0">Your company uses AI. Your board asks "is it safe?" AMC gives you a number — L0 (dangerous) to L5 (trustworthy) — backed by proof, not promises. <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/EXECUTIVE_OVERVIEW.md" target="_blank" rel="noopener" style="color:var(--g)">Read the Executive Overview →</a></p>
+    <div class="biz-card" style="padding:1.5rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:6px">
+      <div class="biz-card-title" style="font:700 1rem/1.3 var(--sans);color:var(--g);margin-bottom:.5rem">👔 For Business Leaders</div>
+      <p style="font:.85rem/1.6 var(--sans);color:var(--t1);margin:0">Your company uses AI. Your board asks "is it safe?" AMC gives you a number — L0 (dangerous) to L5 (trustworthy) — backed by proof, not promises. <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/EXECUTIVE_OVERVIEW.md" target="_blank" rel="noopener" class="biz-link" style="color:var(--g)">Read the Executive Overview →</a></p>
     </div>
-    <div style="padding:1.5rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:6px">
-      <div style="font:700 1rem/1.3 var(--sans);color:var(--g);margin-bottom:.5rem">🎨 No-Code / Low-Code Users</div>
-      <p style="font:.85rem/1.6 var(--sans);color:var(--t1);margin:0">Built a chatbot with Bubble, Zapier, or Make? You don't need to install anything. <a href="playground.html" style="color:var(--g)">Use the playground</a> to score your AI's safety right now — just answer 15 questions about how your bot works.</p>
+    <div class="biz-card" style="padding:1.5rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:6px">
+      <div class="biz-card-title" style="font:700 1rem/1.3 var(--sans);color:var(--g);margin-bottom:.5rem">🎨 No-Code / Low-Code Users</div>
+      <p style="font:.85rem/1.6 var(--sans);color:var(--t1);margin:0">Built a chatbot with Bubble, Zapier, or Make? You don't need to install anything. <a href="playground.html" class="biz-link" style="color:var(--g)">Use the playground</a> to score your AI's safety right now — just answer 15 questions about how your bot works.</p>
     </div>
-    <div style="padding:1.5rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:6px">
-      <div style="font:700 1rem/1.3 var(--sans);color:var(--g);margin-bottom:.5rem">⚖️ Compliance Officers</div>
-      <p style="font:.85rem/1.6 var(--sans);color:var(--t1);margin:0">EU AI Act mandates L3+ for high-risk AI by August 2026. AMC maps directly to Articles 9, 12, 13, 14, and 17. <a href="#euact" style="color:var(--g)">See the compliance section →</a></p>
+    <div class="biz-card" style="padding:1.5rem;background:var(--g4);border:1px solid rgba(0,255,65,.15);border-radius:6px">
+      <div class="biz-card-title" style="font:700 1rem/1.3 var(--sans);color:var(--g);margin-bottom:.5rem">⚖️ Compliance Officers</div>
+      <p style="font:.85rem/1.6 var(--sans);color:var(--t1);margin:0">EU AI Act mandates L3+ for high-risk AI by August 2026. AMC maps directly to Articles 9, 12, 13, 14, and 17. <a href="#euact" class="biz-link" style="color:var(--g)">See the compliance section →</a></p>
     </div>
   </div>
 </div>
@@ -1758,6 +1766,20 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
       <p>Every AI governance tool today asks the agent being evaluated to provide its own evidence. <strong>That's structurally broken.</strong> It's like asking a student to mark their own exam — and every student scores 100.</p>
     </div>
     <p class="gap-body">AMC sits in the middle as an independent observer — watching what your agent actually does when safety controls are triggered. The result? An 84-point gap between what agents claim and what they prove.</p>
+    <!-- Visual: gap meter -->
+    <div style="display:flex;align-items:center;gap:1rem;margin:1.5rem 0;flex-wrap:wrap" class="rv">
+      <div style="text-align:center;flex:0 0 auto">
+        <div style="font:700 2.5rem/1 var(--mono);color:#ef4444">100</div>
+        <div style="font:.6rem/1 var(--mono);color:var(--t3);letter-spacing:.1em;margin-top:.25rem">CLAIMED</div>
+      </div>
+      <div style="flex:1;min-width:80px;height:4px;background:linear-gradient(90deg,#ef4444 16%,#fbbf24 16% 50%,#ef4444 50%);border-radius:2px;position:relative">
+        <div style="position:absolute;top:-18px;left:16%;font:.55rem/1 var(--mono);color:var(--t3)">← 84pt gap →</div>
+      </div>
+      <div style="text-align:center;flex:0 0 auto">
+        <div style="font:700 2.5rem/1 var(--mono);color:var(--g)">16</div>
+        <div style="font:.6rem/1 var(--mono);color:var(--t3);letter-spacing:.1em;margin-top:.25rem">VERIFIED</div>
+      </div>
+    </div>
     <div class="gap-alert">
       <span class="gap-alert-icon">⚠️</span>
       <span class="gap-alert-text">"In our test: a GPT-4 agent scored 100/100 on keyword-based governance tools. AMC's execution-verified score: <strong>16/100</strong>. The agent bypassed every safety control it claimed to have. That 84-point gap is documentation inflation."</span>
