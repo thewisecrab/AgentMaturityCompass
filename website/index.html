@@ -854,7 +854,7 @@ body.clean-theme .score-card-hash{border-color:#e5e7eb}
 .tab-pane{display:none;animation:tabIn .2s ease}
 .tab-pane.on{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
 @keyframes tabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:700px){.tab-pane.on{grid-template-columns:1fr}}
+@media(max-width:700px){.tab-pane.on{grid-template-columns:1fr}.tab-btn{font-size:.6rem;padding:.6rem .75rem}}
 body.clean-theme .tabs-bar{border-color:#e5e7eb}
 body.clean-theme .tab-btn.on{color:#2563eb;border-bottom-color:#2563eb}
 body.clean-theme .tab-btn:hover{color:#374151}
@@ -1804,16 +1804,16 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 
   <!-- Category: Industry Leaders (2024-2026) -->
   <div style="font:.65rem/1 var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:.15em;margin-bottom:1rem;padding-left:.5rem">Industry Leaders</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;max-width:1000px;margin:0 auto 2.5rem">
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--g);border-radius:6px;padding:1.5rem;margin:0">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;max-width:1000px;margin:0 auto 1.75rem">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--g);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"As AIs become more capable, a new kind of risk emerges: models with the ability to mislead their users, or subvert the systems we put in place to oversee them."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— Anthropic Alignment Science Team<br><span style="color:var(--t4)">Sabotage Evaluations for Frontier Models, 2025</span></footer>
     </blockquote>
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--a);border-radius:6px;padding:1.5rem;margin:0">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--a);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"We require safety, security, and operational standards appropriate to a model's potential for catastrophic risk, with higher ASL levels requiring increasingly strict demonstrations of safety."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— Anthropic Responsible Scaling Policy<br><span style="color:var(--t4)">AI Safety Levels (ASL) Framework, 2025</span></footer>
     </blockquote>
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--c);border-radius:6px;padding:1.5rem;margin:0">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--c);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"Mitigating the risk of extinction from AI should be a global priority alongside other societal-scale risks such as pandemics and nuclear war."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— Hinton, Bengio, Hassabis, Altman, Amodei + 350<br><span style="color:var(--t4)">Center for AI Safety Statement, 2023–2025</span></footer>
     </blockquote>
@@ -1821,16 +1821,16 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 
   <!-- Category: Academic Research (2025-2026) -->
   <div style="font:.65rem/1 var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:.15em;margin-bottom:1rem;padding-left:.5rem">Peer-Reviewed Research (2025–2026)</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;max-width:1000px;margin:0 auto 2.5rem">
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--r);border-radius:6px;padding:1.5rem;margin:0">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;max-width:1000px;margin:0 auto 1.75rem">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--r);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"Attackers embed payloads in agent memory that survive session compaction — persisting into future sessions and triggering unauthorized actions on demand."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— Yang et al.<br><span style="color:var(--t4)">arXiv 2602.15654 · Zombie Agents, Feb 2026</span></footer>
     </blockquote>
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--a);border-radius:6px;padding:1.5rem;margin:0">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--a);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"A single class of neurons drives sycophancy, false premise acceptance, and jailbreak susceptibility simultaneously. These are not separate failures — they are the same underlying over-compliance."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— Wang et al., Tsinghua University<br><span style="color:var(--t4)">arXiv 2512.01797 · H-Neurons, Dec 2025</span></footer>
     </blockquote>
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--g);border-radius:6px;padding:1.5rem;margin:0">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--g);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"Malicious MCP servers inflate agent costs 658× through legitimate-looking tool-call chains. The final answer is correct — standard per-step validation completely misses it."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— Zhou, Zheng, He et al.<br><span style="color:var(--t4)">arXiv 2601.10955 · Economic DoS, Jan 2026</span></footer>
     </blockquote>
@@ -1839,11 +1839,11 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   <!-- Category: Policy & Regulation -->
   <div style="font:.65rem/1 var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:.15em;margin-bottom:1rem;padding-left:.5rem">Policy &amp; Regulation</div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;max-width:1000px;margin:0 auto">
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--c);border-radius:6px;padding:1.5rem;margin:0">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--c);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"High-risk AI systems shall be designed and developed in such a way that they achieve an appropriate level of accuracy, robustness and cybersecurity, and perform consistently in those respects throughout their lifecycle."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— EU AI Act 2024/1689<br><span style="color:var(--t4)">Article 15 · Mandatory from August 2026</span></footer>
     </blockquote>
-    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--g);border-radius:6px;padding:1.5rem;margin:0">
+    <blockquote style="background:var(--card);border:1px solid var(--bdr);border-left:3px solid var(--g);border-radius:6px;padding:1.25rem;margin:0">
       <p style="color:var(--t0);font:.9rem/1.7 var(--sans);margin-bottom:1rem;font-style:italic">"Static permissions are structurally decoupled from runtime trust states. This trust-authorization mismatch is the root cause of prompt injection, tool poisoning, and delegation attacks."</p>
       <footer style="color:var(--t3);font:.75rem/1.4 var(--mono)">— Shi, Du, Wang et al.<br><span style="color:var(--t4)">arXiv 2512.06914 · Trust-Auth SoK, Dec 2025</span></footer>
     </blockquote>
@@ -1879,7 +1879,7 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   <p class="how-lead">Point AMC at your agent. It observes everything from a trusted position, signs every event, and produces a score you can verify offline — without trusting the operator.</p>
 
   <!-- ANIMATED PIPELINE DIAGRAM -->
-  <div class="pipeline rv" aria-label="Data flow diagram" role="img">
+  <div class="pipeline" aria-label="Data flow diagram" role="img">
     <div class="pipe-node">
       <div class="pipe-node-icon">🤖</div>
       <div class="pipe-node-label">Your<br>Agent</div>
@@ -2165,16 +2165,21 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
   <div class="slabel"><span class="slabel-num">10</span><em>Coverage</em></div>
   <div class="so"><h2 class="ars-h2" id="ars-h">75 Ways Your Agent Can Fail.<br>AMC Tests All of Them.</h2><p class="ars-lead">From prompt injection to zombie agent persistence, over-compliance detection, economic DoS, and cross-session memory poisoning — grounded in peer-reviewed research.</p></div>
   <div class="to"><h2 class="ars-h2" id="ars-h-t">75 Modules. 85 Assurance Packs.<br>Including Over-Compliance Detection from 2026 Research.</h2><p class="ars-lead">Comprehensive coverage of the agentic threat landscape — including 12 new gaps identified from 20 recent arXiv papers cross-referenced against all existing modules.</p></div>
-  <div class="bento">
-    <div class="bc rv"><span class="bc-icon">💉</span><div class="bc-title">Prompt Injection</div><p class="bc-body">Direct, indirect, multi-step, encoded injection. The promptware kill chain (arXiv 2601.09625) where injection is just the entry point to persistence and exfiltration.</p><span class="bc-tag">66 scenarios</span></div>
-    <div class="bc rv d1"><span class="bc-icon">🧟</span><div class="bc-title">Zombie Agent Persistence</div><p class="bc-body">Cross-session memory injection that survives compaction (arXiv 2602.15654). Payload embedded in session N triggers unauthorized actions in session N+5.</p><span class="bc-tag">New · 2026</span></div>
-    <div class="bc rv d2"><span class="bc-icon">💸</span><div class="bc-title">Economic DoS</div><p class="bc-body">Stealthy tool-calling chains that inflate costs 658× while producing correct answers (arXiv 2601.10955). Standard validation completely misses it.</p><span class="bc-tag">New · 2026</span></div>
-    <div class="bc rv d3"><span class="bc-icon">🔐</span><div class="bc-title">Trust-Auth Sync</div><p class="bc-body">Per-step least-privilege enforcement, dynamic authorization sync, delegation trust chains. Beyond static RBAC (arXiv 2512.06914).</p><span class="bc-tag">New · 2026</span></div>
-    <div class="bc rv"><span class="bc-icon">📡</span><div class="bc-title">MCP Security</div><p class="bc-body">12 MCP-specific attack categories from MCP Security Bench (arXiv 2510.15994): name-collision, preference manipulation, tool-transfer, false-error escalation.</p><span class="bc-tag">12 vectors</span></div>
-    <div class="bc rv d1"><span class="bc-icon">🔄</span><div class="bc-title">Loop Governance</div><p class="bc-body">Agentic loop runaway detection, circuit breakers, infinite recursion guards, multi-turn cost anomaly detection. When the agent gets stuck — and won't stop.</p><span class="bc-tag">OWASP ASI</span></div>
-    <div class="bc rv d2"><span class="bc-icon">🏃</span><div class="bc-title">Sandbox Escape</div><p class="bc-body">Coding agent escape testing — file system access outside workspace, arbitrary network calls, env var exfiltration, kernel-level isolation scoring.</p><span class="bc-tag">CVSS mapped</span></div>
-    <div class="bc rv d3"><span class="bc-icon">🎭</span><div class="bc-title">Sycophancy &amp; Drift</div><p class="bc-body">Systemic objective decoupling from biased feedback loops (arXiv 2602.08092). Not just per-response sycophancy — does the agent's trained objective drift from ground truth?</p><span class="bc-tag">RL-level</span></div>
-    <div class="bc rv d4"><span class="bc-icon">🪄</span><div class="bc-title">Over-Compliance Detection</div><p class="bc-body">Does your agent blindly execute on false premises, misleading context, or compliance pressure? Grounded in H-Neurons research (arXiv 2512.01797) — 28 scenarios across false premise acceptance, misleading context injection, and epistemic integrity.</p><span class="bc-tag">New · 2026</span></div>
+  <div class="bento" style="grid-template-columns:repeat(2,1fr)">
+    <div class="bc"><span class="bc-icon">💉</span><div class="bc-title">Prompt Injection</div><p class="bc-body">Direct, indirect, multi-step, encoded injection. The full promptware kill chain.</p><span class="bc-tag">66 scenarios</span></div>
+    <div class="bc"><span class="bc-icon">🧟</span><div class="bc-title">Zombie Agent Persistence</div><p class="bc-body">Cross-session memory injection that survives compaction. Payloads trigger in future sessions.</p><span class="bc-tag">New · 2026</span></div>
+    <div class="bc"><span class="bc-icon">💸</span><div class="bc-title">Economic DoS</div><p class="bc-body">Tool-calling chains that inflate costs 658× while producing correct answers.</p><span class="bc-tag">New · 2026</span></div>
+    <div class="bc"><span class="bc-icon">🪄</span><div class="bc-title">Over-Compliance</div><p class="bc-body">False premise acceptance, misleading context injection, epistemic integrity — 28 H-Neurons scenarios.</p><span class="bc-tag">New · 2026</span></div>
+  </div>
+  <button class="more-toggle" onclick="toggleArsenal()" id="ars-more-btn" aria-expanded="false" style="margin-top:1rem">
+    <span class="chevron">▼</span> <span id="ars-more-text">And 5 more attack categories</span>
+  </button>
+  <div class="more-grid" id="ars-more-grid" style="grid-template-columns:repeat(2,1fr)">
+    <div class="bc"><span class="bc-icon">🔐</span><div class="bc-title">Trust-Auth Sync</div><p class="bc-body">Per-step least-privilege, dynamic authorization sync, delegation trust chains.</p><span class="bc-tag">New · 2026</span></div>
+    <div class="bc"><span class="bc-icon">📡</span><div class="bc-title">MCP Security</div><p class="bc-body">12 MCP-specific attack categories: name-collision, preference manipulation, tool-transfer.</p><span class="bc-tag">12 vectors</span></div>
+    <div class="bc"><span class="bc-icon">🔄</span><div class="bc-title">Loop Governance</div><p class="bc-body">Agentic loop runaway detection, circuit breakers, infinite recursion guards.</p><span class="bc-tag">OWASP ASI</span></div>
+    <div class="bc"><span class="bc-icon">🏃</span><div class="bc-title">Sandbox Escape</div><p class="bc-body">File system escape, arbitrary network calls, env var exfiltration testing.</p><span class="bc-tag">CVSS mapped</span></div>
+    <div class="bc"><span class="bc-icon">🎭</span><div class="bc-title">Sycophancy &amp; Drift</div><p class="bc-body">Systemic objective decoupling from biased feedback loops.</p><span class="bc-tag">RL-level</span></div>
   </div>
   <div class="to">
     <div class="cliblock">
@@ -2558,6 +2563,16 @@ function showTab(id) {
   if(btn) { btn.classList.add('on'); btn.setAttribute('aria-selected', 'true'); }
   const pane = document.getElementById('ipane-' + id);
   if(pane) pane.classList.add('on');
+}
+
+function toggleArsenal() {
+  const grid = document.getElementById('ars-more-grid');
+  const btn = document.getElementById('ars-more-btn');
+  const txt = document.getElementById('ars-more-text');
+  const open = grid.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+  txt.textContent = open ? 'Show fewer' : 'And 5 more attack categories';
 }
 
 function toggleMore() {
