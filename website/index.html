@@ -739,7 +739,8 @@ body.clean-theme #scroll-prog { background:#2563eb }
 body.clean-theme .prod-card { background:#fff;border-color:#e5e7eb;color:#374151 }
 body.clean-theme .prod-card.feat { border-left-color:#2563eb }
 body.clean-theme .prod-card h3 { color:#111827 }
-body.clean-theme .chip { color:#2563eb;border-color:rgba(37,99,235,.2);background:rgba(37,99,235,.05) }
+body.clean-theme .chip { color:#1d4ed8;border-color:rgba(37,99,235,.3);background:rgba(37,99,235,.07);font-weight:600 }
+body.clean-theme .chip:hover { background:rgba(37,99,235,.13)!important;border-color:rgba(37,99,235,.4)!important }
 body.clean-theme footer { background:#f9fafb;border-top:1px solid #e5e7eb;color:#6b7280 }
 body.clean-theme footer a { color:#2563eb }
 body.clean-theme #sticky { background:rgba(249,250,251,.96) }
@@ -802,6 +803,13 @@ body.clean-theme .jour-card { background:#fff;border-color:#e5e7eb;color:#374151
 body.clean-theme .jour-card h3,body.clean-theme .jour-n { color:#111827 }
 body.clean-theme .jour-body { color:#6b7280 }
 body.clean-theme .jour-cmds { background:#f3f4f6;color:#1e40af;border-color:#e5e7eb }
+body.clean-theme .jour-num { color:rgba(37,99,235,.12)!important }
+body.clean-theme .step3::after { color:rgba(37,99,235,.07)!important }
+body.clean-theme .step3 { background:#fff;border-color:#e5e7eb }
+body.clean-theme .step3:hover { background:#f9fafb }
+body.clean-theme .step3-title { color:var(--g) }
+body.clean-theme .step3-body { color:#6b7280 }
+body.clean-theme .step3-code { background:#f3f4f6!important;color:#1d4ed8!important }
 
 /* Gap section */
 body.clean-theme .gap-alert { background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.2) }
@@ -1331,16 +1339,19 @@ a:focus-visible,.bp:focus-visible,.bg:focus-visible,.nbtn:focus-visible,
 
   <!-- TOGGLE - prominently centered -->
   <div class="toggle-wrap">
+    <p style="text-align:center;font:.72rem/1 var(--mono);color:var(--t2);margin-bottom:.75rem;letter-spacing:.06em;text-transform:uppercase">Choose your view</p>
     <div class="toggle" role="radiogroup" aria-label="View mode" id="tgl">
       <div class="tslide" id="tslide"></div>
-      <button class="tbtn" id="tbtn-s" onclick="setMode('s')" role="radio" aria-checked="false">
+      <button class="tbtn" id="tbtn-s" onclick="setMode('s')" role="radio" aria-checked="false" title="Plain language — what AMC does and why it matters">
         Simple
       </button>
-      <button class="tbtn on" id="tbtn-t" onclick="setMode('t')" role="radio" aria-checked="true">
+      <button class="tbtn on" id="tbtn-t" onclick="setMode('t')" role="radio" aria-checked="true" title="CLI commands, architecture, scoring models, and implementation details">
         Technical
       </button>
     </div>
   </div>
+  <p style="text-align:center;font:.72rem/1.5 var(--sans);color:var(--t3);margin-top:.5rem;margin-bottom:0" id="toggle-hint-s" class="so">Plain language — what AMC does and why it matters</p>
+  <p style="text-align:center;font:.72rem/1.5 var(--sans);color:var(--t3);margin-top:.5rem;margin-bottom:0" id="toggle-hint-t" class="to">CLI commands, architecture, and implementation details</p>
 
   <div class="hero-tag">MIT Open Source · 2,723 Tests Passing · 14 Frameworks Supported</div>
   <div class="rv" style="margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
