@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMC Terminal Demo — Agent Maturity Compass</title>
+<meta name="description" content="Watch the Agent Maturity Compass CLI in action — score, govern, and harden your AI agents from the terminal.">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --green: #00ff41;
+    --green-dim: #009926;
+    --text: #b0b0b0;
+    --text2: #8cc88c;
+    --border: rgba(0,255,65,0.12);
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  *:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  body {
+    background: #050505;
+    color: var(--text);
+    font-family: var(--mono), monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .back-link {
+    position: fixed;
+    top: 1rem;
+    left: 1.5rem;
+    color: var(--green);
+    text-decoration: none;
+    font-size: 0.8rem;
+    z-index: 10;
+  }
+  .back-link:hover { text-shadow: 0 0 10px rgba(0,255,65,0.4); }
+  .terminal {
+    width: 100%;
+    max-width: 780px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(0,255,65,0.05), 0 20px 40px rgba(0,0,0,0.5);
+  }
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #111;
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    font-size: 0.7rem;
+    color: #555;
+    margin-right: 44px;
+  }
+  .terminal-body {
+    padding: 20px;
+    min-height: 380px;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    overflow: hidden;
+  }
+  .line { white-space: pre-wrap; word-break: break-all; }
+  .line .prompt { color: var(--green); font-weight: 700; }
+  .line .cmd { color: #e0e0e0; }
+  .line .output { color: var(--text2); }
+  .line .highlight { color: var(--green); font-weight: 700; }
+  .line .dim { color: #555; }
+  .line .warn { color: #febc2e; }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: var(--green);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .cta {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  .cta a {
+    display: inline-block;
+    padding: 14px 32px;
+    background: var(--green);
+    color: #000;
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 4px;
+    transition: all 0.3s;
+    box-shadow: 0 0 30px rgba(0,255,65,0.2);
+  }
+  .cta a:hover {
+    box-shadow: 0 0 50px rgba(0,255,65,0.35);
+    transform: translateY(-2px);
+  }
+  .cta p {
+    margin-top: 0.75rem;
+    font-size: 0.7rem;
+    color: #555;
+  }
+
+  @media (max-width: 600px) {
+    .terminal-body { font-size: 0.7rem; padding: 12px; min-height: 300px; }
+  }
+</style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← Back to AMC</a>
+
+  <div class="terminal" role="img" aria-label="Animated terminal demo showing AMC CLI usage">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <div class="terminal-title">~/my-agent — zsh</div>
+    </div>
+    <div class="terminal-body" id="term"></div>
+  </div>
+
+  <div class="cta">
+    <a href="index.html#install">Try it yourself →</a>
+    <p>npm i -g agent-maturity-compass • works on macOS, Linux, Windows</p>
+  </div>
+
+<script>
+(function() {
+  const term = document.getElementById('term');
+  const PAUSE = 800;
+  const TYPE_SPEED = 35;
+  const OUTPUT_SPEED = 12;
+
+  const scenes = [
+    {
+      cmd: 'npm i -g agent-maturity-compass',
+      output: [
+        { text: 'added 1 package in 3.2s', cls: 'dim' },
+        { text: '', cls: '' },
+        { text: '  🧭 Agent Maturity Compass v2.8.0', cls: 'highlight' },
+        { text: '  Installed: amc', cls: 'output' },
+      ]
+    },
+    {
+      cmd: 'mkdir my-agent && cd my-agent',
+      output: []
+    },
+    {
+      cmd: 'amc init',
+      output: [
+        { text: '🔧 Initializing AMC workspace...', cls: 'output' },
+        { text: '  ✓ Created .amc/ directory', cls: 'output' },
+        { text: '  ✓ Generated Ed25519 keypair', cls: 'output' },
+        { text: '  ✓ Wrote signed config.yaml', cls: 'output' },
+        { text: '  ✓ Created evidence/ directory', cls: 'output' },
+        { text: '', cls: '' },
+        { text: '  Workspace ready. Run `amc quickscore` to begin.', cls: 'highlight' },
+      ]
+    },
+    {
+      cmd: 'amc quickscore --share',
+      output: [
+        { text: '', cls: '' },
+        { text: '  ┌─────────────────────────────────────┐', cls: 'dim' },
+        { text: '  │  🧭 AMC QuickScore Results          │', cls: 'highlight' },
+        { text: '  ├─────────────────────────────────────┤', cls: 'dim' },
+        { text: '  │  Governance     ████████░░  L3      │', cls: 'output' },
+        { text: '  │  Safety         ██████████  L4      │', cls: 'output' },
+        { text: '  │  Transparency   ████████░░  L3      │', cls: 'output' },
+        { text: '  │  Security       ██████░░░░  L2      │', cls: 'warn' },
+        { text: '  │  Memory         ████████░░  L3      │', cls: 'output' },
+        { text: '  ├─────────────────────────────────────┤', cls: 'dim' },
+        { text: '  │  Overall: L3 — Governed Agent       │', cls: 'highlight' },
+        { text: '  │  Trust:   ★★★☆☆                     │', cls: 'output' },
+        { text: '  └─────────────────────────────────────┘', cls: 'dim' },
+        { text: '', cls: '' },
+        { text: '  Badge: https://img.shields.io/badge/AMC-L3-00ff41', cls: 'highlight' },
+        { text: '  Share: https://amc.dev/s/a1b2c3d4', cls: 'output' },
+      ]
+    },
+    {
+      cmd: 'amc guide --go',
+      output: [
+        { text: '', cls: '' },
+        { text: '  ⚡ Applying recommended guardrails...', cls: 'output' },
+        { text: '', cls: '' },
+        { text: '  [1/4] ✓ human-in-the-loop enabled for high-risk actions', cls: 'output' },
+        { text: '  [2/4] ✓ output-guard policy applied', cls: 'output' },
+        { text: '  [3/4] ✓ drift-detection cron scheduled (24h)', cls: 'output' },
+        { text: '  [4/4] ✓ evidence auto-collection enabled', cls: 'output' },
+        { text: '', cls: '' },
+        { text: '  Security score improved: L2 → L3 ↑', cls: 'highlight' },
+        { text: '  All guardrails signed and committed to ledger.', cls: 'output' },
+      ]
+    }
+  ];
+
+  let playing = true;
+
+  function clearTerm() {
+    term.innerHTML = '';
+  }
+
+  function addLine(html) {
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.innerHTML = html;
+    term.appendChild(div);
+    term.scrollTop = term.scrollHeight;
+    return div;
+  }
+
+  function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function typeText(element, text, speed) {
+    for (let i = 0; i < text.length; i++) {
+      element.textContent += text[i];
+      term.scrollTop = term.scrollHeight;
+      await sleep(speed + Math.random() * speed * 0.5);
+    }
+  }
+
+  async function playScene(scene) {
+    // Show prompt with typing
+    const line = addLine('<span class="prompt">$ </span><span class="cmd"></span><span class="cursor"></span>');
+    const cmdSpan = line.querySelector('.cmd');
+    const cursorSpan = line.querySelector('.cursor');
+
+    await typeText(cmdSpan, scene.cmd, TYPE_SPEED);
+
+    // Remove cursor, "execute"
+    cursorSpan.remove();
+    await sleep(PAUSE);
+
+    // Print output lines
+    for (const out of scene.output) {
+      if (out.text === '') {
+        addLine('&nbsp;');
+      } else {
+        const outLine = addLine(`<span class="${out.cls}"></span>`);
+        const span = outLine.querySelector('span');
+        await typeText(span, out.text, OUTPUT_SPEED);
+      }
+      await sleep(40);
+    }
+
+    await sleep(PAUSE);
+  }
+
+  async function playAll() {
+    while (playing) {
+      clearTerm();
+      for (const scene of scenes) {
+        await playScene(scene);
+      }
+      // Show final cursor
+      addLine('<span class="prompt">$ </span><span class="cursor"></span>');
+      await sleep(4000);
+    }
+  }
+
+  playAll();
+})();
+</script>
+</body>
+</html>
