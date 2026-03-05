@@ -2,7 +2,7 @@
 
 **The credit score for AI agents.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C723%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-2%2C822%20passing-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 [![Questions](https://img.shields.io/badge/questions-733-blue)]()
 [![Modules](https://img.shields.io/badge/scoring%20modules-75-green)]()
