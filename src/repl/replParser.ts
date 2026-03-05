@@ -460,3 +460,56 @@ export function getCompletions(): string[] {
     "help", "exit", "quit", "clear",
   ];
 }
+
+/**
+ * Simple fuzzy matching — checks if all chars of needle appear in order in haystack.
+ * Used for tab completion fallback.
+ */
+export function fuzzyMatch(needle: string, haystack: string): boolean {
+  let ni = 0;
+  for (let hi = 0; hi < haystack.length && ni < needle.length; hi++) {
+    if (needle[ni] === haystack[hi]) ni++;
+  }
+  return ni === needle.length;
+}
+
+/**
+ * Find closest matches for a typo using Levenshtein distance.
+ */
+export function findClosest(input: string, candidates: string[], maxDistance = 3): string[] {
+  const lower = input.toLowerCase();
+  const scored: Array<{ candidate: string; dist: number }> = [];
+  for (const c of candidates) {
+    const cl = c.toLowerCase();
+    const d = levenshtein(lower, cl);
+    if (d <= maxDistance) {
+      scored.push({ candidate: c, dist: d });
+    }
+  }
+  scored.sort((a, b) => a.dist - b.dist);
+  return scored.slice(0, 3).map(s => s.candidate);
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp: number[][] = [];
+  for (let i = 0; i <= m; i++) {
+    dp[i] = [i];
+  }
+  for (let j = 0; j <= n; j++) {
+    dp[0]![j] = j;
+  }
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i]![j] = Math.min(
+        dp[i - 1]![j]! + 1,
+        dp[i]![j - 1]! + 1,
+        dp[i - 1]![j - 1]! + cost
+      );
+    }
+  }
+  return dp[m]![n]!;
+}

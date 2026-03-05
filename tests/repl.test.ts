@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseInput, getSuggestions, getCompletions } from "../src/repl/replParser.js";
+import { parseInput, getSuggestions, getCompletions, fuzzyMatch, findClosest } from "../src/repl/replParser.js";
 import { createReplContext, updateContextFromOutput, formatStatusLine } from "../src/repl/replContext.js";
 
 describe("REPL parser — scoring", () => {
@@ -435,5 +435,52 @@ describe("REPL completions", () => {
     expect(c).toContain("assurance run sycophancy");
     expect(c).toContain("help");
     expect(c).toContain("exit");
+  });
+});
+
+describe("fuzzy matching", () => {
+  it("matches exact prefix", () => {
+    expect(fuzzyMatch("score", "score my agent")).toBe(true);
+  });
+
+  it("matches subsequence", () => {
+    expect(fuzzyMatch("sma", "score my agent")).toBe(true);
+  });
+
+  it("rejects non-subsequence", () => {
+    expect(fuzzyMatch("xyz", "score my agent")).toBe(false);
+  });
+
+  it("handles empty needle", () => {
+    expect(fuzzyMatch("", "anything")).toBe(true);
+  });
+});
+
+describe("find closest (Levenshtein)", () => {
+  const candidates = ["quickscore", "improve", "guide", "doctor", "status", "dashboard"];
+
+  it("finds close match for typo 'qucikscore'", () => {
+    const matches = findClosest("qucikscore", candidates);
+    expect(matches).toContain("quickscore");
+  });
+
+  it("finds close match for typo 'improev'", () => {
+    const matches = findClosest("improev", candidates);
+    expect(matches).toContain("improve");
+  });
+
+  it("finds close match for typo 'doctr'", () => {
+    const matches = findClosest("doctr", candidates);
+    expect(matches).toContain("doctor");
+  });
+
+  it("returns empty for very different input", () => {
+    const matches = findClosest("zzzzzzzzz", candidates);
+    expect(matches).toEqual([]);
+  });
+
+  it("returns max 3 results", () => {
+    const matches = findClosest("s", ["status", "setup", "score", "summary", "sarif"], 5);
+    expect(matches.length).toBeLessThanOrEqual(3);
   });
 });

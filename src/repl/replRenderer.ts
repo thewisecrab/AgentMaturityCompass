@@ -5,7 +5,7 @@
 
 import chalk from "chalk";
 import type { ReplContext } from "./replContext.js";
-import { getSuggestions } from "./replParser.js";
+import { getSuggestions, findClosest } from "./replParser.js";
 
 const ACCENT = chalk.hex("#6366f1");
 const DIM = chalk.gray;
@@ -210,5 +210,77 @@ export function renderContextualTip(ctx: ReplContext, lastCommand: string): stri
     return `  ${DIM("💡")} Apply domain guardrails: ${ACCENT("apply domain health")} or check other domains: ${ACCENT("domains")}`;
   }
 
+  // After doctor
+  if (lastCommand.includes("doctor")) {
+    return `  ${DIM("💡")} Score your agent: ${ACCENT("score my agent")} or check studio: ${ACCENT("up")}`;
+  }
+
+  // After guardrails list
+  if (lastCommand.includes("guardrails list")) {
+    return `  ${DIM("💡")} Toggle: ${ACCENT("enable <id>")} or ${ACCENT("disable <id>")}`;
+  }
+
   return "";
+}
+
+// ── SESSION SUMMARY ─────────────────────────────────
+
+export function renderSessionSummary(ctx: ReplContext, initialScore: number | null, initialGaps: number | null): string {
+  const lines: string[] = [];
+  const elapsed = Math.round((Date.now() - ctx.sessionStart) / 1000 / 60);
+  const timeStr = elapsed > 0 ? `${elapsed}m` : "<1m";
+
+  lines.push("");
+  lines.push(`  ${DIM("─".repeat(40))}`);
+  lines.push(`  ${BOLD("Session Summary")}`);
+  lines.push(`  ${DIM(`Duration: ${timeStr} · Commands: ${ctx.commandCount}`)}`);
+
+  // Score delta
+  if (ctx.score !== null && initialScore !== null && ctx.score !== initialScore) {
+    const delta = ctx.score - initialScore;
+    const sign = delta > 0 ? "+" : "";
+    const color = delta > 0 ? GREEN : delta < 0 ? RED : DIM;
+    lines.push(`  ${DIM("Score:")} ${initialScore.toFixed(1)} → ${color(`${ctx.score.toFixed(1)} (${sign}${delta.toFixed(1)})`)}`);
+  } else if (ctx.score !== null) {
+    const sc = ctx.score >= 3 ? GREEN : ctx.score >= 1.5 ? AMBER : RED;
+    lines.push(`  ${DIM("Score:")} ${sc(`${ctx.score.toFixed(1)}/5`)}`);
+  }
+
+  // Gaps delta
+  if (ctx.gaps !== null && initialGaps !== null && ctx.gaps !== initialGaps) {
+    const delta = ctx.gaps - initialGaps;
+    const sign = delta > 0 ? "+" : "";
+    const color = delta < 0 ? GREEN : delta > 0 ? RED : DIM;
+    lines.push(`  ${DIM("Gaps:")} ${initialGaps} → ${color(`${ctx.gaps} (${sign}${delta})`)}`);
+  }
+
+  lines.push(`  ${DIM("─".repeat(40))}`);
+  lines.push(`  ${DIM("Goodbye.")}`);
+  lines.push("");
+  return lines.join("\n");
+}
+
+// ── NO WORKSPACE ────────────────────────────────────
+
+export function renderNoWorkspace(): string {
+  const lines: string[] = [];
+  lines.push(`  ${AMBER("⚠")} ${BOLD("No AMC workspace found")} ${DIM("(.amc/ directory)")}`);
+  lines.push(`  ${DIM("Run")} ${ACCENT("init")} ${DIM("to create one, or")} ${ACCENT("onboard me")} ${DIM("for guided setup.")}`);
+  lines.push("");
+  return lines.join("\n");
+}
+
+// ── DID YOU MEAN? ───────────────────────────────────
+
+export function renderDidYouMean(input: string, completions: string[]): string {
+  const closest = findClosest(input, completions, 3);
+  if (!closest.length) return "";
+  return `  ${DIM("Did you mean:")} ${closest.map(c => ACCENT(c)).join(DIM(", "))}${DIM("?")}`;
+}
+
+// ── TIMER ───────────────────────────────────────────
+
+export function renderTimer(durationMs: number): string {
+  const secs = (durationMs / 1000).toFixed(1);
+  return `  ${DIM(`⏱ ${secs}s`)}`;
 }
