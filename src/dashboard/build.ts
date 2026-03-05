@@ -542,8 +542,8 @@ export function buildDashboard(input: DashboardBuildInput): DashboardBuildResult
   const timeline = readAsset(join("components", "timeline.js"), "export function renderTimeline(){}");
   const questionDetail = readAsset(join("components", "questionDetail.js"), "export function renderQuestionDetail(){}");
   const eoc = readAsset(join("components", "eoc.js"), "export function renderEoc(){}");
-  const domainsJs = readAsset(join("components", "domains.js"), "");
-  const guardrailsJs = readAsset(join("components", "guardrailsView.js"), "");
+  const domainsJs = readAsset(join("templates", "components", "domains.js"), "");
+  const guardrailsJs = readAsset(join("templates", "components", "guardrailsView.js"), "");
 
   writeFileAtomic(join(outDir, "index.html"), html, 0o644);
   writeFileAtomic(join(outDir, "app.js"), appJs, 0o644);
