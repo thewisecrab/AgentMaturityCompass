@@ -542,10 +542,26 @@ function renderScore(d) {
   const ringFill = document.getElementById('score-ring-fill');
   if (ringFill) {
     const pct = Math.min(overall / 5, 1);
-    const circ = 2 * Math.PI * 52; // 326.73
-    const offset = circ * (1 - pct);
-    ringFill.style.transition = 'stroke-dashoffset 1.5s cubic-bezier(.16,1,.3,1)';
-    requestAnimationFrame(() => { ringFill.style.strokeDashoffset = offset.toFixed(2); });
+    const circ = 2 * Math.PI * 68; // r=68 → 427.26
+    const offset = pct > 0 ? circ * (1 - pct) : circ; // stay empty at 0
+    ringFill.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(.16,1,.3,1)';
+    ringFill.setAttribute('stroke-dasharray', circ.toFixed(2));
+    ringFill.setAttribute('stroke-dashoffset', circ.toFixed(2));
+    requestAnimationFrame(() => setTimeout(() => { ringFill.style.strokeDashoffset = offset.toFixed(2); }, 100));
+  }
+
+  /* At zero, ring bg gets a dashed accent treatment */
+  const ringBg = document.querySelector('.score-ring-bg');
+  if (ringBg) {
+    if (overall === 0) {
+      ringBg.setAttribute('stroke-dasharray', '8 6');
+      ringBg.style.stroke = 'var(--accent)';
+      ringBg.style.opacity = '0.25';
+    } else {
+      ringBg.removeAttribute('stroke-dasharray');
+      ringBg.style.stroke = '';
+      ringBg.style.opacity = '0.2';
+    }
   }
 
   /* Big number */
@@ -634,8 +650,19 @@ function renderScore(d) {
         bar.style.width = pct + '%';
       });
     });
-  } else if (dimBarContainer && !layers.length) {
-    dimBarContainer.innerHTML = `<div style="font-size:12px;color:var(--text-tertiary);padding:8px 0">No dimension scores yet — run <code style="color:var(--accent)">amc quickscore</code></div>`;
+  } else if (dimBarContainer) {
+    /* Zero-state: show dim stubs so hero doesn't look empty */
+    const DIMS = ['Strategy', 'Leadership', 'Culture', 'Resilience', 'Skills'];
+    dimBarContainer.innerHTML = DIMS.map(d => `
+      <div class="dim-row-v2">
+        <div class="dim-name-v2">${d}</div>
+        <div class="dim-bar-wrap">
+          <div class="dim-bar-fill" style="width:0%;background:var(--border-strong)"></div>
+          <div class="dim-target-tick" style="left:60%" title="Target: 3.0/5"></div>
+        </div>
+        <div class="dim-val-v2" style="color:var(--text-tertiary)">—</div>
+      </div>`).join('') +
+      `<div class="dim-target-label"><span class="dim-target-line"></span><span>Target 3.0/5</span></div>`;
   }
 
   /* Maturity journey track L0–L5 */
@@ -1167,7 +1194,21 @@ function renderAsrSummary(d) {
   if (!el) return;
   const packs = d.assurance || [];
   if (!packs.length) {
-    el.innerHTML = '<div class="empty"><span class="empty-i">🛡️</span><span class="empty-t">No assurance runs yet<br><code style="color:var(--accent)">amc assurance run sycophancy</code></span><button class="empty-cta" onclick="nav(\'assurance\')">View Packs →</button></div>';
+    const KEY_PACKS = [
+      { id: 'sycophancy', label: 'Sycophancy', icon: '🤖' },
+      { id: 'hallucination', label: 'Hallucination', icon: '🌀' },
+      { id: 'toxicity', label: 'Toxicity', icon: '⚠️' },
+      { id: 'privacy', label: 'Privacy', icon: '🔒' },
+      { id: 'security', label: 'Security', icon: '🛡️' },
+    ];
+    el.innerHTML = `<div style="margin-bottom:10px">
+      ${KEY_PACKS.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px">${p.icon}</span>
+        <span style="font-size:11px;color:var(--text-secondary);flex:1">${p.label}</span>
+        <span style="font-size:9px;font-weight:700;color:var(--text-tertiary);letter-spacing:.04em;padding:2px 6px;border-radius:4px;background:var(--bg-overlay);border:1px solid var(--border)">NOT RUN</span>
+      </div>`).join('')}
+    </div>
+    <button class="action-btn" style="width:100%;justify-content:center" onclick="executeAction('assurance:sycophancy',this,'amc assurance run sycophancy')">Run First Pack ▸</button>`;
     return;
   }
   el.innerHTML = packs.slice(0, 5).map(p => {
