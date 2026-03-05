@@ -468,7 +468,7 @@ import {
 import { loadStudioRuntimeConfig } from "./config/loadConfig.js";
 import { configExplainCli, configPrintCli } from "./config/configCli.js";
 import { runBootstrap } from "./bootstrap/bootstrap.js";
-import { runSetupCli } from "./setup/setupCli.js";
+import { registerQuickSetupCommand } from "./setup/quickSetupCli.js";
 import {
   defaultReleaseKeyPaths,
   releaseInitCli,
@@ -1255,65 +1255,7 @@ program
 // quickstart retained as a unified onboarding flow is implemented below
 
 
-program
-  .command("setup")
-  .description("Deterministic go-live setup (single workspace or host mode)")
-  .option("--demo", "quick demo mode with canned adapter/profile defaults", false)
-  .option("--non-interactive", "use environment-driven bootstrap without prompts", false)
-  .action(async (opts: { demo: boolean; nonInteractive: boolean }) => {
-    const out = await runSetupCli({
-      cwd: process.cwd(),
-      demo: opts.demo,
-      nonInteractive: opts.nonInteractive
-    });
-    console.log(chalk.green("AMC setup complete"));
-    console.log(`Mode: ${out.mode}`);
-    console.log(`Workspace: ${out.workspaceDir}`);
-    if (out.hostDir) {
-      console.log(`Host dir: ${out.hostDir}`);
-    }
-    console.log(`Bootstrap report: ${out.reportPath}`);
-    console.log(`Console: ${out.consoleUrl}`);
-    console.log(`Gateway: ${out.gatewayUrl}`);
-    console.log(`Pairing hint: ${out.qrHint}`);
-    console.log("");
-    console.log(chalk.cyan("Sanity checks:"));
-    console.log(`- trust config: ${out.sanity.trustConfigValid ? "PASS" : "FAIL"}`);
-    console.log(`- ops policy: ${out.sanity.opsPolicyValid ? "PASS" : "FAIL"}`);
-    console.log(`- plugin integrity: ${out.sanity.pluginIntegrityValid ? "PASS" : "FAIL"}`);
-    console.log("");
-    console.log(chalk.cyan("Smart onboarding:"));
-    if (out.onboarding.detectedFrameworks.length === 0) {
-      console.log("- detected frameworks: none (manual adapter selection will be used)");
-    } else {
-      const frameworks = out.onboarding.detectedFrameworks
-        .map((row) => `${row.framework} -> ${row.adapterId}`)
-        .join(", ");
-      console.log(`- detected frameworks: ${frameworks}`);
-    }
-    if (out.onboarding.configuredAdapters.length === 0) {
-      console.log("- adapter auto-config: no compatible framework detected");
-    } else {
-      console.log(
-        `- adapter auto-config: ${out.onboarding.configuredAdapters
-          .map((row) => `${row.agentId}:${row.adapterId}`)
-          .join(", ")}`
-      );
-    }
-    console.log(
-      `- estimated time to L3: ${out.onboarding.etaToL3.hours.toFixed(1)} hours (readiness ${out.onboarding.etaToL3.readinessScore}/100)`
-    );
-    console.log(`- onboarding priority: ${out.onboarding.priority}`);
-    console.log("  Your first week with AMC:");
-    for (const item of out.onboarding.firstWeekPlan) {
-      console.log(`  - Day ${item.day}: ${item.focus} -> ${item.action} [${item.command}]`);
-    }
-    console.log("");
-    console.log(chalk.cyan("Next steps:"));
-    for (const step of out.nextSteps) {
-      console.log(`- ${step}`);
-    }
-  });
+registerQuickSetupCommand(program);
 
 program
   .command("improve")
