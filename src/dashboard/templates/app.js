@@ -1,4 +1,4 @@
-/* AMC Dashboard v11 — Linear/Vercel Design */
+/* AMC Dashboard v14 — State-of-the-Art */
 const G = { data:null, section:'overview', view:'engineer', hm:false, af:false, ef:false, ff:false };
 const esc = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmt = (n,d=2) => typeof n==='number' ? n.toFixed(d) : '—';
@@ -386,17 +386,46 @@ function toggleTheme() {
 }
 
 /* ── ANIMATE COUNT ────────────────────────────────── */
-function animateCount(el, target, duration = 900) {
+function animateCount(el, target, duration = 1100) {
   const start = performance.now();
   const from = parseFloat(el.textContent) || 0;
   function step(now) {
     const p = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = (from + (target - from) * ease).toFixed(1);
+    /* spring-like easing: overshoot then settle */
+    const ease = 1 - Math.pow(1 - p, 4);
+    const val = from + (target - from) * ease;
+    el.textContent = val.toFixed(1);
     if (p < 1) requestAnimationFrame(step);
-    else el.textContent = target.toFixed(1);
+    else {
+      el.textContent = target.toFixed(1);
+      el.style.animation = 'countFlash .6s ease';
+    }
   }
   requestAnimationFrame(step);
+}
+
+/* ── KEYBOARD SHORTCUTS PANEL ─────────────────────── */
+function buildShortcutsPanel() {
+  if (document.getElementById('kb-panel')) return;
+  const shortcuts = [
+    ['⌘K / Ctrl+K', 'Open command palette'],
+    ['?', 'Show onboarding tour'],
+    ['1–5', 'Navigate to section (Overview, Dims, Assurance, Evidence, Terminal)'],
+    ['D', 'Toggle dark/light mode'],
+    ['Esc', 'Close any modal'],
+    ['S', 'Go to Settings'],
+  ];
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    const key = e.key;
+    if (key === '1') nav('overview');
+    if (key === '2') nav('dimensions');
+    if (key === '3') nav('assurance');
+    if (key === '4') nav('evidence');
+    if (key === '5') nav('fleet');
+    if (key === 'd' || key === 'D') toggleTheme();
+    if (key === 's' || key === 'S') nav('settings');
+  });
 }
 
 /* ── SCORE RENDER ─────────────────────────────────── */
@@ -1186,6 +1215,7 @@ function buildSettings() {
     initTheme();
     initTooltip();
     buildCommandPalette();
+    buildShortcutsPanel();
     initNav();
 
     G.data = await xfetch('./data.json');
