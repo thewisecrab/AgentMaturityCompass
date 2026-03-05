@@ -34,9 +34,11 @@ async function xfetch(p) { const r=await fetch(p); if(!r.ok) throw new Error(p+'
 /* ── ONBOARDING ───────────────────────────────────── */
 const ONBOARD_STEPS = [
   { icon: '🧭', title: 'What is AMC?', body: 'AMC scores your AI agents on trustworthiness from actual behavior — not self-reported claims. Think of it as a credit score for AI agents.' },
-  { icon: '📊', title: 'Your Trust Score', body: 'The overall score (0–5) reflects how mature and trustworthy your agent is across 5 dimensions: Strategy, Leadership, Culture, Resilience, and Skills.' },
+  { icon: '📊', title: 'Your Trust Score', body: 'The overall score (0–5) reflects how mature and trustworthy your agent is across 5 dimensions: Strategy, Leadership, Culture, Resilience, and Skills. The L0→L5 maturity journey tracks your progress.' },
   { icon: '🔍', title: 'Evidence-Based', body: 'Unlike other frameworks, AMC verifies claims with cryptographic evidence chains. A claimed score of 5/5 might actually be 1/5 without evidence.' },
-  { icon: '🚀', title: 'Get Started', body: 'Run <code style="color:var(--accent);font-family:\'JetBrains Mono\',monospace">amc quickscore</code> to get your first score in under 2 minutes. Then use the Next Steps panel to improve.' },
+  { icon: '🏭', title: 'Industry Domains', body: '<strong>40 industry packs</strong> across 7 domains (Health, Education, Environment, Mobility, Governance, Technology, Wealth). Each pack includes regulatory frameworks like HIPAA, GDPR, and EU AI Act. Click <strong>Domains</strong> in the sidebar to browse and apply them.' },
+  { icon: '🛡️', title: 'Guardrails & Views', body: 'Toggle <strong>14 runtime guardrails</strong> (prompt injection, toxicity, PII, etc.) from the Guardrails section. Use the <strong>Engineer / CISO / Exec</strong> buttons (top-right) to switch views — each role sees only what matters to them.' },
+  { icon: '🚀', title: 'Get Started', body: 'Run <code style="color:var(--accent);font-family:\'JetBrains Mono\',monospace">amc quickscore</code> to get your first score in under 2 minutes. Use <strong>Priority Actions</strong> to improve, or open the <strong>Terminal</strong> to run any AMC command. Press <kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:11px">⌘K</kbd> to search actions.' },
 ];
 
 let G_onboardStep = 0;
@@ -729,13 +731,13 @@ function renderScore(d) {
     const questions = d.latestRun?.questionScores?.length ?? 0;
     const approved = d.approvalsSummary?.approved ?? 0;
     const kpis = [
-      { label: 'Questions', value: questions, icon: '❓', color: 'var(--accent)' },
-      { label: 'Evidence Gaps', value: gaps, icon: '🔍', color: gaps > 0 ? 'var(--red)' : 'var(--green)' },
-      { label: 'Packs Run', value: packs, icon: '🛡️', color: 'var(--amber)' },
-      { label: 'Approved', value: approved, icon: '✅', color: 'var(--green)' },
+      { label: 'Questions', value: questions, color: 'var(--accent)', tip: 'Total diagnostic questions scored in latest run' },
+      { label: 'Evidence Gaps', value: gaps, color: gaps > 0 ? 'var(--red)' : 'var(--green)', tip: gaps > 0 ? `${gaps} claims lack cryptographic proof — collect evidence to close them` : 'All claims backed by execution evidence' },
+      { label: 'Packs Run', value: packs, color: 'var(--amber)', tip: 'Assurance packs completed (sycophancy, hallucination, toxicity, etc.)' },
+      { label: 'Approved', value: approved, color: 'var(--green)', tip: 'Human-reviewed decisions that confirm agent behavior' },
     ];
     kpiCol.innerHTML = kpis.map(k => `
-      <div class="hero-kpi">
+      <div class="hero-kpi" title="${esc(k.tip)}">
         <div class="hero-kpi-value" style="color:${k.color}">${k.value}</div>
         <div class="hero-kpi-label">${k.label}</div>
       </div>`).join('');
