@@ -28,15 +28,15 @@ describe("REPL parser — scoring", () => {
 
 describe("REPL parser — gaps & diagnosis", () => {
   it("parses 'what are my gaps?' as evidence gaps", () => {
-    expect(parseInput("what are my gaps?").command).toBe("evidence gaps");
+    expect(parseInput("what are my gaps?").command).toBe("mechanic gap");
   });
 
   it("parses 'show gaps' as evidence gaps", () => {
-    expect(parseInput("show gaps").command).toBe("evidence gaps");
+    expect(parseInput("show gaps").command).toBe("mechanic gap");
   });
 
   it("parses 'where do I fail' as evidence gaps", () => {
-    expect(parseInput("where do I fail").command).toBe("evidence gaps");
+    expect(parseInput("where do I fail").command).toBe("mechanic gap");
   });
 
   it("parses 'biggest gaps' as mechanic gap", () => {
@@ -122,7 +122,7 @@ describe("REPL parser — evidence", () => {
   });
 
   it("parses 'evidence' as evidence gaps", () => {
-    expect(parseInput("evidence").command).toBe("evidence gaps");
+    expect(parseInput("evidence").command).toBe("mechanic gap");
   });
 });
 
@@ -202,8 +202,8 @@ describe("REPL parser — explain with capture groups", () => {
 });
 
 describe("REPL parser — reports & history", () => {
-  it("parses 'report' as report md", () => {
-    expect(parseInput("report").command).toBe("report md");
+  it("parses 'report' as report --executive latest", () => {
+    expect(parseInput("report").command).toBe("report --executive latest");
   });
 
   it("parses 'export sarif' as export sarif", () => {
@@ -283,7 +283,7 @@ describe("REPL parser — workflows", () => {
     expect(r.workflow).toBe(true);
     expect(r.steps).toContain("quickscore");
     expect(r.steps).toContain("assurance run --all");
-    expect(r.steps).toContain("report md");
+    expect(r.steps).toContain("report --executive latest");
   });
 
   it("parses 'prepare for production' as workflow", () => {
@@ -376,8 +376,8 @@ describe("REPL context", () => {
   it("tracks command history", () => {
     const ctx = createReplContext();
     updateContextFromOutput(ctx, "quickscore", "score: 2.0");
-    updateContextFromOutput(ctx, "evidence gaps", "5 gaps");
-    expect(ctx.commandHistory).toEqual(["quickscore", "evidence gaps"]);
+    updateContextFromOutput(ctx, "mechanic gap", "5 gaps");
+    expect(ctx.commandHistory).toEqual(["quickscore", "mechanic gap"]);
     expect(ctx.commandCount).toBe(2);
   });
 

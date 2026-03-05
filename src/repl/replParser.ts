@@ -47,8 +47,8 @@ const NATURAL_MAPPINGS: NaturalMapping[] = [
   // ════════════════════════════════════════════════════
   {
     patterns: [/^what.*(?:gap|wrong|weak|miss|problem|issue|fail)/i, /^show.*gap/i, /^find.*gap/i, /^gap$/i, /^gaps$/i, /^where.*(?:fail|weak|gap)/i],
-    command: "evidence gaps",
-    description: "Checking evidence gaps",
+    command: "mechanic gap",
+    description: "Analyzing gaps and weaknesses",
   },
   {
     patterns: [/^biggest.*gap/i, /^worst/i, /^weakest/i, /^mechanic/i, /^top.*gap/i, /^priority.*gap/i, /^critical.*gap/i],
@@ -144,7 +144,7 @@ const NATURAL_MAPPINGS: NaturalMapping[] = [
   },
   {
     patterns: [/^evidence$/i, /^proof$/i, /^show.*evidence/i, /^evidence.*(?:gap|list|status)/i],
-    command: "evidence gaps",
+    command: "mechanic gap",
     description: "Showing evidence gaps",
   },
 
@@ -235,8 +235,8 @@ const NATURAL_MAPPINGS: NaturalMapping[] = [
   // ════════════════════════════════════════════════════
   {
     patterns: [/^report$/i, /^summary$/i, /^generate.*report/i, /^export.*report/i, /^markdown.*report/i],
-    command: "report md",
-    description: "Generating markdown report",
+    command: "report --executive latest",
+    description: "Generating executive report",
   },
   {
     patterns: [/^sarif$/i, /^export.*sarif/i],
@@ -331,21 +331,21 @@ const NATURAL_MAPPINGS: NaturalMapping[] = [
     command: "workflow:onboard",
     description: "Starting onboarding workflow",
     workflow: true,
-    steps: ["doctor", "quickscore", "evidence gaps", "guide"],
+    steps: ["doctor", "quickscore", "mechanic gap", "guide"],
   },
   {
     patterns: [/^full.*audit/i, /^complete.*audit/i, /^audit$/i, /^thorough/i, /^comprehensive/i],
     command: "workflow:audit",
     description: "Running full trust audit",
     workflow: true,
-    steps: ["quickscore", "evidence gaps", "assurance run --all", "mechanic gap", "report md"],
+    steps: ["quickscore", "mechanic gap", "assurance run --all", "mechanic gap", "report --executive latest"],
   },
   {
     patterns: [/^prepare.*prod/i, /^production.*ready/i, /^ship.*ready/i, /^deploy.*ready/i, /^go.*live/i, /^release.*check/i],
     command: "workflow:production",
     description: "Running production readiness check",
     workflow: true,
-    steps: ["quickscore", "assurance run --all", "evidence gaps", "guardrails list", "domain assess --domain technology"],
+    steps: ["quickscore", "assurance run --all", "mechanic gap", "guardrails list", "domain assess --domain technology"],
   },
   {
     patterns: [/^ci.*check/i, /^ci.*gate/i, /^pipeline.*check/i, /^pr.*check/i],
@@ -359,14 +359,14 @@ const NATURAL_MAPPINGS: NaturalMapping[] = [
     command: "workflow:security",
     description: "Running security-focused audit",
     workflow: true,
-    steps: ["assurance run security", "assurance run overCompliance", "guardrails list", "evidence gaps"],
+    steps: ["assurance run security", "assurance run overCompliance", "guardrails list", "mechanic gap"],
   },
   {
     patterns: [/^quick.*(?:check|look|glance|overview)/i, /^tldr$/i, /^summary.*quick/i],
     command: "workflow:quickcheck",
     description: "Quick status overview",
     workflow: true,
-    steps: ["status", "evidence gaps"],
+    steps: ["status", "mechanic gap"],
   },
 ];
 
@@ -451,12 +451,12 @@ export function getCompletions(): string[] {
     "quickscore", "guide", "guide --apply",
     "assurance list", "assurance run", "assurance run --all",
     "assurance run sycophancy", "assurance run hallucination", "assurance run toxicity",
-    "evidence gaps", "evidence collect", "evidence ingest",
+    "mechanic gap", "evidence collect", "evidence verify",
     "domain list", "domain assess", "domain apply",
     "guardrails list", "guardrails enable", "guardrails disable",
     "doctor", "status", "setup", "dashboard", "up", "down", "logs",
     "adapters list", "mcp list-tools", "target show",
-    "report md", "export sarif", "glossary", "version",
+    "report --executive latest", "export sarif", "glossary", "version",
     "help", "exit", "quit", "clear",
   ];
 }
