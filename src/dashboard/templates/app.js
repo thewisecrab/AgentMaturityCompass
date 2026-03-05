@@ -1,7 +1,8 @@
 /* AMC Dashboard v14 — State-of-the-Art */
-const G = { data:null, section:'overview', view:'engineer', hm:false, af:false, ef:false, ff:false };
+const G = { data:null, section:'overview', view:'engineer', hm:false, af:false, ef:false, ff:false, df:false, gf:false, studioOnline:null };
 const esc = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmt = (n,d=2) => typeof n==='number' ? n.toFixed(d) : '—';
+const escJs = v => String(v ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
 /* ── SEMANTIC COLOR SYSTEM ────────────────────────── */
 function scoreColor(score, max = 5) {
@@ -102,6 +103,8 @@ const CMD_ACTIONS = [
   { label: 'Run quickscore', desc: 'Get a score in under 2 minutes', cmd: 'amc quickscore', nav: 'overview' },
   { label: 'View evidence gaps', desc: 'See what evidence is missing', cmd: 'amc evidence gaps', nav: 'evidence' },
   { label: 'Check assurance packs', desc: 'Review all assurance pack results', cmd: 'amc assurance list', nav: 'assurance' },
+  { label: 'Browse domain packs', desc: 'Open industry domain packs', cmd: null, nav: 'domains' },
+  { label: 'Manage guardrails', desc: 'Enable or disable runtime guardrails', cmd: 'amc guardrails list', nav: 'guardrails' },
   { label: 'Open terminal', desc: 'View all registered agents', cmd: null, nav: 'fleet' },
   { label: 'View dimensions', desc: 'Explore dimension heatmap', cmd: null, nav: 'dimensions' },
   { label: 'Collect evidence', desc: 'Capture execution evidence logs', cmd: 'amc evidence collect', nav: 'evidence' },
@@ -138,7 +141,7 @@ function buildCommandPalette() {
       </div>
       <div id="cmd-results" style="max-height:340px;overflow-y:auto;padding:6px"></div>
       <div style="padding:8px 16px 12px;border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap">
-        <span style="font:400 10px/1 'JetBrains Mono',monospace;color:var(--text-tertiary)"><kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:9px">1</kbd>–<kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:9px">5</kbd> navigate</span>
+        <span style="font:400 10px/1 'JetBrains Mono',monospace;color:var(--text-tertiary)"><kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:9px">1</kbd>–<kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:9px">7</kbd> navigate</span>
         <span style="font:400 10px/1 'JetBrains Mono',monospace;color:var(--text-tertiary)"><kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:9px">D</kbd> toggle theme</span>
         <span style="font:400 10px/1 'JetBrains Mono',monospace;color:var(--text-tertiary)"><kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:9px">S</kbd> settings</span>
         <span style="font:400 10px/1 'JetBrains Mono',monospace;color:var(--text-tertiary)"><kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:9px">?</kbd> tour</span>
@@ -251,7 +254,7 @@ function hideTooltip() {
 }
 
 /* ── VIEW TOAST ───────────────────────────────────── */
-function showViewToast(text) {
+function showViewToast(text, tone = 'info') {
   let toast = document.getElementById('view-toast');
   if (!toast) {
     toast = document.createElement('div');
@@ -265,6 +268,10 @@ function showViewToast(text) {
     `;
     document.body.appendChild(toast);
   }
+  const errorTone = tone === 'error';
+  toast.style.borderColor = errorTone ? 'rgba(248,113,113,.4)' : 'var(--border-strong)';
+  toast.style.background = errorTone ? 'rgba(75,18,18,.95)' : 'var(--bg-overlay)';
+  toast.style.color = errorTone ? '#fecaca' : 'var(--text-primary)';
   toast.textContent = text;
   toast.style.opacity = '1';
   toast.style.transform = 'translateX(-50%) translateY(0)';
@@ -296,6 +303,8 @@ function nav(section) {
   if (section === 'dimensions' && !G.hm) { buildHm(); buildDimCards(); }
   if (section === 'assurance'  && !G.af) { buildAf(); }
   if (section === 'evidence'   && !G.ef) { buildEv(); }
+  if (section === 'domains'    && !G.df) { if (typeof window.buildDomains === 'function') window.buildDomains(); G.df = true; }
+  if (section === 'guardrails' && !G.gf) { if (typeof window.buildGuardrails === 'function') window.buildGuardrails(); G.gf = true; }
   if (section === 'fleet'      && !G.ff) { buildFleet(); }
 }
 
@@ -352,7 +361,7 @@ function initNav() {
   if (tbSearch) tbSearch.addEventListener('click', openCmdPalette);
 
   document.querySelectorAll('.sb-quick-score').forEach(btn => {
-    btn.addEventListener('click', () => nav('fleet'));
+    btn.addEventListener('click', () => { handleQuickScore(); });
   });
 
   /* Details collapsible */
@@ -413,7 +422,7 @@ function animateCount(el, target, duration = 1100) {
 /* ── KEYBOARD SHORTCUTS PANEL ─────────────────────── */
 /* ── MOBILE GESTURES ──────────────────────────────── */
 function initMobileGestures() {
-  const SECTIONS = ['overview','dimensions','assurance','evidence','fleet'];
+  const SECTIONS = ['overview','dimensions','assurance','evidence','domains','guardrails','fleet','settings'];
   let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
   const content = document.getElementById('content');
   if (!content) return;
@@ -464,7 +473,7 @@ function buildShortcutsPanel() {
   const shortcuts = [
     ['⌘K / Ctrl+K', 'Open command palette'],
     ['?', 'Show onboarding tour'],
-    ['1–5', 'Navigate to section (Overview, Dims, Assurance, Evidence, Terminal)'],
+    ['1–7', 'Navigate to section (Overview, Dims, Assurance, Evidence, Domains, Guardrails, Terminal)'],
     ['D', 'Toggle dark/light mode'],
     ['Esc', 'Close any modal'],
     ['S', 'Go to Settings'],
@@ -476,7 +485,9 @@ function buildShortcutsPanel() {
     if (key === '2') nav('dimensions');
     if (key === '3') nav('assurance');
     if (key === '4') nav('evidence');
-    if (key === '5') nav('fleet');
+    if (key === '5') nav('domains');
+    if (key === '6') nav('guardrails');
+    if (key === '7') nav('fleet');
     if (key === 'd' || key === 'D') toggleTheme();
     if (key === 's' || key === 'S') nav('settings');
   });
@@ -517,10 +528,9 @@ function renderScore(d) {
           <div style="font-size:14px;color:var(--text-secondary);max-width:360px;margin:0 auto 20px;line-height:1.6">
             Run your first assessment to see how trustworthy your AI agent really is. Takes under 2 minutes.
           </div>
-          <div style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);font-weight:500;cursor:pointer" onclick="nav('fleet')">
-            amc quickscore
-            <span style="font-size:11px;opacity:.6">↗</span>
-          </div>
+          <button class="action-btn action-btn-lg" onclick="executeAction('quickscore', this, 'amc quickscore')">
+            Run Quickscore ▸
+          </button>
         </div>`;
     }
     return;
@@ -676,11 +686,137 @@ function buildDimCards() {
   }).join('');
 }
 
+async function reloadDashboardData() {
+  G.data = await xfetch(`./data.json?ts=${Date.now()}`);
+  renderScore(G.data);
+  renderDims(G.data);
+  renderStats(G.data);
+  renderNextActions(G.data);
+  renderRadar(G.data);
+  renderTimeline(G.data);
+  renderAsrSummary(G.data);
+  renderApprovals(G.data);
+  renderValue(G.data);
+
+  if (G.hm) { buildHm(); buildDimCards(); }
+  if (G.af) { buildAf(); }
+  if (G.ef) { buildEv(); }
+  if (G.df && typeof window.buildDomains === 'function') { window.buildDomains(); }
+  if (G.gf && typeof window.buildGuardrails === 'function') { window.buildGuardrails(); }
+  if (G.ff) { buildFleet(); }
+}
+
+function quickscoreSummary(result) {
+  const out = typeof result === 'object' && result ? result : {};
+  const nested = typeof out.result === 'object' && out.result ? out.result : out;
+  const overall = typeof nested.overall === 'number'
+    ? nested.overall
+    : typeof nested.overallScore === 'number'
+      ? nested.overallScore
+      : (G.data?.overall ?? 0);
+  const label = typeof nested.trustLabel === 'string'
+    ? nested.trustLabel
+    : typeof nested.label === 'string'
+      ? nested.label
+      : (G.data?.latestRun?.trustLabel || 'UPDATED');
+  return { overall, label };
+}
+
+async function executeAction(action, buttonEl, fallbackCmd = '') {
+  const btn = buttonEl && typeof buttonEl === 'object' ? buttonEl : null;
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add('busy');
+    btn.innerHTML = '<span class="spin"></span> Running…';
+  }
+
+  try {
+    if (action === 'quickscore') {
+      if (typeof window.runQuickscore !== 'function') {
+        throw new Error('Studio API unavailable. Start with: amc up');
+      }
+      const result = await window.runQuickscore((G.data && G.data.agentId) || 'default');
+      await reloadDashboardData();
+      const summary = quickscoreSummary(result);
+      showViewToast(`Score updated: ${summary.label} (${summary.overall.toFixed(1)}/5)`);
+      return;
+    }
+
+    if (action.startsWith('assurance:')) {
+      if (typeof window.runAssurancePack !== 'function') {
+        throw new Error('Studio API unavailable. Start with: amc up');
+      }
+      const packId = action.slice('assurance:'.length);
+      await window.runAssurancePack(packId, (G.data && G.data.agentId) || 'default');
+      await reloadDashboardData();
+      showViewToast(`Assurance updated: ${packId}`);
+      return;
+    }
+
+    if (action === 'guide') {
+      if (typeof window.getGuide !== 'function') {
+        throw new Error('Studio API unavailable. Start with: amc up');
+      }
+      await window.getGuide((G.data && G.data.agentId) || 'default');
+      showViewToast('Guide refreshed');
+      return;
+    }
+
+    throw new Error('This action is not wired to API yet.');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const fallback = fallbackCmd ? ` — fallback: ${fallbackCmd}` : '';
+    showViewToast(`${msg}${fallback}`, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('busy');
+      btn.innerHTML = originalHtml;
+    }
+  }
+}
+
+async function handleQuickScore() {
+  const btn = document.querySelector('.sb-quickscore');
+  if (!btn) return;
+  const label = btn.querySelector('.lbl');
+  btn.disabled = true;
+  if (label) label.textContent = '⏳ Scoring...';
+  try {
+    const result = await window.runQuickscore((G.data && G.data.agentId) || 'default');
+    await reloadDashboardData();
+    const summary = quickscoreSummary(result);
+    showViewToast(`Score: ${summary.overall.toFixed(1)}/5.0 — ${summary.label}`);
+  } catch (err) {
+    showViewToast('Studio not running. Run: amc up', 'error');
+  } finally {
+    if (label) label.textContent = '⚡ Quick Score';
+    btn.disabled = false;
+  }
+}
+
+async function checkStudioConnectionOnInit() {
+  if (typeof window.checkStudio !== 'function') return;
+  try {
+    const online = await window.checkStudio();
+    G.studioOnline = online;
+    if (!online) {
+      showViewToast('Studio not running. Run: amc up', 'error');
+    }
+  } catch {
+    G.studioOnline = false;
+  }
+}
+
+window.executeAction = executeAction;
+window.handleQuickScore = handleQuickScore;
+window.showViewToast = showViewToast;
+window.nav = nav;
+window.G = G;
+
 /* ── TASK CARDS (new Next Steps render) ────────────── */
 function renderNextActions(d) {
-  /* Populate legacy mount (hidden) */
-  const legacyEl = document.getElementById('next-actions-mount');
-
   const taskGrid = document.getElementById('task-grid-mount');
   if (!taskGrid) return;
 
@@ -691,11 +827,23 @@ function renderNextActions(d) {
   const layers = d.latestRun?.layerScores || [];
   const weakest = layers.reduce((min, l) => l.avgFinalLevel < (min?.avgFinalLevel ?? 99) ? l : min, null);
 
+  if (!score || !d.latestRun?.questionScores?.length) {
+    actions.push({
+      title: 'Run your first quickscore',
+      body: 'Kick off a live trust score from Studio in under 2 minutes.',
+      cmd: 'amc quickscore',
+      action: 'quickscore',
+      button: 'Run Quickscore ▸',
+      nav: 'overview',
+    });
+  }
   if (gaps > 0) {
     actions.push({
       title: `Fix ${gaps} evidence gap${gaps > 1 ? 's' : ''}`,
       body: 'Your agent claims capabilities but lacks proof. Collect execution logs to back them up.',
       cmd: 'amc evidence collect',
+      action: 'manual',
+      button: 'Collect Evidence ▸',
       nav: 'evidence',
     });
   }
@@ -704,6 +852,8 @@ function renderNextActions(d) {
       title: `Review ${denied} denied approval${denied > 1 ? 's' : ''}`,
       body: 'Some agent actions were blocked by policy. Review them to fix or update your rules.',
       cmd: 'amc approvals list --denied',
+      action: 'manual',
+      button: 'Review Approvals ▸',
       nav: 'evidence',
     });
   }
@@ -711,25 +861,32 @@ function renderNextActions(d) {
     const dimShort = DIM_SHORT[weakest.layerName] || weakest.layerName.split(' ')[0];
     actions.push({
       title: `Improve ${dimShort} (${weakest.avgFinalLevel.toFixed(1)}/5)`,
-      body: `This dimension is your weakest area. Run targeted tests to find specific gaps.`,
+      body: 'This dimension is your weakest area. Run targeted tests to find specific gaps.',
       cmd: `amc mechanic gap --dim ${dimShort.toLowerCase()}`,
+      action: 'manual',
+      button: 'Run Gap Check ▸',
       nav: 'dimensions',
     });
   }
   const lowPacks = (d.assurance || []).filter(p => p.score0to100 < 75);
   if (lowPacks.length > 0) {
+    const candidatePack = lowPacks[0]?.packId;
     actions.push({
       title: `${lowPacks.length} pack${lowPacks.length > 1 ? 's' : ''} below target`,
-      body: 'Assurance packs test specific behaviors (like hallucination, injection resistance). These need attention.',
-      cmd: 'amc assurance run --failing',
+      body: 'Assurance packs test specific behaviors (like hallucination, injection resistance).',
+      cmd: candidatePack ? `amc assurance run ${candidatePack}` : 'amc assurance run --failing',
+      action: candidatePack ? `assurance:${candidatePack}` : 'manual',
+      button: 'Run Assurance ▸',
       nav: 'assurance',
     });
   }
   if (score < 4 && actions.length < 4) {
     actions.push({
-      title: 'Run formal score',
-      body: 'Get cryptographic evidence chains.',
-      cmd: 'amc score formal-spec default',
+      title: 'Refresh growth guide',
+      body: 'Get an updated quick guide for your next maturity step.',
+      cmd: 'amc guide --quick',
+      action: 'guide',
+      button: 'Get Guide ▸',
       nav: 'overview',
     });
   }
@@ -739,7 +896,7 @@ function renderNextActions(d) {
       <div class="task-num">✓</div>
       <div class="task-title">All clear</div>
       <div class="task-body">Score ${score.toFixed(1)}/5.0 — looking good.</div>
-      <div class="task-cmd">amc up</div>
+      <div class="task-cmd"><button class="action-btn" onclick="event.stopPropagation();executeAction('quickscore', this, 'amc quickscore')">Run Quickscore ▸</button></div>
     </div>`;
     return;
   }
@@ -752,7 +909,9 @@ function renderNextActions(d) {
       <div class="task-num">${i + 1}</div>
       <div class="task-title">${esc(a.title)}</div>
       <div class="task-body">${esc(a.body)}</div>
-      <div class="task-cmd"><span style="color:var(--text-tertiary);font-family:Inter,sans-serif;font-size:10px;margin-right:6px">Run:</span>${esc(a.cmd)}</div>
+      <div class="task-cmd">
+        <button class="action-btn" onclick="event.stopPropagation();executeAction('${escJs(a.action)}', this, '${escJs(a.cmd)}')">${esc(a.button)}</button>
+      </div>
     </div>`).join('');
 
   taskGrid.querySelectorAll('.task-card[data-nav]').forEach(card => {
@@ -1376,6 +1535,9 @@ function removeLoadingSkeleton() {
 
     /* Settings */
     if (document.getElementById('settings-mount')) buildSettings();
+
+    /* Studio API status */
+    await checkStudioConnectionOnInit();
 
     /* Onboarding tour (slight delay) */
     setTimeout(() => buildOnboarding(), 500);

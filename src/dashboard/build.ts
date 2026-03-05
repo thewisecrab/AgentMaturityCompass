@@ -20,6 +20,9 @@ import { lastDriftCheckSummary } from "../drift/driftDetector.js";
 import { listApprovals } from "../approvals/approvalStore.js";
 import { benchmarkStats } from "../benchmarks/benchStats.js";
 import { latestOutcomeReport, outcomeTrend, topValueGaps } from "../outcomes/outcomeDashboard.js";
+import { listDomainMetadata } from "../domains/domainRegistry.js";
+import { listIndustryPacks } from "../domains/industryPacks.js";
+import { createGuardrailState, listGuardrailsWithStatus } from "../enforce/guardrailProfiles.js";
 
 export interface DashboardBuildInput {
   workspace: string;
@@ -186,6 +189,70 @@ function loadLatestRunSummary(workspace: string, agentId: string): { overall: nu
   };
 }
 
+function getDomainSummaries(): Array<{
+  id: string;
+  name: string;
+  description: string;
+  riskLevel: "high" | "very-high" | "critical";
+  questionCount: number;
+  packCount: number;
+  regulatoryBasis: string[];
+}> {
+  const packs = listIndustryPacks();
+  const byDomain = new Map<string, number>();
+  for (const pack of packs) {
+    byDomain.set(pack.stationId, (byDomain.get(pack.stationId) ?? 0) + 1);
+  }
+  return listDomainMetadata().map((domain) => ({
+    id: domain.id,
+    name: domain.name,
+    description: domain.description,
+    riskLevel: domain.riskLevel,
+    questionCount: domain.questionCount,
+    packCount: byDomain.get(domain.id) ?? 0,
+    regulatoryBasis: domain.regulatoryBasis
+  }));
+}
+
+function getPackSummaries(): Array<{
+  id: string;
+  name: string;
+  domain: string;
+  riskTier: "critical" | "very-high" | "high" | "elevated";
+  questionCount: number;
+  description: string;
+  regulatoryBasis: string[];
+}> {
+  return listIndustryPacks().map((pack) => ({
+    id: pack.id,
+    name: pack.name,
+    domain: pack.stationId,
+    riskTier: pack.riskTier,
+    questionCount: pack.questions.length,
+    description: pack.description,
+    regulatoryBasis: pack.regulatoryBasis
+  }));
+}
+
+function getGuardrailsList(): Array<{
+  id: string;
+  name: string;
+  description: string;
+  category: "security" | "compliance" | "quality" | "cost" | "safety";
+  enabled: boolean;
+  triggeredCount: number;
+}> {
+  const state = createGuardrailState();
+  return listGuardrailsWithStatus(state).map((guardrail) => ({
+    id: guardrail.name,
+    name: guardrail.name,
+    description: guardrail.description,
+    category: guardrail.category,
+    enabled: guardrail.enabled,
+    triggeredCount: 0
+  }));
+}
+
 export function buildDashboard(input: DashboardBuildInput): DashboardBuildResult {
   const agentId = resolveAgentId(input.workspace, input.agentId);
   const paths = getAgentPaths(input.workspace, agentId);
@@ -232,6 +299,9 @@ export function buildDashboard(input: DashboardBuildInput): DashboardBuildResult
     targetMapping: target.mapping,
     trends,
     assurance,
+    domains: getDomainSummaries(),
+    industryPacks: getPackSummaries(),
+    guardrails: getGuardrailsList(),
     approvalsSummary: {
       requested: 0,
       approved: 0,
@@ -465,15 +535,19 @@ export function buildDashboard(input: DashboardBuildInput): DashboardBuildResult
 
   const html = readAsset(join("templates", "index.html"), "<html><body><h1>AMC Dashboard</h1></body></html>");
   const appJs = readAsset(join("templates", "app.js"), "console.log('AMC dashboard');");
+  const apiJs = readAsset(join("templates", "api.js"), "");
   const css = readAsset(join("templates", "styles.css"), "body{font-family:sans-serif;}");
   const radar = readAsset(join("components", "radar.js"), "export function renderRadar(){}");
   const heatmap = readAsset(join("components", "heatmap.js"), "export function renderHeatmap(){}");
   const timeline = readAsset(join("components", "timeline.js"), "export function renderTimeline(){}");
   const questionDetail = readAsset(join("components", "questionDetail.js"), "export function renderQuestionDetail(){}");
   const eoc = readAsset(join("components", "eoc.js"), "export function renderEoc(){}");
+  const domainsJs = readAsset(join("components", "domains.js"), "");
+  const guardrailsJs = readAsset(join("components", "guardrailsView.js"), "");
 
   writeFileAtomic(join(outDir, "index.html"), html, 0o644);
   writeFileAtomic(join(outDir, "app.js"), appJs, 0o644);
+  writeFileAtomic(join(outDir, "api.js"), apiJs, 0o644);
   writeFileAtomic(join(outDir, "styles.css"), css, 0o644);
   writeFileAtomic(join(outDir, "data.json"), JSON.stringify(data, null, 2), 0o644);
   writeFileAtomic(join(outDir, "evidenceIndex.json"), JSON.stringify(evidenceIndex, null, 2), 0o644);
@@ -482,6 +556,8 @@ export function buildDashboard(input: DashboardBuildInput): DashboardBuildResult
   writeFileAtomic(join(outDir, "components", "timeline.js"), timeline, 0o644);
   writeFileAtomic(join(outDir, "components", "questionDetail.js"), questionDetail, 0o644);
   writeFileAtomic(join(outDir, "components", "eoc.js"), eoc, 0o644);
+  writeFileAtomic(join(outDir, "components", "domains.js"), domainsJs, 0o644);
+  writeFileAtomic(join(outDir, "components", "guardrailsView.js"), guardrailsJs, 0o644);
 
   return {
     agentId,
@@ -490,6 +566,7 @@ export function buildDashboard(input: DashboardBuildInput): DashboardBuildResult
     generatedFiles: [
       "index.html",
       "app.js",
+      "api.js",
       "styles.css",
       "data.json",
       "evidenceIndex.json",
@@ -497,7 +574,9 @@ export function buildDashboard(input: DashboardBuildInput): DashboardBuildResult
       "components/heatmap.js",
       "components/timeline.js",
       "components/questionDetail.js",
-      "components/eoc.js"
+      "components/eoc.js",
+      "components/domains.js",
+      "components/guardrailsView.js"
     ]
   };
 }

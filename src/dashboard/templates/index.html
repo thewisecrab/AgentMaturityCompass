@@ -66,6 +66,16 @@
       <span class="lbl">Evidence</span>
     </a>
 
+    <a class="sb-link" data-s="domains" href="#domains">
+      <span class="sb-icon">🏭</span>
+      <span class="lbl">Domains</span>
+    </a>
+
+    <a class="sb-link" data-s="guardrails" href="#guardrails">
+      <span class="sb-icon">🛡️</span>
+      <span class="lbl">Guardrails</span>
+    </a>
+
     <a class="sb-link" data-s="fleet" href="#fleet">
       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
       <span class="lbl">Terminal</span>
@@ -352,6 +362,20 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════
+         DOMAINS
+    ══════════════════════════════════════════════════ -->
+    <section class="sec h" id="s-domains">
+      <div id="sec-domains"></div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         GUARDRAILS
+    ══════════════════════════════════════════════════ -->
+    <section class="sec h" id="s-guardrails">
+      <div id="sec-guardrails"></div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
          TERMINAL (fleet)
     ══════════════════════════════════════════════════ -->
     <section class="sec h" id="s-fleet">
@@ -433,6 +457,14 @@
       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
       <span>Evidence</span>
     </a>
+    <a class="bn" data-s="domains" href="#domains">
+      <span class="sb-icon">🏭</span>
+      <span>Domains</span>
+    </a>
+    <a class="bn" data-s="guardrails" href="#guardrails">
+      <span class="sb-icon">🛡️</span>
+      <span>Guardrails</span>
+    </a>
     <a class="bn" data-s="fleet" href="#fleet">
       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
       <span>Terminal</span>
@@ -440,6 +472,9 @@
   </div>
 </nav>
 
-<script type="module" src="./app.js"></script>
+<script src="./api.js"></script>
+<script src="./components/domains.js"></script>
+<script src="./components/guardrailsView.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
