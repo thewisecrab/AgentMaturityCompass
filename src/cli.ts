@@ -1030,6 +1030,8 @@ program
   .name("amc")
   .description("Agent Maturity Compass")
   .version("1.0.0")
+  .enablePositionalOptions()
+  .passThroughOptions()
   .showSuggestionAfterError(true)
   .showHelpAfterError("\nTip: add '--help' after any command to see available options.")
   .addHelpText("afterAll", cliDiscoverabilityFooter());
