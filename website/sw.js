@@ -1,5 +1,5 @@
 /* AMC Service Worker — offline-first for static assets, network-first for API */
-const CACHE_NAME = 'amc-v1';
+const CACHE_NAME = 'amc-v2';
 const STATIC_ASSETS = [
   'index.html',
   'playground.html',
