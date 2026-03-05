@@ -1337,6 +1337,7 @@ function buildHm() {
         <span class="hm-n" style="color:var(--text-tertiary)">${tgt}</span>
         <span class="hm-n ${gc}">${gap > 0 ? '+' : ''}${gap}</span>
         <div class="hm-conf"><div class="hm-cf" style="width:${conf}%;background:${sc}"></div></div>
+        <button class="hm-explain" onclick="event.stopPropagation();explainQ('${escJs(q.questionId)}',this)" title="Explain this question">? Explain</button>
       </div>`;
     }).join('');
     return `<div class="hm-grp">
@@ -1376,6 +1377,28 @@ function selQ(qid) {
   </div>`;
 }
 
+/* ── EXPLAIN QUESTION (inline via API) ────────────── */
+async function explainQ(qid, btn) {
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    const res = await amcApi('/exec', { method: 'POST', body: JSON.stringify({ command: `amc explain ${qid}` }) });
+    const text = typeof res === 'string' ? res : (res.output || res.stdout || res.raw || JSON.stringify(res, null, 2));
+    const el = document.getElementById('qd-mount');
+    if (el) el.innerHTML = `<div class="qd fade">
+      <div class="qd-head"><span class="qd-id">${esc(qid)}</span><span class="qd-flag">EXPLAIN</span></div>
+      <pre class="cli-pre" style="white-space:pre-wrap;font-size:11px;line-height:1.6;margin-top:8px;color:var(--text-secondary)">${ansiToHtml(text)}</pre>
+    </div>`;
+    selQ(qid);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    showViewToast(`Explain failed: ${msg}. Run: amc explain ${qid}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '? Explain';
+  }
+}
+
 /* ── ASSURANCE FULL ─────────────────────────────────── */
 function asrCard(p) {
   const pct = p.score0to100 / 100, circ = 2 * Math.PI * 17, off = circ * (1 - pct);
@@ -1404,10 +1427,16 @@ function buildAf() {
   if (!el) return;
   if (packs.length) {
     const failing = packs.filter(p => p.score0to100 < 75);
-    const headerAction = failing.length
+    const passing = packs.filter(p => p.score0to100 >= 75);
+    const avgScore = Math.round(packs.reduce((s,p) => s + p.score0to100, 0) / packs.length);
+    const failBtnHtml = failing.length
       ? `<button class="action-btn" style="font-size:10px;padding:5px 10px" onclick="event.stopPropagation();(async()=>{for(const p of ${esc(JSON.stringify(failing.map(p=>p.packId)))}){await executeAction('assurance:'+p,this,'amc assurance run '+p);}})()">Run ${failing.length} Failing ▸</button>`
       : '';
-    el.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:var(--text-secondary)">${packs.length} packs scored</span>${headerAction}</div><div class="asr-grid">${packs.map(asrCard).join('')}</div>`;
+    const runAllBtn = `<button class="action-btn" style="font-size:10px;padding:5px 10px;background:var(--bg-overlay);border-color:var(--border);color:var(--text-secondary)" onclick="event.stopPropagation();(async()=>{for(const p of ${esc(JSON.stringify(packs.map(p=>p.packId)))}){await executeAction('assurance:'+p,this,'amc assurance run '+p);}})()">Run All ▸</button>`;
+    el.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+      <span style="font-size:12px;color:var(--text-secondary)">${packs.length} packs · <strong style="color:var(--green)">${passing.length} passing</strong> · <strong style="color:${failing.length ? 'var(--red)' : 'var(--text-tertiary)'}">${failing.length} failing</strong> · avg <strong style="color:${scoreColor(avgScore, 100)}">${avgScore}%</strong></span>
+      <div style="display:flex;gap:6px">${failBtnHtml}${runAllBtn}</div>
+    </div><div class="asr-grid">${packs.map(asrCard).join('')}</div>`;
   } else {
     el.innerHTML = '<div class="empty"><span class="empty-i">🛡️</span><span class="empty-t">No assurance runs yet</span><button class="action-btn" style="margin-top:10px" onclick="executeAction(\'assurance:sycophancy\', this, \'amc assurance run sycophancy\')">Run First Pack ▸</button></div>';
   }
@@ -1430,14 +1459,24 @@ function buildEv() {
   const el = document.getElementById('ev-mount');
   if (!el) return;
   if (gaps.length) {
+    const critGaps = gaps.filter(g => (g.severity || '').toLowerCase() === 'critical' || (g.gap ?? 99) >= 3);
+    const highGaps = gaps.filter(g => !critGaps.includes(g) && ((g.severity || '').toLowerCase() === 'high' || (g.gap ?? 0) === 2));
     el.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <span style="font-size:12px;color:var(--text-secondary)">${gaps.length} evidence gap${gaps.length > 1 ? 's' : ''} found</span>
-      <button class="action-btn" style="font-size:10px;padding:5px 10px" onclick="executeAction('manual', this, 'amc evidence collect')">Collect Evidence ▸</button>
-    </div>${gaps.map(g => `<div class="ev-item">
-      <div class="ev-dot" style="background:var(--red)"></div>
+      <span style="font-size:12px;color:var(--text-secondary)">${gaps.length} evidence gap${gaps.length > 1 ? 's' : ''}${critGaps.length ? ` · <strong style="color:var(--red)">${critGaps.length} critical</strong>` : ''}${highGaps.length ? ` · <strong style="color:var(--amber)">${highGaps.length} high</strong>` : ''}</span>
+      <div style="display:flex;gap:6px">
+        <button class="action-btn" style="font-size:10px;padding:5px 10px" onclick="executeAction('manual', this, 'amc evidence collect')">Collect Evidence ▸</button>
+        <button class="action-btn" style="font-size:10px;padding:5px 10px;background:var(--bg-overlay);border-color:var(--border);color:var(--text-secondary)" onclick="executeAction('manual', this, 'amc evidence ingest')">Ingest File ▸</button>
+      </div>
+    </div>${gaps.map(g => {
+      const sev = (g.severity || '').toLowerCase() === 'critical' || (g.gap ?? 99) >= 3 ? 'crit' : (g.severity || '').toLowerCase() === 'high' || (g.gap ?? 0) === 2 ? 'high' : 'med';
+      const sevLabel = sev === 'crit' ? 'Critical' : sev === 'high' ? 'High' : 'Medium';
+      return `<div class="ev-item">
+      <div class="ev-dot" style="background:${sev === 'crit' ? 'var(--red)' : sev === 'high' ? 'var(--amber)' : 'var(--text-tertiary)'}"></div>
       <span class="ev-qid">${esc(g.questionId)}</span>
+      <span class="ev-sev ${sev}">${sevLabel}</span>
       <span class="ev-r">${esc(g.reason)}</span>
-    </div>`).join('')}`;
+    </div>`;
+    }).join('')}`;
   } else {
     el.innerHTML = '<div class="empty"><span class="empty-i">✅</span><span class="empty-t">No evidence gaps — full execution proof for all scored questions.</span></div>';
   }
@@ -1533,8 +1572,16 @@ function initTerminal() {
     if (e.key === 'ArrowDown') { e.preventDefault(); histIdx = Math.max(histIdx - 1, -1); input.value = histIdx >= 0 ? (history[histIdx] ?? '') : ''; }
   });
 
+  /* Quick action buttons above output */
+  const quickCmds = ['quickscore','doctor --json','improve','assurance list','evidence gaps','domain assess --domain health','guardrails list','history'];
+  const qwrap = document.createElement('div');
+  qwrap.className = 'term-quick';
+  qwrap.innerHTML = quickCmds.map(c => `<button class="term-qbtn" data-cmd="${esc(c)}">${esc(c)}</button>`).join('');
+  output.parentElement.insertBefore(qwrap, output);
+  qwrap.querySelectorAll('.term-qbtn').forEach(b => b.addEventListener('click', () => { input.value = b.dataset.cmd; runCommand(); }));
+
   /* Show helpful commands on first load */
-  output.innerHTML = `<div class="cli-entry" style="color:var(--text-tertiary);font-size:11px">Type a command (e.g. <code style="color:var(--accent)">quickscore</code>, <code style="color:var(--accent)">doctor --json</code>, <code style="color:var(--accent)">domain assess --domain health</code>)</div>`;
+  output.innerHTML = `<div class="cli-entry" style="color:var(--text-tertiary);font-size:11px">Type a command or click a quick action above. Press <kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px">↑</kbd><kbd style="background:var(--bg-overlay);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px">↓</kbd> for history.</div>`;
 }
 
 /* ── FLEET ────────────────────────────────────────── */
@@ -1590,6 +1637,15 @@ function buildSettings() {
   const container = document.getElementById('settings-mount');
   if (!container) return;
   const agentId = G.data?.agentId || 'default';
+  const d = G.data || {};
+  const qs = d.latestRun?.questionScores?.length || 0;
+  const packs = d.assurance?.length || 0;
+  const gaps = d.evidenceGaps?.length || 0;
+  const domains = (d.domains || []).length;
+  const guardrails = (d.guardrails || []).length;
+  const runId = d.latestRun?.runId || '—';
+  const runTs = d.latestRun?.timestamp ? new Date(d.latestRun.timestamp).toLocaleString() : '—';
+  const version = d.version || d.latestRun?.amcVersion || '—';
   container.innerHTML = `
     <div style="display:grid;gap:16px;max-width:640px">
       <div class="card" style="padding:20px 24px">
@@ -1613,18 +1669,66 @@ function buildSettings() {
       </div>
 
       <div class="card" style="padding:20px 24px">
+        <div class="ch"><span class="ch-dot"></span>Data Summary</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-top:10px;font:400 12px/1.8 'Inter',sans-serif;color:var(--text-secondary)">
+          <div>Questions scored: <strong style="color:var(--text-primary)">${qs}</strong></div>
+          <div>Assurance packs: <strong style="color:var(--text-primary)">${packs}</strong></div>
+          <div>Evidence gaps: <strong style="color:${gaps > 0 ? 'var(--red)' : 'var(--green)'}">${gaps}</strong></div>
+          <div>Domains: <strong style="color:var(--text-primary)">${domains}</strong></div>
+          <div>Guardrails: <strong style="color:var(--text-primary)">${guardrails}</strong></div>
+          <div>Version: <strong style="color:var(--text-primary)">${esc(version)}</strong></div>
+        </div>
+        <div style="margin-top:10px;font:400 11px/1.5 'Inter',sans-serif;color:var(--text-tertiary)">
+          Run: <code style="font-size:10px">${esc(runId.slice(0,8))}</code> · ${esc(runTs)}
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px 24px">
         <div class="ch"><span class="ch-dot"></span>Export</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
-          <a href="/export.md" style="
+          <button onclick="executeAction('manual', this, 'amc report md')" style="
             display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
             background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:8px;
-            font:500 12px/1 'Inter',sans-serif;color:var(--accent);text-decoration:none;transition:background .15s;
-          ">📄 Markdown Report</a>
-          <button onclick="navigator.clipboard?.writeText(JSON.stringify(G.data,null,2))" style="
+            font:500 12px/1 'Inter',sans-serif;color:var(--accent);cursor:pointer;transition:background .15s;
+          ">📄 Generate Report</button>
+          <button onclick="navigator.clipboard?.writeText(JSON.stringify(G.data,null,2)).then(()=>showViewToast('JSON copied to clipboard'))" style="
             display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
             background:var(--bg-overlay);border:1px solid var(--border);border-radius:8px;
             font:500 12px/1 'Inter',sans-serif;color:var(--text-secondary);cursor:pointer;transition:all .15s;
           ">📋 Copy JSON</button>
+          <button onclick="executeAction('manual', this, 'amc export sarif')" style="
+            display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+            background:var(--bg-overlay);border:1px solid var(--border);border-radius:8px;
+            font:500 12px/1 'Inter',sans-serif;color:var(--text-secondary);cursor:pointer;transition:all .15s;
+          ">🔒 Export SARIF</button>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px 24px">
+        <div class="ch"><span class="ch-dot"></span>Keyboard Shortcuts</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin-top:10px;font:400 12px/1.8 'Inter',sans-serif;color:var(--text-secondary)">
+          <kbd class="s-kbd">⌘K</kbd><span>Command palette</span>
+          <kbd class="s-kbd">?</kbd><span>Shortcuts panel</span>
+          <kbd class="s-kbd">1-7</kbd><span>Navigate sections</span>
+          <kbd class="s-kbd">D</kbd><span>Toggle dark / light</span>
+          <kbd class="s-kbd">S</kbd><span>Focus terminal</span>
+          <kbd class="s-kbd">Esc</kbd><span>Close overlays</span>
+        </div>
+      </div>
+
+      <div class="card" style="padding:20px 24px">
+        <div class="ch"><span class="ch-dot"></span>Actions</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+          <button onclick="resetOnboarding()" style="
+            display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+            background:var(--bg-overlay);border:1px solid var(--border);border-radius:8px;
+            font:500 12px/1 'Inter',sans-serif;color:var(--text-secondary);cursor:pointer;transition:all .15s;
+          ">🧭 Replay Tour</button>
+          <button onclick="executeAction('manual', this, 'amc doctor --json')" style="
+            display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+            background:var(--bg-overlay);border:1px solid var(--border);border-radius:8px;
+            font:500 12px/1 'Inter',sans-serif;color:var(--text-secondary);cursor:pointer;transition:all .15s;
+          ">🩺 Run Doctor</button>
         </div>
       </div>
 

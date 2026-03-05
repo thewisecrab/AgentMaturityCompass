@@ -2739,3 +2739,84 @@ html { scroll-behavior: smooth; }
   .details-body .row { grid-template-columns: 1fr !important; }
   .details-body .row > div[style*="flex-direction:column"] { flex-direction: column; }
 }
+
+/* ── SETTINGS KEYBOARD SHORTCUT BADGES ───────────── */
+.s-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  padding: 2px 8px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font: 600 11px/1.4 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ── EVIDENCE PER-GAP SEVERITY BADGES ────────────── */
+.ev-sev {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font: 600 9px/1.4 'Inter', sans-serif;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.ev-sev.crit { background: color-mix(in srgb, var(--red) 15%, transparent); color: var(--red); }
+.ev-sev.high { background: color-mix(in srgb, var(--amber) 15%, transparent); color: var(--amber); }
+.ev-sev.med  { background: color-mix(in srgb, var(--text-secondary) 12%, transparent); color: var(--text-secondary); }
+
+/* ── QUESTION EXPLAIN BUTTON ─────────────────────── */
+.hm-explain {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  font: 500 9px/1 'Inter', sans-serif;
+  color: var(--accent);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+  flex-shrink: 0;
+}
+.hm-row:hover .hm-explain, .hm-row:focus .hm-explain { opacity: 1; }
+
+/* ── TERMINAL QUICK ACTIONS ──────────────────────── */
+.term-quick {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.term-qbtn {
+  padding: 4px 10px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all .15s;
+}
+.term-qbtn:hover { border-color: var(--accent-border); color: var(--accent); }
+
+/* ── ASSURANCE CATEGORY BADGES ───────────────────── */
+.asr-cat {
+  display: inline-flex;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font: 500 9px/1.4 'Inter', sans-serif;
+  letter-spacing: .02em;
+  background: var(--bg-overlay);
+  color: var(--text-tertiary);
+  margin-top: 3px;
+}

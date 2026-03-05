@@ -81,10 +81,19 @@
       grouped.get(group).push(guardrail);
     }
 
+    const enabledCount = guardrails.filter((g) => g.enabled).length;
+    const triggeredCount = guardrails.filter((g) => g.triggeredCount > 0).length;
+    const totalTriggers = guardrails.reduce((s, g) => s + g.triggeredCount, 0);
+
     root.innerHTML = `
       <div class="dim-page-header" style="margin-bottom:14px">
         <div class="dim-page-title">Guardrails</div>
         <div class="dim-page-sub">Toggle runtime protections and monitor status by category</div>
+      </div>
+
+      <div style="display:flex;gap:16px;margin-bottom:14px;font:400 12px/1 'Inter',sans-serif;color:var(--text-secondary)">
+        <span><strong style="color:var(--green)">${enabledCount}</strong> / ${guardrails.length} enabled</span>
+        <span><strong style="color:${triggeredCount > 0 ? 'var(--amber)' : 'var(--text-tertiary)'}">${totalTriggers}</strong> triggers across <strong>${triggeredCount}</strong> guardrails</span>
       </div>
 
       ${GROUP_ORDER.map((group) => {
@@ -108,7 +117,7 @@
                           <div class="guardrail-name">${esc(item.name)}</div>
                           <div class="guardrail-desc">${esc(item.description)}</div>
                         </div>
-                        <button class="guardrail-toggle ${item.enabled ? 'on' : ''}" data-toggle-id="${esc(item.id)}" aria-pressed="${item.enabled ? 'true' : 'false'}">${item.enabled ? 'On' : 'Off'}</button>
+                        <button class="guardrail-toggle ${item.enabled ? 'on' : ''}" data-toggle-id="${esc(item.id)}" role="switch" aria-checked="${item.enabled ? 'true' : 'false'}" aria-label="Toggle ${esc(item.name)}">${item.enabled ? 'On' : 'Off'}</button>
                       </div>
                       <div class="guardrail-status ${statusClass}">
                         <span class="guardrail-dot"></span>
