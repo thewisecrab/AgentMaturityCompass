@@ -1943,10 +1943,11 @@ program
   .command("quickscore")
   .description("Zero-config rapid assessment — auto-scores from evidence, or interactive 5-question fallback")
   .option("--json", "emit JSON output", false)
+  .option("--quiet", "suppress non-JSON output (use with --json for clean piping)", false)
   .option("--eu-ai-act", "show EU AI Act risk classification mapping", false)
   .option("--auto", "auto-score from ledger evidence (no questions asked)", false)
   .option("--agent <agentId>", "agent ID for auto mode")
-  .action(async (opts: { json: boolean; euAiAct: boolean; auto: boolean; agent?: string }) => {
+  .action(async (opts: { json: boolean; quiet: boolean; euAiAct: boolean; auto: boolean; agent?: string }) => {
     // Auto mode: score from actual evidence in the ledger
     if (opts.auto) {
       try {
@@ -2010,7 +2011,7 @@ program
     const questions = getRapidQuestions();
     const answers: Record<string, number> = {};
 
-    if (process.stdin.isTTY) {
+    if (process.stdin.isTTY && !opts.quiet) {
       for (const question of questions) {
         const { level } = await inquirer.prompt<{ level: number }>([
           {
@@ -6423,6 +6424,59 @@ ci
     }
   });
 
+ci
+  .command("check")
+  .description("One-liner CI gate: quickscore + threshold check (exit 1 if below)")
+  .option("--min-score <n>", "minimum score percentage to pass (0-100)", "20")
+  .option("--min-level <level>", "minimum maturity level (L0-L5)", "L1")
+  .option("--agent <agentId>", "agent ID (overrides global --agent)")
+  .option("--json", "output JSON result", false)
+  .action(async (opts: { minScore: string; minLevel: string; agent?: string; json: boolean }) => {
+    const { getRapidQuestions, scoreRapidAssessment } = await import("./diagnostic/rapidQuickscore.js");
+    const questions = getRapidQuestions();
+    // In CI we auto-score (non-interactive) — try auto mode first, fall back to zero-state
+    let result: { percentage: number; preliminaryLevel: string; totalScore: number; maxScore: number };
+    try {
+      const agentId = opts.agent ?? activeAgent(program) ?? "default";
+      ensureWorkspaceReadyForAgent(process.cwd(), agentId);
+      const report = await runDiagnostic({ workspace: process.cwd(), window: "30d", agentId });
+      const avgLevel = report.layerScores.length > 0
+        ? report.layerScores.reduce((s, l) => s + l.avgFinalLevel, 0) / report.layerScores.length
+        : 0;
+      const overallLevel = Math.min(5, Math.floor(avgLevel));
+      const pct = report.layerScores.length > 0
+        ? Math.round((avgLevel / 5) * 100)
+        : 0;
+      result = { percentage: pct, preliminaryLevel: `L${overallLevel}`, totalScore: pct, maxScore: 100 };
+    } catch {
+      // No evidence — score with default answers (L0)
+      const answers: Record<string, number> = {};
+      result = scoreRapidAssessment(answers);
+    }
+
+    const minScore = parseInt(opts.minScore, 10) || 0;
+    const minLevelNum = parseInt(opts.minLevel.replace(/\D/g, ""), 10) || 0;
+    const actualLevelNum = parseInt(result.preliminaryLevel.replace(/\D/g, ""), 10) || 0;
+    const scorePassed = result.percentage >= minScore;
+    const levelPassed = actualLevelNum >= minLevelNum;
+    const passed = scorePassed && levelPassed;
+
+    if (opts.json) {
+      console.log(JSON.stringify({ passed, score: result.percentage, level: result.preliminaryLevel, minScore, minLevel: opts.minLevel }, null, 2));
+    } else {
+      const icon = passed ? chalk.green("✅ PASS") : chalk.red("❌ FAIL");
+      console.log(chalk.bold(`\n🧭 AMC CI Gate Check`));
+      console.log(`  Score: ${result.percentage}% (min: ${minScore}%)`);
+      console.log(`  Level: ${result.preliminaryLevel} (min: ${opts.minLevel})`);
+      console.log(`  Result: ${icon}`);
+      if (!passed) {
+        console.log(chalk.gray("\n  Fix: amc improve | amc guide --apply"));
+      }
+      console.log("");
+    }
+    process.exit(passed ? 0 : 1);
+  });
+
 archetype
   .command("list")
   .description("List built-in archetype packs")
@@ -8042,10 +8096,13 @@ compliance
   .command("report")
   .description("Generate evidence-linked compliance report")
   .requiredOption("--framework <framework>", `one of: ${frameworkChoices().join(", ")}`)
-  .requiredOption("--window <window>", "window (e.g. 14d)")
-  .requiredOption("--out <path>", "output path (.md or .json)")
+  .option("--window <window>", "window (e.g. 14d)", "30d")
+  .option("--out <path>", "output path (.md or .json)")
   .option("--agent <agentId>", "agent ID (overrides global --agent)")
-  .action((opts: { framework: string; window: string; out: string; agent?: string }) => {
+  .action((opts: { framework: string; window: string; out?: string; agent?: string }) => {
+    if (!opts.out) {
+      opts.out = `compliance-${opts.framework.toLowerCase()}.json`;
+    }
     const framework = opts.framework as ComplianceFramework;
     const family = getFrameworkFamily(framework);
     const format = opts.out.toLowerCase().endsWith(".json") ? "json" : "md";

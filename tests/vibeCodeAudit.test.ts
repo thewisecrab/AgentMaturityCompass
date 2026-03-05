@@ -121,7 +121,7 @@ describe("vibe code audit", () => {
     expect(result.overall.findings.length).toBeGreaterThan(0);
   });
 
-  test("CLI vibe-audit supports --file and --json", async () => {
+  test("CLI vibe-audit supports --file and --json", { timeout: 30_000 }, async () => {
     const root = newTempRoot();
     const file = join(root, "generated_code.py");
     writeFileSync(

@@ -924,6 +924,10 @@ async function checkStudioConnectionOnInit() {
   } catch {
     G.studioOnline = false;
   }
+  /* Start continuous monitoring with reconnection badge */
+  if (typeof window.startStudioMonitor === 'function') {
+    window.startStudioMonitor(15000);
+  }
 }
 
 window.executeAction = executeAction;

@@ -113,6 +113,39 @@ async function execCommand(command) {
   );
 }
 
+/* Studio connection monitor — polls every 15s, updates status badge */
+let _studioConnected = false;
+let _studioMonitorId = null;
+
+function getStudioConnected() { return _studioConnected; }
+
+function updateStudioBadge(connected) {
+  _studioConnected = connected;
+  const badge = document.getElementById('studio-status');
+  if (!badge) return;
+  badge.textContent = connected ? '● Studio' : '○ Studio';
+  badge.className = 'studio-badge ' + (connected ? 'studio-on' : 'studio-off');
+  badge.title = connected
+    ? `Connected to ${AMC_API}`
+    : 'Studio offline — start with: amc up';
+}
+
+async function studioHeartbeat() {
+  const ok = await checkStudio();
+  updateStudioBadge(ok);
+  return ok;
+}
+
+function startStudioMonitor(intervalMs = 15000) {
+  if (_studioMonitorId) return;
+  studioHeartbeat();
+  _studioMonitorId = setInterval(studioHeartbeat, intervalMs);
+}
+
+function stopStudioMonitor() {
+  if (_studioMonitorId) { clearInterval(_studioMonitorId); _studioMonitorId = null; }
+}
+
 window.AMC_API = AMC_API;
 window.amcApi = amcApi;
 window.execCommand = execCommand;
@@ -124,3 +157,6 @@ window.applyDomain = applyDomain;
 window.getGuardrails = getGuardrails;
 window.toggleGuardrail = toggleGuardrail;
 window.getGuide = getGuide;
+window.getStudioConnected = getStudioConnected;
+window.startStudioMonitor = startStudioMonitor;
+window.stopStudioMonitor = stopStudioMonitor;
