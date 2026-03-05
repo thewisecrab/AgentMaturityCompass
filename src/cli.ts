@@ -469,6 +469,7 @@ import { loadStudioRuntimeConfig } from "./config/loadConfig.js";
 import { configExplainCli, configPrintCli } from "./config/configCli.js";
 import { runBootstrap } from "./bootstrap/bootstrap.js";
 import { registerQuickSetupCommand } from "./setup/quickSetupCli.js";
+import { registerDomainApplyCommand } from "./domains/domainApplyCli.js";
 import {
   defaultReleaseKeyPaths,
   releaseInitCli,
@@ -14666,6 +14667,7 @@ vault
 // ============================================================
 const productGlossary = program.command("glossary").description("Domain terminology management");
 const domainCmd = program.command("domain").alias("sector").description("Domain-specific architecture and compliance operations");
+registerDomainApplyCommand(domainCmd);
 
 product
   .command("features")

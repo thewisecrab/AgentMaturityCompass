@@ -2365,12 +2365,20 @@ export function getIndustryPacksByStation(stationId: Domain): IndustryPack[] {
   return Object.values(INDUSTRY_PACKS).filter(p => p.stationId === stationId);
 }
 
+export function getPacksForDomain(domain: Domain): IndustryPack[] {
+  return getIndustryPacksByStation(domain);
+}
+
 export function listIndustryPacks(): IndustryPack[] {
   return Object.values(INDUSTRY_PACKS);
 }
 
 export function getIndustryPack(id: IndustryPackId): IndustryPack {
   return INDUSTRY_PACKS[id];
+}
+
+export function getPackById(packId: string): IndustryPack | undefined {
+  return (INDUSTRY_PACKS as Record<string, IndustryPack | undefined>)[packId];
 }
 
 export interface IndustryPackScoreResult {

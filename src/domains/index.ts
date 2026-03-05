@@ -55,6 +55,8 @@ export {
 
 export {
   INDUSTRY_PACKS,
+  getPackById,
+  getPacksForDomain,
   getIndustryPack,
   getIndustryPacksByStation,
   getStationSummary,
@@ -66,3 +68,9 @@ export {
   type IndustryPackQuestion,
   type IndustryPackScoreResult,
 } from "./industryPacks.js";
+
+export {
+  applyDomainToAgent,
+  type DomainApplyOptions,
+  type DomainApplyResult
+} from "./domainApply.js";
