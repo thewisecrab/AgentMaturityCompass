@@ -103,7 +103,7 @@ function resetOnboarding() {
 /* ── COMMAND PALETTE ──────────────────────────────── */
 const CMD_ACTIONS = [
   { label: 'Run quickscore', desc: 'Get a score in under 2 minutes', cmd: 'amc quickscore', nav: 'overview' },
-  { label: 'View evidence gaps', desc: 'See what evidence is missing', cmd: 'amc evidence gaps', nav: 'evidence' },
+  { label: 'View evidence gaps', desc: 'See what evidence is missing', cmd: 'amc mechanic gap', nav: 'evidence' },
   { label: 'Check assurance packs', desc: 'Review all assurance pack results', cmd: 'amc assurance list', nav: 'assurance' },
   { label: 'Browse domain packs', desc: 'Open industry domain packs', cmd: null, nav: 'domains' },
   { label: 'Manage guardrails', desc: 'Enable or disable runtime guardrails', cmd: 'amc guardrails list', nav: 'guardrails' },
@@ -1577,7 +1577,7 @@ function initTerminal() {
   });
 
   /* Quick action buttons above output */
-  const quickCmds = ['quickscore','doctor --json','improve','assurance list','evidence gaps','domain assess --domain health','guardrails list','history'];
+  const quickCmds = ['quickscore','doctor --json','improve','assurance list','mechanic gap','domain assess --domain health','guardrails list','history'];
   const qwrap = document.createElement('div');
   qwrap.className = 'term-quick';
   qwrap.innerHTML = quickCmds.map(c => `<button class="term-qbtn" data-cmd="${esc(c)}">${esc(c)}</button>`).join('');
