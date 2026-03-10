@@ -1,4 +1,4 @@
-export type ComplianceFramework = "SOC2" | "NIST_AI_RMF" | "ISO_27001" | "ISO_42001" | "EU_AI_ACT";
+export type ComplianceFramework = "SOC2" | "NIST_AI_RMF" | "ISO_27001" | "ISO_42001" | "EU_AI_ACT" | "GDPR";
 
 export interface ComplianceFrameworkFamily {
   framework: ComplianceFramework;
@@ -65,6 +65,24 @@ export const complianceFrameworkFamilies: ComplianceFrameworkFamily[] = [
       "Art. 72 Post-Market Monitoring",
       "Art. 73 Incident Reporting",
       "Art. 86 Right to Explanation"
+    ]
+  },
+  {
+    framework: "GDPR",
+    displayName: "GDPR (Regulation (EU) 2016/679) — Data Protection Principles",
+    categories: [
+      "Art. 5 Lawfulness Fairness Transparency",
+      "Art. 5 Purpose Limitation",
+      "Art. 5 Data Minimisation",
+      "Art. 5 Accuracy",
+      "Art. 5 Storage Limitation",
+      "Art. 5 Integrity and Confidentiality",
+      "Art. 6 Lawful Basis",
+      "Art. 15-22 Data Subject Rights",
+      "Art. 25 Data Protection by Design",
+      "Art. 32 Security of Processing",
+      "Art. 33-34 Breach Notification",
+      "Art. 35 DPIA"
     ]
   }
 ];

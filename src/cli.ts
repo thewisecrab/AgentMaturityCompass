@@ -532,6 +532,7 @@ import { diagnosticBankInitCli, diagnosticBankVerifyCli } from "./diagnostic/ban
 import { contextualizedDiagnosticRenderCli } from "./diagnostic/contextualizer/contextualizerCli.js";
 import { truthguardValidateCli } from "./truthguard/truthguardCli.js";
 import { toErrorMessage } from "./utils/errors.js";
+import { registerWatchCommands } from "./cli-watch-commands.js";
 import {
   promptInitCli,
   promptPackBuildCli,
@@ -16526,6 +16527,9 @@ program
     }
     console.log("");
   });
+
+// Register watch commands
+registerWatchCommands(program);
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = normalizeCliErrorMessage(error);

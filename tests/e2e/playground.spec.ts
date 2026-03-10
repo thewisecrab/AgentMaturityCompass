@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { resolve } from 'path';
-
-const PLAYGROUND_URL = 'file://' + resolve(__dirname, '../../website/playground.html');
+import { PLAYGROUND_URL } from './urls.js';
 
 test.describe('Playground', () => {
   test.beforeEach(async ({ page }) => {

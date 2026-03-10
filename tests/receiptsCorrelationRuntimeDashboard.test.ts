@@ -491,6 +491,44 @@ describe("receipts, correlation, runtime sdk, dashboard", () => {
     }
   });
 
+  test("dashboard serve supports ephemeral ports", async () => {
+    const workspace = newWorkspace();
+    await runDiagnostic({
+      workspace,
+      window: "14d",
+      targetName: "default",
+      claimMode: "auto"
+    });
+
+    buildDashboard({
+      workspace,
+      outDir: ".amc/dashboard-ephemeral"
+    });
+
+    const server = await serveDashboard({
+      workspace,
+      port: 0,
+      outDir: ".amc/dashboard-ephemeral"
+    });
+    try {
+      expect(server.port).toBeGreaterThan(0);
+      expect(server.url).toContain(`:${server.port}`);
+      const response = await new Promise<{ status: number; body: string }>((resolvePromise, rejectPromise) => {
+        const req = httpRequest(`${server.url}/`, { method: "GET" }, (res) => {
+          const chunks: Buffer[] = [];
+          res.on("data", (chunk: Buffer) => chunks.push(chunk));
+          res.on("end", () => resolvePromise({ status: res.statusCode ?? 0, body: Buffer.concat(chunks).toString("utf8") }));
+        });
+        req.on("error", rejectPromise);
+        req.end();
+      });
+      expect(response.status).toBe(200);
+      expect(response.body).toContain("AMC Dashboard");
+    } finally {
+      await server.close();
+    }
+  });
+
   test("bundle verification fails when receipt metadata is tampered", async () => {
     const workspace = newWorkspace();
     const ledger = openLedger(workspace);

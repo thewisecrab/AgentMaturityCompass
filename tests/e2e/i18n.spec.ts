@@ -1,8 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { resolve } from 'path';
-
-const INDEX_URL = 'file://' + resolve(__dirname, '../../website/index.html');
-const PLAYGROUND_URL = 'file://' + resolve(__dirname, '../../website/playground.html');
+import { INDEX_URL, PLAYGROUND_URL } from './urls.js';
 
 test.describe('Internationalization', () => {
   test('language switcher exists on homepage', async ({ page }) => {

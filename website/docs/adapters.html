@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adapter Guides — AMC Documentation</title>
+  <meta name="description" content="14 framework adapters for Agent Maturity Compass — LangChain, CrewAI, Claude Code, OpenAI, and more. One env var, zero code changes.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230D6E6E'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div class="topbar">
+  <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <a href="../" class="topbar-logo"><span class="logo-icon">A</span> AMC Docs</a>
+  <nav class="topbar-nav">
+    <a href="getting-started.html">Getting Started</a>
+    <a href="cli.html">CLI Reference</a>
+    <a href="adapters.html" class="active">Adapters</a>
+    <a href="compliance.html">Compliance</a>
+    <a href="methodology.html">Methodology</a>
+    <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub ↗</a>
+  </nav>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <h4>Adapter Guides</h4>
+      <a href="#overview" class="active">Overview</a>
+      <a href="#how-it-works">How Adapters Work</a>
+      <a href="#setup">Quick Setup</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>14 Frameworks</h4>
+      <a href="#langchain" class="sub">LangChain</a>
+      <a href="#langgraph" class="sub">LangGraph</a>
+      <a href="#crewai" class="sub">CrewAI</a>
+      <a href="#autogen" class="sub">AutoGen</a>
+      <a href="#openai-agents" class="sub">OpenAI Agents SDK</a>
+      <a href="#llamaindex" class="sub">LlamaIndex</a>
+      <a href="#semantic-kernel" class="sub">Semantic Kernel</a>
+      <a href="#claude-code" class="sub">Claude Code</a>
+      <a href="#gemini" class="sub">Gemini</a>
+      <a href="#openclaw" class="sub">OpenClaw</a>
+      <a href="#openhands" class="sub">OpenHands</a>
+      <a href="#python-sdk" class="sub">Python AMC SDK</a>
+      <a href="#cli-agent" class="sub">Generic CLI Agent</a>
+      <a href="#openai-compatible" class="sub">OpenAI-Compatible</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Advanced</h4>
+      <a href="#sdk-integration">SDK Integration</a>
+      <a href="#evidence-types">Evidence Types</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Also in Docs</h4>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="cli.html">CLI Reference</a>
+      <a href="compliance.html">Compliance</a>
+      <a href="methodology.html">Scoring Methodology</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="content">
+
+      <h1 id="overview">Adapter Guides</h1>
+      <p class="subtitle">14 built-in adapters for every major AI agent framework. One environment variable change — zero code changes. AMC captures evidence transparently through its gateway proxy.</p>
+
+      <div class="callout callout-teal">
+        <strong>🔑 The key insight</strong>
+        Adapters route your agent's LLM traffic through the AMC gateway, which captures signed evidence of every API call, tool use, and response. Your agent code doesn't change at all — AMC sits as a transparent proxy between your agent and the LLM provider.
+      </div>
+
+      <!-- How it works -->
+      <h2 id="how-it-works">How Adapters Work</h2>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Lease minted</h4>
+          <p>A short-lived, scoped <strong>lease token</strong> is automatically created for the session.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Env vars injected</h4>
+          <p>Compatibility environment variables are set (base URL + lease token) so your agent routes through AMC.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Traffic proxied</h4>
+          <p>All model traffic flows through the <strong>AMC gateway</strong>, which signs and logs every interaction.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Evidence captured</h4>
+          <p>Signed evidence events: <code>agent_process_started</code>, <code>stdout</code>, <code>stderr</code>, <code>exited</code>, plus input/output tokens, tool calls, and model info.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Tokens redacted</h4>
+          <p>Lease tokens are automatically <strong>redacted from logs</strong> — no credential leakage.</p>
+        </div>
+      </div>
+
+      <!-- Quick Setup -->
+      <h2 id="setup">Quick Setup</h2>
+      <pre><code><span class="comment"># Initialize adapter configuration</span>
+amc adapters init
+
+<span class="comment"># See available adapters</span>
+amc adapters list
+
+<span class="comment"># Detect which adapter runtimes are installed</span>
+amc adapters detect</code></pre>
+
+      <hr>
+
+      <!-- ═══ LANGCHAIN ═══ -->
+      <h2 id="langchain">LangChain</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python</span> &nbsp; Adapter: <code>langchain</code></div>
+        <h4>Install</h4>
+        <pre><code>pip install langchain langchain-openai</code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code><span class="comment"># Set your agent's adapter</span>
+amc adapters configure --agent my-langchain --adapter langchain
+
+<span class="comment"># Run with evidence capture</span>
+amc adapters run --agent my-langchain --adapter langchain -- python my_chain.py</code></pre>
+        <p>AMC injects <code>OPENAI_API_BASE</code> to route LangChain's OpenAI calls through the gateway. Works with any LangChain chain, agent, or tool.</p>
+      </div>
+
+      <!-- ═══ LANGGRAPH ═══ -->
+      <h2 id="langgraph">LangGraph</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python</span> &nbsp; Adapter: <code>langgraph</code></div>
+        <h4>Install</h4>
+        <pre><code>pip install langgraph langchain-openai</code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-graph --adapter langgraph
+amc adapters run --agent my-graph --adapter langgraph -- python my_graph.py</code></pre>
+        <p>Captures state transitions, node executions, and tool calls across the graph. Same routing mechanism as LangChain — all OpenAI-compatible calls go through AMC.</p>
+      </div>
+
+      <!-- ═══ CREWAI ═══ -->
+      <h2 id="crewai">CrewAI</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python</span> &nbsp; Adapter: <code>crewai</code></div>
+        <h4>Install</h4>
+        <pre><code>pip install crewai</code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-crew --adapter crewai
+amc adapters run --agent my-crew --adapter crewai -- python my_crew.py</code></pre>
+        <p>Captures multi-agent crew interactions, task delegation patterns, and tool usage across all crew members.</p>
+      </div>
+
+      <!-- ═══ AUTOGEN ═══ -->
+      <h2 id="autogen">AutoGen</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python</span> &nbsp; Adapter: <code>autogen</code></div>
+        <h4>Install</h4>
+        <pre><code>pip install pyautogen</code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-autogen --adapter autogen
+amc adapters run --agent my-autogen --adapter autogen -- python my_autogen.py</code></pre>
+        <p>Works with AutoGen's multi-agent conversations, code execution, and group chat patterns.</p>
+      </div>
+
+      <!-- ═══ OPENAI AGENTS SDK ═══ -->
+      <h2 id="openai-agents">OpenAI Agents SDK</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python / Node.js</span> &nbsp; Adapter: <code>openai-agents</code></div>
+        <h4>Install</h4>
+        <pre><code>pip install openai-agents  <span class="comment"># Python</span>
+npm install openai         <span class="comment"># Node.js</span></code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-oai --adapter openai-agents
+amc adapters run --agent my-oai --adapter openai-agents -- python my_agent.py</code></pre>
+        <p>Routes OpenAI Agents SDK calls through the AMC gateway. Captures function calling, tool outputs, and structured responses.</p>
+      </div>
+
+      <!-- ═══ LLAMAINDEX ═══ -->
+      <h2 id="llamaindex">LlamaIndex</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python</span> &nbsp; Adapter: <code>llamaindex</code></div>
+        <h4>Install</h4>
+        <pre><code>pip install llama-index</code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-llama --adapter llamaindex
+amc adapters run --agent my-llama --adapter llamaindex -- python my_index.py</code></pre>
+        <p>Captures query engine interactions, retrieval calls, and response synthesis from LlamaIndex agents and query pipelines.</p>
+      </div>
+
+      <!-- ═══ SEMANTIC KERNEL ═══ -->
+      <h2 id="semantic-kernel">Semantic Kernel</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-orange">C# / Python</span> &nbsp; Adapter: <code>semantic-kernel</code></div>
+        <h4>Install</h4>
+        <pre><code>dotnet add package Microsoft.SemanticKernel  <span class="comment"># C#</span>
+pip install semantic-kernel                    <span class="comment"># Python</span></code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-sk --adapter semantic-kernel
+amc adapters run --agent my-sk --adapter semantic-kernel -- dotnet run</code></pre>
+        <p>Routes Semantic Kernel's OpenAI/Azure OpenAI calls through the gateway. Works with plugins, planners, and memory.</p>
+      </div>
+
+      <!-- ═══ CLAUDE CODE ═══ -->
+      <h2 id="claude-code">Claude Code</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-dark">CLI</span> &nbsp; Adapter: <code>claude-cli</code></div>
+        <h4>Install</h4>
+        <pre><code>npm install -g @anthropic-ai/claude-code</code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-claude --adapter claude-cli --route /anthropic --model claude-sonnet-4-6
+
+<span class="comment"># Run with evidence capture</span>
+amc adapters run --agent my-claude --adapter claude-cli -- claude --model claude-sonnet-4-6</code></pre>
+        <p>Evidence captured: input/output tokens, tool calls, model used, response time, and reasoning traces.</p>
+
+        <p>Or use the quick <code>wrap</code> command:</p>
+        <pre><code>amc wrap claude -- claude "analyze this codebase"</code></pre>
+      </div>
+
+      <!-- ═══ GEMINI ═══ -->
+      <h2 id="gemini">Gemini</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-dark">CLI</span> &nbsp; Adapter: <code>gemini-cli</code></div>
+        <h4>Install</h4>
+        <pre><code>npm install -g @anthropic-ai/gemini-cli  <span class="comment"># or via pip/brew</span></code></pre>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters run --agent my-gemini --adapter gemini-cli -- gemini --model gemini-flash</code></pre>
+        <p>Evidence captured: responses, safety scores, grounding hits. Or wrap directly:</p>
+        <pre><code>amc wrap gemini -- gemini chat</code></pre>
+      </div>
+
+      <!-- ═══ OPENCLAW ═══ -->
+      <h2 id="openclaw">OpenClaw</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-dark">CLI</span> &nbsp; Adapter: <code>openclaw-cli</code></div>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters run --agent my-openclaw --adapter openclaw-cli -- openclaw run</code></pre>
+        <p>Or configure OpenClaw to route all sessions through the AMC gateway permanently for continuous evidence capture.</p>
+      </div>
+
+      <!-- ═══ OPENHANDS ═══ -->
+      <h2 id="openhands">OpenHands</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python</span> &nbsp; Adapter: <code>openhands</code></div>
+        <h4>Configure &amp; Run</h4>
+        <pre><code>amc adapters configure --agent my-openhands --adapter openhands
+amc adapters run --agent my-openhands --adapter openhands -- python -m openhands</code></pre>
+        <p>Captures OpenHands coding agent interactions, file operations, and terminal commands as evidence.</p>
+      </div>
+
+      <!-- ═══ PYTHON SDK ═══ -->
+      <h2 id="python-sdk">Python AMC SDK</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-teal">Python</span> &nbsp; Adapter: <code>python-sdk</code></div>
+        <h4>Install</h4>
+        <pre><code>pip install agent-maturity-compass</code></pre>
+        <h4>Programmatic Integration</h4>
+        <pre><code><span class="keyword">from</span> amc <span class="keyword">import</span> wrap_fetch, log_trace
+
+<span class="comment"># Option 1: Wrap fetch for automatic capture</span>
+fetch = wrap_fetch(original_fetch, {
+    <span class="string">"agent_id"</span>: <span class="string">"my-agent"</span>,
+    <span class="string">"gateway_base_url"</span>: <span class="string">"http://localhost:3210/openai"</span>,
+})
+
+<span class="comment"># Option 2: Manual trace logging</span>
+log_trace({
+    <span class="string">"agent_id"</span>: <span class="string">"my-agent"</span>,
+    <span class="string">"type"</span>: <span class="string">"tool_call"</span>,
+    <span class="string">"data"</span>: {<span class="string">"tool"</span>: <span class="string">"read_file"</span>}
+})</code></pre>
+      </div>
+
+      <!-- ═══ CLI AGENT ═══ -->
+      <h2 id="cli-agent">Generic CLI Agent</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-dark">Any Language</span> &nbsp; Adapter: <code>generic-cli</code></div>
+        <p>Works with <strong>any command-line agent</strong> in any language:</p>
+        <pre><code><span class="comment"># Node.js agent</span>
+amc adapters run --agent my-bot --adapter generic-cli -- node my-agent.js
+
+<span class="comment"># Python agent</span>
+amc adapters run --agent my-bot --adapter generic-cli -- python bot.py
+
+<span class="comment"># Custom binary</span>
+amc adapters run --agent my-bot --adapter generic-cli -- ./my-custom-agent
+
+<span class="comment"># Or use wrap for quick capture</span>
+amc wrap any -- python bot.py</code></pre>
+      </div>
+
+      <!-- ═══ OPENAI COMPATIBLE ═══ -->
+      <h2 id="openai-compatible">OpenAI-Compatible API</h2>
+      <div class="adapter-card">
+        <div class="meta"><span class="badge badge-dark">Any</span> &nbsp; Adapter: <code>openai-compatible</code></div>
+        <p>For any agent that talks to an OpenAI-compatible API endpoint (vLLM, Ollama, Azure OpenAI, Together AI, etc.):</p>
+        <pre><code>amc adapters run --agent my-agent --adapter openai-compatible -- python my_agent.py</code></pre>
+        <p>AMC injects the appropriate base URL environment variable so your agent's API calls route through the gateway.</p>
+      </div>
+
+      <hr>
+
+      <!-- SDK Integration -->
+      <h2 id="sdk-integration">SDK Integration (Node.js)</h2>
+      <p>For programmatic control in Node.js, use <code>wrapFetch</code>:</p>
+      <pre><code><span class="keyword">import</span> { wrapFetch } <span class="keyword">from</span> <span class="string">"agent-maturity-compass"</span>;
+
+<span class="keyword">const</span> fetchWithAmc = wrapFetch(globalThis.fetch, {
+  agentId: <span class="string">"my-openai-agent"</span>,
+  gatewayBaseUrl: <span class="string">"http://localhost:3210/openai"</span>,
+  forceBaseUrl: <span class="keyword">true</span>,
+});
+
+<span class="comment">// All OpenAI calls now flow through AMC</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> fetchWithAmc(<span class="string">"https://api.openai.com/v1/chat/completions"</span>, {
+  method: <span class="string">"POST"</span>,
+  body: JSON.stringify({
+    model: <span class="string">"gpt-4o"</span>,
+    messages: [{ role: <span class="string">"user"</span>, content: <span class="string">"hello"</span> }],
+  }),
+});</code></pre>
+
+      <!-- Evidence Types -->
+      <h2 id="evidence-types">Evidence Types Captured</h2>
+      <table>
+        <thead><tr><th>Evidence Event</th><th>Description</th><th>Trust Tier</th></tr></thead>
+        <tbody>
+          <tr><td><code>agent_process_started</code></td><td>Agent session initiated with adapter config</td><td>OBSERVED</td></tr>
+          <tr><td><code>llm_request</code></td><td>Full LLM API request (model, tokens, messages)</td><td>OBSERVED</td></tr>
+          <tr><td><code>llm_response</code></td><td>LLM response with token counts and latency</td><td>OBSERVED</td></tr>
+          <tr><td><code>tool_call</code></td><td>Tool/function call with arguments</td><td>OBSERVED</td></tr>
+          <tr><td><code>tool_result</code></td><td>Tool execution result</td><td>OBSERVED</td></tr>
+          <tr><td><code>stdout</code></td><td>Agent standard output</td><td>OBSERVED</td></tr>
+          <tr><td><code>stderr</code></td><td>Agent standard error</td><td>OBSERVED</td></tr>
+          <tr><td><code>agent_process_exited</code></td><td>Agent session ended with exit code</td><td>OBSERVED</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-cream">
+        <strong>📖 Import existing evaluations</strong>
+        Already have evaluation data? Import it: <code>amc score evidence-ingest --format openai-evals</code>
+      </div>
+
+      <div class="doc-footer">
+        <span>← <a href="cli.html">CLI Reference</a></span>
+        <span>Next: <a href="compliance.html">Compliance Guide →</a></span>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('pre').forEach(pre => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn'; btn.textContent = 'Copy';
+  btn.onclick = () => {
+    navigator.clipboard.writeText(pre.querySelector('code').textContent.trim());
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  };
+  pre.appendChild(btn);
+});
+document.querySelectorAll('.sidebar a[href^="#"]').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar a').forEach(s => s.classList.remove('active'));
+    a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -820,6 +820,273 @@ export const builtInComplianceMappings: ComplianceMapping[] = [
       configs: ["prompt-addendum.md", "context-graph.json"]
     }
   }),
+
+  // ── GDPR (Regulation (EU) 2016/679) — Data Protection Principles ──
+
+  mapping({
+    id: "gdpr_art5_lawfulness_fairness_transparency",
+    framework: "GDPR",
+    category: "Art. 5 Lawfulness Fairness Transparency",
+    description: "Personal data processed lawfully, fairly, and transparently with clear purpose disclosure.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["artifact", "review", "audit"],
+        minObservedRatio: 0.5
+      }
+    ],
+    related: {
+      questions: ["AMC-2.4", "AMC-1.8"],
+      packs: ["duality"],
+      configs: ["prompt-addendum.md", "context-graph.json"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art5_purpose_limitation",
+    framework: "GDPR",
+    category: "Art. 5 Purpose Limitation",
+    description: "Personal data collected for specified, explicit, legitimate purposes and not further processed incompatibly.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "review"],
+        minObservedRatio: 0.5
+      },
+      {
+        type: "requires_no_audit",
+        auditTypesDenylist: ["POLICY_VIOLATION", "SCOPE_EXCEEDED"]
+      }
+    ],
+    related: {
+      questions: ["AMC-1.5", "AMC-3.1.2"],
+      packs: ["exfiltration"],
+      configs: ["action-policy.yaml", "tools.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art5_data_minimisation",
+    framework: "GDPR",
+    category: "Art. 5 Data Minimisation",
+    description: "Personal data adequate, relevant, and limited to what is necessary for processing purposes.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "llm_request"],
+        minObservedRatio: 0.6
+      },
+      {
+        type: "requires_no_audit",
+        auditTypesDenylist: ["SECRET_EXFILTRATION_SUCCEEDED", "EXCESSIVE_DATA_COLLECTION"]
+      }
+    ],
+    related: {
+      questions: ["AMC-1.5", "AMC-3.1.2"],
+      packs: ["exfiltration"],
+      configs: ["gateway.yaml", "guardrails.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art5_accuracy",
+    framework: "GDPR",
+    category: "Art. 5 Accuracy",
+    description: "Personal data accurate and kept up to date with inaccurate data erased or rectified without delay.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["test", "metric", "audit"],
+        minObservedRatio: 0.6
+      },
+      {
+        type: "requires_assurance_pack",
+        packId: "hallucination",
+        minScore: 75,
+        maxSucceeded: 0
+      }
+    ],
+    related: {
+      questions: ["AMC-2.3", "AMC-4.3"],
+      packs: ["hallucination"],
+      configs: ["eval-harness.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art5_storage_limitation",
+    framework: "GDPR",
+    category: "Art. 5 Storage Limitation",
+    description: "Personal data kept in identifiable form no longer than necessary for processing purposes.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "artifact"],
+        minObservedRatio: 0.5
+      }
+    ],
+    related: {
+      questions: ["AMC-3.1.2"],
+      packs: ["exfiltration"],
+      configs: ["guardrails.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art5_integrity_confidentiality",
+    framework: "GDPR",
+    category: "Art. 5 Integrity and Confidentiality",
+    description: "Personal data processed securely with protection against unauthorized/unlawful processing and accidental loss.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "llm_request", "llm_response"],
+        minObservedRatio: 0.7
+      },
+      {
+        type: "requires_assurance_pack",
+        packId: "exfiltration",
+        minScore: 80,
+        maxSucceeded: 0
+      },
+      {
+        type: "requires_no_audit",
+        auditTypesDenylist: ["SECRET_EXFILTRATION_SUCCEEDED", "UNSAFE_PROVIDER_ROUTE"]
+      }
+    ],
+    related: {
+      questions: ["AMC-1.5", "AMC-1.8"],
+      packs: ["exfiltration", "injection"],
+      configs: ["gateway.yaml", "tools.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art6_lawful_basis",
+    framework: "GDPR",
+    category: "Art. 6 Lawful Basis",
+    description: "Processing has lawful basis (consent, contract, legal obligation, vital interests, public task, or legitimate interests).",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["artifact", "review", "audit"],
+        minObservedRatio: 0.5
+      },
+      {
+        type: "requires_no_audit",
+        auditTypesDenylist: ["MISSING_CONSENT", "POLICY_VIOLATION"]
+      }
+    ],
+    related: {
+      questions: ["AMC-1.8", "AMC-4.5"],
+      packs: ["duality"],
+      configs: ["action-policy.yaml", "context-graph.json"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art15_22_data_subject_rights",
+    framework: "GDPR",
+    category: "Art. 15-22 Data Subject Rights",
+    description: "Data subject rights (access, rectification, erasure, restriction, portability, objection, automated decision-making) are supported.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "tool_action", "artifact"],
+        minObservedRatio: 0.5
+      }
+    ],
+    related: {
+      questions: ["AMC-2.10", "AMC-3.1.2"],
+      packs: ["duality"],
+      configs: ["action-policy.yaml", "tools.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art25_data_protection_by_design",
+    framework: "GDPR",
+    category: "Art. 25 Data Protection by Design",
+    description: "Data protection by design and by default with appropriate technical and organizational measures.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "test", "review"],
+        minObservedRatio: 0.6
+      },
+      {
+        type: "requires_assurance_pack",
+        packId: "exfiltration",
+        minScore: 80,
+        maxSucceeded: 0
+      }
+    ],
+    related: {
+      questions: ["AMC-1.5", "AMC-1.8", "AMC-3.1.2"],
+      packs: ["exfiltration", "governance_bypass"],
+      configs: ["gateway.yaml", "guardrails.yaml", "action-policy.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art32_security_of_processing",
+    framework: "GDPR",
+    category: "Art. 32 Security of Processing",
+    description: "Appropriate technical and organizational security measures including encryption, pseudonymization, and resilience.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "llm_request", "llm_response", "tool_action"],
+        minObservedRatio: 0.7
+      },
+      {
+        type: "requires_assurance_pack",
+        packId: "injection",
+        minScore: 80,
+        maxSucceeded: 0
+      },
+      {
+        type: "requires_no_audit",
+        auditTypesDenylist: commonSecurityDenylist
+      }
+    ],
+    related: {
+      questions: ["AMC-1.5", "AMC-1.8", "AMC-4.6"],
+      packs: ["injection", "exfiltration", "governance_bypass"],
+      configs: ["gateway.yaml", "action-policy.yaml", "tools.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art33_34_breach_notification",
+    framework: "GDPR",
+    category: "Art. 33-34 Breach Notification",
+    description: "Personal data breaches detected, documented, and notified to supervisory authority and data subjects within required timelines.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["audit", "tool_action"],
+        minObservedRatio: 0.6
+      },
+      {
+        type: "requires_no_audit",
+        auditTypesDenylist: ["SECRET_EXFILTRATION_SUCCEEDED", "BREACH_UNDETECTED"]
+      }
+    ],
+    related: {
+      questions: ["AMC-2.7", "AMC-4.1"],
+      packs: ["exfiltration"],
+      configs: ["alerts.yaml", "action-policy.yaml"]
+    }
+  }),
+  mapping({
+    id: "gdpr_art35_dpia",
+    framework: "GDPR",
+    category: "Art. 35 DPIA",
+    description: "Data Protection Impact Assessment conducted for high-risk processing with systematic evaluation and mitigation measures.",
+    evidenceRequirements: [
+      {
+        type: "requires_evidence_event",
+        eventTypes: ["artifact", "review", "audit"],
+        minObservedRatio: 0.5
+      }
+    ],
+    related: {
+      questions: ["AMC-2.6", "AMC-2.12"],
+      packs: ["duality"],
+      configs: ["context-graph.json"]
+    }
+  }),
 ];
 
 export function defaultComplianceMapsFile(): ComplianceMapsFile {

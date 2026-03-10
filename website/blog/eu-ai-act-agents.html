@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EU AI Act Compliance for AI Agents — What You Need to Know — AMC Blog</title>
+<meta name="description" content="The EU AI Act takes effect August 2026. Here's what it requires for AI agents, how AMC maps to specific articles, and what maturity level you need.">
+<meta name="author" content="AMC Team">
+<meta property="og:title" content="EU AI Act Compliance for AI Agents — What You Need to Know">
+<meta property="og:description" content="Aug 2026 deadline approaching. What the EU AI Act requires for AI agents and how to prepare.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://thewisecrab.github.io/AgentMaturityCompass/blog/eu-ai-act-agents.html">
+<meta property="og:image" content="https://thewisecrab.github.io/AgentMaturityCompass/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23141414'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23c9a96e' stroke-width='1.5'/%3E%3Cpath d='M16 5L17.5 14.5 16 18 14.5 14.5Z' fill='%23c9a96e'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23c9a96e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF7F3;--bg2:#F2EDE7;--bg3:#EAE4DC;--card:#FFFFFF;--fg:#141414;--fg2:#3A3A3A;--muted:#8A8272;--accent:#c9a96e;--accent2:#a88542;--accent3:#8B6914;--border:rgba(20,20,20,.08);--border2:rgba(20,20,20,.15);--red:#c0392b;--green:#27ae60;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);line-height:1.8;font-size:17px}
+a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline;color:var(--accent3)}
+
+.nav{background:var(--card);border-bottom:1px solid var(--border2);padding:16px 24px;display:flex;align-items:center;gap:20px;font-size:.88rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.nav a{color:var(--muted);font-weight:500}.nav a:hover{color:var(--accent2);text-decoration:none}
+.nav .logo{color:var(--fg);font-family:var(--serif);font-weight:700;font-size:1.1rem}
+.nav .logo span{color:var(--accent2)}
+
+.container{max-width:740px;margin:0 auto;padding:48px 24px 80px}
+.back-link{font-size:.85rem;color:var(--accent2);margin-bottom:32px;display:inline-block;font-weight:500}
+.meta{font-size:.82rem;color:var(--muted);margin-bottom:12px;font-weight:500;letter-spacing:.02em;text-transform:uppercase}
+h1{font-family:var(--serif);font-size:2.2rem;font-weight:700;color:var(--fg);line-height:1.25;margin-bottom:24px}
+h2{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--fg);margin:36px 0 14px}
+h3{font-family:var(--serif);font-size:1.1rem;font-weight:600;color:var(--fg2);margin:24px 0 10px}
+p{color:var(--fg2);margin-bottom:18px}
+ul,ol{color:var(--fg2);padding-left:24px;margin-bottom:18px}
+li{margin-bottom:6px}
+strong{color:var(--fg)}
+
+code{font-family:var(--mono);background:var(--bg2);padding:2px 7px;border-radius:4px;font-size:.88em;color:var(--accent3);border:1px solid var(--border)}
+pre{background:var(--fg);border-radius:10px;padding:20px;overflow-x:auto;margin:20px 0;font-size:.86rem;line-height:1.6}
+pre code{background:none;border:none;padding:0;color:#e0e0e0;font-size:.86rem}
+
+blockquote{border-left:3px solid var(--accent);padding:12px 20px;margin:20px 0;color:var(--muted);background:var(--bg2);border-radius:0 8px 8px 0;font-style:italic}
+
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem}
+th{text-align:left;padding:10px 14px;background:var(--bg2);font-weight:600;border-bottom:2px solid var(--border2);color:var(--fg)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--fg2)}
+tr:hover td{background:var(--bg2)}
+
+.timeline{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:28px;margin:28px 0;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.timeline-item{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.timeline-item:last-child{margin-bottom:0}
+.timeline-dot{width:12px;height:12px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.timeline-dot.past{background:var(--muted)}
+.timeline-dot.active{background:var(--red);box-shadow:0 0 8px rgba(192,57,43,.4)}
+.timeline-dot.future{background:var(--accent);box-shadow:0 0 8px rgba(201,169,110,.4)}
+.timeline-date{font-family:var(--mono);font-size:.82rem;color:var(--muted);min-width:100px}
+.timeline-text{font-size:.92rem}
+
+.warning-box{background:#FDF2F2;border:1px solid #F5C6CB;border-radius:12px;padding:24px;margin:24px 0}
+.warning-box strong{color:var(--red)}
+
+.cta-box{background:var(--fg);color:#FAF7F3;border-radius:12px;padding:32px;margin:36px 0;text-align:center}
+.cta-box h3{color:#FAF7F3;font-family:var(--serif);font-size:1.3rem;margin:0 0 12px}
+.cta-box p{color:#ccc;margin-bottom:16px}
+.cta-box pre{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);margin:0 auto;display:inline-block;padding:12px 24px;border-radius:8px}
+.cta-box pre code{color:var(--accent);font-size:.88rem}
+
+.share{display:flex;gap:10px;margin:40px 0;padding-top:24px;border-top:1px solid var(--border2)}
+.share a{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 16px;font-size:.82rem;color:var(--fg2);font-weight:500;transition:all .15s}
+.share a:hover{border-color:var(--accent);color:var(--accent2);text-decoration:none}
+
+.footer{text-align:center;padding:32px 24px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border)}
+
+@media(max-width:768px){h1{font-size:1.6rem}.container{padding:32px 18px 60px}.timeline-item{flex-direction:column;gap:4px}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../" class="logo">🧭 <span>AMC</span></a>
+  <a href="../">Home</a>
+  <a href="../docs/">Docs</a>
+  <a href="../playground.html">Playground</a>
+  <a href="./" style="color:var(--accent2)">Blog</a>
+  <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub</a>
+</nav>
+
+<div class="container">
+
+<a href="./" class="back-link">← Back to Blog</a>
+
+<div class="meta">March 10, 2026 · AMC Team · 6 min read</div>
+
+<h1>EU AI Act Compliance for AI Agents — What You Need to Know</h1>
+
+<p>The EU AI Act is the most comprehensive AI regulation in the world, and its provisions for high-risk AI systems — including many AI agent deployments — take full effect in <strong>August 2026</strong>. That's less than six months away.</p>
+
+<p>If you're deploying AI agents that make decisions, process personal data, or operate in regulated industries within the EU, this article explains what the Act requires, how it maps to agent maturity, and how to prepare before the deadline.</p>
+
+<p>Here's the uncomfortable truth: the agent ecosystem currently runs on self-reported evidence. Agents grade their own exams. Would you trust a self-reported credit score? That's why credit bureaus exist. AMC is the credit bureau for AI agents — and the EU AI Act is about to make independent verification mandatory.</p>
+
+<h2>The Timeline</h2>
+
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="timeline-dot past"></div>
+    <div class="timeline-date">Feb 2025</div>
+    <div class="timeline-text"><strong>Prohibited practices</strong> — Unacceptable risk AI systems banned (social scoring, real-time biometric surveillance)</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot past"></div>
+    <div class="timeline-date">Aug 2025</div>
+    <div class="timeline-text"><strong>GPAI obligations</strong> — General-purpose AI model providers must comply (transparency, copyright, safety testing)</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-dot active"></div>
+    <div class="timeline-date">Aug 2026</div>
+    <div class="timeline-text"><strong>Full enforcement</strong> — High-risk AI system requirements take effect. This is the deadline that affects most AI agent deployments.</div>
+  </div>
+</div>
+
+<div class="warning-box">
+  <strong>⚠️ Five months remain.</strong> If your AI agent operates in healthcare, finance, HR, education, law enforcement, or critical infrastructure within the EU, you likely fall under the high-risk classification. The penalties for non-compliance reach up to €35 million or 7% of global annual turnover — whichever is higher.
+</div>
+
+<h2>What the EU AI Act Requires for AI Agents</h2>
+
+<p>The Act doesn't use the term "AI agent" directly, but its requirements for high-risk AI systems map precisely to what agents do. Here are the key articles and what they mean in practice:</p>
+
+<h3>Article 9 — Risk Management System</h3>
+<p>You must implement a continuous risk management process that identifies, evaluates, and mitigates risks throughout the AI system's lifecycle. For agents, this means: What happens when the agent encounters an unexpected scenario? What's the fallback? Who gets notified? These can't be aspirational — they must be implemented and tested.</p>
+
+<h3>Article 10 — Data Governance</h3>
+<p>Training data, validation data, and operational data must meet quality criteria. For agents with RAG pipelines or memory systems, this means data lineage tracking, bias monitoring, and documentation of what data the agent can access and why.</p>
+
+<h3>Article 11 — Technical Documentation</h3>
+<p>Complete technical documentation must exist <em>before</em> the system is placed on the market. This isn't a README — it's a comprehensive record of the system's purpose, design, development process, capabilities, limitations, and risk mitigations. Critically, this documentation must be verifiable, not just claimed.</p>
+
+<h3>Article 13 — Transparency</h3>
+<p>High-risk AI systems must be designed to be sufficiently transparent for deployers to interpret outputs and use them appropriately. For agents, this means: Can you explain why the agent made a specific decision? Can you trace a particular action back to the input that triggered it? Is there an audit trail?</p>
+
+<h3>Article 14 — Human Oversight</h3>
+<p>The system must allow effective human oversight, including the ability to intervene, override, or shut down the system. For autonomous agents, this is especially critical: Does the agent have a kill switch? Can a human interrupt an in-progress action? Are there escalation pathways for high-stakes decisions?</p>
+
+<h3>Article 15 — Accuracy, Robustness, Cybersecurity</h3>
+<p>High-risk AI systems must achieve appropriate levels of accuracy, robustness, and cybersecurity. For agents, this covers: prompt injection resistance, tool misuse prevention, adversarial robustness, and the ability to maintain performance under attack or degraded conditions.</p>
+
+<h2>How AMC Maps to EU AI Act Articles</h2>
+
+<p>AMC was designed with regulatory compliance as a first-class concern. Its 5 dimensions and 138 core questions (730 total across 40 industry packs) map directly to the Act's requirements:</p>
+
+<table>
+  <thead>
+    <tr><th>EU AI Act Article</th><th>AMC Dimension</th><th>What AMC Measures</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Art. 9 — Risk Management</td><td>Strategic Agent Ops</td><td>Mission clarity, scope adherence, decision traceability, fallback behavior</td></tr>
+    <tr><td>Art. 10 — Data Governance</td><td>Skills</td><td>Data handling, DLP controls, least-privilege access, memory integrity</td></tr>
+    <tr><td>Art. 11 — Technical Docs</td><td>Leadership &amp; Autonomy</td><td>Structured logs, traces, cost tracking, documentation completeness</td></tr>
+    <tr><td>Art. 13 — Transparency</td><td>Leadership &amp; Autonomy</td><td>Decision explainability, audit trails, output attestation</td></tr>
+    <tr><td>Art. 14 — Human Oversight</td><td>Strategic Agent Ops</td><td>Escalation paths, kill switches, approval workflows, override mechanisms</td></tr>
+    <tr><td>Art. 15 — Robustness</td><td>Resilience + Skills</td><td>Injection defense, adversarial robustness, graceful degradation, circuit breakers</td></tr>
+  </tbody>
+</table>
+
+<p>Beyond the core mapping, AMC provides 12 specific article mappings with audit binder generation — exportable evidence packages designed for regulatory review. All evidence is cryptographically signed with Ed25519 signatures and stored in Merkle-tree chains. This isn't documentation that <em>claims</em> compliance — it's tamper-proof evidence that <em>proves</em> it.</p>
+
+<h2>The L3 Minimum: What Compliance Looks Like</h2>
+
+<p>AMC's maturity scale runs from L0 (no controls) to L5 (continuously verified). For EU AI Act compliance, <strong>L3 — Defined</strong> is the minimum threshold.</p>
+
+<p>Here's what L3 means concretely:</p>
+
+<ul>
+  <li><strong>Repeatable:</strong> Safety controls work consistently, not just on the happy path</li>
+  <li><strong>Measurable:</strong> You can quantify your agent's behavior with metrics, not narratives</li>
+  <li><strong>Auditable:</strong> An external reviewer can verify your claims with evidence</li>
+  <li><strong>Documented:</strong> Technical documentation exists and matches reality</li>
+  <li><strong>Verified:</strong> Controls are tested, not just described — this is where evidence tiers matter</li>
+</ul>
+
+<p>At L3, your agent has real controls backed by observed evidence. The distinction between L2 and L3 is the difference between "we wrote docs about error handling" and "AMC observed our agent correctly handling 47 error scenarios in production."</p>
+
+<blockquote>
+  <strong>Key insight:</strong> The EU AI Act requires evidence that controls <em>exist and work</em>, not just that someone <em>wrote about them</em>. Self-reported evidence (0.4× weight in AMC) won't be sufficient for compliance. You need observed, execution-verified evidence.
+</blockquote>
+
+<h2>Getting Compliant: A Practical Workflow</h2>
+
+<p>Here's the fastest path from "where are we?" to "we're ready for August":</p>
+
+<h3>1. Assess your current state</h3>
+
+<pre><code><span style="color:#6a9955"># Install AMC</span>
+npm install -g agent-maturity-compass
+
+<span style="color:#6a9955"># Get your baseline score with EU AI Act classification</span>
+amc quickscore --eu-ai-act</code></pre>
+
+<p>This gives you an instant risk classification and shows which EU AI Act articles your agent currently satisfies — and which it doesn't.</p>
+
+<h3>2. Apply the EU AI Act domain pack</h3>
+
+<pre><code><span style="color:#6a9955"># Run the full EU AI Act compliance assessment</span>
+amc domain assess --domain eu-ai-act --agent my-agent
+
+<span style="color:#6a9955"># See specific compliance gaps</span>
+amc domain gaps --domain eu-ai-act --agent my-agent</code></pre>
+
+<p>AMC's Technology domain pack includes specific EU AI Act questions referencing Art. 13 (transparency), the EU Data Act 2023, DSA Art. 34, and more. The gap analysis tells you exactly what's missing, mapped to specific regulatory articles — not vague guidelines.</p>
+
+<h3>3. Auto-remediate</h3>
+
+<pre><code><span style="color:#6a9955"># Generate compliance-focused guardrails and CI gates</span>
+amc fix --target-level L3
+
+<span style="color:#6a9955"># Apply guardrails to your agent framework config</span>
+amc guide --compliance EU_AI_ACT
+
+<span style="color:#6a9955"># Map remaining gaps to specific regulatory obligations</span>
+amc guide --go</code></pre>
+
+<p>AMC generates concrete artifacts: guardrails configuration, CI pipeline gates that prevent regressions below L3, governance documentation, and framework-specific config files. These aren't templates — they're generated from your agent's actual gap analysis.</p>
+
+<h3>4. Generate the audit binder</h3>
+
+<pre><code><span style="color:#6a9955"># Export compliance evidence for regulatory review</span>
+amc audit binder create --framework eu-ai-act
+
+<span style="color:#6a9955"># Generate a compliance report</span>
+amc compliance report --framework eu-ai-act
+
+<span style="color:#6a9955"># Generate a styled HTML report for stakeholders</span>
+amc report &lt;assessment-id&gt; --html eu-compliance-report.html</code></pre>
+
+<p>The audit binder packages all your evidence — scores, test results, observed behavior data, remediation actions — into a format designed for regulatory review. Every piece of evidence includes its trust tier (OBSERVED, ATTESTED, or SELF_REPORTED), so auditors can see not just <em>what</em> you claim but <em>how</em> you verified it.</p>
+
+<h3>5. Set up continuous monitoring</h3>
+
+<pre><code><span style="color:#6a9955"># Continuous compliance monitoring</span>
+amc guide --watch
+
+<span style="color:#6a9955"># CI gate: fail builds that drop below L3</span>
+amc guide --ci --target 3
+
+<span style="color:#6a9955"># Track what improved since last assessment</span>
+amc guide --diff</code></pre>
+
+<p>Compliance isn't a one-time event. The EU AI Act requires ongoing monitoring and risk management. AMC's watch mode continuously monitors your agent and alerts you when something changes that could affect compliance.</p>
+
+<h2>Industry-Specific Requirements</h2>
+
+<p>If your agent operates in a specific sector, the regulatory landscape is even more complex. AMC includes 40 domain packs across 7 industries that layer sector-specific requirements on top of the EU AI Act baseline:</p>
+
+<ul>
+  <li><strong>Healthcare:</strong> HIPAA §164.312, FDA 21 CFR Part 11, EU MDR 2017/745</li>
+  <li><strong>Finance:</strong> MiFID II, PSD2, EU DORA, MiCA, FATF requirements</li>
+  <li><strong>Education:</strong> FERPA, COPPA §312, EU AI Act Annex III</li>
+  <li><strong>Critical Infrastructure:</strong> EU NIS2, ETSI EN 303 645</li>
+</ul>
+
+<pre><code><span style="color:#6a9955"># Assess against a specific industry domain</span>
+amc domain assess --domain health --agent my-agent
+amc domain assess --domain wealth --agent my-agent
+
+<span style="color:#6a9955"># Generate sector-specific compliance report</span>
+amc domain report --domain health --output reports/health-compliance.md</code></pre>
+
+<h2>The Cost of Waiting</h2>
+
+<p>Five months isn't a lot of time to go from L0 or L1 to L3. Here's a realistic timeline:</p>
+
+<ul>
+  <li><strong>Week 1:</strong> Install AMC, get baseline scores, identify critical gaps</li>
+  <li><strong>Weeks 2–4:</strong> Apply auto-remediation, implement critical fixes, begin evidence collection</li>
+  <li><strong>Weeks 5–8:</strong> Run assurance lab, address adversarial robustness gaps, build audit binder</li>
+  <li><strong>Weeks 9–12:</strong> Continuous monitoring, regression testing, final compliance report</li>
+</ul>
+
+<p>That's a tight three-month sprint — and it assumes you start <em>now</em>. Waiting until July means either rushing through compliance (which defeats the purpose) or facing enforcement with gaps.</p>
+
+<p>The penalties are real: up to <strong>€35 million or 7% of global annual turnover</strong>. But the bigger risk is reputational. The first enforcement actions will be public. Being in the first wave of non-compliance findings is the kind of press no company wants.</p>
+
+<div class="cta-box">
+  <h3>Start your compliance assessment today</h3>
+  <p>AMC is open source and MIT-licensed. Get your EU AI Act gap analysis in 2 minutes.</p>
+  <pre><code>npm install -g agent-maturity-compass && amc quickscore --eu-ai-act</code></pre>
+</div>
+
+<p>The EU AI Act isn't going away, and the deadline isn't moving. The question isn't whether you'll need to comply — it's whether you'll be ready when you do.</p>
+
+<p>The entire agent ecosystem currently runs on trust-me-bro evidence — agents grading their own exams, teams self-certifying compliance, documentation that describes intent rather than reality. That worked when AI agents were experiments. It doesn't work when they're regulated systems with real consequences.</p>
+
+<p>AMC gives you the fastest path from "where are we?" to "we're ready," with execution-verified evidence that auditors can actually trust. 730 diagnostic questions. 78 assurance packs. 14 framework adapters. 4,064 tests passing. One <code>npm install</code>, zero code changes, and the truth about where you actually stand.</p>
+
+<p><strong>Stop guessing. Start measuring. The clock is ticking.</strong></p>
+
+<div class="share">
+  <a href="https://twitter.com/intent/tweet?text=EU%20AI%20Act%20compliance%20for%20AI%20agents%20%E2%80%94%20Aug%202026%20deadline%20approaching&url=https://thewisecrab.github.io/AgentMaturityCompass/blog/eu-ai-act-agents.html" target="_blank">Share on X</a>
+  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://thewisecrab.github.io/AgentMaturityCompass/blog/eu-ai-act-agents.html" target="_blank">Share on LinkedIn</a>
+  <a href="https://news.ycombinator.com/submitlink?u=https://thewisecrab.github.io/AgentMaturityCompass/blog/eu-ai-act-agents.html&t=EU%20AI%20Act%20Compliance%20for%20AI%20Agents" target="_blank">Post to HN</a>
+</div>
+
+</div>
+
+<footer class="footer">
+  © 2026 Agent Maturity Compass · MIT License · <a href="../">Home</a> · <a href="https://github.com/thewisecrab/AgentMaturityCompass">GitHub</a>
+</footer>
+
+</body>
+</html>

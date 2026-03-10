@@ -1,178 +1,216 @@
-/* AMC v15 — Pure CSS animations, no GSAP */
+/* AMC v3 — Clean JS. Content always visible. */
 
-// ─── MATRIX RAIN ───
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const canvas = document.getElementById('matrix');
-if (canvas && !prefersReducedMotion) {
-  const ctx = canvas.getContext('2d');
-  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-  resizeCanvas(); window.addEventListener('resize', resizeCanvas);
-  const chars = 'AMC01234567890.:{}<>[];/\\|=+-_*&^%$#@!';
-  const fontSize = 14;
-  let columns, drops;
-  function initDrops() { columns = Math.floor(canvas.width / fontSize); drops = Array(columns).fill(1); }
-  initDrops(); window.addEventListener('resize', initDrops);
-  (function drawMatrix() {
-    ctx.fillStyle = 'rgba(5, 5, 5, 0.04)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#00ff41'; ctx.font = fontSize + 'px monospace';
-    for (let i = 0; i < drops.length; i++) {
-      ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, drops[i] * fontSize);
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    }
-    requestAnimationFrame(drawMatrix);
-  })();
+// ─── THEME ───
+(function(){
+  var h=document.documentElement;
+  var t=localStorage.getItem('amc-theme');
+  if(t) h.setAttribute('data-theme',t);
+  else if(window.matchMedia('(prefers-color-scheme:dark)').matches) h.setAttribute('data-theme','dark');
+})();
+
+function toggleTheme(){
+  var h=document.documentElement;
+  var next=h.getAttribute('data-theme')==='dark'?'light':'dark';
+  h.setAttribute('data-theme',next);
+  localStorage.setItem('amc-theme',next);
 }
 
-// ─── INTERSECTION OBSERVER for scroll reveals ───
-const observer = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('vis');
-      observer.unobserve(entry.target);
-    }
+// ─── SCROLL PROGRESS ───
+(function(){
+  var bar=document.querySelector('.scroll-progress');
+  if(!bar) return;
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    if(h>0) bar.style.width=(window.scrollY/h*100)+'%';
+  },{passive:true});
+})();
+
+// ─── NAV HIDE/SHOW ───
+(function(){
+  var nav=document.querySelector('.nav');
+  if(!nav) return;
+  var last=0;
+  window.addEventListener('scroll',function(){
+    var s=window.scrollY;
+    if(s>200&&s>last) nav.classList.add('nav-hidden');
+    else nav.classList.remove('nav-hidden');
+    last=s;
+  },{passive:true});
+})();
+
+// ─── MOBILE NAV ───
+(function(){
+  var btn=document.querySelector('.nav-hamburger');
+  var mob=document.querySelector('.nav-mobile');
+  if(!btn||!mob) return;
+  btn.addEventListener('click',function(){
+    btn.classList.toggle('open');
+    mob.classList.toggle('open');
+    document.body.style.overflow=mob.classList.contains('open')?'hidden':'';
   });
-}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  mob.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      btn.classList.remove('open');
+      mob.classList.remove('open');
+      document.body.style.overflow='';
+    });
+  });
+})();
 
-document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+// ─── SCROLL REVEALS (with safety fallback) ───
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  if(!els.length) return;
 
-// ─── COUNTERS ───
-function animateCounter(el) {
-  var target = parseInt(el.dataset.target || el.dataset.count) || 0;
-  var suffix = el.dataset.suffix || '';
-  var duration = 2000;
-  var start = performance.now();
-  function formatNum(n) {
-    if (n >= 1000) return n.toLocaleString();
-    return String(n);
+  // Safety: if IntersectionObserver doesn't fire within 3s, show everything
+  var safety=setTimeout(function(){
+    els.forEach(function(el){el.classList.add('visible')});
+  },3000);
+
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    clearTimeout(safety);
+    els.forEach(function(el){el.classList.add('visible')});
+    return;
   }
-  function tick(now) {
-    var elapsed = now - start;
-    var progress = Math.min(elapsed / duration, 1);
-    var eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = formatNum(Math.round(target * eased)) + suffix;
-    if (progress < 1) requestAnimationFrame(tick);
+
+  var revealed=0;
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+        revealed++;
+        if(revealed>=els.length) clearTimeout(safety);
+      }
+    });
+  },{threshold:0.08,rootMargin:'0px 0px -20px 0px'});
+
+  els.forEach(function(el){observer.observe(el)});
+})();
+
+// ─── ANIMATED COUNTERS ───
+function animateCounter(el){
+  var target=parseInt(el.getAttribute('data-target'))||0;
+  var suffix=el.getAttribute('data-suffix')||'';
+  var dur=1800;
+  var start=performance.now();
+  function fmt(n){return n>=1000?n.toLocaleString():String(n)}
+  function tick(now){
+    var p=Math.min((now-start)/dur,1);
+    var e=1-Math.pow(1-p,3);
+    el.textContent=fmt(Math.round(target*e))+suffix;
+    if(p<1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 }
 
-// Hero counters — animate on load
-window.addEventListener('load', function() {
-  document.querySelectorAll('.proof-num').forEach(animateCounter);
-});
+(function(){
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        animateCounter(entry.target);
+        obs.unobserve(entry.target);
+      }
+    });
+  },{threshold:0.2});
 
-// All other counters — animate on scroll
-var counterObserver = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) {
-    if (entry.isIntersecting) {
-      animateCounter(entry.target);
-      counterObserver.unobserve(entry.target);
-    }
+  document.querySelectorAll('[data-target]').forEach(function(el){obs.observe(el)});
+
+  // Safety: show final values after 4s if observer never fires
+  setTimeout(function(){
+    document.querySelectorAll('[data-target]').forEach(function(el){
+      if(el.textContent==='0'||el.textContent===''){
+        el.textContent=el.getAttribute('data-target')+(el.getAttribute('data-suffix')||'');
+      }
+    });
+  },4000);
+})();
+
+// ─── FAQ ACCORDION ───
+(function(){
+  document.querySelectorAll('.faq-question').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.faq-item');
+      var was=item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(o){
+        o.classList.remove('open');
+        o.querySelector('.faq-question').setAttribute('aria-expanded','false');
+      });
+      if(!was){item.classList.add('open');btn.setAttribute('aria-expanded','true')}
+    });
   });
-}, { threshold: 0.3 });
-document.querySelectorAll('.oss-num, .hnum, .cap-num, .gauge-num, [data-target]').forEach(function(el) {
-  if (!el.classList.contains('proof-num')) counterObserver.observe(el);
-});
+})();
 
-// ─── BAR FILLS on scroll ───
-var barObserver = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) {
-    if (entry.isIntersecting) {
-      var fill = entry.target;
-      var tw = getComputedStyle(fill).getPropertyValue('--tw');
-      if (tw) fill.style.width = tw;
-      barObserver.unobserve(fill);
-    }
-  });
-}, { threshold: 0.2 });
-document.querySelectorAll('.tier-fill, .lvl-fill').forEach(function(el) { barObserver.observe(el); });
+// ─── TERMINAL DEMO ───
+(function(){
+  var body=document.getElementById('terminal-body');
+  if(!body) return;
 
-// ─── NAV SCROLL ───
-var lastScroll = 0;
-var nav = document.getElementById('nav');
-window.addEventListener('scroll', function() {
-  var scroll = window.scrollY;
-  if (scroll > 200 && scroll > lastScroll) {
-    nav.classList.add('nav-hidden');
-  } else {
-    nav.classList.remove('nav-hidden');
+  var lines=[
+    {html:'<span class="term-prompt">$</span> <span class="term-command">npx</span> agent-maturity-compass <span class="term-flag">quickscore</span>',d:0},
+    {html:'',d:400},
+    {html:'<span class="term-dim">⠋ Discovering agent capabilities...</span>',d:700},
+    {html:'<span class="term-dim">⠙ Running 138 diagnostic questions...</span>',d:1300},
+    {html:'<span class="term-dim">⠸ Generating evidence chains...</span>',d:1900},
+    {html:'',d:2300},
+    {html:'<span class="term-teal">Agent Maturity Compass</span> <span class="term-dim">v2.0</span>',d:2400},
+    {html:'<span class="term-dim">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>',d:2550},
+    {html:'',d:2700},
+    {html:'  <span class="term-accent">Overall Score</span>      <span style="color:#f0ede8;font-weight:600">L3</span> <span class="term-dim">(Governed)</span>',d:2800},
+    {html:'',d:2900},
+    {html:'  <span class="term-dim">Safety</span>            <span class="term-bar-fill">████████████████</span><span class="term-bar-empty">████</span> <span class="term-success">82%</span>',d:3000},
+    {html:'  <span class="term-dim">Oversight</span>         <span class="term-bar-fill">██████████████</span><span class="term-bar-empty">██████</span> <span class="term-success">71%</span>',d:3150},
+    {html:'  <span class="term-dim">Transparency</span>      <span class="term-bar-fill">███████████████████</span><span class="term-bar-empty">█</span> <span class="term-success">94%</span>',d:3300},
+    {html:'  <span class="term-dim">Governance</span>        <span class="term-bar-fill">████████████████</span><span class="term-bar-empty">████</span> <span class="term-success">79%</span>',d:3450},
+    {html:'  <span class="term-dim">Evidence</span>          <span class="term-bar-fill">████████████</span><span class="term-bar-empty">████████</span> <span class="term-orange">58%</span>',d:3600},
+    {html:'',d:3750},
+    {html:'<span class="term-dim">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>',d:3850},
+    {html:'  <span class="term-dim">Evidence chains:</span>  <span class="term-success">✓ 12 verified</span>  <span class="term-red">✗ 3 gaps</span>',d:4000},
+    {html:'  <span class="term-dim">Run time:</span>         <span style="color:#cdd6f4">4.2s</span>',d:4150},
+    {html:'',d:4300},
+    {html:'  <span class="term-success">Report saved → amc-report.html</span>',d:4450},
+    {html:'',d:4600},
+    {html:'<span class="term-prompt">$</span>',d:4750}
+  ];
+
+  var fired=false;
+
+  // Also render a static version immediately as fallback
+  function renderStatic(){
+    if(fired) return;
+    body.innerHTML=lines.map(function(l){return '<div class="terminal-line" style="opacity:1;transform:none;animation:none">'+(l.html||'&nbsp;')+'</div>'}).join('');
   }
-  lastScroll = scroll;
-}, { passive: true });
 
-// ─── SCROLL PROGRESS BAR ───
-var bar = document.createElement('div');
-bar.className = 'scroll-bar';
-document.body.appendChild(bar);
-window.addEventListener('scroll', function() {
-  var h = document.documentElement.scrollHeight - window.innerHeight;
-  bar.style.width = (window.scrollY / h * 100) + '%';
-}, { passive: true });
+  function runAnim(){
+    if(fired) return;
+    fired=true;
+    body.innerHTML='';
+    lines.forEach(function(line){
+      setTimeout(function(){
+        var div=document.createElement('div');
+        div.className='terminal-line';
+        div.innerHTML=line.html||'&nbsp;';
+        body.appendChild(div);
+        body.scrollTop=body.scrollHeight;
+      },line.d);
+    });
+  }
+
+  var obs=new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting){runAnim();obs.disconnect()}
+  },{threshold:0.2});
+  obs.observe(body);
+
+  // Safety: render static after 5s if animation never triggered
+  setTimeout(renderStatic,5000);
+})();
 
 // ─── SMOOTH SCROLL ───
-document.querySelectorAll('a[href^="#"]').forEach(function(a) {
-  a.addEventListener('click', function(e) {
-    var href = a.getAttribute('href');
-    if (href === '#') return;
-    var t = document.querySelector(href);
-    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var href=a.getAttribute('href');
+    if(href==='#') return;
+    var t=document.querySelector(href);
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
   });
 });
-
-// ─── CURSOR GLOW ───
-var glow = document.getElementById('cursorGlow');
-if (glow && window.matchMedia('(pointer: fine)').matches) {
-  document.addEventListener('mousemove', function(e) {
-    glow.style.transform = 'translate(' + (e.clientX - 200) + 'px,' + (e.clientY - 200) + 'px)';
-  });
-}
-
-// ─── MODE TOGGLE (Technical / ELI5) ───
-// Re-animate counters when switching modes (hidden elements miss IntersectionObserver)
-function animateVisibleCounters() {
-  document.querySelectorAll('[data-target]').forEach(function(el) {
-    if (el.offsetParent !== null && (el.textContent.trim() === '0' || el.textContent.trim() === '0pt' || el.textContent.trim() === '0+')) {
-      animateCounter(el);
-    }
-  });
-}
-// Listen for mode changes from the inline setMode() function
-var modeObserver = new MutationObserver(function() { setTimeout(animateVisibleCounters, 100); });
-modeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-
-var toggle = document.getElementById('modeToggle');
-if (toggle) {
-  var saved = localStorage.getItem('amc-mode');
-  if (saved === 'eli5') document.body.classList.add('eli5-mode');
-
-  toggle.addEventListener('click', function() {
-    document.body.classList.toggle('eli5-mode');
-    var isEli5 = document.body.classList.contains('eli5-mode');
-    localStorage.setItem('amc-mode', isEli5 ? 'eli5' : 'tech');
-  });
-}
-
-// ─── OS INSTALL TABS ───
-document.querySelectorAll('.os-tab').forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    var os = this.getAttribute('data-os');
-    document.querySelectorAll('.os-tab').forEach(function(t) { t.classList.remove('active'); });
-    document.querySelectorAll('.os-panel').forEach(function(p) { p.classList.remove('active'); });
-    this.classList.add('active');
-    document.querySelector('.os-panel[data-os="' + os + '"]').classList.add('active');
-  });
-});
-
-// ─── DASHBOARD HEATMAP ───
-var heatmap = document.getElementById('dashHeatmap');
-if (heatmap) {
-  var greens = ['#0a1a0a','#0d2b0d','#0f3d0f','#1a5a1a','#2a7a2a','#00cc33','#00ff41'];
-  for (var i = 0; i < 111; i++) {
-    var cell = document.createElement('div');
-    cell.className = 'dash-cell';
-    var level = Math.floor(Math.random() * greens.length);
-    cell.style.background = greens[level];
-    heatmap.appendChild(cell);
-  }
-}

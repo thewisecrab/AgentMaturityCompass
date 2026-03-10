@@ -51,11 +51,12 @@ export async function handleGatewayRoute(
   if (pathname === '/api/v1/gateway/init' && method === 'POST') {
     try {
       const body = await bodyJson<{ provider?: string }>(req);
-      const { initGatewayConfig, presetGatewayConfigForProvider, saveGatewayConfig } = await import('../gateway/config.js');
+      const { initGatewayConfig, presetGatewayConfigForProvider, saveGatewayConfig, signGatewayConfig } = await import('../gateway/config.js');
       const result = initGatewayConfig(workspace);
       if (body.provider) {
         const preset = presetGatewayConfigForProvider(body.provider);
         saveGatewayConfig(workspace, preset);
+        signGatewayConfig(workspace);
         apiSuccess(res, { initialized: true, configPath: result.configPath, provider: body.provider });
       } else {
         apiSuccess(res, { initialized: true, configPath: result.configPath });
@@ -71,10 +72,11 @@ export async function handleGatewayRoute(
     try {
       const body = await bodyJson<{ agentId: string; routePrefix?: string }>(req);
       if (!body.agentId) { apiError(res, 400, 'agentId required'); return true; }
-      const { loadGatewayConfig, bindAgentRoute, saveGatewayConfig } = await import('../gateway/config.js');
+      const { loadGatewayConfig, bindAgentRoute, saveGatewayConfig, signGatewayConfig } = await import('../gateway/config.js');
       const config = loadGatewayConfig(workspace);
       const updated = bindAgentRoute(config, body.routePrefix ?? '/openai', body.agentId);
       saveGatewayConfig(workspace, updated);
+      signGatewayConfig(workspace);
       apiSuccess(res, { bound: true, agentId: body.agentId, routePrefix: body.routePrefix ?? '/openai' });
     } catch (err) {
       apiError(res, 500, err instanceof Error ? err.message : 'Agent bind failed');

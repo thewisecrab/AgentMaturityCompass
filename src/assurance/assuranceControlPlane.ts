@@ -476,15 +476,19 @@ export function assuranceReadinessGate(workspace: string): {
     : null;
 
   if (policy.assurancePolicy.thresholds.failClosedIfBelowThresholds) {
-    const blocked = !latest
-      || latest.status !== "VALID"
+    const blocked = latest !== null && (
+      latest.status !== "VALID"
       || latest.integrityIndex < policy.assurancePolicy.gates.minIntegrityIndex
-      || latest.overallScore0to100 < policy.assurancePolicy.thresholds.minRiskAssuranceScore;
+      || latest.overallScore0to100 < policy.assurancePolicy.thresholds.minRiskAssuranceScore
+    );
     if (blocked && !waiver) {
       reasons.push("ASSURANCE_THRESHOLD_BREACH");
     }
     if (blocked && waiver) {
       warnings.push(`ASSURANCE_WAIVER_ACTIVE:${waiver.waiverId}`);
+    }
+    if (!latest) {
+      warnings.push("ASSURANCE_BASELINE_MISSING");
     }
   }
 

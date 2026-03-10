@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLI Reference — AMC Documentation</title>
+  <meta name="description" content="Complete CLI reference for Agent Maturity Compass — all commands organized by namespace with examples, flags, and environment variables.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230D6E6E'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .ns-toggle { cursor: pointer; user-select: none; }
+    .ns-toggle h3 { display: flex; align-items: center; gap: 8px; }
+    .ns-toggle h3::before { content: '▸'; font-size: 0.7rem; color: var(--teal); transition: transform 0.15s; display: inline-block; }
+    .ns-toggle.open h3::before { transform: rotate(90deg); }
+    .ns-body { display: none; }
+    .ns-toggle.open + .ns-body, .ns-body.open { display: block; }
+    .cmd-count { font-size: 0.75rem; color: var(--text-light); font-weight: 400; font-family: var(--mono); }
+    .expand-all { font-size: 0.82rem; color: var(--teal); cursor: pointer; background: none; border: 1px solid var(--border); padding: 5px 14px; border-radius: 6px; font-family: var(--sans); }
+    .expand-all:hover { background: var(--teal-pale); }
+    #cmd-search { width: 100%; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; font-family: var(--mono); background: #fff; color: var(--text); outline: none; margin-bottom: 24px; }
+    #cmd-search:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,110,110,0.08); }
+    .highlight-match { background: var(--orange-pale); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <a href="../" class="topbar-logo"><span class="logo-icon">A</span> AMC Docs</a>
+  <nav class="topbar-nav">
+    <a href="getting-started.html">Getting Started</a>
+    <a href="cli.html" class="active">CLI Reference</a>
+    <a href="adapters.html">Adapters</a>
+    <a href="compliance.html">Compliance</a>
+    <a href="methodology.html">Methodology</a>
+    <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub ↗</a>
+  </nav>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <h4>CLI Reference</h4>
+      <a href="#overview" class="active">Overview</a>
+      <a href="#top-commands">Top 20 Commands</a>
+      <a href="#search">Search Commands</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Namespaces</h4>
+      <a href="#ns-setup" class="sub">Setup &amp; Health</a>
+      <a href="#ns-studio" class="sub">Studio &amp; Control Plane</a>
+      <a href="#ns-config" class="sub">Configuration</a>
+      <a href="#ns-adapters" class="sub">Adapters</a>
+      <a href="#ns-evidence" class="sub">Evidence Capture</a>
+      <a href="#ns-quickscore" class="sub">Quickscore &amp; Sharing</a>
+      <a href="#ns-scoring" class="sub">Scoring &amp; Diagnostics</a>
+      <a href="#ns-gateway" class="sub">Gateway &amp; Proxy</a>
+      <a href="#ns-fleet" class="sub">Fleet &amp; Agents</a>
+      <a href="#ns-governor" class="sub">Governor &amp; Policy</a>
+      <a href="#ns-vault" class="sub">Vault &amp; Trust</a>
+      <a href="#ns-assurance" class="sub">Assurance Lab</a>
+      <a href="#ns-compliance" class="sub">Compliance</a>
+      <a href="#ns-ops" class="sub">Operations</a>
+      <a href="#ns-advanced" class="sub">Advanced</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Reference</h4>
+      <a href="#env-vars">Environment Variables</a>
+      <a href="#exit-codes">Exit Codes</a>
+      <a href="#global-flags">Global Flags</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Also in Docs</h4>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="adapters.html">Adapter Guides</a>
+      <a href="compliance.html">Compliance</a>
+      <a href="methodology.html">Scoring Methodology</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="content">
+
+      <h1 id="overview">CLI Reference</h1>
+      <p class="subtitle">Complete reference for all <strong>amc</strong> commands — organized by namespace with examples, flags, and environment variables.</p>
+
+      <div class="callout callout-cream">
+        <strong>📊 By the numbers</strong>
+        The AMC CLI ships with 481 commands across 48 namespaces. Every command supports <code>--help</code> for inline documentation.
+      </div>
+
+      <!-- Top 20 -->
+      <h2 id="top-commands">Top 20 Commands</h2>
+      <p>The commands you'll use most, in order of typical workflow:</p>
+
+      <table>
+        <thead><tr><th>Command</th><th>What it does</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>amc init</code></td><td>Initialize a new <code>.amc</code> workspace</td><td><code>amc init</code></td></tr>
+          <tr><td><code>amc quickscore</code></td><td>2-minute rapid self-assessment</td><td><code>amc quickscore --share</code></td></tr>
+          <tr><td><code>amc doctor</code></td><td>Check runtime and workspace health</td><td><code>amc doctor</code></td></tr>
+          <tr><td><code>amc fix</code></td><td>Generate remediation files</td><td><code>amc fix --target-level L4</code></td></tr>
+          <tr><td><code>amc guide --go</code></td><td>Auto-detect framework and apply guardrails</td><td><code>amc guide --go</code></td></tr>
+          <tr><td><code>amc up</code></td><td>Start Studio (gateway + dashboard)</td><td><code>amc up</code></td></tr>
+          <tr><td><code>amc status</code></td><td>Show Studio and vault status</td><td><code>amc status</code></td></tr>
+          <tr><td><code>amc evidence collect</code></td><td>Interactive evidence collection wizard</td><td><code>amc evidence collect</code></td></tr>
+          <tr><td><code>amc wrap</code></td><td>Wrap any agent CLI for evidence capture</td><td><code>amc wrap claude -- claude "hello"</code></td></tr>
+          <tr><td><code>amc adapters run</code></td><td>Run adapter with lease + gateway routing</td><td><code>amc adapters run --adapter claude-cli -- claude</code></td></tr>
+          <tr><td><code>amc run</code></td><td>Run full maturity diagnostic</td><td><code>amc run --agent my-agent --window 30</code></td></tr>
+          <tr><td><code>amc report</code></td><td>Render diagnostic report</td><td><code>amc report &lt;id&gt; --html r.html</code></td></tr>
+          <tr><td><code>amc badge</code></td><td>Generate maturity badge</td><td><code>amc badge --format html</code></td></tr>
+          <tr><td><code>amc assurance run</code></td><td>Run red team assurance packs</td><td><code>amc assurance run --scope full</code></td></tr>
+          <tr><td><code>amc compliance report</code></td><td>Generate compliance mapping report</td><td><code>amc compliance report --framework EU_AI_ACT</code></td></tr>
+          <tr><td><code>amc domain assess</code></td><td>Assess against an industry domain</td><td><code>amc domain assess --domain health</code></td></tr>
+          <tr><td><code>amc vault init</code></td><td>Initialize encrypted key vault</td><td><code>amc vault init</code></td></tr>
+          <tr><td><code>amc fleet report</code></td><td>Cross-agent fleet report</td><td><code>amc fleet report --window 30</code></td></tr>
+          <tr><td><code>amc compare</code></td><td>Compare two diagnostic runs</td><td><code>amc compare &lt;runA&gt; &lt;runB&gt;</code></td></tr>
+          <tr><td><code>amc down</code></td><td>Stop Studio</td><td><code>amc down</code></td></tr>
+        </tbody>
+      </table>
+
+      <!-- Search -->
+      <h2 id="search">Search Commands</h2>
+      <input type="text" id="cmd-search" placeholder="Search commands… (e.g. vault, compliance, assurance)">
+      <div id="search-results-area"></div>
+
+      <!-- Expand all -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 id="all-commands" style="margin: 0; border: none; padding: 0;">All Commands by Namespace</h2>
+        <button class="expand-all" onclick="toggleAll()">Expand All</button>
+      </div>
+
+      <!-- SETUP -->
+      <div class="ns-toggle" id="ns-setup" onclick="this.classList.toggle('open')">
+        <h3>Setup &amp; Health <span class="cmd-count">7 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc init</code></td><td>Initialize <code>.amc</code> workspace</td></tr>
+            <tr><td><code>amc setup [--demo]</code></td><td>Deterministic go-live setup (<code>--demo</code> for sample data)</td></tr>
+            <tr><td><code>amc bootstrap</code></td><td>Bootstrap workspace for production (non-interactive)</td></tr>
+            <tr><td><code>amc doctor</code></td><td>Check runtime availability and workspace health</td></tr>
+            <tr><td><code>amc doctor-fix</code></td><td>Auto-repair common setup issues</td></tr>
+            <tr><td><code>amc quickstart</code></td><td>One-command setup wizard (legacy)</td></tr>
+            <tr><td><code>amc fix-signatures</code></td><td>Verify and re-sign gateway/fleet/agent configs</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- STUDIO -->
+      <div class="ns-toggle" id="ns-studio" onclick="this.classList.toggle('open')">
+        <h3>Studio &amp; Control Plane <span class="cmd-count">9 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc up</code></td><td>Start Studio local control plane (gateway, proxy, dashboard, API)</td></tr>
+            <tr><td><code>amc down</code></td><td>Stop Studio</td></tr>
+            <tr><td><code>amc status</code></td><td>Show Studio and vault status</td></tr>
+            <tr><td><code>amc logs</code></td><td>Print latest Studio logs</td></tr>
+            <tr><td><code>amc studio ping</code></td><td>Ping Studio API <code>/health</code> endpoint</td></tr>
+            <tr><td><code>amc studio start</code></td><td>Start Studio in foreground (deployment-safe)</td></tr>
+            <tr><td><code>amc studio healthcheck</code></td><td>Health/readiness probe for deployment</td></tr>
+            <tr><td><code>amc studio lan enable</code></td><td>Enable LAN mode with pairing gate</td></tr>
+            <tr><td><code>amc studio lan disable</code></td><td>Disable LAN mode, revert to localhost</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="ns-toggle" id="ns-config" onclick="this.classList.toggle('open')">
+        <h3>Configuration <span class="cmd-count">2 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc config print</code></td><td>Print resolved runtime config (secret-safe)</td></tr>
+            <tr><td><code>amc config explain</code></td><td>Explain config source precedence and risky settings</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ADAPTERS -->
+      <div class="ns-toggle" id="ns-adapters" onclick="this.classList.toggle('open')">
+        <h3>Adapters <span class="cmd-count">8 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc adapters init</code></td><td>Create signed <code>adapters.yaml</code> defaults</td></tr>
+            <tr><td><code>amc adapters verify</code></td><td>Verify <code>adapters.yaml</code> signature</td></tr>
+            <tr><td><code>amc adapters list</code></td><td>List built-in adapters and per-agent preferences</td></tr>
+            <tr><td><code>amc adapters detect</code></td><td>Detect installed adapter runtimes</td></tr>
+            <tr><td><code>amc adapters configure</code></td><td>Set adapter profile for an agent</td></tr>
+            <tr><td><code>amc adapters env</code></td><td>Print adapter-compatible environment exports</td></tr>
+            <tr><td><code>amc adapters init-project</code></td><td>Generate runnable local adapter sample</td></tr>
+            <tr><td><code>amc adapters run</code></td><td>Run adapter with minted lease, gateway routing, evidence capture</td></tr>
+          </tbody>
+        </table>
+        <p>See the full <a href="adapters.html">Adapter Guides</a> for framework-specific setup.</p>
+      </div>
+
+      <!-- EVIDENCE -->
+      <div class="ns-toggle" id="ns-evidence" onclick="this.classList.toggle('open')">
+        <h3>Agent Wrapping &amp; Evidence Capture <span class="cmd-count">7 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc wrap &lt;name&gt; -- &lt;args&gt;</code></td><td>Wrap and capture evidence (claude, gemini, openclaw, any)</td></tr>
+            <tr><td><code>amc supervise --route &lt;r&gt; -- &lt;cmd&gt;</code></td><td>Supervise with gateway routing</td></tr>
+            <tr><td><code>amc sandbox run --agent &lt;id&gt; -- &lt;cmd&gt;</code></td><td>Run in hardened Docker sandbox</td></tr>
+            <tr><td><code>amc monitor --stdin --runtime &lt;n&gt;</code></td><td>Record stdin stream as evidence</td></tr>
+            <tr><td><code>amc connect</code></td><td>Connect wizard for any agent/provider</td></tr>
+            <tr><td><code>amc ingest</code></td><td>Ingest external logs as SELF_REPORTED evidence</td></tr>
+            <tr><td><code>amc attest</code></td><td>Auditor-attest to upgrade trust to ATTESTED</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- QUICKSCORE -->
+      <div class="ns-toggle" id="ns-quickscore" onclick="this.classList.toggle('open')">
+        <h3>Quickscore, Badge &amp; Telemetry <span class="cmd-count">8 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc quickscore</code></td><td>2-minute rapid self-assessment (no gateway required)</td></tr>
+            <tr><td><code>amc quickscore --share</code></td><td>Generate shareable markdown summary + badge</td></tr>
+            <tr><td><code>amc quickscore --json</code></td><td>Machine-readable JSON output</td></tr>
+            <tr><td><code>amc quickscore --eu-ai-act</code></td><td>Include EU AI Act risk classification</td></tr>
+            <tr><td><code>amc badge</code></td><td>Generate maturity badge (markdown, HTML, or URL)</td></tr>
+            <tr><td><code>amc badge --format html</code></td><td>HTML <code>&lt;img&gt;</code> tag output</td></tr>
+            <tr><td><code>amc telemetry on|off</code></td><td>Enable/disable anonymous opt-in telemetry</td></tr>
+            <tr><td><code>amc telemetry status</code></td><td>Show telemetry config</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SCORING -->
+      <div class="ns-toggle" id="ns-scoring" onclick="this.classList.toggle('open')">
+        <h3>Scoring &amp; Diagnostics <span class="cmd-count">14 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc run --agent &lt;id&gt; --window &lt;d&gt;</code></td><td>Run maturity diagnostic</td></tr>
+            <tr><td><code>amc report &lt;runId&gt;</code></td><td>Render report for a run</td></tr>
+            <tr><td><code>amc report &lt;id&gt; --html r.html</code></td><td>Styled HTML report (print to PDF)</td></tr>
+            <tr><td><code>amc report &lt;id&gt; --executive</code></td><td>Board-friendly terminal summary</td></tr>
+            <tr><td><code>amc history</code></td><td>List diagnostic run history</td></tr>
+            <tr><td><code>amc compare &lt;a&gt; &lt;b&gt;</code></td><td>Compare two runs</td></tr>
+            <tr><td><code>amc verify</code></td><td>Verify integrity across AMC artifacts</td></tr>
+            <tr><td><code>amc verify all --json</code></td><td>Full verification in one pass</td></tr>
+            <tr><td><code>amc snapshot --agent &lt;id&gt;</code></td><td>Generate Unified Clarity Snapshot</td></tr>
+            <tr><td><code>amc target set</code></td><td>Interactive equalizer wizard</td></tr>
+            <tr><td><code>amc target diff</code></td><td>Diff run against target profile</td></tr>
+            <tr><td><code>amc whatif targets</code></td><td>What-if simulation on targets</td></tr>
+            <tr><td><code>amc indices --agent &lt;id&gt;</code></td><td>Compute failure-risk indices</td></tr>
+            <tr><td><code>amc diagnostic render</code></td><td>Contextualized question view</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- GATEWAY -->
+      <div class="ns-toggle" id="ns-gateway" onclick="this.classList.toggle('open')">
+        <h3>Gateway &amp; Proxy <span class="cmd-count">5 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc gateway init --provider &lt;n&gt;</code></td><td>Initialize gateway config</td></tr>
+            <tr><td><code>amc gateway start --config &lt;f&gt;</code></td><td>Start the gateway</td></tr>
+            <tr><td><code>amc gateway status</code></td><td>Show gateway status</td></tr>
+            <tr><td><code>amc gateway verify-config</code></td><td>Verify gateway config</td></tr>
+            <tr><td><code>amc gateway bind-agent</code></td><td>Bind agent to gateway route</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FLEET -->
+      <div class="ns-toggle" id="ns-fleet" onclick="this.classList.toggle('open')">
+        <h3>Fleet &amp; Agents <span class="cmd-count">18 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc fleet init</code></td><td>Create and sign <code>fleet.yaml</code></td></tr>
+            <tr><td><code>amc fleet report --window &lt;d&gt;</code></td><td>Cross-agent fleet report</td></tr>
+            <tr><td><code>amc fleet trust-init</code></td><td>Initialize trust composition</td></tr>
+            <tr><td><code>amc fleet trust-add-edge</code></td><td>Add delegation edge</td></tr>
+            <tr><td><code>amc fleet trust-report</code></td><td>Trust composition report</td></tr>
+            <tr><td><code>amc fleet dag</code></td><td>Visualize delegation graph</td></tr>
+            <tr><td><code>amc fleet contradictions</code></td><td>Detect cross-agent contradictions</td></tr>
+            <tr><td><code>amc agent add</code></td><td>Add agent to fleet</td></tr>
+            <tr><td><code>amc agent list</code></td><td>List fleet agents</td></tr>
+            <tr><td><code>amc agent remove</code></td><td>Remove agent</td></tr>
+            <tr><td><code>amc agent use &lt;id&gt;</code></td><td>Set current agent</td></tr>
+            <tr><td><code>amc agent diagnose</code></td><td>Lease-auth self-run diagnostic</td></tr>
+            <tr><td><code>amc lease issue --agent &lt;id&gt;</code></td><td>Issue scoped lease</td></tr>
+            <tr><td><code>amc lease verify &lt;token&gt;</code></td><td>Verify a lease token</td></tr>
+            <tr><td><code>amc lease revoke &lt;id&gt;</code></td><td>Revoke a lease</td></tr>
+            <tr><td><code>amc provider list</code></td><td>List provider templates</td></tr>
+            <tr><td><code>amc provider add</code></td><td>Assign/update provider for an agent</td></tr>
+            <tr><td><code>amc fleet handoff</code></td><td>Manage handoff packets</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- GOVERNOR -->
+      <div class="ns-toggle" id="ns-governor" onclick="this.classList.toggle('open')">
+        <h3>Governor &amp; Policy <span class="cmd-count">12 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc governor check --agent &lt;id&gt;</code></td><td>Check if action is allowed</td></tr>
+            <tr><td><code>amc governor explain</code></td><td>Explain enforcement classification</td></tr>
+            <tr><td><code>amc governor report</code></td><td>Generate governance report</td></tr>
+            <tr><td><code>amc policy action init|verify</code></td><td>Signed autonomy action policy</td></tr>
+            <tr><td><code>amc policy approval init|verify</code></td><td>Signed dual-control approval policy</td></tr>
+            <tr><td><code>amc policy pack list|describe|apply</code></td><td>Policy packs by archetype/risk</td></tr>
+            <tr><td><code>amc approvals list</code></td><td>List pending approvals</td></tr>
+            <tr><td><code>amc approvals approve &lt;id&gt;</code></td><td>Approve execution intent</td></tr>
+            <tr><td><code>amc approvals deny &lt;id&gt;</code></td><td>Deny execution intent</td></tr>
+            <tr><td><code>amc workorder create|list|show</code></td><td>Signed work order lifecycle</td></tr>
+            <tr><td><code>amc archetype list|describe|apply</code></td><td>Built-in role packs</td></tr>
+            <tr><td><code>amc tools init|verify|list</code></td><td>ToolHub tools config</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- VAULT -->
+      <div class="ns-toggle" id="ns-vault" onclick="this.classList.toggle('open')">
+        <h3>Vault &amp; Trust <span class="cmd-count">10 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc vault init</code></td><td>Initialize encrypted key vault</td></tr>
+            <tr><td><code>amc vault status</code></td><td>Show vault status</td></tr>
+            <tr><td><code>amc vault unlock|lock</code></td><td>Unlock/lock vault</td></tr>
+            <tr><td><code>amc vault rotate-keys</code></td><td>Rotate encryption keys</td></tr>
+            <tr><td><code>amc notary init</code></td><td>Initialize notary signing boundary</td></tr>
+            <tr><td><code>amc notary start</code></td><td>Start notary process</td></tr>
+            <tr><td><code>amc notary attest --out &lt;f&gt;</code></td><td>Generate attestation</td></tr>
+            <tr><td><code>amc notary verify-attest &lt;f&gt;</code></td><td>Verify attestation</td></tr>
+            <tr><td><code>amc trust enable-notary</code></td><td>Enable notary-backed trust</td></tr>
+            <tr><td><code>amc trust status</code></td><td>Show trust posture</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ASSURANCE -->
+      <div class="ns-toggle" id="ns-assurance" onclick="this.classList.toggle('open')">
+        <h3>Assurance Lab <span class="cmd-count">10 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc assurance init</code></td><td>Initialize assurance policy</td></tr>
+            <tr><td><code>amc assurance run --scope &lt;s&gt;</code></td><td>Run assurance packs (full, pack-specific)</td></tr>
+            <tr><td><code>amc assurance run --verbose</code></td><td>Full scenario detail with payloads</td></tr>
+            <tr><td><code>amc assurance run --format sarif</code></td><td>SARIF 2.1.0 export for security tools</td></tr>
+            <tr><td><code>amc assurance runs</code></td><td>List past runs</td></tr>
+            <tr><td><code>amc assurance show &lt;runId&gt;</code></td><td>Show run details</td></tr>
+            <tr><td><code>amc assurance cert issue|verify</code></td><td>Assurance certificates</td></tr>
+            <tr><td><code>amc assurance scheduler status</code></td><td>Scheduler controls</td></tr>
+            <tr><td><code>amc assurance waiver request</code></td><td>Temporary waiver</td></tr>
+            <tr><td><code>amc assurance verify-policy</code></td><td>Verify policy signature</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- COMPLIANCE -->
+      <div class="ns-toggle" id="ns-compliance" onclick="this.classList.toggle('open')">
+        <h3>Compliance &amp; Audit <span class="cmd-count">16 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc compliance init|verify</code></td><td>Initialize compliance mapping</td></tr>
+            <tr><td><code>amc compliance report --framework &lt;f&gt;</code></td><td>Generate compliance report</td></tr>
+            <tr><td><code>amc compliance fleet</code></td><td>Fleet-wide compliance overview</td></tr>
+            <tr><td><code>amc compliance diff</code></td><td>Diff compliance between runs</td></tr>
+            <tr><td><code>amc domain list</code></td><td>List all 7 domains + packs</td></tr>
+            <tr><td><code>amc domain assess --domain &lt;d&gt;</code></td><td>Assess against an industry domain</td></tr>
+            <tr><td><code>amc domain gaps --domain &lt;d&gt;</code></td><td>Find compliance gaps</td></tr>
+            <tr><td><code>amc domain report --domain &lt;d&gt;</code></td><td>Generate domain report</td></tr>
+            <tr><td><code>amc audit init|verify-policy</code></td><td>Initialize audit binder</td></tr>
+            <tr><td><code>amc audit binder create|verify</code></td><td>Binder artifact lifecycle</td></tr>
+            <tr><td><code>amc audit binder create --framework eu-ai-act</code></td><td>Export compliance evidence binder</td></tr>
+            <tr><td><code>amc audit map list|show|apply</code></td><td>Compliance map operations</td></tr>
+            <tr><td><code>amc audit request create|approve</code></td><td>Auditor evidence requests</td></tr>
+            <tr><td><code>amc certification</code></td><td>Issue offline certificate</td></tr>
+            <tr><td><code>amc cert verify|inspect|revoke</code></td><td>Certificate operations</td></tr>
+            <tr><td><code>amc passport init|create|verify</code></td><td>Agent Passport credential</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- OPS -->
+      <div class="ns-toggle" id="ns-ops" onclick="this.classList.toggle('open')">
+        <h3>Operations <span class="cmd-count">20 commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc guide --status</code></td><td>One-line health check</td></tr>
+            <tr><td><code>amc guide --interactive</code></td><td>Cherry-pick which gaps to fix</td></tr>
+            <tr><td><code>amc guide --watch</code></td><td>Continuous monitoring + auto-update</td></tr>
+            <tr><td><code>amc guide --diff</code></td><td>What improved since last run</td></tr>
+            <tr><td><code>amc guide --ci --target 3</code></td><td>CI gate: fail build if below L3</td></tr>
+            <tr><td><code>amc fix --dry-run</code></td><td>Preview what would be generated</td></tr>
+            <tr><td><code>amc budgets init|verify|status</code></td><td>Usage budget management</td></tr>
+            <tr><td><code>amc drift check|report</code></td><td>Drift/regression detection</td></tr>
+            <tr><td><code>amc freeze status|lift</code></td><td>Execution freeze controls</td></tr>
+            <tr><td><code>amc alerts init|verify|test</code></td><td>Alert configuration</td></tr>
+            <tr><td><code>amc backup create|verify|restore</code></td><td>Encrypted backup/restore</td></tr>
+            <tr><td><code>amc bundle export|verify</code></td><td>Portable evidence bundles</td></tr>
+            <tr><td><code>amc gate --bundle &lt;f&gt;</code></td><td>Release gate check</td></tr>
+            <tr><td><code>amc ci init|print</code></td><td>CI/CD release gate helpers</td></tr>
+            <tr><td><code>amc loop init|run|plan</code></td><td>Continuous maturity loop</td></tr>
+            <tr><td><code>amc dashboard build|serve</code></td><td>Build/serve local dashboard</td></tr>
+            <tr><td><code>amc transparency init|verify|tail</code></td><td>Transparency log</td></tr>
+            <tr><td><code>amc transparency merkle rebuild|root</code></td><td>Merkle proofs</td></tr>
+            <tr><td><code>amc metrics status</code></td><td>Prometheus metrics endpoint</td></tr>
+            <tr><td><code>amc maintenance stats|vacuum</code></td><td>Operational maintenance</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ADVANCED -->
+      <div class="ns-toggle" id="ns-advanced" onclick="this.classList.toggle('open')">
+        <h3>Advanced <span class="cmd-count">40+ commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc mechanic init</code></td><td>Initialize mechanic workspace</td></tr>
+            <tr><td><code>amc mechanic gap</code></td><td>Show maturity gaps</td></tr>
+            <tr><td><code>amc mechanic plan create|execute</code></td><td>Upgrade plan lifecycle</td></tr>
+            <tr><td><code>amc learn --agent &lt;id&gt;</code></td><td>Education flow for a question</td></tr>
+            <tr><td><code>amc own --agent &lt;id&gt;</code></td><td>Ownership flow for top gaps</td></tr>
+            <tr><td><code>amc commit --agent &lt;id&gt;</code></td><td>Commitment plan</td></tr>
+            <tr><td><code>amc federate init|peer add</code></td><td>Cross-org federation</td></tr>
+            <tr><td><code>amc outcomes init|report</code></td><td>Outcome contracts</td></tr>
+            <tr><td><code>amc bom generate|sign|verify</code></td><td>Maturity Bill of Materials</td></tr>
+            <tr><td><code>amc forecast init|refresh</code></td><td>Evidence-gated forecasting</td></tr>
+            <tr><td><code>amc experiment create|run|analyze</code></td><td>Experiment lifecycle</td></tr>
+            <tr><td><code>amc casebook init|add|list</code></td><td>Signed casebook operations</td></tr>
+            <tr><td><code>amc plugin keygen|pack|install</code></td><td>Plugin development &amp; lifecycle</td></tr>
+            <tr><td><code>amc release pack|verify|sbom</code></td><td>Release engineering</td></tr>
+            <tr><td><code>amc host init|bootstrap</code></td><td>Multi-workspace host mode</td></tr>
+            <tr><td><code>amc identity init</code></td><td>Enterprise SSO (OIDC/SAML)</td></tr>
+            <tr><td><code>amc org init|score|report</code></td><td>Org graph and scorecards</td></tr>
+            <tr><td><code>amc bench init|registry publish</code></td><td>Benchmarking registry</td></tr>
+            <tr><td><code>amc transform init|plan</code></td><td>Transformation OS</td></tr>
+            <tr><td><code>amc e2e smoke</code></td><td>Go-live smoke tests</td></tr>
+            <tr><td><code>amc truthguard</code></td><td>Deterministic output truth validator</td></tr>
+            <tr><td><code>amc action-queue</code></td><td>Prioritized risk-reduction actions</td></tr>
+            <tr><td><code>amc confidence-heatmap</code></td><td>Confidence heatmap by question</td></tr>
+            <tr><td><code>amc unknowns</code></td><td>Known unknowns for latest diagnostic</td></tr>
+            <tr><td><code>amc meta-confidence</code></td><td>Confidence in the score itself</td></tr>
+          </tbody>
+        </table>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">This is a subset. Run <code>amc --help</code> for the complete list, or see the <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/docs/AMC_MASTER_REFERENCE.md" target="_blank">full master reference</a> on GitHub.</p>
+      </div>
+
+      <!-- ENV VARS -->
+      <h2 id="env-vars">Environment Variables</h2>
+      <table>
+        <thead><tr><th>Variable</th><th>Description</th><th>Default</th></tr></thead>
+        <tbody>
+          <tr><td><code>AMC_VAULT_PASSPHRASE</code></td><td>Vault encryption passphrase (non-interactive mode)</td><td>—</td></tr>
+          <tr><td><code>AMC_HOME</code></td><td>Override default <code>.amc</code> workspace location</td><td><code>./.amc</code></td></tr>
+          <tr><td><code>AMC_GATEWAY_URL</code></td><td>Gateway base URL for adapters</td><td><code>http://localhost:3210</code></td></tr>
+          <tr><td><code>AMC_STUDIO_PORT</code></td><td>Studio API/dashboard port</td><td><code>3212</code></td></tr>
+          <tr><td><code>AMC_GATEWAY_PORT</code></td><td>Gateway proxy port</td><td><code>3210</code></td></tr>
+          <tr><td><code>AMC_LOG_LEVEL</code></td><td>Logging verbosity (debug, info, warn, error)</td><td><code>info</code></td></tr>
+          <tr><td><code>AMC_TELEMETRY</code></td><td>Enable/disable anonymous telemetry</td><td><code>off</code></td></tr>
+          <tr><td><code>AMC_CI</code></td><td>CI mode (suppresses interactive prompts)</td><td><code>false</code></td></tr>
+        </tbody>
+      </table>
+
+      <!-- EXIT CODES -->
+      <h2 id="exit-codes">Exit Codes</h2>
+      <table>
+        <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>0</code></td><td>Success</td></tr>
+          <tr><td><code>1</code></td><td>General error</td></tr>
+          <tr><td><code>2</code></td><td>Invalid arguments or missing required flags</td></tr>
+          <tr><td><code>3</code></td><td>Workspace not initialized (run <code>amc init</code>)</td></tr>
+          <tr><td><code>4</code></td><td>Vault locked or passphrase required</td></tr>
+          <tr><td><code>5</code></td><td>Signature verification failed</td></tr>
+          <tr><td><code>10</code></td><td>Gate check failed (score below threshold)</td></tr>
+          <tr><td><code>20</code></td><td>Network/connectivity error</td></tr>
+        </tbody>
+      </table>
+
+      <!-- GLOBAL FLAGS -->
+      <h2 id="global-flags">Global Flags</h2>
+      <table>
+        <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>--help</code></td><td>Show help for any command</td></tr>
+          <tr><td><code>--version</code></td><td>Print AMC version</td></tr>
+          <tr><td><code>--json</code></td><td>Output as JSON (where supported)</td></tr>
+          <tr><td><code>--quiet</code></td><td>Suppress non-essential output</td></tr>
+          <tr><td><code>--verbose</code></td><td>Enable verbose/debug output</td></tr>
+          <tr><td><code>--dry-run</code></td><td>Preview changes without writing (where supported)</td></tr>
+          <tr><td><code>--agent &lt;id&gt;</code></td><td>Target a specific agent</td></tr>
+          <tr><td><code>--no-color</code></td><td>Disable colored output</td></tr>
+        </tbody>
+      </table>
+
+      <div class="doc-footer">
+        <span>← <a href="getting-started.html">Getting Started</a></span>
+        <span>Next: <a href="adapters.html">Adapter Guides →</a></span>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// Toggle all namespaces
+let allOpen = false;
+function toggleAll() {
+  allOpen = !allOpen;
+  document.querySelectorAll('.ns-toggle').forEach(t => {
+    allOpen ? t.classList.add('open') : t.classList.remove('open');
+  });
+  document.querySelectorAll('.ns-body').forEach(b => {
+    allOpen ? b.classList.add('open') : b.classList.remove('open');
+  });
+  document.querySelector('.expand-all').textContent = allOpen ? 'Collapse All' : 'Expand All';
+}
+
+// Search
+const searchInput = document.getElementById('cmd-search');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  document.querySelectorAll('.ns-body table tbody tr').forEach(tr => {
+    const text = tr.textContent.toLowerCase();
+    if (q.length < 2) { tr.style.display = ''; return; }
+    tr.style.display = text.includes(q) ? '' : 'none';
+  });
+  if (q.length >= 2) {
+    document.querySelectorAll('.ns-toggle').forEach(t => t.classList.add('open'));
+    document.querySelectorAll('.ns-body').forEach(b => b.classList.add('open'));
+  }
+});
+
+// Copy buttons
+document.querySelectorAll('pre').forEach(pre => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn'; btn.textContent = 'Copy';
+  btn.onclick = () => {
+    navigator.clipboard.writeText(pre.querySelector('code').textContent.trim());
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  };
+  pre.appendChild(btn);
+});
+
+// Sidebar active state
+document.querySelectorAll('.sidebar a[href^="#"]').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar a').forEach(s => s.classList.remove('active'));
+    a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

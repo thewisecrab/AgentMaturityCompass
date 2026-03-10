@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, unlinkSync } from "node:fs";
 import { join, resolve } from "node:path";
 import YAML from "yaml";
 import { z } from "zod";
@@ -349,6 +349,10 @@ export function saveGatewayConfig(workspace: string, config: GatewayConfig, expl
   const targetPath = explicitPath ? resolve(workspace, explicitPath) : gatewayPaths(workspace).configPath;
   ensureDir(join(workspace, ".amc"));
   writeFileAtomic(targetPath, YAML.stringify(config), 0o644);
+  const sigPath = explicitPath ? `${resolve(workspace, explicitPath)}.sig` : gatewayPaths(workspace).sigPath;
+  if (pathExists(sigPath)) {
+    unlinkSync(sigPath);
+  }
   return targetPath;
 }
 

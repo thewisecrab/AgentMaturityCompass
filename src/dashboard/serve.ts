@@ -14,6 +14,7 @@ export interface ServeDashboardInput {
 export interface DashboardServerHandle {
   agentId: string;
   rootDir: string;
+  port: number;
   url: string;
   close: () => Promise<void>;
 }
@@ -150,10 +151,18 @@ export async function serveDashboard(input: ServeDashboardInput): Promise<Dashbo
     server.listen(input.port, "127.0.0.1", () => resolvePromise());
   });
 
+  const address = server.address();
+  if (!address || typeof address === "string") {
+    throw new Error("Dashboard server failed to resolve bound port.");
+  }
+
+  const port = address.port;
+
   return {
     agentId,
     rootDir,
-    url: `http://127.0.0.1:${input.port}`,
+    port,
+    url: `http://127.0.0.1:${port}`,
     close: () =>
       new Promise((resolvePromise) => {
         server.close(() => resolvePromise());

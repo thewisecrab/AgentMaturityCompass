@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { resolve } from 'path';
-
-const INDEX_URL = 'file://' + resolve(__dirname, '../../website/index.html');
+import { INDEX_URL } from './urls.js';
 
 test.describe('Homepage', () => {
   test.beforeEach(async ({ page }) => {

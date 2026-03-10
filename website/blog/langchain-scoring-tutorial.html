@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Score Your LangChain Agent in 2 Minutes — AMC Blog</title>
+<meta name="description" content="A step-by-step tutorial to evaluate your LangChain agent's trust and safety posture using Agent Maturity Compass. Install, score, improve — in 2 minutes.">
+<meta name="author" content="AMC Team">
+<meta property="og:title" content="Score Your LangChain Agent in 2 Minutes">
+<meta property="og:description" content="Step-by-step tutorial: evaluate your LangChain agent with AMC. Zero code changes.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://thewisecrab.github.io/AgentMaturityCompass/blog/langchain-scoring-tutorial.html">
+<meta property="og:image" content="https://thewisecrab.github.io/AgentMaturityCompass/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23141414'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23c9a96e' stroke-width='1.5'/%3E%3Cpath d='M16 5L17.5 14.5 16 18 14.5 14.5Z' fill='%23c9a96e'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23c9a96e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF7F3;--bg2:#F2EDE7;--bg3:#EAE4DC;--card:#FFFFFF;--fg:#141414;--fg2:#3A3A3A;--muted:#8A8272;--accent:#c9a96e;--accent2:#a88542;--accent3:#8B6914;--border:rgba(20,20,20,.08);--border2:rgba(20,20,20,.15);--red:#c0392b;--green:#27ae60;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);line-height:1.8;font-size:17px}
+a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline;color:var(--accent3)}
+
+.nav{background:var(--card);border-bottom:1px solid var(--border2);padding:16px 24px;display:flex;align-items:center;gap:20px;font-size:.88rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.nav a{color:var(--muted);font-weight:500}.nav a:hover{color:var(--accent2);text-decoration:none}
+.nav .logo{color:var(--fg);font-family:var(--serif);font-weight:700;font-size:1.1rem}
+.nav .logo span{color:var(--accent2)}
+
+.container{max-width:740px;margin:0 auto;padding:48px 24px 80px}
+.back-link{font-size:.85rem;color:var(--accent2);margin-bottom:32px;display:inline-block;font-weight:500}
+.meta{font-size:.82rem;color:var(--muted);margin-bottom:12px;font-weight:500;letter-spacing:.02em;text-transform:uppercase}
+h1{font-family:var(--serif);font-size:2.2rem;font-weight:700;color:var(--fg);line-height:1.25;margin-bottom:24px}
+h2{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--fg);margin:36px 0 14px}
+h3{font-family:var(--serif);font-size:1.1rem;font-weight:600;color:var(--fg2);margin:24px 0 10px}
+p{color:var(--fg2);margin-bottom:18px}
+ul,ol{color:var(--fg2);padding-left:24px;margin-bottom:18px}
+li{margin-bottom:6px}
+strong{color:var(--fg)}
+
+code{font-family:var(--mono);background:var(--bg2);padding:2px 7px;border-radius:4px;font-size:.88em;color:var(--accent3);border:1px solid var(--border)}
+pre{background:var(--fg);border-radius:10px;padding:20px;overflow-x:auto;margin:20px 0;font-size:.86rem;line-height:1.6}
+pre code{background:none;border:none;padding:0;color:#e0e0e0;font-size:.86rem}
+
+blockquote{border-left:3px solid var(--accent);padding:12px 20px;margin:20px 0;color:var(--muted);background:var(--bg2);border-radius:0 8px 8px 0;font-style:italic}
+
+.step{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:24px 28px;margin:24px 0;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.step-number{display:inline-block;background:var(--accent2);color:#fff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-weight:600;font-size:.85rem;margin-right:10px;font-family:var(--mono)}
+
+.output-box{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px 22px;margin:16px 0;font-family:var(--mono);font-size:.84rem;line-height:1.7;color:var(--fg2);overflow-x:auto;white-space:pre-wrap}
+.output-label{font-size:.75rem;font-weight:600;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:6px}
+
+.cta-box{background:var(--fg);color:#FAF7F3;border-radius:12px;padding:32px;margin:36px 0;text-align:center}
+.cta-box h3{color:#FAF7F3;font-family:var(--serif);font-size:1.3rem;margin:0 0 12px}
+.cta-box p{color:#ccc;margin-bottom:16px}
+.cta-box pre{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);margin:0 auto;display:inline-block;padding:12px 24px;border-radius:8px}
+.cta-box pre code{color:var(--accent);font-size:.88rem}
+
+.share{display:flex;gap:10px;margin:40px 0;padding-top:24px;border-top:1px solid var(--border2)}
+.share a{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 16px;font-size:.82rem;color:var(--fg2);font-weight:500;transition:all .15s}
+.share a:hover{border-color:var(--accent);color:var(--accent2);text-decoration:none}
+
+.footer{text-align:center;padding:32px 24px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border)}
+
+@media(max-width:768px){h1{font-size:1.6rem}.container{padding:32px 18px 60px}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../" class="logo">🧭 <span>AMC</span></a>
+  <a href="../">Home</a>
+  <a href="../docs/">Docs</a>
+  <a href="../playground.html">Playground</a>
+  <a href="./" style="color:var(--accent2)">Blog</a>
+  <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub</a>
+</nav>
+
+<div class="container">
+
+<a href="./" class="back-link">← Back to Blog</a>
+
+<div class="meta">March 10, 2026 · AMC Team · 4 min read</div>
+
+<h1>Score Your LangChain Agent in 2 Minutes</h1>
+
+<p>You've built a LangChain agent. It has tools, memory, maybe even RAG. But how <em>trustworthy</em> is it really? Does it handle prompt injection? Does it respect scope boundaries? Would it survive an EU AI Act audit?</p>
+
+<p>Today, the honest answer is: you don't know. Because the agent ecosystem runs on self-reported evidence — agents grading their own exams. Agent Maturity Compass (AMC) is the credit score for AI agents: an independent observer that measures what your agent <em>does</em>, not what it <em>claims</em>. Here's how to get your first score in under two minutes, with zero code changes.</p>
+
+<h2>Prerequisites</h2>
+
+<ul>
+  <li><strong>Node.js 20+</strong> — check with <code>node --version</code></li>
+  <li><strong>A LangChain project</strong> — any Python or JS project using LangChain/LangGraph</li>
+  <li><strong>2 minutes</strong> — seriously, that's it</li>
+</ul>
+
+<h2>Step-by-Step</h2>
+
+<div class="step">
+<p><span class="step-number">1</span> <strong>Install AMC globally</strong></p>
+<pre><code>npm install -g agent-maturity-compass</code></pre>
+<p>This gives you the <code>amc</code> CLI. Verify it's installed:</p>
+<pre><code>amc --version</code></pre>
+</div>
+
+<div class="step">
+<p><span class="step-number">2</span> <strong>Navigate to your LangChain project</strong></p>
+<pre><code>cd /path/to/your/langchain-project</code></pre>
+<p>AMC auto-detects your framework from project files — <code>requirements.txt</code>, <code>pyproject.toml</code>, <code>package.json</code>, or LangChain imports. No configuration needed.</p>
+</div>
+
+<div class="step">
+<p><span class="step-number">3</span> <strong>Initialize and score</strong></p>
+<pre><code>amc init</code></pre>
+<p>The interactive wizard walks you through setup — it'll ask a few questions about your agent and set up the evidence vault. Then run your quickscore:</p>
+<pre><code>amc quickscore</code></pre>
+
+<div class="output-label">Example Output</div>
+<div class="output-box">🧭 Agent Maturity Compass — Quick Score
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Agent:     my-langchain-agent
+Framework: LangChain (auto-detected)
+Score:     L2 — Developing (34/100)
+
+Dimensions:
+  Strategic Agent Ops ████░░░░░░  38%
+  Skills              ███░░░░░░░  29%
+  Resilience          ████░░░░░░  35%
+  Leadership          ███░░░░░░░  32%
+  Culture             ████░░░░░░  37%
+
+Evidence: 100% SELF_REPORTED (weight cap: 0.4×)
+  ⚠️  No observed evidence — score capped
+
+Top 3 Gaps:
+  🔴 No prompt injection defense detected
+  🔴 No tool-use authorization boundaries
+  🟡 No structured logging or tracing
+
+Run `amc improve` for actionable fixes →</div>
+</div>
+
+<div class="step">
+<p><span class="step-number">4</span> <strong>Enable the LangChain adapter for observed evidence</strong></p>
+<p>The quickscore uses self-reported evidence by default (capped at 0.4× weight). To unlock the full score, enable the LangChain adapter to capture real execution data:</p>
+<pre><code>export LANGCHAIN_AMC_ENABLED=1
+amc evidence collect</code></pre>
+<p>The evidence collector wizard will guide you through connecting AMC's gateway proxy to your LangChain agent. Once connected, AMC captures every LLM call and tool use transparently — your agent runs exactly as before.</p>
+</div>
+
+<div class="step">
+<p><span class="step-number">5</span> <strong>Get improvement recommendations</strong></p>
+<pre><code>amc improve</code></pre>
+
+<div class="output-label">Example Output</div>
+<div class="output-box">🔧 AMC Improvement Plan — my-langchain-agent
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Current: L2 (34/100) → Target: L3 (60/100)
+
+Priority fixes (3 items):
+  🔴 CRITICAL: Add input sanitization layer
+     → amc guide --go will add this to your agent config
+  
+  🔴 CRITICAL: Define tool authorization boundaries
+     → Scope which tools the agent can call and when
+  
+  🟡 HIGH: Enable structured logging
+     → LangChain callback handler for trace capture
+
+Auto-fix available:
+  amc fix                    # Generate guardrails + CI gate
+  amc guide --go             # Apply to your LangChain config
+  amc guide --interactive    # Cherry-pick which fixes to apply</div>
+</div>
+
+<div class="step">
+<p><span class="step-number">6</span> <strong>Auto-fix and re-score</strong></p>
+<pre><code><span style="color:#6a9955"># Generate guardrails, CI gate, and governance docs</span>
+amc fix
+
+<span style="color:#6a9955"># Apply guardrails directly to your LangChain config</span>
+amc guide --go
+
+<span style="color:#6a9955"># Re-score to see improvement</span>
+amc quickscore</code></pre>
+<p>AMC's guide system auto-detects LangChain and applies guardrails to 15 different config targets, including <code>AGENTS.md</code>, CI workflows, and framework-specific configuration files.</p>
+</div>
+
+<h2>Interpreting Your Results</h2>
+
+<p>AMC scores your agent across 5 dimensions with 138 core diagnostic questions (730 total including industry packs), on a scale from L0 (no controls) to L5 (self-governing with cryptographic proof). Here's what the levels mean for a LangChain agent:</p>
+
+<ul>
+  <li><strong>L0–L1:</strong> Your agent has no safety controls or only documentation-level intent. Fix the critical gaps immediately.</li>
+  <li><strong>L2:</strong> Basic structure exists but breaks at edges. Most LangChain agents start here. Focus on injection defense and tool boundaries.</li>
+  <li><strong>L3:</strong> Repeatable and auditable. This is the <strong>EU AI Act minimum</strong>. Your agent has real controls that can be verified.</li>
+  <li><strong>L4–L5:</strong> Proactive and self-correcting. Cryptographic proof chains, anomaly detection, continuous verification.</li>
+</ul>
+
+<blockquote>
+  <strong>Pro tip:</strong> Evidence type matters. A score built entirely on self-reported evidence is capped at ~40% of max. Enable the LangChain adapter (<code>LANGCHAIN_AMC_ENABLED=1</code>) to capture observed evidence and unlock higher scores.
+</blockquote>
+
+<h2>Bonus: Add a CI Gate</h2>
+
+<p>Don't let regressions ship. AMC can gate your CI pipeline to fail builds if the agent drops below a target level:</p>
+
+<pre><code><span style="color:#6a9955"># In your CI/CD pipeline</span>
+amc guide --ci --target 3    <span style="color:#6a9955"># Fail if below L3</span>
+
+<span style="color:#6a9955"># Or generate the CI workflow file</span>
+amc fix --target-level L3    <span style="color:#6a9955"># Creates GitHub Actions workflow</span></code></pre>
+
+<h2>Bonus: EU AI Act Check</h2>
+
+<p>If your LangChain agent operates in the EU or serves EU users, you can get an instant regulatory risk classification:</p>
+
+<pre><code>amc quickscore --eu-ai-act</code></pre>
+
+<p>This maps your agent's gaps to specific EU AI Act articles and tells you exactly what needs to change for compliance. For the full compliance workflow, see our <a href="eu-ai-act-agents.html">EU AI Act guide</a>.</p>
+
+<h2>What's Next</h2>
+
+<p>Once you have your baseline score, there are several paths forward:</p>
+
+<ul>
+  <li><strong>Run the full Assurance Lab</strong> — <code>amc assurance run --scope full</code> tests your agent against 78 attack packs</li>
+  <li><strong>Apply domain-specific packs</strong> — <code>amc domain assess --domain health</code> for healthcare, <code>--domain wealth</code> for finance</li>
+  <li><strong>Generate a stakeholder report</strong> — <code>amc report &lt;id&gt; --html report.html</code> creates a styled report you can print to PDF</li>
+  <li><strong>Add a README badge</strong> — <code>amc badge</code> generates a shield showing your maturity level</li>
+</ul>
+
+<div class="cta-box">
+  <h3>Ready to score your agent?</h3>
+  <p>Two minutes. Zero code changes. Real answers.</p>
+  <pre><code>npm install -g agent-maturity-compass && amc quickscore</code></pre>
+</div>
+
+<div class="share">
+  <a href="https://twitter.com/intent/tweet?text=Score%20your%20LangChain%20agent%20in%202%20minutes%20with%20AMC&url=https://thewisecrab.github.io/AgentMaturityCompass/blog/langchain-scoring-tutorial.html" target="_blank">Share on X</a>
+  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://thewisecrab.github.io/AgentMaturityCompass/blog/langchain-scoring-tutorial.html" target="_blank">Share on LinkedIn</a>
+</div>
+
+</div>
+
+<footer class="footer">
+  © 2026 Agent Maturity Compass · MIT License · <a href="../">Home</a> · <a href="https://github.com/thewisecrab/AgentMaturityCompass">GitHub</a>
+</footer>
+
+</body>
+</html>

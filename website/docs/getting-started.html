@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started — AMC Documentation</title>
+  <meta name="description" content="Install Agent Maturity Compass and get your first trust score in under 2 minutes.">
+  <meta property="og:title" content="Getting Started — AMC Docs">
+  <meta property="og:description" content="Install AMC and get your first AI agent trust score in 2 minutes.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230D6E6E'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <a href="../" class="topbar-logo">
+    <span class="logo-icon">A</span> AMC Docs
+  </a>
+  <nav class="topbar-nav">
+    <a href="getting-started.html" class="active">Getting Started</a>
+    <a href="cli.html">CLI Reference</a>
+    <a href="adapters.html">Adapters</a>
+    <a href="compliance.html">Compliance</a>
+    <a href="methodology.html">Methodology</a>
+    <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub ↗</a>
+  </nav>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <h4>Getting Started</h4>
+      <a href="#overview" class="active">Overview</a>
+      <a href="#prerequisites">Prerequisites</a>
+      <a href="#install">Installation</a>
+      <a href="#first-score">Your First Score</a>
+      <a href="#understand-results">Understanding Results</a>
+      <a href="#next-steps">Next Steps</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Also in Docs</h4>
+      <a href="cli.html">CLI Reference</a>
+      <a href="adapters.html">Adapter Guides</a>
+      <a href="compliance.html">Compliance</a>
+      <a href="methodology.html">Scoring Methodology</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Resources</h4>
+      <a href="../playground.html">Web Playground</a>
+      <a href="../">Home</a>
+      <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub ↗</a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="content">
+
+      <h1 id="overview">Getting Started</h1>
+      <p class="subtitle">Install Agent Maturity Compass, run your first assessment, and get a trust score for your AI agent — all in under 2 minutes.</p>
+
+      <div class="callout callout-teal">
+        <strong>🎯 No install? No problem.</strong>
+        If you just want to try AMC without installing anything, use the <a href="../playground.html">Web Playground</a> — answer 15 questions in your browser and get an instant score.
+      </div>
+
+      <!-- Prerequisites -->
+      <h2 id="prerequisites">Prerequisites</h2>
+      <p>AMC runs anywhere Node.js runs. You need:</p>
+      <ul>
+        <li><strong>Node.js 20+</strong> — <a href="https://nodejs.org" target="_blank">Download Node.js</a></li>
+        <li><strong>npm</strong> — included with Node.js</li>
+        <li>A terminal (macOS Terminal, Windows PowerShell, Linux shell)</li>
+      </ul>
+      <p>Check your version:</p>
+      <pre><code>node --version   <span class="comment"># Should be v20.x or higher</span>
+npm --version    <span class="comment"># Should be v9+ or higher</span></code></pre>
+
+      <!-- Install -->
+      <h2 id="install">Installation</h2>
+      <h3>npm (recommended)</h3>
+      <pre><code>npm install -g agent-maturity-compass</code></pre>
+      <p>Verify the installation:</p>
+      <pre><code>amc --version</code></pre>
+
+      <h3>Homebrew (macOS / Linux)</h3>
+      <pre><code>brew tap thewisecrab/amc
+brew install agent-maturity-compass</code></pre>
+
+      <h3>Quick install script</h3>
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/thewisecrab/AgentMaturityCompass/main/install.sh | bash</code></pre>
+
+      <h3>Docker (zero setup)</h3>
+      <pre><code><span class="comment"># Build the quickstart image</span>
+docker build -t amc-quickstart -f docker/Dockerfile.quickstart .
+
+<span class="comment"># Run interactive quick score</span>
+docker run -it --rm amc-quickstart amc init
+
+<span class="comment"># Non-interactive</span>
+docker run -it --rm -e AMC_VAULT_PASSPHRASE=demo amc-quickstart amc quickscore</code></pre>
+
+      <h3>From source</h3>
+      <pre><code>git clone https://github.com/thewisecrab/AgentMaturityCompass.git
+cd AgentMaturityCompass
+npm ci
+npm run build
+npm link</code></pre>
+
+      <!-- First Score -->
+      <h2 id="first-score">Your First Score in 2 Minutes</h2>
+      <p>Three commands. That's it.</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Create a project</h4>
+          <pre><code>mkdir my-agent && cd my-agent</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Initialize AMC</h4>
+          <pre><code>amc init</code></pre>
+          <p>This walks you through a short interactive setup. It'll ask for a passphrase to protect your evidence vault — pick something memorable, or press Enter to auto-generate one.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Get your score</h4>
+          <pre><code>amc quickscore</code></pre>
+          <p>Answer a few questions about your agent. AMC produces a maturity score from <strong>L0</strong> (no controls) to <strong>L5</strong> (fully verified), with a breakdown across 5 dimensions and specific actions to improve.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-orange">
+        <strong>💡 Pro tip — Share your score</strong>
+        Run <code>amc quickscore --share</code> to generate a markdown badge and summary you can paste into your GitHub README.
+      </div>
+
+      <!-- Understanding Results -->
+      <h2 id="understand-results">Understanding Your Results</h2>
+      <p>Your quickscore output includes:</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h4>🎯 Overall Maturity Level</h4>
+          <p>An L0–L5 score with a percentage breakdown. L3 is the minimum for EU AI Act compliance.</p>
+        </div>
+        <div class="card">
+          <h4>📊 Dimension Scores</h4>
+          <p>5 dimension scores covering strategy, skills, resilience, leadership, and alignment.</p>
+        </div>
+        <div class="card">
+          <h4>📋 Gap Analysis</h4>
+          <p>Specific gaps with severity tags — 🔴 Critical, 🟡 High, 🔵 Medium — and concrete actions to fix each one.</p>
+        </div>
+        <div class="card">
+          <h4>🏷️ README Badge</h4>
+          <p>A shields.io badge showing your agent's trust level. Run <code>amc badge</code> to generate it.</p>
+        </div>
+      </div>
+
+      <h3>What each level means</h3>
+      <div class="level-scale">
+        <div class="level-item">
+          <div class="level-num">L0</div>
+          <div class="level-name">Absent</div>
+        </div>
+        <div class="level-item">
+          <div class="level-num">L1</div>
+          <div class="level-name">Initial</div>
+        </div>
+        <div class="level-item">
+          <div class="level-num">L2</div>
+          <div class="level-name">Developing</div>
+        </div>
+        <div class="level-item highlight">
+          <div class="level-num">L3</div>
+          <div class="level-name">Defined</div>
+        </div>
+        <div class="level-item">
+          <div class="level-num">L4</div>
+          <div class="level-name">Managed</div>
+        </div>
+        <div class="level-item">
+          <div class="level-num">L5</div>
+          <div class="level-name">Optimizing</div>
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <h2 id="next-steps">Next Steps</h2>
+      <p>Once you have your first score, here's what to explore:</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h4>🔧 Auto-fix your gaps</h4>
+          <p>Run <code>amc fix</code> to generate guardrails, CI gates, and governance docs. Use <code>amc guide --go</code> to auto-apply guardrails to your framework config.</p>
+        </div>
+        <div class="card">
+          <h4>🔌 Connect your agent</h4>
+          <p>Use <code>amc evidence collect</code> for a guided wizard, or set up an <a href="adapters.html">adapter</a> for your framework. One environment variable — zero code changes.</p>
+        </div>
+        <div class="card">
+          <h4>📊 Generate reports</h4>
+          <p>Run <code>amc report &lt;id&gt; --html report.html</code> for a styled stakeholder report, or <code>amc report &lt;id&gt; --executive</code> for a terminal summary.</p>
+        </div>
+        <div class="card">
+          <h4>⚖️ Check compliance</h4>
+          <p>Use <code>amc quickscore --eu-ai-act</code> for EU AI Act risk classification, or explore the full <a href="compliance.html">compliance guide</a>.</p>
+        </div>
+      </div>
+
+      <h3>Useful commands after your first score</h3>
+      <table>
+        <thead>
+          <tr><th>Command</th><th>What it does</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>amc fix</code></td><td>Generate remediation files (guardrails, CI gate, governance docs)</td></tr>
+          <tr><td><code>amc guide --go</code></td><td>Auto-detect framework and apply guardrails to config</td></tr>
+          <tr><td><code>amc guide --status</code></td><td>One-line health check</td></tr>
+          <tr><td><code>amc doctor</code></td><td>Check runtime and workspace health</td></tr>
+          <tr><td><code>amc up</code></td><td>Start AMC Studio (gateway, proxy, dashboard, API)</td></tr>
+          <tr><td><code>amc evidence collect</code></td><td>Interactive wizard to connect your agent</td></tr>
+          <tr><td><code>amc badge</code></td><td>Generate a maturity badge for your README</td></tr>
+          <tr><td><code>amc assurance run --scope full</code></td><td>Run the built-in red team (78 assurance packs)</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Footer -->
+      <div class="doc-footer">
+        <span>Agent Maturity Compass — The credit score for AI agents.</span>
+        <span>Next: <a href="cli.html">CLI Reference →</a></span>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    // Update sidebar active
+    document.querySelectorAll('.sidebar a').forEach(s => s.classList.remove('active'));
+    a.classList.add('active');
+  });
+});
+// Copy buttons on pre blocks
+document.querySelectorAll('pre').forEach(pre => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn'; btn.textContent = 'Copy';
+  btn.onclick = () => {
+    navigator.clipboard.writeText(pre.querySelector('code').textContent.trim());
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  };
+  pre.appendChild(btn);
+});
+</script>
+</body>
+</html>

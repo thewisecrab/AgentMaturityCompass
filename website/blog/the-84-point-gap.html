@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 84-Point Documentation Inflation Gap — AMC Blog</title>
+<meta name="description" content="Your AI agent scores 100/100 on paper. In reality, it's 16/100. Here's why self-reported evidence is the biggest lie in AI safety — and how to fix it.">
+<meta name="author" content="AMC Team">
+<meta property="og:title" content="The 84-Point Documentation Inflation Gap">
+<meta property="og:description" content="Your AI agent scores 100/100 on paper. In reality, it's 16/100. The documentation inflation gap explained.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://thewisecrab.github.io/AgentMaturityCompass/blog/the-84-point-gap.html">
+<meta property="og:image" content="https://thewisecrab.github.io/AgentMaturityCompass/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23141414'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23c9a96e' stroke-width='1.5'/%3E%3Cpath d='M16 5L17.5 14.5 16 18 14.5 14.5Z' fill='%23c9a96e'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23c9a96e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF7F3;--bg2:#F2EDE7;--bg3:#EAE4DC;--card:#FFFFFF;--fg:#141414;--fg2:#3A3A3A;--muted:#8A8272;--accent:#c9a96e;--accent2:#a88542;--accent3:#8B6914;--border:rgba(20,20,20,.08);--border2:rgba(20,20,20,.15);--red:#c0392b;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);line-height:1.8;font-size:17px}
+a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline;color:var(--accent3)}
+
+.nav{background:var(--card);border-bottom:1px solid var(--border2);padding:16px 24px;display:flex;align-items:center;gap:20px;font-size:.88rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.nav a{color:var(--muted);font-weight:500}.nav a:hover{color:var(--accent2);text-decoration:none}
+.nav .logo{color:var(--fg);font-family:var(--serif);font-weight:700;font-size:1.1rem}
+.nav .logo span{color:var(--accent2)}
+
+.container{max-width:740px;margin:0 auto;padding:48px 24px 80px}
+
+.back-link{font-size:.85rem;color:var(--accent2);margin-bottom:32px;display:inline-block;font-weight:500}
+.back-link:hover{color:var(--accent3)}
+
+.meta{font-size:.82rem;color:var(--muted);margin-bottom:12px;font-weight:500;letter-spacing:.02em;text-transform:uppercase}
+h1{font-family:var(--serif);font-size:2.4rem;font-weight:700;color:var(--fg);line-height:1.25;margin-bottom:24px}
+h2{font-family:var(--serif);font-size:1.5rem;font-weight:600;color:var(--fg);margin:40px 0 16px}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--fg2);margin:28px 0 12px}
+p{color:var(--fg2);margin-bottom:18px}
+ul,ol{color:var(--fg2);padding-left:24px;margin-bottom:18px}
+li{margin-bottom:6px}
+strong{color:var(--fg)}
+em{color:var(--fg2)}
+
+code{font-family:var(--mono);background:var(--bg2);padding:2px 7px;border-radius:4px;font-size:.88em;color:var(--accent3);border:1px solid var(--border)}
+pre{background:var(--fg);border-radius:10px;padding:20px;overflow-x:auto;margin:24px 0;font-size:.88rem;line-height:1.6}
+pre code{background:none;border:none;padding:0;color:#e0e0e0;font-size:.88rem}
+pre .comment{color:#6a9955}
+pre .keyword{color:#c9a96e}
+pre .string{color:#ce9178}
+pre .number{color:#b5cea8}
+
+blockquote{border-left:3px solid var(--accent);padding:12px 20px;margin:24px 0;color:var(--muted);background:var(--bg2);border-radius:0 8px 8px 0;font-style:italic}
+
+.highlight-box{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:24px;margin:28px 0;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.highlight-box h3{margin-top:0}
+
+table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.92rem}
+th{text-align:left;padding:10px 14px;background:var(--bg2);font-weight:600;border-bottom:2px solid var(--border2);color:var(--fg)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--fg2)}
+tr:hover td{background:var(--bg2)}
+
+.cta-box{background:var(--fg);color:#FAF7F3;border-radius:12px;padding:32px;margin:40px 0;text-align:center}
+.cta-box h3{color:#FAF7F3;font-family:var(--serif);font-size:1.4rem;margin:0 0 12px}
+.cta-box p{color:#ccc;margin-bottom:16px}
+.cta-box pre{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);margin:0 auto;display:inline-block;padding:12px 24px;border-radius:8px}
+.cta-box pre code{color:var(--accent);font-size:.9rem}
+
+.share{display:flex;gap:10px;margin:40px 0;padding-top:24px;border-top:1px solid var(--border2)}
+.share a{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 16px;font-size:.82rem;color:var(--fg2);font-weight:500;transition:all .15s}
+.share a:hover{border-color:var(--accent);color:var(--accent2);text-decoration:none}
+
+.footer{text-align:center;padding:32px 24px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border)}
+
+@media(max-width:768px){h1{font-size:1.7rem}h2{font-size:1.25rem}.container{padding:32px 18px 60px}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../" class="logo">🧭 <span>AMC</span></a>
+  <a href="../">Home</a>
+  <a href="../docs/">Docs</a>
+  <a href="../playground.html">Playground</a>
+  <a href="./" style="color:var(--accent2)">Blog</a>
+  <a href="https://github.com/thewisecrab/AgentMaturityCompass" target="_blank">GitHub</a>
+</nav>
+
+<div class="container">
+
+<a href="./" class="back-link">← Back to Blog</a>
+
+<div class="meta">March 10, 2026 · AMC Team · 8 min read</div>
+
+<h1>The 84-Point Documentation Inflation Gap</h1>
+
+<p><strong>Your AI agent scores 100/100 on paper. In reality, it's 16/100.</strong></p>
+
+<p>That's not a typo. That's not hyperbole. That's the measured gap between how AI agents describe their own capabilities and what they actually do when tested under real conditions. We call it the <strong>Documentation Inflation Gap</strong>, and it's the single biggest blind spot in AI safety today.</p>
+
+<p>Would you lend someone $100,000 based on their <em>self-reported</em> credit score? Of course not. That's what credit bureaus are for — independent verification. But that's exactly how the AI agent ecosystem works right now. Agents provide their own evidence. Teams score their own safety posture. Everyone gets an A+. And the entire system runs on trust-me-bro.</p>
+
+<p>If you're deploying AI agents in production — handling customer data, making financial decisions, writing code, managing infrastructure — this gap isn't academic. It's the distance between your compliance posture on paper and your actual risk exposure in production.</p>
+
+<h2>The Problem: Students Grading Their Own Exams</h2>
+
+<p>Here's how AI agent evaluation works today at most companies:</p>
+
+<ol>
+  <li>Someone builds an AI agent</li>
+  <li>They write documentation describing what the agent does</li>
+  <li>An evaluation tool reads that documentation</li>
+  <li>The tool checks: "Does the documentation mention error handling?" ✅</li>
+  <li>The tool checks: "Does the documentation mention logging?" ✅</li>
+  <li>Score: 100/100. Ship it.</li>
+</ol>
+
+<p>Notice what didn't happen? <strong>Nobody checked whether the agent actually handles errors. Nobody checked whether it actually logs anything.</strong> The evaluation scored the <em>documentation</em>, not the <em>agent</em>.</p>
+
+<p>This is keyword-matching masquerading as evaluation. And it's everywhere.</p>
+
+<p>The pattern is seductive because it's fast, cheap, and produces comforting numbers. Your compliance team gets a green checkbox. Your engineering team gets to ship. Your board gets a risk report that says everything is fine.</p>
+
+<p>But it's the AI equivalent of letting students grade their own exams and being surprised when the whole class gets A+.</p>
+
+<p>We built AMC because we were tired of trust-me-bro agent safety. The industry needed a credit bureau for AI agents — an independent observer that measures what agents <em>do</em>, not what they <em>say</em>.</p>
+
+<h2>Keyword-Matching vs. Execution-Verified Scoring</h2>
+
+<p>To understand the gap, you need to understand the two fundamentally different approaches to agent evaluation:</p>
+
+<h3>Keyword-Matching (How Most Tools Work)</h3>
+
+<p>The evaluator looks at static artifacts — documentation, config files, README content — and searches for keywords or patterns that indicate capability. If your docs say "we implement rate limiting," you get credit for rate limiting. No one checks if the rate limiter works.</p>
+
+<p>This approach has obvious failure modes:</p>
+
+<ul>
+  <li><strong>Copy-paste compliance:</strong> Teams copy safety documentation from templates without implementing any of it</li>
+  <li><strong>Aspirational documentation:</strong> Docs describe the intended architecture, not the deployed one</li>
+  <li><strong>Stale documentation:</strong> The code changed six months ago; the docs didn't</li>
+  <li><strong>Adversarial gaming:</strong> If you know the keywords, you can score perfectly with zero actual safety controls</li>
+</ul>
+
+<h3>Execution-Verified Scoring (How AMC Works)</h3>
+
+<p>AMC takes a different approach entirely. Instead of reading about what your agent <em>claims</em> to do, AMC <strong>watches what it actually does</strong>.</p>
+
+<p>The AMC Gateway sits transparently between your agent and its LLM provider. Every API call, every tool invocation, every decision is captured with Ed25519 cryptographic signatures. The agent doesn't know it's being watched — which is the entire point. You can't perform for an audience you don't know exists.</p>
+
+<p>Then AMC's Assurance Lab hits your agent with 78 deterministic attack packs: prompt injection, data exfiltration, tool misuse, adversarial robustness tests, sycophancy checks, and more. These aren't theoretical threat models. They're executable scenarios that produce binary, verifiable results.</p>
+
+<p>Did your agent leak PII when asked nicely? Did it follow instructions embedded in user-submitted content? Did it exceed its authorized scope when given an ambiguous request? AMC knows, because AMC watched it happen — or not happen.</p>
+
+<h2>The Conflict of Interest Nobody Talks About</h2>
+
+<p>There's a deeper structural problem that keyword-matching can't fix even in theory: <strong>agents self-report their own evidence</strong>.</p>
+
+<p>Think about that for a moment. We're asking the entity being evaluated to produce the evidence for its own evaluation. This is a textbook conflict of interest. It would be rejected immediately in any other domain:</p>
+
+<ul>
+  <li>We don't let companies audit their own financial statements (that's what external auditors are for)</li>
+  <li>We don't let pharmaceutical companies approve their own drugs (that's what the FDA is for)</li>
+  <li>We don't let students write their own diplomas (that's what universities are for)</li>
+</ul>
+
+<p>But in AI? We let agents tell us they're safe, and we believe them. We let the agent's own documentation serve as evidence. We let the agent's own logs prove it's logging correctly. We let the agent's own error handler tell us errors are handled.</p>
+
+<p><strong>This isn't evaluation. It's self-certification with extra steps.</strong> The whole system runs on trust-me-bro, and nobody's checking the receipts.</p>
+
+<h2>Evidence Trust Tiers: Not All Evidence Is Equal</h2>
+
+<p>AMC solves this with a tiered evidence system. Every piece of evidence that contributes to an agent's score carries a trust weight based on <em>how</em> it was collected, not just <em>what</em> it claims:</p>
+
+<table>
+  <thead>
+    <tr><th>Tier</th><th>Weight</th><th>How It's Collected</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>OBSERVED_HARDENED</strong></td><td>1.1×</td><td>AMC-controlled adversarial test scenarios — the agent doesn't know it's being tested</td></tr>
+    <tr><td><strong>OBSERVED</strong></td><td>1.0×</td><td>Directly captured via AMC's transparent gateway proxy during normal operation</td></tr>
+    <tr><td><strong>ATTESTED</strong></td><td>0.8×</td><td>Cryptographic attestation via the evidence vault and notary service</td></tr>
+    <tr><td><strong>SELF_REPORTED</strong></td><td>0.4×</td><td>Agent's own claims — accepted but mathematically capped</td></tr>
+  </tbody>
+</table>
+
+<p>The critical insight: <strong>self-reported evidence is capped at 0.4× weight</strong>. It's not rejected outright — that would be unfair to honest agents. But it can never be the primary basis for a high score.</p>
+
+<p>An agent that only provides self-reported evidence — perfect documentation, glowing self-assessments, all the right keywords — tops out at roughly 40% of its potential score. To break through that ceiling, it needs <em>observed</em> evidence: real behavior captured by an independent system that the agent can't influence.</p>
+
+<p>This is what creates the 84-point gap. An agent that scores 100 on self-reported metrics (keyword-matching) lands at approximately 16 when rescored with AMC's evidence-weighted system, because the other 84 points require observed evidence that simply doesn't exist.</p>
+
+<h2>How AMC Sits Between Agent and LLM</h2>
+
+<p>The architecture is deliberately simple:</p>
+
+<pre><code>Agent (untrusted) → AMC Gateway (transparent proxy) → LLM Provider
+                            ↓
+                    Evidence Ledger (Ed25519 + Merkle tree)
+                            ↓
+                    Scoring Engine (138 core + 592 sector questions, 5 dimensions)
+</code></pre>
+
+<p>The Gateway operates as a transparent MITM proxy. Your agent talks to its LLM provider exactly as before — same API, same endpoints, same behavior. But every request and response passes through AMC, which captures:</p>
+
+<ul>
+  <li><strong>What the agent asked for</strong> — every prompt, every tool call, every parameter</li>
+  <li><strong>What it received</strong> — every response, every tool result</li>
+  <li><strong>What it did with the result</strong> — follow-up actions, data handling, scope adherence</li>
+  <li><strong>What it didn't do</strong> — did it respect boundaries? Did it ask for permission? Did it stop when it should have?</li>
+</ul>
+
+<p>All evidence is stored in a Merkle-tree ledger with Ed25519 signatures. Evidence can't be tampered with after the fact — not by the agent, not by the operator, not by anyone. The cryptographic chain is verifiable by any third party.</p>
+
+<h2>The Five Dimensions of Agent Maturity</h2>
+
+<p>AMC doesn't produce a single opaque number. It evaluates agents across 5 dimensions with 138 core diagnostic questions (plus 592 sector-specific questions across 40 industry packs — 730 total):</p>
+
+<table>
+  <thead>
+    <tr><th>Dimension</th><th>Questions</th><th>What It Measures</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Strategic Agent Ops</strong></td><td>18</td><td>Mission clarity, scope adherence, decision traceability</td></tr>
+    <tr><td><strong>Skills</strong></td><td>38</td><td>Tool mastery, injection defense, DLP, least-privilege execution</td></tr>
+    <tr><td><strong>Resilience</strong></td><td>30</td><td>Graceful degradation, circuit breakers, monitor bypass resistance</td></tr>
+    <tr><td><strong>Leadership &amp; Autonomy</strong></td><td>28</td><td>Structured logs, traces, cost tracking, SLO monitoring</td></tr>
+    <tr><td><strong>Culture &amp; Alignment</strong></td><td>26</td><td>Test harnesses, benchmarks, feedback loops, over-compliance detection</td></tr>
+  </tbody>
+</table>
+
+<p>Each question can be answered with evidence from any trust tier, but the weight of that evidence determines how much it contributes to the final score. A dimension where all evidence is self-reported will score significantly lower than one with observed evidence — even if the answers are identical.</p>
+
+<h2>The Maturity Scale: L0 Through L5</h2>
+
+<p>Scores map to a six-level maturity scale that provides clear semantics:</p>
+
+<ul>
+  <li><strong>L0 — Absent:</strong> No safety controls. No logging. No oversight. You're running with scissors, blindfolded, in a server room.</li>
+  <li><strong>L1 — Initial:</strong> There's intent to be safe, but nothing operational. Documentation exists. Implementation doesn't.</li>
+  <li><strong>L2 — Developing:</strong> Partial structure. Works on the happy path. Falls apart at edges. The 84-point gap lives here — L2 agents that believe they're L5.</li>
+  <li><strong>L3 — Defined:</strong> Repeatable. Measurable. Auditable. This is the EU AI Act minimum. Real controls exist and are verified.</li>
+  <li><strong>L4 — Managed:</strong> Proactive risk management. Cryptographic proof chains. Anomaly detection. The agent watches itself.</li>
+  <li><strong>L5 — Optimizing:</strong> Self-governing with cryptographic proof. Continuously verified. The agent improves its own safety posture over time — and can prove it.</li>
+</ul>
+
+<h2>Why This Matters Now</h2>
+
+<p>Three forces are converging to make the Documentation Inflation Gap an existential risk for organizations deploying AI agents:</p>
+
+<p><strong>1. The EU AI Act takes effect in August 2026.</strong> High-risk AI systems — including many agent deployments — must demonstrate compliance with specific articles covering transparency, human oversight, accuracy, and robustness. "Our docs say we're compliant" won't survive an audit. You need execution-verified evidence.</p>
+
+<p><strong>2. Agent autonomy is increasing.</strong> Today's agents book meetings and write emails. Tomorrow's agents manage portfolios and approve loans. The gap between documented and actual behavior becomes proportionally more dangerous as the stakes increase.</p>
+
+<p><strong>3. The liability landscape is shifting.</strong> When an agent causes harm, "we evaluated it and it scored 100" sounds great until someone asks <em>how</em> you evaluated it. If the answer is "we read its documentation," that's not a defense. That's a negligence admission.</p>
+
+<h2>Close the Gap: Get Your Real Score</h2>
+
+<p>AMC is open source, MIT-licensed, and takes two minutes to set up. It works with 14 agent frameworks out of the box — LangChain, CrewAI, AutoGen, OpenAI Agents SDK, and more — with zero code changes.</p>
+
+<div class="cta-box">
+  <h3>Find out what your agent actually scores</h3>
+  <p>Stop trusting documentation. Start verifying behavior.</p>
+  <pre><code>npm install -g agent-maturity-compass && amc quickscore</code></pre>
+</div>
+
+<p>The 84-point gap exists because we've been measuring the wrong thing. We've been scoring documentation when we should be scoring behavior. We've been trusting claims when we should be verifying evidence.</p>
+
+<p>AMC doesn't make your agent safer by itself. What it does is tell you the truth about where you actually stand — and that truth is the first step toward building agents that deserve the trust we place in them.</p>
+
+<p><strong>730 questions. 78 assurance packs. 40 domain packs. 14 adapters. 4,064 tests passing. Zero self-reported illusions.</strong></p>
+
+<p>Stop trusting. Start verifying.</p>
+
+<div class="share">
+  <a href="https://twitter.com/intent/tweet?text=The%2084-Point%20Documentation%20Inflation%20Gap%20%E2%80%94%20why%20AI%20agent%20self-evaluation%20is%20broken&url=https://thewisecrab.github.io/AgentMaturityCompass/blog/the-84-point-gap.html" target="_blank">Share on X</a>
+  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://thewisecrab.github.io/AgentMaturityCompass/blog/the-84-point-gap.html" target="_blank">Share on LinkedIn</a>
+  <a href="https://news.ycombinator.com/submitlink?u=https://thewisecrab.github.io/AgentMaturityCompass/blog/the-84-point-gap.html&t=The%2084-Point%20Documentation%20Inflation%20Gap" target="_blank">Post to HN</a>
+</div>
+
+</div>
+
+<footer class="footer">
+  © 2026 Agent Maturity Compass · MIT License · <a href="../">Home</a> · <a href="https://github.com/thewisecrab/AgentMaturityCompass">GitHub</a>
+</footer>
+
+</body>
+</html>

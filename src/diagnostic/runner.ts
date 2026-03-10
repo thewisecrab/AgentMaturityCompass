@@ -258,20 +258,20 @@ export function selectRelevantEvents(
 
   const warnings = warningState ?? new Set<string>();
   if (isStrictEvidenceBindingEnabled() && level >= STRICT_EVIDENCE_BINDING_LEVEL) {
-    const warningKey = `strict-binding:${questionId}`;
+    const warningKey = "strict-binding";
     if (!warnings.has(warningKey)) {
       console.warn(
-        `[diagnostic] STRICT_EVIDENCE_BINDING=true blocked fallback for ${questionId} at L${level}; meta.questionId is required for L3+ scoring.`
+        `[diagnostic] STRICT_EVIDENCE_BINDING=true blocked fallback for untagged evidence at L${level}; meta.questionId is required for L3+ scoring (example question: ${questionId}).`
       );
       warnings.add(warningKey);
     }
     return [];
   }
 
-  const warningKey = `fallback:${questionId}`;
+  const warningKey = "fallback";
   if (!warnings.has(warningKey)) {
     console.warn(
-      `[diagnostic] Falling back to unbound evidence for ${questionId} at L${level}; add meta.questionId tagging to avoid score inflation.`
+      `[diagnostic] Falling back to unbound evidence for untagged events at L${level}; add meta.questionId tagging to avoid score inflation (example question: ${questionId}).`
     );
     warnings.add(warningKey);
   }
@@ -424,16 +424,26 @@ function computeEvidenceTrustCoverage(events: ParsedEvidenceEvent[]): {
   };
 }
 
+function isDiagnosticGeneratedAudit(event: ParsedEvidenceEvent): boolean {
+  if (event.event_type !== "audit") {
+    return false;
+  }
+  const source = typeof event.meta.source === "string" ? event.meta.source : "";
+  return typeof event.meta.runId === "string" && (source === "derived" || source === "correlation");
+}
+
 function filterEventsForAgent(events: ParsedEvidenceEvent[], agentId: string): ParsedEvidenceEvent[] {
   if (agentId === "default") {
-    const tagged = events.filter((event) => event.meta.agentId === "default");
+    const tagged = events.filter((event) => event.meta.agentId === "default" && !isDiagnosticGeneratedAudit(event));
     if (tagged.length === 0) {
-      return events;
+      return events.filter((event) => !isDiagnosticGeneratedAudit(event));
     }
     return tagged;
   }
   return events.filter(
-    (event) => event.meta.agentId === agentId || event.session_id === "system" || (event.event_type === "audit" && event.meta.agentId === undefined)
+    (event) =>
+      !isDiagnosticGeneratedAudit(event) &&
+      (event.meta.agentId === agentId || event.session_id === "system" || (event.event_type === "audit" && event.meta.agentId === undefined))
   );
 }
 

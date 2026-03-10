@@ -405,12 +405,27 @@ export async function runStudioForeground(params: {
       0o644
     );
   }
-  const dashboard = await serveDashboard({
-    workspace,
-    agentId,
-    port: params.dashboardPort ?? 4173,
-    outDir: dashboardOut
-  });
+  const requestedDashboardPort = params.dashboardPort ?? 4173;
+  let dashboard: Awaited<ReturnType<typeof serveDashboard>>;
+  try {
+    dashboard = await serveDashboard({
+      workspace,
+      agentId,
+      port: requestedDashboardPort,
+      outDir: dashboardOut
+    });
+  } catch (error) {
+    const message = String(error);
+    if (!message.includes("EADDRINUSE")) {
+      throw error;
+    }
+    dashboard = await serveDashboard({
+      workspace,
+      agentId,
+      port: 0,
+      outDir: dashboardOut
+    });
+  }
 
   const defaultApiHost = lan.enabled && lanSig.valid ? lan.bind : "127.0.0.1";
   const defaultApiPort = params.apiPort ?? (lan.enabled && lanSig.valid ? lan.port : 3212);
@@ -469,7 +484,7 @@ export async function runStudioForeground(params: {
     apiPort,
     gatewayPort: gateway.port,
     proxyPort: gateway.proxyPort ?? 0,
-    dashboardPort: params.dashboardPort ?? 4173,
+    dashboardPort: dashboard.port,
     metricsPort: metrics.port,
     metricsHost: metrics.host,
     host: apiHost,

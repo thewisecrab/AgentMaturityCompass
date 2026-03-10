@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { join, resolve } from "node:path";
 import inquirer from "inquirer";
-import { presetGatewayConfigForProvider, saveGatewayConfig, type GatewayConfig } from "../gateway/config.js";
+import { presetGatewayConfigForProvider, saveGatewayConfig, signGatewayConfig, type GatewayConfig } from "../gateway/config.js";
 import { pathExists } from "../utils/fs.js";
 import { initWorkspace } from "../workspace.js";
 import { detectFrameworksForOnboarding as detectFrameworks, type FrameworkDetection } from "./setupWizard.js";
@@ -224,6 +224,7 @@ export async function runQuickSetup(options: QuickSetupOptions): Promise<QuickSe
     config = patchGeminiAuthEnv(config);
   }
   const configPath = saveGatewayConfig(workspace, config);
+  signGatewayConfig(workspace);
   const baseUrl = renderBaseUrl(config);
 
   logger.log(`Configured gateway for ${selectedProvider.displayName}`);

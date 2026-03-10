@@ -306,6 +306,10 @@ export function initWorkspace(opts: InitWorkspaceOptions = {}): { workspacePath:
     initAdaptersConfig(workspace);
   }
 
+  if (!pathExists(join(workspace, ".amc", "gateway.yaml"))) {
+    initGatewayConfig(workspace);
+  }
+
   if (!pathExists(bridgeConfigPath(workspace))) {
     initBridgeConfig(workspace);
   }

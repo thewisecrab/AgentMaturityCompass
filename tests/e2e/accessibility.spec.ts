@@ -1,10 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { resolve } from 'path';
-
-const INDEX_URL = 'file://' + resolve(__dirname, '../../website/index.html');
-const PLAYGROUND_URL = 'file://' + resolve(__dirname, '../../website/playground.html');
-const LITE_URL = 'file://' + resolve(__dirname, '../../website/lite.html');
+import { INDEX_URL, LITE_URL, PLAYGROUND_URL } from './urls.js';
 
 test.describe('Accessibility', () => {
   test('index.html passes axe-core checks', async ({ page }) => {

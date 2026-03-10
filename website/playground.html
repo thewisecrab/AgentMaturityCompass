@@ -11,6 +11,7 @@
   *:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--bg); color: var(--t1); font-family: var(--mono), monospace; min-height: 100vh; padding: 2rem; transition: background .4s, color .4s; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .container { max-width: 900px; margin: 0 auto; }
   h1 { color: var(--g); font-size: 1.8rem; margin-bottom: .5rem; }
   .subtitle { color: var(--t2); margin-bottom: 2rem; font-size: .85rem; }
@@ -88,47 +89,57 @@
 </head>
 <body>
 
-<div class="tour-overlay" id="tourOverlay"></div>
-<div class="tour-tooltip" id="tourTooltip" style="display:none"></div>
+<div class="tour-overlay" id="tourOverlay" aria-hidden="true"></div>
+<div class="tour-tooltip" id="tourTooltip" style="display:none" role="dialog" aria-modal="true" aria-live="polite"></div>
 
-<div class="container">
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <a href="./" class="nav-back" data-i18n="navBack">← Back to AMC</a>
-      <button class="btn btn-outline" onclick="startTour()" style="font-size:.7rem;padding:.3rem .8rem;text-transform:none" data-i18n="btnTakeTour">🎓 Take the Tour</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:.5rem">
-      <div id="langSwitcherPlayground"></div>
-      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">🖥️</button>
-    </div>
-  </div>
-  <h1 data-i18n="playgroundTitle">🧭 AMC Playground</h1>
-  <p class="subtitle" data-i18n="playgroundSubtitle">Rate your AI agent on 15 key questions. Get an instant maturity score. No install required.</p>
-  
-  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
-  
-  <div class="score-panel" id="scorePanel">
-    <div class="score-big" id="compositeScore">L0</div>
-    <div class="score-label"><span data-i18n="scoreLabel">AMC Maturity Level</span> · <span id="compositeNum">0</span>/100</div>
-    <div class="dim-scores" id="dimScores"></div>
-    <div class="actions" id="actionButtons">
-      <button class="btn" onclick="copyBadge()" data-i18n="btnCopyBadge">📋 Copy Badge</button>
-      <button class="btn btn-outline" onclick="exportJSON()" data-i18n="btnExportJSON">📄 Export JSON</button>
-      <button class="btn btn-outline" onclick="resetAll()" data-i18n="btnReset">🔄 Reset</button>
-      <button class="btn btn-outline" onclick="shareResults()" data-i18n="btnShare">📤 Share Results</button>
-    </div>
-    <div class="share-result" id="shareResult">
-      <p style="color:var(--t2);font-size:.75rem;margin-bottom:.5rem">Copy and share your assessment:</p>
-      <textarea id="shareText" readonly></textarea>
-      <button class="btn" style="margin-top:.5rem;font-size:.65rem" onclick="navigator.clipboard.writeText(document.getElementById('shareText').value)">📋 Copy to Clipboard</button>
-    </div>
-    <div class="badge-output" id="badgeOutput">
-      <code id="badgeCode"></code>
-    </div>
-  </div>
+<main id="main-content">
+  <div class="container">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <a href="./" class="nav-back" data-i18n="navBack">← Back to AMC</a>
+        <button class="btn btn-outline" onclick="startTour()" style="font-size:.7rem;padding:.3rem .8rem;text-transform:none" data-i18n="btnTakeTour">🎓 Take the Tour</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <div id="langSwitcherPlayground"></div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">🖥️</button>
+      </div>
+    </header>
 
-  <div id="questions"></div>
-</div>
+    <section aria-labelledby="playground-title">
+      <h1 id="playground-title" data-i18n="playgroundTitle">🧭 AMC Playground</h1>
+      <p class="subtitle" data-i18n="playgroundSubtitle">Rate your AI agent on 15 key questions. Get an instant maturity score. No install required.</p>
+      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    </section>
+
+    <section aria-labelledby="score-summary-title">
+      <h2 id="score-summary-title" class="sr-only">Score summary</h2>
+      <div class="score-panel" id="scorePanel">
+        <div class="score-big" id="compositeScore">L0</div>
+        <div class="score-label"><span data-i18n="scoreLabel">AMC Maturity Level</span> · <span id="compositeNum">0</span>/100</div>
+        <div class="dim-scores" id="dimScores"></div>
+        <div class="actions" id="actionButtons">
+          <button class="btn" onclick="copyBadge()" data-i18n="btnCopyBadge">📋 Copy Badge</button>
+          <button class="btn btn-outline" onclick="exportJSON()" data-i18n="btnExportJSON">📄 Export JSON</button>
+          <button class="btn btn-outline" onclick="resetAll()" data-i18n="btnReset">🔄 Reset</button>
+          <button class="btn btn-outline" onclick="shareResults()" data-i18n="btnShare">📤 Share Results</button>
+        </div>
+        <div class="share-result" id="shareResult">
+          <p style="color:var(--t2);font-size:.75rem;margin-bottom:.5rem">Copy and share your assessment:</p>
+          <textarea id="shareText" readonly></textarea>
+          <button class="btn" style="margin-top:.5rem;font-size:.65rem" onclick="navigator.clipboard.writeText(document.getElementById('shareText').value)">📋 Copy to Clipboard</button>
+        </div>
+        <div class="badge-output" id="badgeOutput">
+          <code id="badgeCode"></code>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="assessment-questions-title">
+      <h2 id="assessment-questions-title" class="sr-only">Assessment questions</h2>
+      <div id="questions"></div>
+    </section>
+  </div>
+</main>
 
 <script>
 const QUESTIONS = [
