@@ -154,6 +154,7 @@ import { auditVibeCode } from "./score/vibeCodeAudit.js";
 import { scoreRegulatoryReadiness } from "./score/regulatoryReadiness.js";
 import { parseWindowToMs } from "./utils/time.js";
 import { evalImportCli, evalStatusCli } from "./eval/evalCli.js";
+import { evalRunCli, inferFormat, type EvalOutputFormat } from "./eval/evalRunCli.js";
 import { buildDashboard } from "./dashboard/build.js";
 import { serveDashboard } from "./dashboard/serve.js";
 import { assignOwnership, createCommitmentPlan, learnQuestion } from "./eoc/flows.js";
@@ -568,6 +569,7 @@ import {
   standardValidateCli,
   standardVerifyCli
 } from "./standard/standardCli.js";
+import { runRedTeam, renderRedTeamMarkdown, listStrategies } from "./redteam/index.js";
 
 async function readStdinAll(): Promise<string> {
   return new Promise((resolve) => {
@@ -3519,11 +3521,90 @@ program
     console.log(chalk.green(`Supervised session sealed: ${sessionId}`));
   });
 
-const monitor = program.command("monitor").description("Runtime evidence capture and trust drift monitoring");
+const monitor = program.command("monitor").description("Continuous production monitoring — real-time scoring, drift detection, and alerting");
 
+// ── amc monitor start — perpetual continuous monitoring ──
 monitor
   .command("start")
-  .description("Start continuous trust drift monitoring and alert on trust degradation")
+  .description("Start continuous monitoring: scores agent at intervals, detects drift, sends alerts on degradation")
+  .option("--agent <id>", "Agent ID to monitor")
+  .option("--scoring-interval <ms>", "Scoring interval in milliseconds", "300000")
+  .option("--drift-interval <ms>", "Drift check interval in milliseconds", "900000")
+  .option("--score-drop-threshold <n>", "Score drop alert threshold (0-1)", "0.1")
+  .option("--no-webhooks", "Disable webhook notifications")
+  .action(async (options: { agent?: string; scoringInterval: string; driftInterval: string; scoreDropThreshold: string; webhooks: boolean }) => {
+    const { createContinuousMonitor, globalDashboardFeed } = await import("./watch/index.js");
+    const { cliFormat } = await import("./cliFormat.js");
+    const workspace = process.cwd();
+    const agentId = resolveAgentId(workspace, options.agent);
+
+    const config = {
+      workspace,
+      agentId,
+      scoringIntervalMs: parseInt(options.scoringInterval, 10),
+      driftCheckIntervalMs: parseInt(options.driftInterval, 10),
+      scoreDropThreshold: parseFloat(options.scoreDropThreshold),
+      enableWebhooks: options.webhooks
+    };
+
+    const mon = createContinuousMonitor(config);
+    globalDashboardFeed.registerMonitor(agentId, mon.getMetrics());
+
+    mon.on("started", (data: { agentId: string }) => {
+      console.log(cliFormat.success(`✓ Monitoring started for agent: ${data.agentId}`));
+      console.log(cliFormat.info(`  Scoring every ${config.scoringIntervalMs / 1000}s | Drift check every ${config.driftCheckIntervalMs / 1000}s`));
+      console.log(cliFormat.info(`  Score drop threshold: ${config.scoreDropThreshold * 100}%`));
+    });
+
+    mon.on("score", (event: { data: { score: number; delta: number | null } }) => {
+      const d = event.data;
+      const deltaStr = d.delta !== null ? ` (${d.delta > 0 ? "+" : ""}${(d.delta * 100).toFixed(1)}%)` : "";
+      console.log(cliFormat.info(`📊 Score: ${d.score.toFixed(2)}${deltaStr}`));
+      globalDashboardFeed.updateMetrics(agentId, mon.getMetrics());
+      globalDashboardFeed.pushEvent(event as never);
+    });
+
+    mon.on("drift", (event: { data: { triggered: boolean; reasons: string[] } }) => {
+      if (event.data.triggered) {
+        console.log(cliFormat.warning(`⚠️  Drift detected: ${event.data.reasons.join(", ")}`));
+      }
+      globalDashboardFeed.pushEvent(event as never);
+    });
+
+    mon.on("anomaly", (event: { data: { type: string; severity: string; message: string } }) => {
+      console.log(cliFormat.warning(`🔍 Anomaly [${event.data.severity}]: ${event.data.message}`));
+      globalDashboardFeed.pushEvent(event as never);
+    });
+
+    mon.on("alert", (event: { data: { summary: string } }) => {
+      console.log(cliFormat.error(`🚨 Alert: ${event.data.summary}`));
+      globalDashboardFeed.pushEvent(event as never);
+    });
+
+    mon.on("error", (event: { data: { code: string; message: string } }) => {
+      console.error(cliFormat.error(`❌ Error [${event.data.code}]: ${event.data.message}`));
+    });
+
+    await mon.start();
+
+    console.log(cliFormat.info("Press Ctrl+C to stop monitoring..."));
+
+    process.on("SIGINT", async () => {
+      console.log(cliFormat.info("\nStopping monitor..."));
+      await mon.stop();
+      globalDashboardFeed.unregisterMonitor(agentId);
+      console.log(cliFormat.success("✓ Monitor stopped"));
+      process.exit(0);
+    });
+
+    // Keep process alive
+    await new Promise(() => {});
+  });
+
+// ── amc monitor check — one-shot trust drift analysis ──
+monitor
+  .command("check")
+  .description("One-shot trust drift analysis (check for degradation without running continuously)")
   .requiredOption("--agent <agentId>", "agent ID")
   .requiredOption("--alert-threshold <n>", "minimum drop in trust score (0-100) that triggers an alert")
   .action((opts: { agent: string; alertThreshold: string }) => {
@@ -3536,7 +3617,7 @@ monitor
       agentId: opts.agent,
       alertThreshold: threshold
     });
-    console.log(chalk.green(`Trust drift monitor active for agent ${result.agentId}`));
+    console.log(chalk.green(`Trust drift check for agent ${result.agentId}`));
     console.log(`Analyzed runs: ${result.analyzedRuns}`);
     if (result.latestPoint) {
       console.log(`Latest score: ${result.latestPoint.score0to100.toFixed(2)} (${result.latestPoint.runId})`);
@@ -3557,13 +3638,116 @@ monitor
     process.exit(2);
   });
 
-// Backward-compatible monitor mode: record runtime stdin as evidence.
+// ── amc monitor status — show monitoring status for all agents ──
+monitor
+  .command("status")
+  .description("Show monitoring status for all agents")
+  .option("--json", "Output as JSON")
+  .action(async (options: { json?: boolean }) => {
+    const { globalDashboardFeed } = await import("./watch/index.js");
+    const { cliFormat } = await import("./cliFormat.js");
+    const snapshot = globalDashboardFeed.getSnapshot();
+
+    if (options.json) {
+      console.log(JSON.stringify(snapshot, null, 2));
+      return;
+    }
+
+    console.log(cliFormat.header("Monitoring Status"));
+    console.log(`Active monitors: ${snapshot.globalStats.activeMonitors}`);
+    console.log(`Total incidents: ${snapshot.globalStats.totalIncidents}`);
+    console.log(`Total anomalies: ${snapshot.globalStats.totalAnomalies}`);
+    console.log();
+
+    if (Object.keys(snapshot.agents).length === 0) {
+      console.log(chalk.gray("No active monitors"));
+      return;
+    }
+
+    for (const [agentId, metrics] of Object.entries(snapshot.agents)) {
+      console.log(chalk.bold(`Agent: ${agentId}`));
+      console.log(`  Current score: ${metrics.currentScore?.toFixed(2) ?? "N/A"}`);
+      console.log(`  Score delta: ${metrics.scoreDelta !== null ? `${metrics.scoreDelta > 0 ? "+" : ""}${(metrics.scoreDelta * 100).toFixed(1)}%` : "N/A"}`);
+      console.log(`  Last scored: ${metrics.lastScoredAt ? new Date(metrics.lastScoredAt).toISOString() : "N/A"}`);
+      console.log(`  Active incidents: ${metrics.activeIncidents}`);
+      console.log(`  Anomalies detected: ${metrics.anomaliesDetected}`);
+      console.log(`  Uptime: ${(metrics.uptime / 1000 / 60).toFixed(1)} minutes`);
+      console.log();
+    }
+  });
+
+// ── amc monitor events — recent monitoring events ──
+monitor
+  .command("events")
+  .description("Show recent monitoring events")
+  .option("--limit <n>", "Number of events to show", "20")
+  .option("--json", "Output as JSON")
+  .action(async (options: { limit: string; json?: boolean }) => {
+    const { globalDashboardFeed } = await import("./watch/index.js");
+    const { cliFormat } = await import("./cliFormat.js");
+    const limit = parseInt(options.limit, 10);
+    const events = globalDashboardFeed.getRecentEvents(limit);
+
+    if (options.json) {
+      console.log(JSON.stringify(events, null, 2));
+      return;
+    }
+
+    if (events.length === 0) {
+      console.log(chalk.gray("No recent events"));
+      return;
+    }
+
+    console.log(cliFormat.header(`Recent Events (${events.length})`));
+    for (const event of events.slice(-limit)) {
+      const timestamp = new Date(event.ts).toISOString();
+      const typeIcon = event.type === "score" ? "📊" : event.type === "drift" ? "⚠️" : event.type === "anomaly" ? "🔍" : event.type === "alert" ? "🚨" : "ℹ️";
+      console.log(`${typeIcon} [${timestamp}] ${event.type.toUpperCase()} - ${event.agentId}`);
+    }
+  });
+
+// ── amc monitor metrics — per-agent metrics ──
+monitor
+  .command("metrics")
+  .description("Get metrics for a specific agent")
+  .option("--agent <id>", "Agent ID")
+  .option("--json", "Output as JSON")
+  .action(async (options: { agent?: string; json?: boolean }) => {
+    const { globalDashboardFeed } = await import("./watch/index.js");
+    const { cliFormat } = await import("./cliFormat.js");
+    const workspace = process.cwd();
+    const agentId = resolveAgentId(workspace, options.agent);
+    const metrics = globalDashboardFeed.getAgentMetrics(agentId);
+
+    if (!metrics) {
+      console.error(cliFormat.error(`No active monitor for agent: ${agentId}`));
+      process.exit(1);
+    }
+
+    if (options.json) {
+      console.log(JSON.stringify(metrics, null, 2));
+      return;
+    }
+
+    console.log(cliFormat.header(`Metrics: ${agentId}`));
+    console.log(`Current score: ${metrics.currentScore?.toFixed(2) ?? "N/A"}`);
+    console.log(`Previous score: ${metrics.previousScore?.toFixed(2) ?? "N/A"}`);
+    console.log(`Score delta: ${metrics.scoreDelta !== null ? `${metrics.scoreDelta > 0 ? "+" : ""}${(metrics.scoreDelta * 100).toFixed(1)}%` : "N/A"}`);
+    console.log(`Last scored: ${metrics.lastScoredAt ? new Date(metrics.lastScoredAt).toISOString() : "N/A"}`);
+    console.log(`Last drift check: ${metrics.lastDriftCheckAt ? new Date(metrics.lastDriftCheckAt).toISOString() : "N/A"}`);
+    console.log(`Active incidents: ${metrics.activeIncidents}`);
+    console.log(`Anomalies detected: ${metrics.anomaliesDetected}`);
+    console.log(`Total scores: ${metrics.totalScores}`);
+    console.log(`Uptime: ${(metrics.uptime / 1000 / 60).toFixed(1)} minutes`);
+  });
+
+// ── Backward-compatible monitor mode: record runtime stdin as evidence ──
 monitor
   .option("--runtime <name>", "runtime name")
   .option("--stdin", "capture stdin stream", false)
   .action(async (opts: { runtime?: string; stdin?: boolean }) => {
     if (!opts.runtime) {
-      throw new Error("Legacy monitor mode requires --runtime. For trust drift alerts use `amc monitor start`.");
+      throw new Error("Legacy monitor mode requires --runtime. For continuous monitoring use `amc monitor start`.");
     }
     const agentId = activeAgent(program);
     const sessionId = await startMonitor({
@@ -4031,6 +4215,47 @@ evalCmd
       );
     }
   });
+
+evalCmd
+  .command("run")
+  .description("One-shot evaluation: read amcconfig.yaml, run all diagnostic tests, output results")
+  .option("--format <format>", "output format: json | html | terminal", "terminal")
+  .option("--output <path>", "write report to file (format inferred from extension if --format omitted)")
+  .option("--window <window>", "evidence window", "30d")
+  .option("--agent <agentId>", "agent ID (defaults to active agent)")
+  .option("--fail-on-error", "exit with code 1 on INVALID status or threshold breach", false)
+  .option("--threshold <n>", "minimum acceptable IntegrityIndex (0–1)", "0")
+  .action(
+    async (opts: {
+      format: string;
+      output?: string;
+      window: string;
+      agent?: string;
+      failOnError: boolean;
+      threshold: string;
+    }) => {
+      const agentId = opts.agent ?? activeAgent(program);
+      if (agentId) {
+        ensureWorkspaceReadyForAgent(process.cwd(), agentId);
+      }
+      const format = inferFormat(opts.output, opts.format !== "terminal" ? opts.format : undefined);
+      const { report, exitCode } = await evalRunCli({
+        workspace: process.cwd(),
+        window: opts.window,
+        agentId,
+        format,
+        output: opts.output,
+        failOnError: opts.failOnError,
+        threshold: parseFloat(opts.threshold),
+      });
+      if (opts.output) {
+        console.log(chalk.green(`Report written to ${opts.output}`));
+      }
+      if (exitCode !== 0) {
+        process.exit(exitCode);
+      }
+    }
+  );
 
 lifecycle
   .command("status")
@@ -16530,6 +16755,78 @@ program
 
 // Register watch commands
 registerWatchCommands(program);
+
+/* ------------------------------------------------------------------ */
+/*  amc redteam — Attack Simulation                                    */
+/* ------------------------------------------------------------------ */
+
+const redteamCmd = program
+  .command("redteam")
+  .description("Run red-team attack simulations against a target agent");
+
+redteamCmd
+  .command("run [agentId]")
+  .description("Execute red-team plugins with chosen attack strategies and generate a vulnerability report")
+  .option("--plugins <ids...>", "Assurance-pack IDs to run as attack plugins (default: all)")
+  .option("--strategies <ids...>", "Attack strategy IDs to apply (default: direct). Use 'all' for every strategy.")
+  .option("--output <path>", "Path to write the markdown vulnerability report")
+  .option("--json", "Print JSON report to stdout")
+  .action(async (agentId: string | undefined, opts: { plugins?: string[]; strategies?: string[]; output?: string; json?: boolean }) => {
+    const workspace = process.cwd();
+    const report = await runRedTeam({
+      workspace,
+      agentId,
+      plugins: opts.plugins,
+      strategies: opts.strategies,
+      output: opts.output,
+    });
+
+    if (opts.json) {
+      console.log(JSON.stringify(report, null, 2));
+    } else {
+      console.log(renderRedTeamMarkdown(report));
+      console.log("");
+      console.log(chalk.gray(`Full JSON: .amc/redteam/${report.agentId}/${report.runId}.json`));
+      if (opts.output) {
+        console.log(chalk.gray(`Report: ${opts.output}`));
+      }
+    }
+  });
+
+redteamCmd
+  .command("strategies")
+  .description("List available attack strategies")
+  .option("--json", "JSON output")
+  .action((opts: { json?: boolean }) => {
+    const strats = listStrategies();
+    if (opts.json) {
+      console.log(JSON.stringify(strats.map(({ id, name, description }) => ({ id, name, description })), null, 2));
+    } else {
+      console.log(chalk.bold("Available Red-Team Strategies:\n"));
+      for (const s of strats) {
+        console.log(`  ${chalk.cyan(s.id.padEnd(16))} ${s.name} — ${chalk.gray(s.description)}`);
+      }
+    }
+  });
+
+redteamCmd
+  .command("plugins")
+  .description("List available attack plugins (assurance packs)")
+  .option("--json", "JSON output")
+  .action(async (_opts: { json?: boolean }) => {
+    const { listAssurancePacks } = await import("./assurance/packs/index.js");
+    const packs = listAssurancePacks();
+    if (_opts.json) {
+      console.log(JSON.stringify(packs.map(({ id, title, description, scenarios }) => ({
+        id, title, description, scenarioCount: scenarios.length
+      })), null, 2));
+    } else {
+      console.log(chalk.bold(`Available Red-Team Plugins (${packs.length}):\n`));
+      for (const p of packs) {
+        console.log(`  ${chalk.cyan(p.id.padEnd(36))} ${p.title} (${p.scenarios.length} scenarios)`);
+      }
+    }
+  });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = normalizeCliErrorMessage(error);
