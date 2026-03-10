@@ -1,0 +1,54 @@
+{
+  "prompt": {
+    "onboarding": [
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-03-10T17:39:18.107274+00:00",
+        "note": "init",
+        "parent_version": null,
+        "version": 1
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "v": 2
+        },
+        "created_at": "2026-03-10T17:39:18.109943+00:00",
+        "note": "add c",
+        "parent_version": 1,
+        "version": 2
+      },
+      {
+        "artifact_id": "onboarding",
+        "artifact_type": "prompt",
+        "content": {
+          "steps": [
+            "a",
+            "b"
+          ],
+          "v": 1
+        },
+        "created_at": "2026-03-10T17:39:18.114878+00:00",
+        "note": "rollback-to-v1",
+        "parent_version": 2,
+        "version": 3
+      }
+    ]
+  },
+  "updated_at": "2026-03-10T17:39:18.114886+00:00",
+  "workflow": {}
+}

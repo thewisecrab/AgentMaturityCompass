@@ -1,0 +1,255 @@
+name: 'AMC Score — Agent Maturity Compass'
+description: 'Run AMC eval on your agent, post results as a PR comment, fail on score drops, upload artifacts.'
+author: 'thewisecrab'
+
+branding:
+  icon: 'compass'
+  color: 'blue'
+
+inputs:
+  agent-id:
+    description: 'Agent identifier to evaluate'
+    required: false
+    default: 'default'
+  target-level:
+    description: 'Minimum AMC maturity level required (0–5). Build fails if score is below this.'
+    required: false
+    default: '0'
+  fail-on-drop:
+    description: 'Fail the build if the score drops compared to the base branch'
+    required: false
+    default: 'false'
+  comment:
+    description: 'Post results as a PR comment (true/false)'
+    required: false
+    default: 'true'
+  upload-artifacts:
+    description: 'Upload AMC result JSON and badge as workflow artifacts'
+    required: false
+    default: 'true'
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20'
+  amc-version:
+    description: 'agent-maturity-compass npm version (semver or "latest")'
+    required: false
+    default: 'latest'
+  working-directory:
+    description: 'Directory to run AMC in (repo root by default)'
+    required: false
+    default: '.'
+
+outputs:
+  score:
+    description: 'AMC composite score (float)'
+    value: ${{ steps.run-amc.outputs.score }}
+  level:
+    description: 'AMC maturity level string (L0–L5)'
+    value: ${{ steps.run-amc.outputs.level }}
+  passed:
+    description: 'Whether the target-level gate passed (true/false)'
+    value: ${{ steps.gate.outputs.passed }}
+  result-json:
+    description: 'Path to the full AMC result JSON file'
+    value: ${{ steps.run-amc.outputs.result_path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install AMC CLI
+      shell: bash
+      run: npm i -g agent-maturity-compass@${{ inputs.amc-version }}
+
+    - name: Initialize AMC workspace
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: amc init --non-interactive --agent "${{ inputs.agent-id }}" 2>/dev/null || true
+
+    - name: Run AMC evaluation
+      id: run-amc
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        set -euo pipefail
+        RESULT_PATH="${RUNNER_TEMP}/amc-result.json"
+
+        RESULT=$(amc quickscore --json --agent "${{ inputs.agent-id }}" 2>/dev/null || echo '{"score":0,"level":"L0","dimensions":{}}')
+        echo "$RESULT" > "$RESULT_PATH"
+
+        SCORE=$(echo "$RESULT" | jq -r '.score // 0')
+        LEVEL=$(echo "$RESULT" | jq -r '.level // "L0"')
+        LEVEL_NUM=$(echo "$LEVEL" | sed 's/L//')
+
+        echo "score=$SCORE"         >> "$GITHUB_OUTPUT"
+        echo "level=$LEVEL"         >> "$GITHUB_OUTPUT"
+        echo "level_num=$LEVEL_NUM" >> "$GITHUB_OUTPUT"
+        echo "result_path=$RESULT_PATH" >> "$GITHUB_OUTPUT"
+
+        # Step summary
+        echo "## 🧭 AMC Score: ${SCORE} (${LEVEL})" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Dimension | Score | Level |" >> "$GITHUB_STEP_SUMMARY"
+        echo "|-----------|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+        echo "$RESULT" | jq -r '.dimensions // {} | to_entries[] | "| \(.key) | \(.value.score) | \(.value.level) |"' >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+
+    - name: Score-drop detection (base branch comparison)
+      id: drop
+      if: inputs.fail-on-drop == 'true' && github.event_name == 'pull_request'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        set -euo pipefail
+        # Checkout base branch, score it, compare
+        git fetch origin "${{ github.base_ref }}" --depth=1 2>/dev/null || true
+        BASE_RESULT=$(git stash && git checkout "origin/${{ github.base_ref }}" -- . 2>/dev/null && \
+          amc quickscore --json --agent "${{ inputs.agent-id }}" 2>/dev/null || echo '{"score":0}')
+        git checkout - -- . 2>/dev/null || true
+        git stash pop 2>/dev/null || true
+
+        BASE_SCORE=$(echo "$BASE_RESULT" | jq -r '.score // 0')
+        HEAD_SCORE="${{ steps.run-amc.outputs.score }}"
+
+        echo "base_score=$BASE_SCORE" >> "$GITHUB_OUTPUT"
+
+        DROPPED=$(python3 -c "print('true' if float('$HEAD_SCORE') < float('$BASE_SCORE') else 'false')")
+        echo "dropped=$DROPPED" >> "$GITHUB_OUTPUT"
+
+        if [ "$DROPPED" = "true" ]; then
+          echo "⚠️ Score dropped: ${BASE_SCORE} → ${HEAD_SCORE}" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Target-level gate
+      id: gate
+      shell: bash
+      run: |
+        set -euo pipefail
+        TARGET=${{ inputs.target-level }}
+        LEVEL_NUM=${{ steps.run-amc.outputs.level_num }}
+        DROPPED="${{ steps.drop.outputs.dropped || 'false' }}"
+        FAIL_ON_DROP="${{ inputs.fail-on-drop }}"
+
+        PASSED=true
+        REASON=""
+
+        if [ "$TARGET" -gt 0 ] && [ "$LEVEL_NUM" -lt "$TARGET" ]; then
+          PASSED=false
+          REASON="AMC level L${LEVEL_NUM} is below required L${TARGET}"
+        fi
+
+        if [ "$FAIL_ON_DROP" = "true" ] && [ "$DROPPED" = "true" ]; then
+          PASSED=false
+          REASON="${REASON:+${REASON}; }Score dropped from base branch"
+        fi
+
+        echo "passed=$PASSED" >> "$GITHUB_OUTPUT"
+
+        if [ "$PASSED" = "false" ]; then
+          echo "❌ Gate failed: $REASON" >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::AMC gate failed: $REASON"
+          exit 1
+        else
+          echo "✅ AMC gate passed — L${LEVEL_NUM} (${{ steps.run-amc.outputs.score }})" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Generate badge
+      id: badge
+      if: always()
+      shell: bash
+      run: |
+        LEVEL="${{ steps.run-amc.outputs.level }}"
+        SCORE="${{ steps.run-amc.outputs.score }}"
+        LEVEL_NUM=${{ steps.run-amc.outputs.level_num }}
+
+        if [ "$LEVEL_NUM" -ge 4 ]; then COLOR="brightgreen";
+        elif [ "$LEVEL_NUM" -ge 3 ]; then COLOR="green";
+        elif [ "$LEVEL_NUM" -ge 2 ]; then COLOR="yellow";
+        elif [ "$LEVEL_NUM" -ge 1 ]; then COLOR="orange";
+        else COLOR="red"; fi
+
+        BADGE_URL="https://img.shields.io/badge/AMC-${LEVEL}%20(${SCORE})-${COLOR}?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEyIDJMMiA3bDEwIDUgMTAtNXptMCA5bC04LjUtNC4yNUwyIDEybDEwIDUgMTAtNXptMCA5bC04LjUtNC4yNUwyIDIxbDEwIDUgMTAtNXoiLz48L3N2Zz4="
+        echo "badge_url=$BADGE_URL" >> "$GITHUB_OUTPUT"
+
+        # Save badge markdown to temp for artifact
+        echo "[![AMC Score](${BADGE_URL})](https://github.com/${{ github.repository }})" > "${RUNNER_TEMP}/amc-badge.md"
+
+    - name: Comment on PR
+      if: always() && inputs.comment == 'true' && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const resultPath = '${{ steps.run-amc.outputs.result_path }}';
+          let result = { score: 0, level: 'L0', dimensions: {} };
+          try { result = JSON.parse(fs.readFileSync(resultPath, 'utf8')); } catch {}
+
+          const score = (result.score || 0).toFixed ? result.score.toFixed(2) : result.score;
+          const level = result.level || 'L0';
+          const levelNum = parseInt(level.replace('L', ''));
+          const targetLevel = parseInt('${{ inputs.target-level }}') || 0;
+          const passed = '${{ steps.gate.outputs.passed }}' !== 'false';
+          const dropped = '${{ steps.drop.outputs.dropped }}' === 'true';
+          const baseScore = '${{ steps.drop.outputs.base_score }}';
+
+          let dimTable = '| Dimension | Score | Level |\n|-----------|-------|-------|\n';
+          if (result.dimensions) {
+            for (const [name, data] of Object.entries(result.dimensions)) {
+              dimTable += `| ${name} | ${data.score} | ${data.level} |\n`;
+            }
+          }
+
+          const statusEmoji = passed ? '✅' : '❌';
+          let statusLine = passed
+            ? `Meets${targetLevel > 0 ? ` required L${targetLevel}` : ''} threshold`
+            : `Below required L${targetLevel}`;
+          if (dropped) statusLine += ` · ⚠️ Score dropped from ${baseScore}`;
+
+          const badge = '${{ steps.badge.outputs.badge_url }}';
+          const body = `## ${statusEmoji} AMC Score: ${score} (${level})
+
+          ![AMC Badge](${badge})
+
+          ${dimTable}
+
+          **Status:** ${statusLine}
+
+          ---
+          *[Agent Maturity Compass](https://github.com/thewisecrab/AgentMaturityCompass) · amc-action v1*`;
+
+          // Upsert: find existing AMC comment and update, or create new
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const existing = comments.find(c => c.body && c.body.includes('AMC Score:'));
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body: body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });
+          }
+
+    - name: Upload artifacts
+      if: always() && inputs.upload-artifacts == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: amc-results
+        path: |
+          ${{ steps.run-amc.outputs.result_path }}
+          ${{ runner.temp }}/amc-badge.md
+        retention-days: 90

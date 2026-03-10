@@ -3534,7 +3534,7 @@ monitor
   .option("--no-webhooks", "Disable webhook notifications")
   .action(async (options: { agent?: string; scoringInterval: string; driftInterval: string; scoreDropThreshold: string; webhooks: boolean }) => {
     const { createContinuousMonitor, globalDashboardFeed } = await import("./watch/index.js");
-    const { cliFormat } = await import("./cliFormat.js");
+    const fmt = await import("./cliFormat.js");
     const workspace = process.cwd();
     const agentId = resolveAgentId(workspace, options.agent);
 
@@ -3551,49 +3551,49 @@ monitor
     globalDashboardFeed.registerMonitor(agentId, mon.getMetrics());
 
     mon.on("started", (data: { agentId: string }) => {
-      console.log(cliFormat.success(`✓ Monitoring started for agent: ${data.agentId}`));
-      console.log(cliFormat.info(`  Scoring every ${config.scoringIntervalMs / 1000}s | Drift check every ${config.driftCheckIntervalMs / 1000}s`));
-      console.log(cliFormat.info(`  Score drop threshold: ${config.scoreDropThreshold * 100}%`));
+      console.log(chalk.green(`  ✓ Monitoring started for agent: ${data.agentId}`));
+      console.log(fmt.info(`Scoring every ${config.scoringIntervalMs / 1000}s | Drift check every ${config.driftCheckIntervalMs / 1000}s`));
+      console.log(fmt.info(`Score drop threshold: ${config.scoreDropThreshold * 100}%`));
     });
 
     mon.on("score", (event: { data: { score: number; delta: number | null } }) => {
       const d = event.data;
       const deltaStr = d.delta !== null ? ` (${d.delta > 0 ? "+" : ""}${(d.delta * 100).toFixed(1)}%)` : "";
-      console.log(cliFormat.info(`📊 Score: ${d.score.toFixed(2)}${deltaStr}`));
+      console.log(fmt.info(`📊 Score: ${d.score.toFixed(2)}${deltaStr}`));
       globalDashboardFeed.updateMetrics(agentId, mon.getMetrics());
       globalDashboardFeed.pushEvent(event as never);
     });
 
     mon.on("drift", (event: { data: { triggered: boolean; reasons: string[] } }) => {
       if (event.data.triggered) {
-        console.log(cliFormat.warning(`⚠️  Drift detected: ${event.data.reasons.join(", ")}`));
+        console.log(fmt.warn(`⚠️  Drift detected: ${event.data.reasons.join(", ")}`));
       }
       globalDashboardFeed.pushEvent(event as never);
     });
 
     mon.on("anomaly", (event: { data: { type: string; severity: string; message: string } }) => {
-      console.log(cliFormat.warning(`🔍 Anomaly [${event.data.severity}]: ${event.data.message}`));
+      console.log(fmt.warn(`🔍 Anomaly [${event.data.severity}]: ${event.data.message}`));
       globalDashboardFeed.pushEvent(event as never);
     });
 
     mon.on("alert", (event: { data: { summary: string } }) => {
-      console.log(cliFormat.error(`🚨 Alert: ${event.data.summary}`));
+      console.log(chalk.red(`  🚨 Alert: ${event.data.summary}`));
       globalDashboardFeed.pushEvent(event as never);
     });
 
     mon.on("error", (event: { data: { code: string; message: string } }) => {
-      console.error(cliFormat.error(`❌ Error [${event.data.code}]: ${event.data.message}`));
+      console.error(chalk.red(`  ❌ Error [${event.data.code}]: ${event.data.message}`));
     });
 
     await mon.start();
 
-    console.log(cliFormat.info("Press Ctrl+C to stop monitoring..."));
+    console.log(fmt.info("Press Ctrl+C to stop monitoring..."));
 
     process.on("SIGINT", async () => {
-      console.log(cliFormat.info("\nStopping monitor..."));
+      console.log(fmt.info("Stopping monitor..."));
       await mon.stop();
       globalDashboardFeed.unregisterMonitor(agentId);
-      console.log(cliFormat.success("✓ Monitor stopped"));
+      console.log(chalk.green("  ✓ Monitor stopped"));
       process.exit(0);
     });
 
@@ -3645,7 +3645,7 @@ monitor
   .option("--json", "Output as JSON")
   .action(async (options: { json?: boolean }) => {
     const { globalDashboardFeed } = await import("./watch/index.js");
-    const { cliFormat } = await import("./cliFormat.js");
+    const fmt = await import("./cliFormat.js");
     const snapshot = globalDashboardFeed.getSnapshot();
 
     if (options.json) {
@@ -3653,7 +3653,7 @@ monitor
       return;
     }
 
-    console.log(cliFormat.header("Monitoring Status"));
+    console.log(fmt.header("Monitoring Status"));
     console.log(`Active monitors: ${snapshot.globalStats.activeMonitors}`);
     console.log(`Total incidents: ${snapshot.globalStats.totalIncidents}`);
     console.log(`Total anomalies: ${snapshot.globalStats.totalAnomalies}`);
@@ -3684,7 +3684,7 @@ monitor
   .option("--json", "Output as JSON")
   .action(async (options: { limit: string; json?: boolean }) => {
     const { globalDashboardFeed } = await import("./watch/index.js");
-    const { cliFormat } = await import("./cliFormat.js");
+    const fmt = await import("./cliFormat.js");
     const limit = parseInt(options.limit, 10);
     const events = globalDashboardFeed.getRecentEvents(limit);
 
@@ -3698,7 +3698,7 @@ monitor
       return;
     }
 
-    console.log(cliFormat.header(`Recent Events (${events.length})`));
+    console.log(fmt.header(`Recent Events (${events.length})`));
     for (const event of events.slice(-limit)) {
       const timestamp = new Date(event.ts).toISOString();
       const typeIcon = event.type === "score" ? "📊" : event.type === "drift" ? "⚠️" : event.type === "anomaly" ? "🔍" : event.type === "alert" ? "🚨" : "ℹ️";
@@ -3714,13 +3714,13 @@ monitor
   .option("--json", "Output as JSON")
   .action(async (options: { agent?: string; json?: boolean }) => {
     const { globalDashboardFeed } = await import("./watch/index.js");
-    const { cliFormat } = await import("./cliFormat.js");
+    const fmt = await import("./cliFormat.js");
     const workspace = process.cwd();
     const agentId = resolveAgentId(workspace, options.agent);
     const metrics = globalDashboardFeed.getAgentMetrics(agentId);
 
     if (!metrics) {
-      console.error(cliFormat.error(`No active monitor for agent: ${agentId}`));
+      console.error(chalk.red(`  No active monitor for agent: ${agentId}`));
       process.exit(1);
     }
 
@@ -3729,7 +3729,7 @@ monitor
       return;
     }
 
-    console.log(cliFormat.header(`Metrics: ${agentId}`));
+    console.log(fmt.header(`Metrics: ${agentId}`));
     console.log(`Current score: ${metrics.currentScore?.toFixed(2) ?? "N/A"}`);
     console.log(`Previous score: ${metrics.previousScore?.toFixed(2) ?? "N/A"}`);
     console.log(`Score delta: ${metrics.scoreDelta !== null ? `${metrics.scoreDelta > 0 ? "+" : ""}${(metrics.scoreDelta * 100).toFixed(1)}%` : "N/A"}`);
@@ -16753,8 +16753,8 @@ program
     console.log("");
   });
 
-// Register watch commands
-registerWatchCommands(program);
+// Note: continuous monitoring now lives under `amc monitor` (start|check|status|events|metrics).
+// `amc watch` retains the observability tools (attest, explain, safety-test, etc.).
 
 /* ------------------------------------------------------------------ */
 /*  amc redteam — Attack Simulation                                    */

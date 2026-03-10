@@ -17,112 +17,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install AMC CLI
-        run: npm i -g agent-maturity-compass
-
-      - name: Initialize AMC workspace
-        run: |
-          amc init --non-interactive --agent pr-${{ github.event.pull_request.number }} || true
-
-      - name: Run AMC Score
+      - uses: ./amc-action
         id: amc
-        run: |
-          RESULT=$(amc quickscore --json --agent pr-${{ github.event.pull_request.number }} 2>/dev/null || echo '{"score":0,"level":"L0"}')
-          echo "$RESULT" > /tmp/amc-result.json
-          SCORE=$(echo "$RESULT" | jq -r '.score // 0')
-          LEVEL=$(echo "$RESULT" | jq -r '.level // "L0"')
-          LEVEL_NUM=$(echo "$LEVEL" | sed 's/L//')
-          
-          echo "score=$SCORE" >> "$GITHUB_OUTPUT"
-          echo "level=$LEVEL" >> "$GITHUB_OUTPUT"
-          echo "level_num=$LEVEL_NUM" >> "$GITHUB_OUTPUT"
-          
-          # Generate summary
-          echo "## 🧭 AMC Score: $SCORE ($LEVEL)" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Dimension | Score | Level |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|-----------|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "$RESULT" | jq -r '.dimensions // {} | to_entries[] | "| \(.key) | \(.value.score) | \(.value.level) |"' >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
-
-      - name: Check L3 threshold
-        id: gate
-        run: |
-          LEVEL_NUM=${{ steps.amc.outputs.level_num }}
-          if [ "$LEVEL_NUM" -lt 3 ]; then
-            echo "passed=false" >> "$GITHUB_OUTPUT"
-            echo "❌ AMC score ${{ steps.amc.outputs.level }} is below required L3" >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          else
-            echo "passed=true" >> "$GITHUB_OUTPUT"
-            echo "✅ AMC score ${{ steps.amc.outputs.level }} meets required L3" >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      - name: Generate badge
-        if: always()
-        run: |
-          LEVEL="${{ steps.amc.outputs.level }}"
-          SCORE="${{ steps.amc.outputs.score }}"
-          
-          # Determine badge color
-          LEVEL_NUM=${{ steps.amc.outputs.level_num }}
-          if [ "$LEVEL_NUM" -ge 4 ]; then
-            COLOR="brightgreen"
-          elif [ "$LEVEL_NUM" -ge 3 ]; then
-            COLOR="green"
-          elif [ "$LEVEL_NUM" -ge 2 ]; then
-            COLOR="yellow"
-          else
-            COLOR="red"
-          fi
-          
-          # Create badge URL
-          BADGE_URL="https://img.shields.io/badge/AMC-${LEVEL}%20(${SCORE})-${COLOR}?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEyIDJMMiA3bDEwIDUgMTAtNXptMCA5bC04LjUtNC4yNUwyIDEybDEwIDUgMTAtNXptMCA5bC04LjUtNC4yNUwyIDIxbDEwIDUgMTAtNXoiLz48L3N2Zz4="
-          
-          echo "Badge URL: $BADGE_URL" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo '```markdown' >> "$GITHUB_STEP_SUMMARY"
-          echo "[![AMC Score](${BADGE_URL})](https://github.com/${{ github.repository }})" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Comment on PR
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
         with:
-          script: |
-            const fs = require('fs');
-            const result = JSON.parse(fs.readFileSync('/tmp/amc-result.json', 'utf8'));
-            const score = result.score || 0;
-            const level = result.level || 'L0';
-            const levelNum = parseInt(level.replace('L', ''));
-            const passed = levelNum >= 3;
-            
-            let dimensionTable = '| Dimension | Score | Level |\n|-----------|-------|-------|\n';
-            if (result.dimensions) {
-              for (const [name, data] of Object.entries(result.dimensions)) {
-                dimensionTable += `| ${name} | ${data.score} | ${data.level} |\n`;
-              }
-            }
-            
-            const statusEmoji = passed ? '✅' : '❌';
-            const statusText = passed ? 'meets required L3' : 'is below required L3';
-            
-            const body = `## ${statusEmoji} AMC Score: ${score.toFixed(2)} (${level})
-
-${dimensionTable}
-
-**Status:** ${statusText}
-
----
-*Agent Maturity Compass • [Learn more](https://github.com/thewisecrab/AgentMaturityCompass)*`;
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
-            });
+          agent-id: 'pr-${{ github.event.pull_request.number }}'
+          target-level: '3'
+          fail-on-drop: 'true'
+          comment: 'true'
+          upload-artifacts: 'true'

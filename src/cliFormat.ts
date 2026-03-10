@@ -170,3 +170,10 @@ export function timestamp(): string {
 
 /* Re-export colors for direct use */
 export const colors = { g, g2, amber, red, dim, muted };
+
+/* ── Convenience chalk wrappers (used by cli-watch-commands) ──── */
+export const success = chalk.green;
+export const warning = chalk.yellow;
+export const error = chalk.red;
+export const bold = chalk.bold;
+export { dim };
