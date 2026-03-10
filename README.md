@@ -2,14 +2,23 @@
 
 **The credit score for AI agents.**
 
-[![Tests](https://img.shields.io/badge/tests-2%2C822%20passing-brightgreen)]()
-[![License](https://img.shields.io/badge/license-MIT-blue)]()
-[![Questions](https://img.shields.io/badge/questions-730-blue)]()
-[![Assurance Packs](https://img.shields.io/badge/assurance%20packs-78-red)]()
-[![Adapters](https://img.shields.io/badge/adapters-14-purple)]()
-[![Domain Packs](https://img.shields.io/badge/domain%20packs-40-orange)]()
+[![npm version](https://img.shields.io/npm/v/agent-maturity-compass)](https://www.npmjs.com/package/agent-maturity-compass)
+[![npm downloads](https://img.shields.io/npm/dm/agent-maturity-compass)](https://www.npmjs.com/package/agent-maturity-compass)
+[![Tests](https://img.shields.io/badge/tests-2%2C823%20passing-brightgreen)](https://github.com/thewisecrab/AgentMaturityCompass/actions)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Questions](https://img.shields.io/badge/questions-730-blue)](docs/AMC_MASTER_REFERENCE.md)
+[![Assurance Packs](https://img.shields.io/badge/assurance%20packs-85-red)](docs/ASSURANCE_LAB.md)
+[![Adapters](https://img.shields.io/badge/adapters-14-purple)](docs/ARCHITECTURE_MAP.md)
+[![Domain Packs](https://img.shields.io/badge/domain%20packs-40-orange)](docs/SECTOR_PACKS.md)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20-green)](https://nodejs.org/)
 
-🌐 [Website](https://thewisecrab.github.io/AgentMaturityCompass/) · 📖 [Docs](docs/) · 💬 [Discussions](https://github.com/thewisecrab/AgentMaturityCompass/discussions)
+🌐 [Website](https://thewisecrab.github.io/AgentMaturityCompass/) · 📦 [npm](https://www.npmjs.com/package/agent-maturity-compass) · 📖 [Docs](docs/) · 💬 [Discussions](https://github.com/thewisecrab/AgentMaturityCompass/discussions)
+
+> Evidence-backed trust scoring for AI agents. 140 diagnostic questions across 5 dimensions, 85 adversarial red-team packs, 40 industry domain packs, 14 framework adapters. Tamper-evident with Ed25519 + Merkle tree proof chains. Works with LangChain, CrewAI, AutoGen, Claude Code, OpenAI Agents SDK, and more — zero code changes required.
+
+```bash
+npm i -g agent-maturity-compass && amc init
+```
 
 ---
 
@@ -88,7 +97,7 @@ amc badge                    # ![AMC L3](https://img.shields.io/badge/AMC-L3-blu
 ```
 Agent (untrusted) → AMC Gateway (transparent MITM proxy) → Evidence Ledger (Ed25519 + Merkle tree)
                                                                     ↓
-                                                      Scoring Engine (138 core questions, 5 dimensions)
+                                                      Scoring Engine (140 core questions, 5 dimensions)
                                                                     ↓
                                                        AMC Studio (dashboard + API + CLI)
 ```
@@ -243,7 +252,7 @@ amc assurance certs list             # View certificates
 | Module | What It Does |
 |--------|-------------|
 | **AMC Score** | 140 diagnostic questions, 5 dimensions, L0–L5 maturity, evidence-weighted |
-| **AMC Shield** | 85 assurance packs: injection, exfiltration, adversarial attacks, and more |
+| **AMC Shield** | 85 deterministic assurance packs: injection, exfiltration, adversarial attacks, and more |
 | **AMC Enforce** | Governor engine with policy packs, approval workflows, scoped leases |
 | **AMC Vault** | Ed25519 key vault, Merkle-tree evidence chains, HSM/TPM support |
 | **AMC Watch** | Studio dashboard, gateway proxy, Prometheus metrics, cost tracking |
@@ -396,7 +405,7 @@ AMC is MIT licensed and open source. Contributions welcome.
 git clone https://github.com/YOUR_USERNAME/AgentMaturityCompass.git
 cd AgentMaturityCompass
 npm ci
-npm test          # 2,723 tests, all should pass
+npm test          # 2,823 tests, all should pass
 # Make your changes, then PR
 ```
 
@@ -411,6 +420,6 @@ As autonomous agents become the primary interface between humans and technology,
 ---
 
 <p align="center">
-  <strong>730 questions · 78 assurance packs · 40 domain packs · 14 adapters · 2,822 tests</strong><br>
+  <strong>730 questions · 85 assurance packs · 40 domain packs · 14 adapters · 2,823 tests</strong><br>
   <em>Stop trusting. Start verifying.</em>
 </p>
