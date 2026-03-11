@@ -439,6 +439,32 @@ export const packSearchParamsSchema = z.object({
   riskLevel: z.enum(["low", "medium", "high"]).optional(),
 });
 
+export const packRegistryEntrySchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  "dist-tags": z.object({
+    latest: z.string(),
+  }).catchall(z.string()),
+  versions: z.record(z.any()),
+  time: z.record(z.string()),
+  maintainers: z.array(z.object({
+    name: z.string(),
+    email: z.string(),
+  })),
+  keywords: z.array(z.string()),
+  license: z.string(),
+  repository: z.object({
+    type: z.string(),
+    url: z.string(),
+  }).optional(),
+  homepage: z.string().optional(),
+  bugs: z.object({
+    url: z.string(),
+  }).optional(),
+  readme: z.string().optional(),
+  readmeFilename: z.string().optional(),
+});
+
 export const packRatingSchema = z.object({
   packName: z.string(),
   packVersion: z.string(),
@@ -465,6 +491,32 @@ export type PackManifestValidation = {
   errors: string[];
   manifest?: undefined;
 };
+
+export type PackValidationResult = PackManifestValidation;
+
+export interface PackLock {
+  lockfileVersion: number;
+  packages: Record<string, {
+    version: string;
+    resolved: string;
+    integrity: string;
+    dependencies?: Record<string, string>;
+    dev?: boolean;
+    optional?: boolean;
+  }>;
+}
+
+export const packLockSchema = z.object({
+  lockfileVersion: z.number(),
+  packages: z.record(z.object({
+    version: z.string(),
+    resolved: z.string(),
+    integrity: z.string(),
+    dependencies: z.record(z.string()).optional(),
+    dev: z.boolean().optional(),
+    optional: z.boolean().optional(),
+  })),
+});
 
 export interface PackPublishOptions {
   registry?: string;
