@@ -166,6 +166,7 @@ const assurancePacks: AssurancePackDefinition[] = [
   financialSOXPack,
   pharmaCompliancePack,
   legalCompliancePack,
+  informationExtractionPack,
 ];
 
 export function listAssurancePacks(): AssurancePackDefinition[] {
