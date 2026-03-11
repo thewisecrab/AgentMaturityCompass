@@ -17407,6 +17407,22 @@ demo
 registerTransparencyReportCommands(program);
 registerMcpCommands(program);
 
+// ── Observability, corrections, and feedback loop commands ──
+import { registerObservabilityCommands, registerCorrectionCommands } from "./cli-observability-commands.js";
+import { registerTraceCommands, registerAlertCommands } from "./cli-trace-commands.js";
+import { registerEvalDatasetCommands, registerLiteScoreCommands } from "./cli-eval-dataset-commands.js";
+import { registerBusinessCommands, registerLeaderboardCommands, registerInventoryCommands, registerCommsCheckCommands } from "./cli-business-commands.js";
+registerObservabilityCommands(program, activeAgent);
+registerCorrectionCommands(program, activeAgent);
+registerTraceCommands(program, activeAgent);
+registerAlertCommands(program, activeAgent);
+registerEvalDatasetCommands(program, activeAgent);
+registerLiteScoreCommands(program);
+registerBusinessCommands(program, activeAgent);
+registerLeaderboardCommands(program);
+registerInventoryCommands(program);
+registerCommsCheckCommands(program);
+
 // ── amc fix: Auto-remediation command ──
 program
   .command("fix")
