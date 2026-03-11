@@ -40,6 +40,7 @@ import { handleExportRoute } from './exportRouter.js';
 import { apiError } from './apiHelpers.js';
 import { buildHealthPayload } from './health.js';
 import { deprecatedBridgeRoute, sdkVersionPolicy } from '../sdk/versioning.js';
+import { handleMarketplaceRoute } from '../marketplace/marketplaceRouter.js';
 
 export async function handleApiRoute(
   pathname: string,
@@ -175,6 +176,10 @@ export async function handleApiRoute(
     // ── Export, attestation, badge ────────────────────────────────
     if (pathname.startsWith('/api/v1/export') || pathname.startsWith('/api/v1/attest'))
       return await handleExportRoute(pathname, method, req, res, workspace);
+
+    // ── Marketplace ──────────────────────────────────────────────
+    if (pathname.startsWith('/api/v1/marketplace'))
+      return await handleMarketplaceRoute(pathname, method, req, res, workspace);
 
     // ── Legacy bridge redirects ───────────────────────────────────
     const deprecated = deprecatedBridgeRoute(pathname);

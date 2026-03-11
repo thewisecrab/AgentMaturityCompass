@@ -305,7 +305,7 @@ export class OTELExporter {
   }
 
   /** Flush the buffer and export to OTLP endpoint */
-  flush(): ExportResult {
+  async flush(): Promise<ExportResult> {
     const traces = [...this.buffer];
     this.buffer = [];
 
@@ -322,12 +322,21 @@ export class OTELExporter {
     };
 
     if (this.config.enabled) {
-      // In production this would use fetch() to POST to the OTLP endpoint.
-      // For now we store the serialized payload for verification.
       try {
-        const _payload = JSON.stringify(request);
-        // fetch(this.config.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', ...this.config.headers }, body: payload });
-        result.success = true;
+        const payload = JSON.stringify(request);
+        const response = await fetch(this.config.endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(this.config.headers ?? {}),
+          },
+          body: payload,
+          signal: AbortSignal.timeout(5_000),
+        });
+        result.success = response.ok;
+        if (!response.ok) {
+          result.error = `HTTP ${response.status}`;
+        }
       } catch (err) {
         result.success = false;
         result.error = err instanceof Error ? err.message : String(err);
@@ -404,7 +413,7 @@ export class OTELExporter {
   }
 
   /** Shutdown: flush and stop timers */
-  shutdown(): ExportResult {
+  async shutdown(): Promise<ExportResult> {
     this.stopPeriodicFlush();
     return this.flush();
   }

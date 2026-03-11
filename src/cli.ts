@@ -47,6 +47,7 @@ import { getProviderTemplateById, listProviderTemplates, providerTemplateChoices
 import { runSandboxCommand } from "./sandbox/sandbox.js";
 import { attestIngestSession, ingestEvidence, type IngestType } from "./ingest/ingest.js";
 import { generateFleetReport } from "./fleet/report.js";
+import { evaluateFleet, renderFleetScoringMarkdown } from "./fleet/fleetScoring.js";
 import {
   applyFleetGovernancePolicy,
   buildFleetHealthDashboard,
@@ -291,6 +292,17 @@ import {
   policyPackDiffCli,
   policyPackListCli
 } from "./policyPacks/packCli.js";
+import {
+  packSearchCli,
+  packInfoCli,
+  packInstallCli,
+  packUninstallCli,
+  packRateCli,
+  packListCli,
+  packFeaturedCli,
+  packDeprecateCli,
+  packUndeprecateCli
+} from "./marketplace/marketplaceCli.js";
 import {
   complianceDiffCli,
   complianceFleetReportCli,
@@ -4714,6 +4726,196 @@ policyPack
     console.log(`targetProfileId=${applied.targetProfileId}`);
     console.log(`transparencyHash=${applied.transparencyHash}`);
     console.log(`auditEventId=${applied.auditEventId}`);
+  });
+
+/* ── Marketplace: amc marketplace ──────────────────────────────── */
+const marketplace = program.command("marketplace").description("AMC Pack Marketplace — browse, install, rate community packs");
+
+marketplace
+  .command("search")
+  .description("Search marketplace for packs")
+  .option("-q, --query <query>", "search query")
+  .option("--category <cat>", "filter by category (assurance|red-team|policy|compliance|adapter|other)")
+  .option("--source <src>", "filter by source (builtin|registry|community)")
+  .option("--installed", "show only installed packs")
+  .option("--featured", "show only featured packs")
+  .option("--min-rating <n>", "minimum average rating", parseFloat)
+  .option("--tags <tags>", "comma-separated tag filter")
+  .option("--sort <field>", "sort by (name|rating|updated|downloads)", "name")
+  .option("--limit <n>", "results per page", parseInt)
+  .option("--json", "JSON output")
+  .action(async (opts: any) => {
+    try {
+      const result = await packSearchCli({
+        workspace: process.cwd(),
+        query: opts.query,
+        category: opts.category,
+        source: opts.source,
+        installed: opts.installed,
+        featured: opts.featured,
+        minRating: opts.minRating,
+        tags: opts.tags ? opts.tags.split(",") : undefined,
+        sortBy: opts.sort,
+        limit: opts.limit
+      });
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      console.log(chalk.bold(`\n📦 Marketplace — ${result.total} packs found\n`));
+      for (const e of result.entries) {
+        const stars = e.rating && e.rating.totalRatings > 0 ? ` ⭐ ${e.rating.averageScore}` : "";
+        const tag = e.installed ? chalk.green(" [installed]") : "";
+        const feat = e.featured ? chalk.yellow(" ★featured") : "";
+        const dep = e.deprecated ? chalk.red(" [deprecated]") : "";
+        console.log(`  ${chalk.cyan(e.id)} v${e.version}${stars}${tag}${feat}${dep}`);
+        console.log(`    ${e.description}`);
+      }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("info")
+  .description("Show details for a specific pack")
+  .argument("<name>", "pack name or ID")
+  .option("--json", "JSON output")
+  .action(async (name: string, opts: { json?: boolean }) => {
+    try {
+      const result = await packInfoCli({ workspace: process.cwd(), name });
+      if (!result) { console.error(chalk.red(`Pack "${name}" not found`)); process.exit(1); }
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      const e = result.entry;
+      console.log(chalk.bold(`\n📦 ${e.name} (${e.id})`));
+      console.log(`  Version:     ${e.version}`);
+      console.log(`  Category:    ${e.category}`);
+      console.log(`  Source:      ${e.source}`);
+      console.log(`  Publisher:   ${e.publisher.org}`);
+      console.log(`  Installed:   ${e.installed ? "yes" : "no"}`);
+      console.log(`  Rating:      ${result.stats.averageScore}/5 (${result.stats.totalRatings} ratings)`);
+      if (e.tags.length > 0) console.log(`  Tags:        ${e.tags.join(", ")}`);
+      if (e.deprecated) console.log(chalk.red(`  DEPRECATED:  ${e.deprecationNote ?? "yes"}`));
+      console.log(`  Description: ${e.description}`);
+      if (result.ratings.length > 0) {
+        console.log(chalk.bold("\n  Reviews:"));
+        for (const r of result.ratings.slice(0, 5)) {
+          console.log(`    ${"⭐".repeat(r.score)} by ${r.userId}${r.review ? ` — ${r.review}` : ""}`);
+        }
+      }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("install")
+  .description("Install a pack from the marketplace")
+  .argument("<name>", "pack name or ID")
+  .option("--version <ver>", "specific version to install")
+  .option("--agent <agentId>", "agent ID")
+  .option("--json", "JSON output")
+  .action(async (name: string, opts: { version?: string; agent?: string; json?: boolean }) => {
+    try {
+      const result = await packInstallCli({
+        workspace: process.cwd(),
+        name,
+        version: opts.version,
+        agentId: opts.agent ?? activeAgent(program)
+      });
+      if (opts.json) { console.log(JSON.stringify(result, null, 2)); return; }
+      if (result.success) {
+        console.log(chalk.green(`✅ ${result.message}`));
+      } else {
+        console.error(chalk.red(`❌ ${result.message}`));
+        process.exit(1);
+      }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("uninstall")
+  .description("Uninstall a pack")
+  .argument("<name>", "pack name or ID")
+  .option("--agent <agentId>", "agent ID")
+  .action(async (name: string, opts: { agent?: string }) => {
+    try {
+      const result = await packUninstallCli({
+        workspace: process.cwd(),
+        name,
+        agentId: opts.agent ?? activeAgent(program)
+      });
+      if (result.success) { console.log(chalk.green(`✅ ${result.message}`)); }
+      else { console.error(chalk.red(`❌ ${result.message}`)); process.exit(1); }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("rate")
+  .description("Rate a pack")
+  .argument("<name>", "pack name or ID")
+  .requiredOption("--score <n>", "rating 1-5", parseInt)
+  .option("--review <text>", "optional review text")
+  .option("--user <userId>", "user ID", "anonymous")
+  .option("--json", "JSON output")
+  .action((name: string, opts: { score: number; review?: string; user: string; json?: boolean }) => {
+    try {
+      const stats = packRateCli({
+        workspace: process.cwd(),
+        name,
+        userId: opts.user,
+        score: opts.score,
+        review: opts.review
+      });
+      if (opts.json) { console.log(JSON.stringify(stats, null, 2)); return; }
+      console.log(chalk.green(`✅ Rated "${name}" ${opts.score}/5`));
+      if (stats) console.log(`  Average: ${stats.averageScore}/5 (${stats.totalRatings} ratings)`);
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("list")
+  .description("List installed packs")
+  .option("--json", "JSON output")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const packs = await packListCli({ workspace: process.cwd() });
+      if (opts.json) { console.log(JSON.stringify(packs, null, 2)); return; }
+      console.log(chalk.bold(`\n📦 Installed Packs (${packs.length})\n`));
+      for (const e of packs) {
+        console.log(`  ${chalk.cyan(e.id)} v${e.version} [${e.category}] — ${e.description}`);
+      }
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("featured")
+  .description("Show featured packs")
+  .option("--json", "JSON output")
+  .action(async (opts: { json?: boolean }) => {
+    try {
+      const ids = packFeaturedCli({ workspace: process.cwd() });
+      if (opts.json) { console.log(JSON.stringify(ids, null, 2)); return; }
+      if (ids.length === 0) { console.log("No featured packs set."); return; }
+      console.log(chalk.bold("\n⭐ Featured Packs\n"));
+      for (const id of ids) console.log(`  ${chalk.yellow(id)}`);
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("deprecate")
+  .description("Deprecate a pack")
+  .argument("<packId>", "pack ID")
+  .option("--note <text>", "deprecation reason")
+  .action((packId: string, opts: { note?: string }) => {
+    try {
+      packDeprecateCli({ workspace: process.cwd(), packId, note: opts.note });
+      console.log(chalk.yellow(`Pack "${packId}" deprecated.`));
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
+  });
+
+marketplace
+  .command("undeprecate")
+  .description("Remove deprecation from a pack")
+  .argument("<packId>", "pack ID")
+  .action((packId: string) => {
+    try {
+      packUndeprecateCli({ workspace: process.cwd(), packId });
+      console.log(chalk.green(`Pack "${packId}" undeprecated.`));
+    } catch (e: unknown) { console.error(chalk.red(toErrorMessage(e))); process.exit(1); }
   });
 
 const CLOSED_INCIDENT_STATES = new Set(["RESOLVED", "POSTMORTEM"]);
@@ -9551,6 +9753,42 @@ fleet
     });
     console.log(chalk.green(`Fleet report written: ${report.reportPath}`));
     console.log(`Agents included: ${report.agentCount}`);
+  });
+
+fleet
+  .command("score")
+  .description("Score multiple agents in one run with fleet-wide aggregates, weak-link detection, and pairwise comparison")
+  .option("--window <window>", "evidence window (e.g. 7d, 30d)", "30d")
+  .option("--agents <ids>", "comma-separated agent IDs (default: all)")
+  .option("--max-comparisons <n>", "max pairwise comparisons (0 to skip)", "50")
+  .option("--out <path>", "output JSON path (relative to .amc/reports/)")
+  .option("--md", "also print markdown summary to stdout", false)
+  .option("--json", "print full JSON to stdout", false)
+  .action(async (opts: { window: string; agents?: string; maxComparisons: string; out?: string; md?: boolean; json?: boolean }) => {
+    const agentIds = opts.agents ? opts.agents.split(",").map((s: string) => s.trim()).filter(Boolean) : undefined;
+    const result = await evaluateFleet({
+      workspace: process.cwd(),
+      window: opts.window,
+      agentIds,
+      maxComparisons: parseInt(opts.maxComparisons, 10),
+      outputPath: opts.out,
+    });
+    if (opts.json) {
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+    console.log(chalk.green(`Fleet scoring complete: ${result.agentCount} agents evaluated`));
+    console.log(`Mean: ${result.aggregate.fleetMeanScore} | Median: ${result.aggregate.fleetMedianScore} | StdDev: ${result.aggregate.fleetStdDev}`);
+    console.log(`Weak links: ${result.weakLinks.length}`);
+    for (const wl of result.weakLinks) {
+      console.log(chalk.yellow(`  ⚠ ${wl.agentId}: score=${wl.overallScore}, risk=${wl.riskLabel}, ${wl.deviationFromMean}σ below mean`));
+    }
+    if (opts.md) {
+      console.log("\n" + renderFleetScoringMarkdown(result));
+    }
+    if (opts.out) {
+      console.log(chalk.green(`Report written: ${opts.out}`));
+    }
   });
 
 fleet

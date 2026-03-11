@@ -81,6 +81,7 @@ import { piiDetectionLeakagePack } from "./piiDetectionLeakagePack.js";
 import { financialSOXPack } from "./financialSOXPack.js";
 import { pharmaCompliancePack } from "./pharmaCompliancePack.js";
 import { legalCompliancePack } from "./legalCompliancePack.js";
+import { informationExtractionPack } from "./informationExtractionPack.js";
 
 const assurancePacks: AssurancePackDefinition[] = [
   injectionPack,

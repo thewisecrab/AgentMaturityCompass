@@ -1,0 +1,60 @@
+# amc-runner — CI/CD runner image with AMC pre-installed
+# Usage: docker run --rm -v $(pwd):/workspace ghcr.io/thewisecrab/amc-runner:latest quickscore --json
+# Or in GitHub Actions:
+#   container:
+#     image: ghcr.io/thewisecrab/amc-runner:latest
+
+FROM node:20-bookworm-slim
+
+LABEL org.opencontainers.image.source="https://github.com/thewisecrab/AgentMaturityCompass"
+LABEL org.opencontainers.image.description="AMC CI/CD Runner — Agent Maturity Compass pre-installed for pipelines"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.title="amc-runner"
+
+# Install Python 3, pip, git, and common CI utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      python3 \
+      python3-pip \
+      python3-venv \
+      git \
+      curl \
+      jq \
+      ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Symlink python -> python3 for convenience
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+
+# Set up AMC workspace
+WORKDIR /amc
+
+# Copy package manifests first for layer caching
+COPY package.json package-lock.json ./
+
+# Install ALL dependencies (including dev for typecheck/test support)
+RUN npm ci
+
+# Copy source and build
+COPY tsconfig.json ./
+COPY src/ ./src/
+COPY README.md LICENSE ./
+
+RUN npm run build
+
+# Link CLI globally so `amc` is on PATH
+RUN npm link
+
+# Verify installation
+RUN amc --help > /dev/null 2>&1
+
+# Default workspace for CI mounts
+WORKDIR /workspace
+
+# Default vault passphrase for CI (non-sensitive, deterministic)
+ENV AMC_VAULT_PASSPHRASE="amc-ci-runner-default"
+
+# Drop to non-root for security (CI runners can override with --user root)
+USER 1001:1001
+
+ENTRYPOINT ["amc"]
+CMD ["--help"]

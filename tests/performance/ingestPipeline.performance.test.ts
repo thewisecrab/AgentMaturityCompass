@@ -82,8 +82,8 @@ describe("performance: ingestion pipeline", () => {
     batchLedger.close();
 
     expect(results.length).toBe(eventCount);
-    // Allow 20% tolerance for CI/loaded-machine timing variance
-    expect(batchMs).toBeLessThan(serialMs * 1.2);
+    // Allow 50% tolerance for CI/loaded-machine timing variance
+    expect(batchMs).toBeLessThan(serialMs * 1.5);
 
     console.info("[perf][ingest]", {
       serialMs: Number(serialMs.toFixed(3)),

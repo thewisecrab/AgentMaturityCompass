@@ -1,5 +1,5 @@
 // AMC Docs — Dynamic Documentation Hub
-// Loads 172 markdown files from GitHub, renders with marked.js
+// Loads 205 markdown files from GitHub, renders with marked.js
 
 const BASE_RAW = 'https://raw.githubusercontent.com/thewisecrab/AgentMaturityCompass/main/docs/';
 
@@ -18,22 +18,22 @@ const CATEGORIES = [
   {
     name: 'Adapters & Integration',
     icon: '🔌',
-    docs: ['ADAPTERS', 'ADAPTER_COMPATIBILITY', 'agent-framework-compatibility', 'BRIDGE', 'BRIDGE_PROMPT_ENFORCEMENT', 'CONNECT', 'INTEGRATIONS', 'MCP_SERVER', 'PAIRING', 'PAIRING_LAN_PWA', 'PROVIDERS', 'SDK', 'SDK_VERSIONING', 'CLI_WRAPPERS', 'VSCODE_EXTENSION']
+    docs: ['ADAPTERS', 'ADAPTER_COMPATIBILITY', 'agent-framework-compatibility', 'adapters/langchain-python', 'adapters/langchain-node', 'adapters/langgraph-python', 'adapters/crewai', 'adapters/autogen', 'adapters/openai-agents-sdk', 'adapters/llamaindex', 'adapters/semantic-kernel', 'adapters/claude-code', 'adapters/gemini', 'adapters/openclaw', 'adapters/openhands', 'adapters/python-amc-sdk', 'adapters/generic-cli', 'BRIDGE', 'BRIDGE_PROMPT_ENFORCEMENT', 'CONNECT', 'INTEGRATIONS', 'integrations/ci-cd', 'MCP_SERVER', 'PAIRING', 'PAIRING_LAN_PWA', 'PROVIDERS', 'SDK', 'SDK_VERSIONING', 'CLI_WRAPPERS', 'VSCODE_EXTENSION']
   },
   {
     name: 'Scoring & Dimensions',
     icon: '📊',
-    docs: ['DIAGNOSTIC_BANK', 'QUESTION_BANK', 'AMC_QUESTIONS_IN_DEPTH', 'AMC_MASTER_REFERENCE', 'ARCHETYPES', 'BENCHMARKS', 'BENCHMARKING', 'BENCH_REGISTRY', 'EQUALIZER_TARGETS', 'METRICS', 'OUTCOMES', 'FORECASTING', 'PREDICTION_LOG', 'PREDICTIVE_MAINTENANCE', 'self-calibration', 'VALIDITY_FRAMEWORK']
+    docs: ['DIAGNOSTIC_BANK', 'QUESTION_BANK', 'AMC_QUESTIONS_IN_DEPTH', 'AMC_MASTER_REFERENCE', 'ARCHETYPES', 'BENCHMARKS', 'BENCHMARKING', 'BENCH_REGISTRY', 'EQUALIZER_TARGETS', 'METRICS', 'OUTCOMES', 'FORECASTING', 'PREDICTION_LOG', 'PREDICTIVE_MAINTENANCE', 'self-calibration', 'VALIDITY_FRAMEWORK', 'score-history']
   },
   {
     name: 'Compliance & Regulatory',
     icon: '⚖️',
-    docs: ['EU_AI_ACT_COMPLIANCE', 'COMPLIANCE', 'COMPLIANCE_MAPS', 'CERTIFICATION', 'ISO_42001_ALIGNMENT', 'STANDARDS_MAPPING', 'ASSURANCE_CERTS', 'ASSURANCE_LAB', 'AUDIT_BINDER', 'enterprise-readiness-checklist']
+    docs: ['EU_AI_ACT_COMPLIANCE', 'COMPLIANCE', 'COMPLIANCE_FRAMEWORKS', 'COMPLIANCE_MAPS', 'CERTIFICATION', 'ISO_42001_ALIGNMENT', 'GDPR_ARTICLE_COMPLIANCE', 'MITRE_ATLAS_MAPPING', 'STANDARDS_MAPPING', 'ASSURANCE_CERTS', 'ASSURANCE_LAB', 'AUDIT_BINDER', 'enterprise-readiness-checklist', 'compliance/eu-ai-act-checklist', 'compliance/iso-42001-aims-manual', 'compliance/nist-rmf-profile', 'compliance/SOC2_TYPE_II_CONTROLS_MAPPING']
   },
   {
     name: 'Security',
     icon: '🔒',
-    docs: ['SECURITY', 'SECURITY_ARCHITECTURE_OVERVIEW', 'SECURITY_DEPLOYMENT', 'THREAT_MODEL', 'ANTI_HALLUCINATION', 'TRUTHGUARD', 'SHIELD_ENFORCE_REFERENCE', 'ENCRYPTION_AT_REST', 'HARDWARE_TRUST', 'ZERO_KEYS', 'VAULT', 'RBAC', 'SSO_OIDC', 'SSO_SAML', 'SCIM', 'IDENTITY', 'IDENTITY_STABILITY', 'SUPPLY_CHAIN', 'PLUGIN_SUPPLY_CHAIN', 'sbom']
+    docs: ['SECURITY', 'SECURITY_ARCHITECTURE_OVERVIEW', 'SECURITY_DEPLOYMENT', 'THREAT_MODEL', 'RED_TEAMING_GUIDE', 'ANTI_HALLUCINATION', 'TRUTHGUARD', 'SHIELD_ENFORCE_REFERENCE', 'ENCRYPTION_AT_REST', 'HARDWARE_TRUST', 'ZERO_KEYS', 'VAULT', 'RBAC', 'SSO_OIDC', 'SSO_SAML', 'SCIM', 'IDENTITY', 'IDENTITY_STABILITY', 'SUPPLY_CHAIN', 'PLUGIN_SUPPLY_CHAIN', 'sbom']
   },
   {
     name: 'Governance & Policy',
@@ -43,7 +43,7 @@ const CATEGORIES = [
   {
     name: 'Operations',
     icon: '⚙️',
-    docs: ['OPERATIONS', 'OPS_HARDENING', 'BACKUPS', 'DEPLOYMENT', 'DEPLOYMENT_CHECKLIST', 'MIGRATION_RUNBOOK', 'RELEASE_RUNBOOK', 'RELEASING', 'PUBLISHING', 'UPGRADE_AUTOPILOT', 'INCIDENT_RESPONSE_READINESS', 'DRIFT_ALERTS', 'CONTINUOUS_RECURRENCE', 'DOCTOR', 'MECHANIC_MODE', 'MECHANIC_WORKBENCH', 'CI']
+    docs: ['OPERATIONS', 'OPS_HARDENING', 'BACKUPS', 'DEPLOYMENT', 'DEPLOYMENT_CHECKLIST', 'MIGRATION_RUNBOOK', 'RELEASE_RUNBOOK', 'RELEASING', 'PUBLISHING', 'UPGRADE_AUTOPILOT', 'INCIDENT_RESPONSE_READINESS', 'DRIFT_ALERTS', 'CONTINUOUS_MONITORING', 'CONTINUOUS_RECURRENCE', 'DOCTOR', 'MECHANIC_MODE', 'MECHANIC_WORKBENCH', 'CI', 'runbooks/amc-service-down', 'runbooks/evidence-corruption', 'runbooks/score-dispute']
   },
   {
     name: 'Trust & Evidence',
@@ -58,7 +58,7 @@ const CATEGORIES = [
   {
     name: 'API Reference',
     icon: '📡',
-    docs: ['REALTIME', 'REGISTRY', 'FLEET', 'LOOP', 'TICKETS', 'WORK_ORDERS', 'EXPERIMENTS', 'FEDERATION', 'ENTERPRISE', 'ECOSYSTEM', 'ECOSYSTEM_VIEW', 'ECOSYSTEM_COMPARATIVE_VIEW', 'ECONOMIC_SIGNIFICANCE', 'db-schemas']
+    docs: ['API_REFERENCE', 'REALTIME', 'REGISTRY', 'FLEET', 'LOOP', 'TICKETS', 'WORK_ORDERS', 'EXPERIMENTS', 'FEDERATION', 'ENTERPRISE', 'ECOSYSTEM', 'ECOSYSTEM_VIEW', 'ECOSYSTEM_COMPARATIVE_VIEW', 'ECONOMIC_SIGNIFICANCE', 'db-schemas']
   },
   {
     name: 'Multi-Agent & Advanced',
@@ -68,48 +68,63 @@ const CATEGORIES = [
   {
     name: 'Research',
     icon: '🔬',
-    docs: ['wave4-agentic-ecosystem-audit', 'wave4-ai-safety-audit', 'wave4-documentation-audit', 'wave4-integration-audit', 'wave4-product-readiness-audit', 'wave4-regulatory-audit', 'wave4-supply-chain-audit', 'wave4-test-coverage-audit', 'RESEARCH_PAPERS_2026', 'NEW_GAPS_RESEARCH']
+    docs: ['wave4-agentic-ecosystem-audit', 'wave4-ai-safety-audit', 'wave4-documentation-audit', 'wave4-integration-audit', 'wave4-product-readiness-audit', 'wave4-regulatory-audit', 'wave4-supply-chain-audit', 'wave4-test-coverage-audit', 'RESEARCH_PAPERS_2026', 'NEW_GAPS_RESEARCH', 'WEBSITE_COUNCIL_25_EXPERTS']
+  },
+  {
+    name: 'Migration',
+    icon: '🔄',
+    docs: ['MIGRATION_FROM_PROMPTFOO_DEEPEVAL']
   }
 ];
 
-// All known doc filenames (without .md)
+// All known doc filenames (without .md) — 205 docs total
 const ALL_DOCS = [
   'ADAPTERS','ADAPTER_COMPATIBILITY','AGENT_GUIDE','AGENT_PASSPORT','AGENT_VS_WORKFLOW',
-  'AMC_MASTER_REFERENCE','AMC_QUESTIONS_IN_DEPTH','ANTI_HALLUCINATION','API_SURFACES',
+  'AMC_MASTER_REFERENCE','AMC_QUESTIONS_IN_DEPTH','ANTI_HALLUCINATION','API_REFERENCE','API_SURFACES',
   'APPROVALS','ARCHETYPES','ARCHITECTURE_MAP','ASSURANCE_CERTS','ASSURANCE_LAB',
   'ATTESTATION_EVIDENCE_PATHS','AUDIT_BINDER','BACKUPS','BENCHMARKING','BENCHMARKS',
   'BENCH_REGISTRY','BOM','BRIDGE','BRIDGE_PROMPT_ENFORCEMENT','BUDGETS','BUNDLES',
   'CANON','CASEBOOKS','CERTIFICATION','CHAIN_ARCHITECTURE','CI','CLAIM_PROVENANCE',
-  'CLI_WRAPPERS','COMPLIANCE','COMPLIANCE_MAPS','CONNECT','CONSOLE','CONTEXT_GRAPH',
-  'CONTINUOUS_RECURRENCE','DASHBOARD','DEPLOYMENT','DEPLOYMENT_CHECKLIST','DIAGNOSTIC_BANK',
+  'CLI_WRAPPERS','COMPLIANCE','COMPLIANCE_FRAMEWORKS','COMPLIANCE_MAPS','CONNECT','CONSOLE','CONTEXT_GRAPH',
+  'CONTINUOUS_MONITORING','CONTINUOUS_RECURRENCE','DASHBOARD','DEPLOYMENT','DEPLOYMENT_CHECKLIST','DIAGNOSTIC_BANK',
   'DOCTOR','DOMAIN_PACKS','DRIFT_ALERTS','DUAL_CONTROL_APPROVALS','ECONOMIC_SIGNIFICANCE',
   'ECOSYSTEM','ECOSYSTEM_COMPARATIVE_VIEW','ECOSYSTEM_VIEW','ENCRYPTION_AT_REST',
   'ENTERPRISE','EQUALIZER_TARGETS','EU_AI_ACT_COMPLIANCE','EVIDENCE_REQUESTS',
   'EVIDENCE_TRUST','EXECUTIVE_OVERVIEW','EXPERIMENTS','FEDERATION','FLEET','FORECASTING',
-  'FULL_MODULE_ROADMAP','GETTING_STARTED','GOVERNANCE','GOVERNOR','GO_TO_MARKET_PACK',
+  'FULL_MODULE_ROADMAP','GDPR_ARTICLE_COMPLIANCE','GETTING_STARTED','GOVERNANCE','GOVERNOR','GO_TO_MARKET_PACK',
   'HARDWARE_TRUST','IDENTITY','IDENTITY_STABILITY','INCIDENT_RESPONSE_READINESS',
   'INNOVATION_THESIS','INSTALL','INTEGRATIONS','ISO_42001_ALIGNMENT','LAUNCH','LEASES',
   'LOOP','MCP_SERVER','MECHANIC_MODE','MECHANIC_WORKBENCH','MEMORY_MATURITY','METRICS',
-  'MIGRATION_RUNBOOK','MODEL_GOVERNANCE','MODES','MULTI_AGENT_TRUST','MULTI_MODEL_VALIDATION',
+  'MIGRATION_FROM_PROMPTFOO_DEEPEVAL','MIGRATION_RUNBOOK','MITRE_ATLAS_MAPPING',
+  'MODEL_GOVERNANCE','MODES','MULTI_AGENT_TRUST','MULTI_MODEL_VALIDATION',
   'NEW_GAPS_RESEARCH','NORTHSTAR_PROMPTS','NOTARY','NO_CODE_GOVERNANCE','OPEN_RUBRIC_STANDARD',
   'OPEN_STANDARD','OPERATIONS','OPS_HARDENING','ORG_COMPASS','ORG_EOC','OUTCOMES',
   'PAIRING','PAIRING_LAN_PWA','PLAYGROUND','PLUGINS','PLUGIN_SUPPLY_CHAIN',
   'POLARIS_HANDOFF_2026-02-26','POLICY_EXPORT','POLICY_PACKS','PREDICTION_LOG',
   'PREDICTIVE_MAINTENANCE','PROMPT_POLICY','PROVIDERS','PUBLISHING','PYTHON_MODULE_MAPPING',
   'QUESTION_BANK','QUICKSTART','RBAC','REALTIME','REAL_PEOPLE_COUNCIL','RECEIPTS',
-  'REGISTRY','RELEASE_RUNBOOK','RELEASING','RESEARCH_PAPERS_2026','RUNTIMES','RUNTIME_SDK',
+  'RED_TEAMING_GUIDE','REGISTRY','RELEASE_RUNBOOK','RELEASING','RESEARCH_PAPERS_2026','RUNTIMES','RUNTIME_SDK',
   'SANDBOX','SCIM','SDK','SDK_VERSIONING','SECTOR_PACKS','SECURITY',
   'SECURITY_ARCHITECTURE_OVERVIEW','SECURITY_DEPLOYMENT','SHIELD_ENFORCE_REFERENCE',
   'SOLO_USER','SSO_OIDC','SSO_SAML','STANDARDS_MAPPING','STUDIO','SUPPLY_CHAIN',
   'SYSTEM_CAPABILITIES','THREAT_MODEL','TICKETS','TOOLHUB','TRANSPARENCY',
   'TRANSPARENCY_MERKLE','TRANSPARENCY_REPORT','TRUTHGUARD','UPGRADE_AUTOPILOT',
   'UX_COUNCIL_REPORT','VALIDITY_FRAMEWORK','VALUE_CONTRACTS','VALUE_GATES',
-  'VALUE_INGESTION','VALUE_REALIZATION','VAULT','VSCODE_EXTENSION','WAIVERS','WHATIF',
+  'VALUE_INGESTION','VALUE_REALIZATION','VAULT','VSCODE_EXTENSION','WAIVERS',
+  'WEBSITE_COUNCIL_25_EXPERTS','WHATIF',
   'WORK_ORDERS','ZERO_KEYS','agent-framework-compatibility','db-schemas',
-  'enterprise-readiness-checklist','sbom','self-calibration','wave4-agentic-ecosystem-audit',
-  'wave4-ai-safety-audit','wave4-documentation-audit','wave4-integration-audit',
-  'wave4-product-readiness-audit','wave4-regulatory-audit','wave4-supply-chain-audit',
-  'wave4-test-coverage-audit'
+  'enterprise-readiness-checklist','sbom','score-history','self-calibration',
+  'wave4-agentic-ecosystem-audit','wave4-ai-safety-audit','wave4-documentation-audit',
+  'wave4-integration-audit','wave4-product-readiness-audit','wave4-regulatory-audit',
+  'wave4-supply-chain-audit','wave4-test-coverage-audit',
+  'adapters/autogen','adapters/claude-code','adapters/crewai','adapters/gemini',
+  'adapters/generic-cli','adapters/langchain-node','adapters/langchain-python',
+  'adapters/langgraph-python','adapters/llamaindex','adapters/openai-agents-sdk',
+  'adapters/openclaw','adapters/openhands','adapters/python-amc-sdk','adapters/semantic-kernel',
+  'compliance/eu-ai-act-checklist','compliance/iso-42001-aims-manual',
+  'compliance/nist-rmf-profile','compliance/SOC2_TYPE_II_CONTROLS_MAPPING',
+  'integrations/ci-cd',
+  'runbooks/amc-service-down','runbooks/evidence-corruption','runbooks/score-dispute'
 ];
 
 // ─── State ───
@@ -119,7 +134,11 @@ let searchIndex = []; // {doc, title, content}
 
 // ─── Pretty name from filename ───
 function prettyName(doc) {
-  return doc
+  // For subdirectory docs, show "Category: Name" format
+  const parts = doc.split('/');
+  const basename = parts.length > 1 ? parts[parts.length - 1] : doc;
+  const prefix = parts.length > 1 ? parts[0].charAt(0).toUpperCase() + parts[0].slice(1) + ': ' : '';
+  return prefix + basename
     .replace(/^wave4-/, 'Wave 4: ')
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase())
@@ -301,7 +320,7 @@ function showWelcome() {
       <div class="stat-grid">
         <div class="stat-card"><div class="num">${ALL_DOCS.length}</div><div class="label">Documentation Files</div></div>
         <div class="stat-card"><div class="num">${CATEGORIES.length}</div><div class="label">Categories</div></div>
-        <div class="stat-card"><div class="num">140</div><div class="label">Diagnostic Questions</div></div>
+        <div class="stat-card"><div class="num">138</div><div class="label">Diagnostic Questions</div></div>
         <div class="stat-card"><div class="num">14</div><div class="label">Framework Adapters</div></div>
       </div>
 

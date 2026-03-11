@@ -1575,6 +1575,25 @@ export type {
   TimelineScorePoint
 } from "./observability/timeline.js";
 
+// ── Eval run OTel tracing ────────────────────────────────────────
+export { emitEvalRunTelemetry, traceEvalRun } from "./observability/evalTracing.js";
+export type { EvalTraceContext } from "./observability/evalTracing.js";
+
+// ── Platform OTel configs (Grafana, Datadog, New Relic) ──────────
+export {
+  getGrafanaConfig,
+  getDatadogConfig,
+  getNewRelicConfig,
+  detectPlatform,
+  autoConfigFromEnv,
+} from "./observability/platformConfigs.js";
+export type {
+  GrafanaCloudOptions,
+  DatadogOptions,
+  NewRelicOptions,
+  PlatformName,
+} from "./observability/platformConfigs.js";
+
 // ── Multi-provider model routing ─────────────────────────────────
 export { ModelRouter } from "./ops/modelRouter.js";
 export type {

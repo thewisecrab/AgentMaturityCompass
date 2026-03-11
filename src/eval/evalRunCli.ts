@@ -19,6 +19,8 @@ import { loadAMCConfig } from "../workspace.js";
 import { runDiagnostic, generateReport } from "../diagnostic/runner.js";
 import type { DiagnosticReport } from "../types.js";
 import { writeFileAtomic } from "../utils/fs.js";
+import { emitEvalRunTelemetry } from "../observability/evalTracing.js";
+import { getSharedObservabilityExporter } from "../observability/otelExporter.js";
 
 export type EvalOutputFormat = "json" | "html" | "terminal";
 
@@ -276,7 +278,20 @@ export async function evalRunCli(opts: EvalRunOptions): Promise<{
     console.log(rendered);
   }
 
-  // Step 5: Threshold / fail-on-error gate
+  // Step 5: Emit OpenTelemetry spans/metrics for the eval run
+  try {
+    emitEvalRunTelemetry(report, {
+      agentId: opts.agentId ?? report.agentId,
+      runId: report.runId,
+      workspace: opts.workspace,
+    });
+    const exporter = getSharedObservabilityExporter();
+    await exporter.flush();
+  } catch {
+    // Observability must never block eval output
+  }
+
+  // Step 6: Threshold / fail-on-error gate
   let exitCode = 0;
   if (opts.failOnError) {
     if (report.status === "INVALID") {
