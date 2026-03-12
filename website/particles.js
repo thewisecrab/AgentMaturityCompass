@@ -148,11 +148,31 @@
 
   /* ── Init ── */
   function init() {
+    // Resize first so logW/logH are available for particle constructors
+    const rect = canvas.getBoundingClientRect();
+    logW = rect.width;
+    logH = rect.height;
+    canvas.width  = logW * DPR;
+    canvas.height = logH * DPR;
+    canvas.style.width  = logW + 'px';
+    canvas.style.height = logH + 'px';
+    cx = logW / 2;
+    cy = logH * 0.48;
+    R = Math.min(logW, logH) * (IS_MOBILE ? 0.28 : 0.22);
+
     particles = [];
     for (let i = 0; i < ARC_COUNT; i++) particles.push(makeArc(i));
     for (let i = 0; i < STREAM_COUNT; i++) particles.push(makeStream());
+
+    // Set arc targets now that R/cx/cy are known
+    for (let i = 0; i < ARC_COUNT; i++) {
+      const p = particles[i];
+      p.tx = cx + Math.cos(p.angle) * R;
+      p.ty = cy + Math.sin(p.angle) * R;
+    }
+
+    heroH = document.querySelector('.hero')?.offsetHeight || logH;
     t0 = performance.now();
-    resize();
     loop();
   }
 
