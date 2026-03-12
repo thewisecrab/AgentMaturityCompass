@@ -74,7 +74,7 @@
 
     <!-- ═══ 1. HERO ═══ -->
     <section class="hero" id="hero">
-      <div class="dot-grid" aria-hidden="true"></div>
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
       <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-content">
         <span class="section-label reveal" style="margin-bottom:.5rem">Free · Open Source · MIT Licensed</span>
@@ -102,7 +102,9 @@
       </div>
     </section>
 
-    <!-- ═══ 2. TERMINAL DEMO (right after hero, like ECC) ═══ -->
+    <div class="evidence-stream" aria-hidden="true"></div>
+
+    <!-- ═══ 2. TERMINAL DEMO ═══ -->
     <section id="demo">
       <div class="container">
         <div class="terminal-window reveal">
@@ -146,6 +148,8 @@
         </div>
       </div>
     </section>
+
+    <div class="evidence-stream" aria-hidden="true"></div>
 
     <!-- ═══ 5. THE DIFFERENCE (before/after comparison) ═══ -->
     <section class="gap-section" id="difference">
@@ -230,6 +234,8 @@
         </div>
       </div>
     </section>
+
+    <div class="evidence-stream" aria-hidden="true"></div>
 
     <!-- ═══ 8. WHAT AMC DOES (feature cards) ═══ -->
     <section id="features">
@@ -334,7 +340,9 @@
       </div>
     </section>
 
-    <!-- ═══ 11. QUICK START (tabbed, like ECC) ═══ -->
+    <div class="evidence-stream" aria-hidden="true"></div>
+
+    <!-- ═══ 11. QUICK START ═══ -->
     <section class="gap-section" id="quickstart">
       <div class="dot-grid" aria-hidden="true"></div>
       <div class="container">
@@ -515,6 +523,7 @@
     </div>
   </footer>
 
+  <script src="particles.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

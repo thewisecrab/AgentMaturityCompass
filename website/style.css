@@ -1,4 +1,4 @@
-/* AMC v3 — Linear.app quality. Indigo palette. Zero empty sections. */
+/* AMC v4 — Evidence Forge. Particle canvas hero. Evidence stream dividers. */
 
 /* ═══════════════════════════════════════════
    DESIGN TOKENS
@@ -170,12 +170,26 @@ section{padding:clamp(3rem,5vw,5rem) 0;position:relative}
 /* ═══════════════════════════════════════════
    HERO
    ═══════════════════════════════════════════ */
-.hero{min-height:0;display:flex;align-items:center;justify-content:center;position:relative;padding:clamp(7rem,12vw,9rem) 0 clamp(3rem,5vw,4rem);overflow:hidden}
-.hero-content{text-align:center;position:relative;z-index:1;max-width:720px}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;padding:clamp(7rem,12vw,9rem) 0 clamp(3rem,5vw,4rem);overflow:hidden}
+.hero-content{text-align:center;position:relative;z-index:2;max-width:720px}
 .hero h1{margin-bottom:1.25rem}
 .hero-subtitle{font-size:clamp(.95rem,1.6vw,1.1rem);color:var(--muted);line-height:1.65;max-width:520px;margin:0 auto 2rem}
 .hero-ctas{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.75rem}
 .hero-glow{position:absolute;width:700px;height:700px;top:45%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,var(--accent-glow) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* ── Hero canvas (particle animation) ── */
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:auto}
+.hero-content{pointer-events:auto}
+.hero-content *{position:relative;z-index:2}
+
+/* ── Evidence stream dividers ── */
+.evidence-stream{position:relative;height:48px;overflow:hidden;pointer-events:none}
+.evidence-stream::before,.evidence-stream::after{content:'';position:absolute;top:50%;width:200%;height:1px;background:repeating-linear-gradient(90deg,transparent 0,transparent 8px,var(--accent) 8px,var(--accent) 10px,transparent 10px,transparent 28px);opacity:.08;animation:evidenceFlow 12s linear infinite}
+.evidence-stream::after{top:calc(50% + 6px);opacity:.04;animation-duration:18s;animation-direction:reverse}
+@keyframes evidenceFlow{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+[data-theme="dark"] .evidence-stream::before{opacity:.12}
+[data-theme="dark"] .evidence-stream::after{opacity:.06}
+@media(prefers-reduced-motion:reduce){.evidence-stream::before,.evidence-stream::after{animation:none}}
 [data-theme="dark"] .hero-glow{background:radial-gradient(circle,rgba(99,102,241,0.10) 0%,rgba(99,102,241,0.03) 40%,transparent 65%)}
 [data-theme="dark"] .glass-card{border-color:rgba(255,255,255,0.06);background:rgba(255,255,255,0.025)}
 [data-theme="dark"] .glass-card:hover{border-color:rgba(129,140,248,0.2);background:rgba(255,255,255,0.04)}
