@@ -1,9 +1,6 @@
-/* AMC Service Worker — offline-first for static assets, network-first for API */
-const CACHE_NAME = 'amc-v2';
+/* AMC Service Worker — network-first for pages, cache-first for static assets */
+const CACHE_NAME = 'amc-v3';
 const STATIC_ASSETS = [
-  'index.html',
-  'playground.html',
-  'lite.html',
   'style.css',
   'i18n.js',
   'manifest.json'
@@ -41,7 +38,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for static assets
+  // Network-first for HTML pages (navigations) — never serve stale pages
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (CSS, JS, images)
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
