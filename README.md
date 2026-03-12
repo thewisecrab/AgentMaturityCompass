@@ -436,12 +436,16 @@ cd AgentMaturityCompass && npm ci && npm run build && npm link
 | | |
 |--|--|
 | [Quickstart (5 min)](docs/QUICKSTART.md) | [Agent Guide](docs/AGENT_GUIDE.md) |
+| [Solo Dev Quickstart](docs/SOLO_DEV_QUICKSTART.md) | [Platform Engineer Quickstart](docs/PLATFORM_ENGINEER_QUICKSTART.md) |
+| [Security & Compliance Quickstart](docs/SECURITY_COMPLIANCE_QUICKSTART.md) | [Troubleshooting](docs/TROUBLESHOOTING.md) |
 | [CLI Reference (481 commands)](docs/AMC_MASTER_REFERENCE.md) | [Architecture](docs/ARCHITECTURE_MAP.md) |
 | [Compatibility Matrix](docs/COMPATIBILITY_MATRIX.md) | [Starter Blueprints](docs/STARTER_BLUEPRINTS.md) |
+| [Install Packages](docs/INSTALL_PACKAGES.md) | [Support Policy](docs/SUPPORT_POLICY.md) |
+| [Release Cadence](docs/RELEASE_CADENCE.md) | [Hardening Guide](docs/HARDENING.md) |
 | [Assurance Lab](docs/ASSURANCE_LAB.md) | [Domain Packs](docs/SECTOR_PACKS.md) |
 | [EU AI Act Compliance](docs/EU_AI_ACT_COMPLIANCE.md) | [Multi-Agent Trust](docs/MULTI_AGENT_TRUST.md) |
 | [Executive Overview](docs/EXECUTIVE_OVERVIEW.md) | [White Paper](whitepaper/AMC_WHITEPAPER_v1.md) |
-| [Example Projects](examples/) | [Starter Blueprints](docs/STARTER_BLUEPRINTS.md) |
+| [Example Projects](examples/) | [Community](docs/COMMUNITY.md) |
 | [Web Playground](https://thewisecrab.github.io/AgentMaturityCompass/playground.html) | [Compatibility Matrix](docs/COMPATIBILITY_MATRIX.md) |
 
 ---
