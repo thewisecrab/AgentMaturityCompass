@@ -14,7 +14,7 @@
   <a href="https://www.npmjs.com/package/agent-maturity-compass"><img src="https://img.shields.io/npm/dm/agent-maturity-compass" alt="downloads" /></a>
   <a href="#"><img src="https://img.shields.io/badge/tests-3%2C311%20passing-brightgreen" alt="tests" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT" /></a>
-  <a href="docs/AMC_MASTER_REFERENCE.md"><img src="https://img.shields.io/badge/CLI%20commands-357-blue" alt="commands" /></a>
+  <a href="docs/AMC_MASTER_REFERENCE.md"><img src="https://img.shields.io/badge/CLI%20commands-481-blue" alt="commands" /></a>
 </p>
 
 <p align="center">
@@ -40,6 +40,9 @@ That's it. One command. No account. No API key. You get:
 - **A trust score** from L0 (dangerous) to L5 (production-ready)
 - **A gap analysis** showing exactly what's wrong
 - **Auto-generated fixes** — guardrails, CI gates, compliance docs
+- **Trace and observability workflows** — timelines, anomalies, session inspection
+- **Evaluation workflows** — golden datasets, imported evals, lite scoring for non-agent apps
+- **Business and compliance outputs** — KPI correlation, leaderboards, audit binders
 
 Works with **LangChain, CrewAI, AutoGen, OpenAI Agents SDK, Claude Code, OpenClaw** — zero code changes.
 
@@ -144,6 +147,35 @@ amc assurance run --scope full                           # all 85 attack packs
 amc assurance run --pack prompt-injection                # specific attack
 amc assurance run --pack adversarial-robustness          # TAP/PAIR/Crescendo
 amc assurance run --format sarif                         # export for security tools
+```
+
+### Inspect traces and operational drift
+
+```bash
+amc observe timeline                                     # score history + evidence volume
+amc observe anomalies                                    # volatility / regressions / weirdness
+amc trace list                                           # recent agent sessions
+amc trace inspect <trace-id>                             # inspect tool calls and trust tiers
+```
+
+### Build golden datasets and run evals
+
+```bash
+amc dataset create support-bot                           # create a reusable eval dataset
+amc dataset add-case support-bot --prompt "..." --expected "..."
+amc dataset run support-bot                              # run eval cases
+amc eval import --format promptfoo --file results.json   # import external eval results
+amc lite-score                                           # score a non-agent chatbot / LLM app
+```
+
+### Business, inventory, and reporting
+
+```bash
+amc business kpi                                         # correlate maturity to outcomes
+amc business report                                      # stakeholder-ready business summary
+amc leaderboard show                                     # compare agents across a fleet
+amc inventory scan --deep                                # discover agents, frameworks, model files
+amc comms-check --text "Guaranteed 40% return" --domain wealth
 ```
 
 ### Auto-fix everything
@@ -404,11 +436,13 @@ cd AgentMaturityCompass && npm ci && npm run build && npm link
 | | |
 |--|--|
 | [Quickstart (5 min)](docs/QUICKSTART.md) | [Agent Guide](docs/AGENT_GUIDE.md) |
-| [CLI Reference (357 commands)](docs/AMC_MASTER_REFERENCE.md) | [Architecture](docs/ARCHITECTURE_MAP.md) |
+| [CLI Reference (481 commands)](docs/AMC_MASTER_REFERENCE.md) | [Architecture](docs/ARCHITECTURE_MAP.md) |
+| [Compatibility Matrix](docs/COMPATIBILITY_MATRIX.md) | [Starter Blueprints](docs/STARTER_BLUEPRINTS.md) |
 | [Assurance Lab](docs/ASSURANCE_LAB.md) | [Domain Packs](docs/SECTOR_PACKS.md) |
 | [EU AI Act Compliance](docs/EU_AI_ACT_COMPLIANCE.md) | [Multi-Agent Trust](docs/MULTI_AGENT_TRUST.md) |
 | [Executive Overview](docs/EXECUTIVE_OVERVIEW.md) | [White Paper](whitepaper/AMC_WHITEPAPER_v1.md) |
-| [Example Projects](examples/) | [Web Playground](https://thewisecrab.github.io/AgentMaturityCompass/playground.html) |
+| [Example Projects](examples/) | [Starter Blueprints](docs/STARTER_BLUEPRINTS.md) |
+| [Web Playground](https://thewisecrab.github.io/AgentMaturityCompass/playground.html) | [Compatibility Matrix](docs/COMPATIBILITY_MATRIX.md) |
 
 ---
 

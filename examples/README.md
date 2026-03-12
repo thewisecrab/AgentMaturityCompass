@@ -44,6 +44,15 @@ amc wrap crewai-cli -- python examples/crewai/main.py
 amc wrap generic-cli -- python examples/python-amc-sdk/main.py
 ```
 
+## Starter Blueprint Examples
+
+These blueprint-oriented examples package a recommended adoption path on top of the framework examples above:
+
+- [openclaw-amc-baseline](./openclaw-amc-baseline/) — OpenClaw + AMC scoring, trace, observe, assurance
+- [langchain-rag-amc](./langchain-rag-amc/) — LangChain + datasets + trace inspection
+- [crewai-amc-github-actions](./crewai-amc-github-actions/) — CrewAI + AMC + CI path
+- [openai-compatible-lite-score](./openai-compatible-lite-score/) — plain LLM app / chatbot evaluation path
+
 ## Legacy Examples
 
 These older examples demonstrate AMC Python module integration patterns:

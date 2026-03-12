@@ -54,6 +54,9 @@
       <a href="#ns-evidence" class="sub">Evidence Capture</a>
       <a href="#ns-quickscore" class="sub">Quickscore &amp; Sharing</a>
       <a href="#ns-scoring" class="sub">Scoring &amp; Diagnostics</a>
+      <a href="#ns-observability" class="sub">Observability &amp; Trace</a>
+      <a href="#ns-evals" class="sub">Datasets &amp; Lite Scoring</a>
+      <a href="#ns-business" class="sub">Business &amp; Leaderboards</a>
       <a href="#ns-gateway" class="sub">Gateway &amp; Proxy</a>
       <a href="#ns-fleet" class="sub">Fleet &amp; Agents</a>
       <a href="#ns-governor" class="sub">Governor &amp; Policy</a>
@@ -258,6 +261,11 @@
             <tr><td><code>amc report &lt;id&gt; --executive</code></td><td>Board-friendly terminal summary</td></tr>
             <tr><td><code>amc history</code></td><td>List diagnostic run history</td></tr>
             <tr><td><code>amc compare &lt;a&gt; &lt;b&gt;</code></td><td>Compare two runs</td></tr>
+          <tr><td><code>amc observe timeline</code></td><td>Timeline of scores, evidence volume, and anomalies</td></tr>
+          <tr><td><code>amc trace inspect</code></td><td>Inspect evidence events, tool calls, and trust tiers</td></tr>
+          <tr><td><code>amc dataset run &lt;name&gt;</code></td><td>Run a golden dataset against a model endpoint</td></tr>
+          <tr><td><code>amc lite-score</code></td><td>Score a non-agent LLM app or chatbot</td></tr>
+          <tr><td><code>amc business kpi</code></td><td>Correlate maturity with business risk and audit readiness</td></tr>
             <tr><td><code>amc verify</code></td><td>Verify integrity across AMC artifacts</td></tr>
             <tr><td><code>amc verify all --json</code></td><td>Full verification in one pass</td></tr>
             <tr><td><code>amc snapshot --agent &lt;id&gt;</code></td><td>Generate Unified Clarity Snapshot</td></tr>
@@ -313,6 +321,68 @@
             <tr><td><code>amc provider list</code></td><td>List provider templates</td></tr>
             <tr><td><code>amc provider add</code></td><td>Assign/update provider for an agent</td></tr>
             <tr><td><code>amc fleet handoff</code></td><td>Manage handoff packets</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- OBSERVABILITY -->
+      <div class="ns-toggle" id="ns-observability" onclick="this.classList.toggle('open')">
+        <h3>Observability &amp; Trace <span class="cmd-count">10+ commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc observe timeline</code></td><td>Show maturity progression, evidence volume, and score history</td></tr>
+            <tr><td><code>amc observe anomalies</code></td><td>Detect volatility, regressions, and suspicious score movements</td></tr>
+            <tr><td><code>amc observe compare</code></td><td>Compare multiple agents or time windows</td></tr>
+            <tr><td><code>amc correction log</code></td><td>Track human corrections and overrides</td></tr>
+            <tr><td><code>amc correction report</code></td><td>Summarize correction closure and effectiveness</td></tr>
+            <tr><td><code>amc trace list</code></td><td>List recent agent sessions with evidence summary</td></tr>
+            <tr><td><code>amc trace inspect</code></td><td>Inspect tool calls, decisions, payloads, and trust tiers</td></tr>
+            <tr><td><code>amc trace stats</code></td><td>Break down events by type, trust tier, and tool usage</td></tr>
+            <tr><td><code>amc alert config</code></td><td>Configure webhook, Slack, or PagerDuty destinations</td></tr>
+            <tr><td><code>amc alert send|test|watch</code></td><td>Send manual alerts or auto-watch for anomalies</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DATASETS -->
+      <div class="ns-toggle" id="ns-evals" onclick="this.classList.toggle('open')">
+        <h3>Datasets &amp; Lite Scoring <span class="cmd-count">8+ commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc dataset create &lt;name&gt;</code></td><td>Create a golden evaluation dataset</td></tr>
+            <tr><td><code>amc dataset add-case &lt;name&gt;</code></td><td>Add a prompt/assertion pair to a dataset</td></tr>
+            <tr><td><code>amc dataset list</code></td><td>List evaluation datasets</td></tr>
+            <tr><td><code>amc dataset run &lt;name&gt;</code></td><td>Run a dataset against your configured endpoint or model</td></tr>
+            <tr><td><code>amc dataset import &lt;name&gt; --file &lt;path&gt;</code></td><td>Import CSV/JSON/JSONL test cases</td></tr>
+            <tr><td><code>amc lite-score</code></td><td>Lite scoring for non-agent chatbots and vanilla LLM apps</td></tr>
+            <tr><td><code>amc eval import</code></td><td>Import results from LangSmith, DeepEval, Promptfoo, and more</td></tr>
+            <tr><td><code>amc eval status</code></td><td>Check imported eval coverage</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- BUSINESS -->
+      <div class="ns-toggle" id="ns-business" onclick="this.classList.toggle('open')">
+        <h3>Business &amp; Leaderboards <span class="cmd-count">10+ commands</span></h3>
+      </div>
+      <div class="ns-body">
+        <table>
+          <thead><tr><th>Command</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>amc business kpi</code></td><td>Map maturity to risk reduction, compliance readiness, and audit posture</td></tr>
+            <tr><td><code>amc business track</code></td><td>Record incidents, findings, savings, and outcome events</td></tr>
+            <tr><td><code>amc business report</code></td><td>Generate business impact report with maturity correlation</td></tr>
+            <tr><td><code>amc leaderboard show</code></td><td>Show fleet-wide maturity rankings</td></tr>
+            <tr><td><code>amc leaderboard export</code></td><td>Export leaderboard as JSON, Markdown, or HTML</td></tr>
+            <tr><td><code>amc inventory scan</code></td><td>Discover AI agents, frameworks, models, and API-key footprints</td></tr>
+            <tr><td><code>amc inventory scan --deep</code></td><td>Search deeper for local model artifacts and configs</td></tr>
+            <tr><td><code>amc comms-check --text &quot;...&quot;</code></td><td>Check messages against lightweight compliance rules</td></tr>
           </tbody>
         </table>
       </div>

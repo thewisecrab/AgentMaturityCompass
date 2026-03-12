@@ -8,7 +8,7 @@ const CATEGORIES = [
   {
     name: 'Getting Started',
     icon: '🚀',
-    docs: ['GETTING_STARTED', 'QUICKSTART', 'INSTALL', 'AGENT_GUIDE', 'SOLO_USER', 'EXECUTIVE_OVERVIEW']
+    docs: ['GETTING_STARTED', 'QUICKSTART', 'INSTALL', 'AGENT_GUIDE', 'SOLO_USER', 'EXECUTIVE_OVERVIEW', 'COMPATIBILITY_MATRIX', 'STARTER_BLUEPRINTS', 'OSS_ADOPTION_ROADMAP']
   },
   {
     name: 'Architecture',
@@ -112,7 +112,7 @@ const ALL_DOCS = [
   'UX_COUNCIL_REPORT','VALIDITY_FRAMEWORK','VALUE_CONTRACTS','VALUE_GATES',
   'VALUE_INGESTION','VALUE_REALIZATION','VAULT','VSCODE_EXTENSION','WAIVERS',
   'WEBSITE_COUNCIL_25_EXPERTS','WHATIF',
-  'WORK_ORDERS','ZERO_KEYS','agent-framework-compatibility','db-schemas',
+  'WORK_ORDERS','ZERO_KEYS','COMPATIBILITY_MATRIX','STARTER_BLUEPRINTS','OSS_ADOPTION_ROADMAP','agent-framework-compatibility','db-schemas',
   'enterprise-readiness-checklist','sbom','score-history','self-calibration',
   'wave4-agentic-ecosystem-audit','wave4-ai-safety-audit','wave4-documentation-audit',
   'wave4-integration-audit','wave4-product-readiness-audit','wave4-regulatory-audit',

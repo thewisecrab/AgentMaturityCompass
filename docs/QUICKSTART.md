@@ -191,6 +191,13 @@ amc wrap generic -- your-agent-command
 | Auto-fix gaps | `amc fix` |
 | HTML report for stakeholders | `amc report <id> --html report.html` |
 | Continuous monitoring | `amc guide --watch --apply` |
+| Score timeline + anomaly detection | `amc observe timeline` / `amc observe anomalies` |
+| Inspect sessions and tool calls | `amc trace list` / `amc trace inspect` |
+| Curate golden datasets | `amc dataset create` / `amc dataset add-case` |
+| Run business-specific evals | `amc dataset run <name>` |
+| Score a non-agent LLM app | `amc lite-score` |
+| Correlate maturity to outcomes | `amc business kpi` / `amc business report` |
+| Compare agents publicly or internally | `amc leaderboard show` |
 
 ---
 

@@ -150,7 +150,7 @@ function animateCounter(el){
     {html:'<span class="term-prompt">$</span> <span class="term-command">npx</span> agent-maturity-compass <span class="term-flag">quickscore</span>',d:0},
     {html:'',d:400},
     {html:'<span class="term-dim">⠋ Discovering agent capabilities...</span>',d:700},
-    {html:'<span class="term-dim">⠙ Running 138 diagnostic questions...</span>',d:1300},
+    {html:'<span class="term-dim">⠙ Running evidence-weighted diagnostic checks...</span>',d:1300},
     {html:'<span class="term-dim">⠸ Generating evidence chains...</span>',d:1900},
     {html:'',d:2300},
     {html:'<span class="term-teal">Agent Maturity Compass</span> <span class="term-dim">v2.0</span>',d:2400},

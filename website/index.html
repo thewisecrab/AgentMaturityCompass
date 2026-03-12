@@ -11,7 +11,7 @@
     else if(window.matchMedia('(prefers-color-scheme:dark)').matches)h.setAttribute('data-theme','dark')})();
   </script>
   <title>Agent Maturity Compass — The Credit Score for AI Agents</title>
-  <meta name="description" content="AMC scores AI agents on trustworthiness from actual execution behavior — not self-reported claims. Cryptographic evidence chains. 3,220 tests. Zero to first score in 2 minutes. MIT licensed.">
+  <meta name="description" content="AMC scores AI agents on trustworthiness from actual execution behavior — not self-reported claims. Cryptographic evidence chains. Zero to first score in 2 minutes. MIT licensed.">
   <meta name="keywords" content="AI agent trust scoring, agent maturity model, LLM governance, agent security, LangChain evaluation, CrewAI scoring, EU AI Act compliance, prompt injection testing, agent benchmark, cryptographic evidence">
   <meta name="robots" content="index, follow">
   <meta name="author" content="thewisecrab">
@@ -30,7 +30,7 @@
   <meta name="twitter:description" content="The 84-point documentation inflation gap. Close it with cryptographic evidence.">
   <meta name="twitter:image" content="https://thewisecrab.github.io/AgentMaturityCompass/og-card.png">
 
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Maturity Compass","alternateName":"AMC","description":"Open-source framework for scoring AI agent trustworthiness from execution evidence. Uses cryptographic Merkle-tree evidence chains, Ed25519 signatures, and 138 diagnostic questions across 5 dimensions to produce L0-L5 maturity scores.","url":"https://thewisecrab.github.io/AgentMaturityCompass/","downloadUrl":"https://www.npmjs.com/package/agent-maturity-compass","codeRepository":"https://github.com/thewisecrab/AgentMaturityCompass","license":"https://opensource.org/licenses/MIT","applicationCategory":"DeveloperApplication","operatingSystem":"macOS, Linux, Windows","featureList":["Execution-verified trust scoring","Cryptographic Merkle-tree evidence chains with Ed25519 signatures","138 core diagnostic questions plus 592 sector-specific questions","78 assurance packs","L0-L5 maturity scale","14 framework adapters","Zero to first score in 2 minutes","EU AI Act compliance mapping","CI/CD gate mode","MIT licensed"],"author":{"@type":"Organization","name":"The Wise Crab","url":"https://github.com/thewisecrab"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Maturity Compass","alternateName":"AMC","description":"Open-source framework for scoring AI agent trustworthiness from execution evidence. Uses cryptographic evidence chains, trust-weighted scoring, and L0-L5 maturity levels for agents and LLM apps.","url":"https://thewisecrab.github.io/AgentMaturityCompass/","downloadUrl":"https://www.npmjs.com/package/agent-maturity-compass","codeRepository":"https://github.com/thewisecrab/AgentMaturityCompass","license":"https://opensource.org/licenses/MIT","applicationCategory":"DeveloperApplication","operatingSystem":"macOS, Linux, Windows","featureList":["Execution-verified trust scoring","Cryptographic evidence chains","Observability and trace inspection","Golden datasets and lite scoring","L0-L5 maturity scale","14 framework adapters","EU AI Act compliance mapping","CI/CD gate mode","MIT licensed"],"author":{"@type":"Organization","name":"The Wise Crab","url":"https://github.com/thewisecrab"}}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 84-point documentation inflation gap?","acceptedAnswer":{"@type":"Answer","text":"When scored using keyword matching or self-reported documentation, an AI agent scores 100/100. When AMC evaluates the same agent using execution-verified evidence, the real score is 16/100. That 84-point gap is documentation inflation. AMC closes it with cryptographic evidence chains."}},{"@type":"Question","name":"How is AMC different from other AI evaluation frameworks?","acceptedAnswer":{"@type":"Answer","text":"Most frameworks let the agent being evaluated provide its own evidence — a structural conflict of interest. AMC sits between the agent and the LLM provider as a trusted observer, capturing every API call and tool use with Ed25519 signatures."}},{"@type":"Question","name":"What is the L0-L5 maturity scale?","acceptedAnswer":{"@type":"Answer","text":"L0: No safety controls. L1: Basic content filters. L2: Structured oversight (most production agents). L3: Consistent governance, full audit trails (EU AI Act minimum). L4: Cryptographic proof chains. L5: Self-governing with evidence."}},{"@type":"Question","name":"Which AI frameworks does AMC support?","acceptedAnswer":{"@type":"Answer","text":"AMC has 14 adapters: LangChain, LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, LlamaIndex, Semantic Kernel, Claude Code, Gemini, OpenClaw, OpenHands, Python AMC SDK, any CLI agent, and any OpenAI-compatible endpoint."}}]}</script>
 
   <link rel="stylesheet" href="style.css">
@@ -208,12 +208,32 @@
           <div class="glass-card feature-card reveal reveal-delay-2">
             <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
             <h3>EU AI Act Ready</h3>
-            <p>Compliance mapping for August 2026. 7 domains, 78 assurance packs, 40 industry packs. Over-compliance detection to MCP security.</p>
+            <p>Compliance mapping, audit binders, domain packs, and governance evidence for teams that need something stronger than "trust me, bro."</p>
           </div>
           <div class="glass-card feature-card reveal reveal-delay-3">
             <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
             <h3>Zero Code Changes</h3>
-            <p>14 framework adapters — LangChain, CrewAI, AutoGen, OpenAI, Claude Code, Gemini, and more. One environment variable. That's it.</p>
+            <p>14 framework adapters — LangChain, CrewAI, AutoGen, OpenAI, Claude Code, Gemini, OpenClaw, and more. Wrap what you already run.</p>
+          </div>
+          <div class="glass-card feature-card reveal">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <h3>Observability &amp; Trace Explorer</h3>
+            <p>Inspect timelines, anomalies, sessions, tool calls, trust tiers, and score volatility with <code>amc observe</code> and <code>amc trace</code>.</p>
+          </div>
+          <div class="glass-card feature-card reveal reveal-delay-1">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <h3>Feedback Loops &amp; Corrections</h3>
+            <p>Track human corrections, closure reports, and effectiveness so the agent can actually improve instead of just collecting pretty PDFs.</p>
+          </div>
+          <div class="glass-card feature-card reveal reveal-delay-2">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <h3>Golden Datasets &amp; Lite Scoring</h3>
+            <p>Create evaluation datasets, run business-specific test cases, and score vanilla chatbots or LLM apps even when they are not full-blown agents.</p>
+          </div>
+          <div class="glass-card feature-card reveal reveal-delay-3">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
+            <h3>Business Impact &amp; Leaderboards</h3>
+            <p>Correlate maturity with KPI outcomes, track incidents and savings, compare agents, inventory AI assets, and publish benchmark leaderboards.</p>
           </div>
         </div>
       </div>
@@ -257,7 +277,7 @@
       <div class="container">
         <div class="cta-content">
           <h2 class="reveal">Start Scoring in <span class="italic-accent" style="color:inherit">2 Minutes</span></h2>
-          <p class="cta-subtitle reveal reveal-delay-1">Open source. MIT licensed. 14 framework adapters.<br>Close the 84-point gap with cryptographic evidence.</p>
+          <p class="cta-subtitle reveal reveal-delay-1">Open source. MIT licensed. 14 framework adapters.<br>Score, trace, red-team, monitor, and improve agents with actual evidence.</p>
           <a href="https://github.com/thewisecrab/AgentMaturityCompass#quick-start" class="btn-cta-white reveal reveal-delay-2">Get Started <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
           <div class="cta-install reveal reveal-delay-3">npx agent-maturity-compass quickscore</div>
         </div>
@@ -290,7 +310,7 @@
           </div>
           <div class="faq-item">
             <button class="faq-question" aria-expanded="false">Is AMC free?<svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
-            <div class="faq-answer" role="region"><p>Yes. MIT licensed, fully open source. 3,220 tests passing, 481 CLI commands, and growing. The core framework and all 14 adapters are free.</p></div>
+            <div class="faq-answer" role="region"><p>Yes. MIT licensed, fully open source. 481 CLI commands and growing. The core framework and all 14 adapters are free.</p></div>
           </div>
         </div>
       </div>

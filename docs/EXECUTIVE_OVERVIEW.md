@@ -44,7 +44,7 @@ We tested a content moderation agent with two methods:
 - **Improvement trajectory** — tracked over time, not a point-in-time audit
 
 ### For Your Engineering Team
-- **140 diagnostic questions** that reveal exactly where agents are weak
+- **Evidence-weighted diagnostic scoring** that reveals exactly where agents are weak
 - **593 sector-specific questions** for regulated industries (healthcare, finance, education, etc.)
 - **85 attack packs** that test real adversarial scenarios (prompt injection, data exfiltration, etc.)
 - **Auto-generated guardrails** that plug directly into agent config files
