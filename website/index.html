@@ -16,12 +16,10 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7">
-  <!-- GSAP + ScrollTrigger + Lenis (same stack as OSE) -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=8">
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
-  <script src="https://unpkg.com/lenis@1.3.13/dist/lenis.min.js" defer></script>
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to content</a>
@@ -34,7 +32,7 @@
         <li><a href="#products">products</a></li>
         <li><a href="#domains">domains</a></li>
         <li><a href="#methodology">approach</a></li>
-        <li><a href="#demo">demo</a></li>
+        <li><a href="#research">research</a></li>
         <li><a href="#pricing">pricing</a></li>
         <li><a href="docs/index.html">docs</a></li>
       </ul>
@@ -48,7 +46,7 @@
     <a href="#products">products</a>
     <a href="#domains">domains</a>
     <a href="#methodology">approach</a>
-    <a href="#demo">demo</a>
+    <a href="#research">research</a>
     <a href="#pricing">pricing</a>
     <a href="docs/index.html">docs</a>
     <a href="https://github.com/thewisecrab/AgentMaturityCompass">github</a>
@@ -59,49 +57,32 @@
     <!-- ═══ HERO ═══ -->
     <section class="hero">
       <canvas id="hero-canvas" aria-hidden="true"></canvas>
-      <div class="hero-watermark" aria-hidden="true">AMC</div>
-
-      <svg class="hero-geo" aria-hidden="true" viewBox="0 0 500 500" fill="none" stroke="rgba(74,239,121,0.07)" stroke-width="0.5">
-        <circle cx="250" cy="250" r="200"/><circle cx="250" cy="250" r="150"/><circle cx="250" cy="250" r="100"/>
-        <line x1="250" y1="50" x2="250" y2="450"/><line x1="50" y1="250" x2="450" y2="250"/>
-        <line x1="109" y1="109" x2="391" y2="391"/><line x1="391" y1="109" x2="109" y2="391"/>
-        <circle cx="250" cy="250" r="8" fill="rgba(74,239,121,0.12)" stroke="rgba(74,239,121,0.25)"/>
-      </svg>
-
       <div class="container hero-content">
-        <div class="hero-top">
-          <div class="hero-text">
-            <p class="label fade-up">trust scoring for ai agents</p>
-            <h1 class="fade-up fd1">Score your<br>agent<span class="accent">_</span></h1>
-            <h1 class="fade-up fd2" style="color:var(--text-muted);font-weight:400">Find the gaps<span class="accent">.</span><br>Fix them<span class="accent">.</span></h1>
-            <p class="hero-sub fade-up fd3"><span class="hl">138 diagnostics</span> against actual execution behavior. Not documentation. Not self-reported claims. <span class="hl">Evidence</span> you can verify, sign, and audit.</p>
+        <p class="label gs">trust scoring for ai agents</p>
+        <h1 class="gs">Score your agent<span class="accent">_</span></h1>
+        <h1 class="gs hero-h1-muted">Find the gaps<span class="accent">.</span> Fix them<span class="accent">.</span></h1>
+        <p class="hero-sub gs"><span class="hl">138 diagnostics</span> against actual execution behavior. Not documentation. Not self-reported claims. <span class="hl">Evidence</span> you can verify, sign, and audit.</p>
+        <div class="hero-actions gs">
+          <div class="hero-install" onclick="navigator.clipboard&&navigator.clipboard.writeText('npm i -g agent-maturity-compass')" title="Click to copy">
+            <span class="hi-prompt">$</span> npm i -g agent-maturity-compass
           </div>
-          <div class="hero-actions fade-up fd4">
-            <div class="hero-install" onclick="navigator.clipboard&&navigator.clipboard.writeText('npm i -g agent-maturity-compass')" title="Click to copy">
-              <span class="hi-prompt">$</span> npm i -g agent-maturity-compass
-            </div>
-            <div class="hero-btns">
-              <a href="playground.html" class="btn btn-primary btn-lg">try in browser →</a>
-              <a href="#demo" class="btn btn-outline btn-lg">see the demo →</a>
-            </div>
+          <div class="hero-btns">
+            <a href="playground.html" class="btn btn-primary btn-xl">try in browser →</a>
+            <a href="#products" class="btn btn-outline btn-xl">explore products →</a>
           </div>
-        </div>
-        <div class="hero-scroll fade-up fd5">
-          <span class="hero-scroll-text">scroll to explore</span>
-          <div class="hero-scroll-line"></div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ STATS STRIP ═══ -->
+    <!-- ═══ STATS ═══ -->
     <section class="stats-strip">
       <div class="container">
         <div class="stats-row">
-          <div class="stat fade-up"><span class="stat-value">138</span><span class="stat-label">diagnostic questions</span></div>
-          <div class="stat fade-up fd1"><span class="stat-value">86</span><span class="stat-label">assurance packs</span></div>
-          <div class="stat fade-up fd2"><span class="stat-value">14</span><span class="stat-label">framework adapters</span></div>
-          <div class="stat fade-up fd3"><span class="stat-value">3,311</span><span class="stat-label">tests passing</span></div>
-          <div class="stat fade-up fd4"><span class="stat-value">7</span><span class="stat-label">retailization stations</span></div>
+          <div class="stat gs"><span class="stat-value">138</span><span class="stat-label">diagnostic questions</span></div>
+          <div class="stat gs"><span class="stat-value">86</span><span class="stat-label">assurance packs</span></div>
+          <div class="stat gs"><span class="stat-value">592</span><span class="stat-label">industry questions</span></div>
+          <div class="stat gs"><span class="stat-value">3,311</span><span class="stat-label">tests passing</span></div>
+          <div class="stat gs"><span class="stat-value">14</span><span class="stat-label">framework adapters</span></div>
         </div>
       </div>
     </section>
@@ -109,458 +90,263 @@
     <!-- ═══ THE GAP ═══ -->
     <section class="big-number">
       <div class="container">
-        <div class="big-number-value fade-up">84</div>
-        <p class="big-number-desc fade-up fd1">The gap between what your agent <span class="text-w">claims</span> and what <span class="hl">execution evidence</span> shows.</p>
-        <p class="evidence fade-up fd2">documentation score: <span class="text-w">100</span> → evidence-verified: <span class="hl">16</span> → gap: <span class="hl">84</span></p>
-        <div class="gap-compare fade-up fd3">
-          <div class="gap-side">
-            <span class="label" style="color:var(--text-dim)">without amc</span>
-            <ul>
-              <li>Agent says "I'm safe" — you believe it</li>
-              <li>Checklists filled by the team being judged</li>
-              <li>No adversarial testing in CI</li>
-              <li>Every audit starts from scratch</li>
-            </ul>
-          </div>
-          <div class="gap-divider"></div>
-          <div class="gap-side">
-            <span class="label" style="color:var(--accent)">with amc</span>
-            <ul>
-              <li>Score from <span class="hl">observed execution evidence</span></li>
-              <li><span class="hl">86 adversarial packs</span> run automatically</li>
-              <li>CI gates prevent trust regressions</li>
-              <li><span class="hl">Cryptographic proof chains</span> for audits</li>
-            </ul>
-          </div>
-        </div>
+        <div class="big-number-value gs">84</div>
+        <p class="big-number-desc gs">The gap between what your agent <span class="text-w">claims</span> and what <span class="hl">execution evidence</span> shows.</p>
+        <p class="evidence gs">documentation score: <span class="text-w">100</span> → evidence-verified: <span class="hl">16</span> → gap: <span class="hl">84</span></p>
       </div>
     </section>
 
-    <!-- ═══ PRODUCTS ═══ -->
+    <!-- ═══ EIGHT PRODUCTS — TERMINAL CYCLING ═══ -->
     <section id="products">
       <div class="container">
-        <div class="section-heading fade-up">
+        <div class="section-heading gs" style="text-align:center">
           <p class="label">the trust stack</p>
           <h2>Eight named surfaces<span class="accent">_</span><br><strong>One complete trust platform</strong></h2>
-          <p class="section-desc">All free. All MIT licensed. All composable.</p>
         </div>
-        <div class="card-grid">
-
-          <div class="card fade-up">
-            <div class="card-top"><span class="card-number">01</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-            <h3 class="underscore">Score</h3>
-            <p>Evidence-weighted trust scoring across <span class="hl">138 diagnostics</span>. L0 to L5 maturity. Self-reported claims capped at 0.4× weight. You can't game this.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
+        <div class="product-showcase">
+          <div class="product-tabs" id="product-tabs">
+            <button class="product-tab active" data-idx="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Score</button>
+            <button class="product-tab" data-idx="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z"/></svg>Shield</button>
+            <button class="product-tab" data-idx="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>Enforce</button>
+            <button class="product-tab" data-idx="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Vault</button>
+            <button class="product-tab" data-idx="4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>Watch</button>
+            <button class="product-tab" data-idx="5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Comply</button>
+            <button class="product-tab" data-idx="6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Fleet</button>
+            <button class="product-tab" data-idx="7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><circle cx="7" cy="15" r="1.5"/></svg>Passport</button>
           </div>
-
-          <div class="card fade-up fd1">
-            <div class="card-top"><span class="card-number">02</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z"/></svg></div>
-            <h3 class="underscore">Shield</h3>
-            <p><span class="hl">86 adversarial assurance packs</span>. Prompt injection, exfiltration, context leakage, sycophancy, over-compliance, and 41 other failure modes.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
+          <div class="product-terminal">
+            <div class="terminal-bar"><div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div><div class="terminal-title" id="term-title">amc score</div></div>
+            <div class="terminal-body" id="product-term"></div>
           </div>
-
-          <div class="card fade-up fd2">
-            <div class="card-top"><span class="card-number">03</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
-            <h3 class="underscore">Enforce</h3>
-            <p>Policy controls, approval workflows, scoped actions, and <span class="hl">governance gates</span> for higher-trust environments and regulated deployments.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
-          </div>
-
-          <div class="card fade-up fd3">
-            <div class="card-top"><span class="card-number">04</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
-            <h3 class="underscore">Vault</h3>
-            <p><span class="hl">Ed25519 signatures</span>, Merkle-tree evidence chains, tamper-evident ledgers. Every artifact is cryptographically verifiable.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
-          </div>
-
-          <div class="card fade-up">
-            <div class="card-top"><span class="card-number">05</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
-            <h3 class="underscore">Watch</h3>
-            <p>Traces, anomalies, timelines, and <span class="hl">drift detection</span>. Continuous monitoring of agent trust posture. Know when something changes.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
-          </div>
-
-          <div class="card fade-up fd1">
-            <div class="card-top"><span class="card-number">06</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-            <h3 class="underscore">Comply</h3>
-            <p>Map evidence to <span class="hl">EU AI Act, ISO 42001, NIST AI RMF, SOC 2</span>, and OWASP LLM Top 10. Generate audit binders in one command.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
-          </div>
-
-          <div class="card fade-up fd2">
-            <div class="card-top"><span class="card-number">07</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-            <h3 class="underscore">Fleet</h3>
-            <p>Compare, benchmark, and govern <span class="hl">multiple agents</span> together. Delegation graphs, trust baselines, and org-wide policy enforcement.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
-          </div>
-
-          <div class="card fade-up fd3">
-            <div class="card-top"><span class="card-number">08</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><circle cx="7" cy="15" r="1.5"/></svg></div>
-            <h3 class="underscore">Passport</h3>
-            <p><span class="hl">Portable identity</span>, credentials, and trust portability artifacts. Carry verified trust scores between environments.</p>
-            <a href="docs/index.html" class="card-link">learn more →</a>
-          </div>
+          <div class="product-info" id="product-info"></div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ FRAMEWORKS ═══ -->
-    <section>
+    <!-- ═══ WORKS WITH YOUR STACK ═══ -->
+    <section class="section-alt">
       <div class="container">
-        <p class="label fade-up" style="text-align:center;margin-bottom:1.5rem">works with your stack</p>
-        <div class="logos fade-up fd1">
-          <span>LangChain</span><span>CrewAI</span><span>OpenAI</span><span>Claude Code</span>
-          <span>AutoGen</span><span>Gemini</span><span>LlamaIndex</span><span>Semantic Kernel</span>
-          <span>OpenClaw</span><span>OpenHands</span><span>Python SDK</span><span>CLI</span>
-          <span>OpenAI-compat</span><span class="accent">+ more</span>
+        <div class="section-heading gs" style="text-align:center">
+          <p class="label">integrations</p>
+          <h2>Works with <strong>your stack<span class="accent">_</span></strong></h2>
+          <p class="section-desc" style="margin:1rem auto 0;text-align:center">14 built-in adapters. Zero code changes. One environment variable.</p>
+        </div>
+        <div class="logos-grid gs">
+          <div class="logo-item"><span class="logo-name">LangChain</span><span class="logo-type">Python + Node</span></div>
+          <div class="logo-item"><span class="logo-name">LangGraph</span><span class="logo-type">Python</span></div>
+          <div class="logo-item"><span class="logo-name">CrewAI</span><span class="logo-type">CLI</span></div>
+          <div class="logo-item"><span class="logo-name">OpenAI Agents SDK</span><span class="logo-type">Python</span></div>
+          <div class="logo-item"><span class="logo-name">AutoGen</span><span class="logo-type">CLI</span></div>
+          <div class="logo-item"><span class="logo-name">Claude Code</span><span class="logo-type">CLI</span></div>
+          <div class="logo-item"><span class="logo-name">Gemini</span><span class="logo-type">CLI</span></div>
+          <div class="logo-item"><span class="logo-name">LlamaIndex</span><span class="logo-type">Python</span></div>
+          <div class="logo-item"><span class="logo-name">Semantic Kernel</span><span class="logo-type">.NET</span></div>
+          <div class="logo-item"><span class="logo-name">OpenClaw</span><span class="logo-type">CLI</span></div>
+          <div class="logo-item"><span class="logo-name">OpenHands</span><span class="logo-type">CLI</span></div>
+          <div class="logo-item"><span class="logo-name">Python SDK</span><span class="logo-type">pip install</span></div>
+          <div class="logo-item"><span class="logo-name">CLI</span><span class="logo-type">any agent</span></div>
+          <div class="logo-item"><span class="logo-name">OpenAI-compatible</span><span class="logo-type">any endpoint</span></div>
         </div>
       </div>
     </section>
 
     <!-- ═══ METHODOLOGY ═══ -->
-    <section id="methodology" class="section-alt">
+    <section id="methodology">
       <div class="container">
-        <div class="section-heading fade-up">
+        <div class="section-heading gs">
           <p class="label">our approach</p>
           <h2>Expertise built on<br><strong>evidence<span class="accent">_</span></strong></h2>
-          <p class="section-desc">A structured methodology that combines diagnostic rigor with developer speed.</p>
         </div>
         <div class="steps">
-          <div class="steps-visual fade-left">
-            <svg viewBox="0 0 300 300" fill="none" stroke="rgba(74,239,121,0.12)" stroke-width="0.5" style="width:100%;max-width:280px">
-              <circle cx="150" cy="150" r="120"/><circle cx="150" cy="150" r="80"/><circle cx="150" cy="150" r="40"/>
-              <path d="M150 30 L150 270"/><path d="M30 150 L270 150"/>
-              <text x="150" y="155" text-anchor="middle" fill="rgba(74,239,121,0.5)" font-family="Space Mono,monospace" font-size="24" stroke="none">L3</text>
-            </svg>
-            <a href="playground.html" class="btn btn-primary btn-lg" style="margin-top:2rem">try in browser →</a>
-          </div>
           <div class="step-list">
-            <div class="step fade-right fd1">
-              <span class="step-num">01</span>
-              <div>
-                <h4 class="underscore">Score and analyze</h4>
-                <p>Point AMC at any agent. <span class="hl">138 diagnostic questions</span> run against execution evidence — observed API calls, tool usage, error handling, behavioral patterns. Get a trust score from <span class="hl">L0 to L5</span> in under 2 minutes.</p>
-              </div>
-            </div>
-            <div class="step fade-right fd2">
-              <span class="step-num">02</span>
-              <div>
-                <h4 class="underscore">Fix and harden</h4>
-                <p>AMC generates <span class="hl">targeted guardrails</span> for your exact configuration — specific patches for 15 configuration targets. <span class="hl">86 assurance packs</span> test prompt injection, exfiltration, context leakage, and more.</p>
-              </div>
-            </div>
-            <div class="step fade-right fd3">
-              <span class="step-num">03</span>
-              <div>
-                <h4 class="underscore">Ship and monitor</h4>
-                <p>Add a <span class="hl">CI gate</span> with one command. Set score thresholds. Prevent trust regressions. Generate compliance artifacts for <span class="hl">EU AI Act, ISO 42001, NIST AI RMF</span>. Deploy with Watch for continuous drift detection.</p>
-              </div>
-            </div>
+            <div class="step gs"><span class="step-num">01</span><div><h4>Score and analyze</h4><p>Point AMC at any agent. <span class="hl">138 diagnostic questions</span> run against execution evidence. Get a trust score from <span class="hl">L0 to L5</span> in under 2 minutes.</p></div></div>
+            <div class="step gs"><span class="step-num">02</span><div><h4>Fix and harden</h4><p>AMC generates <span class="hl">targeted guardrails</span> for your exact configuration. <span class="hl">86 assurance packs</span> test prompt injection, exfiltration, context leakage, and more.</p></div></div>
+            <div class="step gs"><span class="step-num">03</span><div><h4>Ship and monitor</h4><p>Add a <span class="hl">CI gate</span> with one command. Prevent trust regressions. Generate compliance artifacts for <span class="hl">EU AI Act, ISO 42001, NIST AI RMF</span>.</p></div></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ TERMINAL DEMO ═══ -->
-    <section id="demo">
-      <div class="container">
-        <div class="section-heading fade-up" style="text-align:center">
-          <p class="label">live demo</p>
-          <h2>See it <strong>in action<span class="accent">_</span></strong></h2>
-          <p class="section-desc" style="margin:1rem auto 0">One command. No account. No API key. Your first trust score in 2 minutes.</p>
-        </div>
-        <div class="terminal fade-up fd1">
-          <div class="terminal-bar">
-            <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
-            <div class="terminal-title">amc — quickscore</div>
-          </div>
-          <div class="terminal-body" id="terminal-body"></div>
-        </div>
-        <div class="demo-actions fade-up fd2">
-          <div class="hero-install" onclick="navigator.clipboard&&navigator.clipboard.writeText('npx agent-maturity-compass quickscore')"><span class="hi-prompt">$</span> npx agent-maturity-compass quickscore</div>
-          <a href="playground.html" class="btn btn-primary btn-lg">or try in browser →</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ WHO IT'S FOR ═══ -->
-    <section class="section-alt">
-      <div class="container">
-        <div class="section-heading fade-up">
-          <p class="label">who it's for</p>
-          <h2>Built for <strong>every developer<span class="accent">_</span></strong></h2>
-        </div>
-        <div class="persona-grid">
-          <div class="persona fade-up">
-            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <h3>Solo developers</h3>
-            <p>Get a first score fast. See the gaps. Add a CI gate. No enterprise overhead. The <span class="hl">full trust stack is free</span>.</p>
-          </div>
-          <div class="persona fade-up fd1">
-            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-            <h3>Engineering teams</h3>
-            <p>Standardize trust scoring across agents. Share workflows, <span class="hl">enforce thresholds</span>, monitor drift with Fleet and Watch.</p>
-          </div>
-          <div class="persona fade-up fd2">
-            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <h3>Security &amp; compliance</h3>
-            <p>Run <span class="hl">86 adversarial assurance packs</span>. Map evidence to regulatory frameworks. Generate audit-grade reports with Comply.</p>
-          </div>
-          <div class="persona fade-up fd3">
-            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            <h3>Platform teams</h3>
-            <p>Deploy AMC as infrastructure. Score every agent in the fleet. Set <span class="hl">org-wide trust policies</span> with Enforce.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ DIFFERENTIATORS ═══ -->
-    <section>
-      <div class="container">
-        <div class="section-heading fade-up">
-          <p class="label">why amc</p>
-          <h2>What makes this <strong>different<span class="accent">_</span></strong></h2>
-        </div>
-        <div class="diff-grid">
-          <div class="diff fade-up"><h4 class="underscore">Evidence-weighted scoring</h4><p>Self-reported evidence capped at <span class="hl">0.4× weight</span>. Observed execution evidence scores at <span class="hl">1.0×</span>. You can't game this with better documentation.</p></div>
-          <div class="diff fade-up fd1"><h4 class="underscore">Cryptographic proof chains</h4><p><span class="hl">Ed25519 signatures</span> and Merkle-tree evidence chains. Tamper-evident. Auditor-friendly. Not just a number in a dashboard.</p></div>
-          <div class="diff fade-up fd2"><h4 class="underscore">Zero code changes</h4><p>AMC wraps your existing agent with <span class="hl">one environment variable</span>. The agent doesn't know it's being observed. No SDK integration required.</p></div>
-          <div class="diff fade-up fd3"><h4 class="underscore">481 CLI commands</h4><p>Score, fix, shield, watch, comply, fleet, vault, passport — every trust workflow is a <span class="hl">CLI command</span> away. Scriptable. Composable. CI-ready.</p></div>
-          <div class="diff fade-up fd4"><h4 class="underscore">14 framework adapters</h4><p>LangChain, CrewAI, OpenAI, AutoGen, Claude Code, Gemini, LlamaIndex, Semantic Kernel, and <span class="hl">6 more</span>. One tool for your entire stack.</p></div>
-          <div class="diff fade-up fd5"><h4 class="underscore">Free forever</h4><p>The <span class="hl">entire trust stack</span> is MIT licensed. Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply — all free. Only Industry Packs are paid.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ INDUSTRY PACKS — 7 STATIONS × 40 PACKS ═══ -->
+    <!-- ═══ INDUSTRY PACKS ═══ -->
     <section id="domains" class="section-alt">
       <div class="container">
-        <div class="section-heading fade-up" style="text-align:center">
-          <p class="label">retailization industry packs</p>
+        <div class="section-heading gs" style="text-align:center">
+          <p class="label">industry packs</p>
           <h2>7 stations<span class="accent">.</span> 40 packs<span class="accent">.</span><br><strong>592 diagnostic questions<span class="accent">_</span></strong></h2>
-          <p class="section-desc" style="margin:1rem auto 0;text-align:center;max-width:600px">Based on the <span class="hl">Retailization framework</span> by Subbu Iyer. Sector-specific diagnostics grounded in real regulations — EU AI Act, HIPAA, FDA, NERC CIP, CITES, ILO, ISO, and 40+ regulatory frameworks.</p>
+          <p class="section-desc" style="margin:1rem auto 0;text-align:center;max-width:600px">Sector-specific diagnostics grounded in real regulations — EU AI Act, HIPAA, FDA, NERC CIP, CITES, ILO, ISO, and 40+ regulatory frameworks.</p>
         </div>
 
-        <!-- ── ENVIRONMENT (6 packs) ── -->
-        <div class="station-heading fade-up">
-          <span class="station-icon">🌍</span>
-          <div><h3>Environment<span class="accent">_</span></h3><span class="station-meta">6 packs · 87 questions · critical risk</span></div>
-        </div>
-        <div class="domains-grid fade-up">
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c-4.97 0-9-2.69-9-6v-4c0-3.31 4.03-6 9-6s9 2.69 9 6v4c0 3.31-4.03 6-9 6z"/><path d="M3 12c0 3.31 4.03 6 9 6s9-2.69 9-6"/><line x1="12" y1="6" x2="12" y2="2"/><path d="M9 3l3-1 3 1"/></svg><span class="domain-num">01</span></div><h4>Farm to Fork</h4><p>EU Farm to Fork, ISO 22000, HACCP, EUDR deforestation</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16"/><path d="M4 10h16"/><path d="M4 14h12"/><path d="M4 18h8"/><circle cx="20" cy="16" r="2"/></svg><span class="domain-num">02</span></div><h4>Weave to Wear</h4><p>REACH, ZDHC, GRS, ILO labour, textile circularity</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/></svg><span class="domain-num">03</span></div><h4>Material to Machines</h4><p>RoHS, WEEE, ecodesign, IEC 62443, EU Battery Reg</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 8C8 10 5.9 16.17 3.82 21.34"/><path d="M21 3l-2 4-4-2"/><path d="M3 21c2-6 7-10 15-12"/></svg><span class="domain-num">04</span></div><h4>Source to Sustenance</h4><p>CBD, CITES, FSC, REDD+, biodiversity, Nagoya Protocol</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="domain-num">05</span></div><h4>Ubiquity to Utility</h4><p>NERC CIP, RED III, ISO 50001, grid stability, Paris Art. 6</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10"/><path d="M2 12h10"/><path d="M12 2v10"/><path d="M20 16l-4 4 4 4"/></svg><span class="domain-num">06</span></div><h4>Sip to Sanitation</h4><p>EU WFD, WHO water safety, MARPOL, PFAS monitoring</p></div>
+        <div class="station-heading gs"><svg class="station-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg><div><h3>Environment</h3><span class="station-meta">6 packs · 87 questions · critical risk · EU AI Act high-risk</span></div></div>
+        <div class="domains-grid gs">
+          <div class="domain"><span class="domain-num">01</span><h4>Farm to Fork</h4><p>EU Farm to Fork, ISO 22000, HACCP, EUDR</p></div>
+          <div class="domain"><span class="domain-num">02</span><h4>Weave to Wear</h4><p>REACH, ZDHC, GRS, ILO labour standards</p></div>
+          <div class="domain"><span class="domain-num">03</span><h4>Material to Machines</h4><p>RoHS, WEEE, ecodesign, EU Battery Reg</p></div>
+          <div class="domain"><span class="domain-num">04</span><h4>Source to Sustenance</h4><p>CBD, CITES, FSC, REDD+, Nagoya Protocol</p></div>
+          <div class="domain"><span class="domain-num">05</span><h4>Ubiquity to Utility</h4><p>NERC CIP, RED III, ISO 50001, grid safety</p></div>
+          <div class="domain"><span class="domain-num">06</span><h4>Sip to Sanitation</h4><p>EU WFD, WHO water safety, MARPOL, PFAS</p></div>
         </div>
 
-        <!-- ── HEALTH (9 packs) ── -->
-        <div class="station-heading fade-up">
-          <span class="station-icon">🏥</span>
-          <div><h3>Health<span class="accent">_</span></h3><span class="station-meta">9 packs · 151 questions · critical risk</span></div>
-        </div>
-        <div class="domains-grid fade-up">
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M9 3v18"/><line x1="13" y1="8" x2="18" y2="8"/><line x1="13" y1="12" x2="18" y2="12"/><line x1="13" y1="16" x2="16" y2="16"/></svg><span class="domain-num">07</span></div><h4>Digital Health Record</h4><p>HL7 FHIR, HIPAA, EHDS, 21st Century Cures Act</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span class="domain-num">08</span></div><h4>Wellness Management</h4><p>GDPR Art. 9, SAMHSA, ADA, ISO 45001, crisis safety</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="domain-num">09</span></div><h4>Patient Lifecycle</h4><p>FDA 510(k), JCI, CMS, ISO 13131 telehealth</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><circle cx="12" cy="12" r="4"/></svg><span class="domain-num">10</span></div><h4>Clinical Lifecycle</h4><p>FDA 21 CFR 820, EU MDR, ICH GCP, ISO 14971</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg><span class="domain-num">11</span></div><h4>Professional Practice</h4><p>HIPAA, HITECH, ONC, AMA CPT, CMS billing</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/><path d="M8 3h8"/></svg><span class="domain-num">12</span></div><h4>Life Technology</h4><p>EU IVDR, FDA AI/ML SaMD, medical device lifecycle</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6v4a3 3 0 01-6 0V3z"/><line x1="12" y1="7" x2="12" y2="14"/><path d="M8 14h8l-1 7H9l-1-7z"/></svg><span class="domain-num">13</span></div><h4>Drug Discovery</h4><p>FDA IND, ICH Q8-Q12, GxP, 21 CFR Part 11</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg><span class="domain-num">14</span></div><h4>Clinical Trials</h4><p>ICH E6(R2) GCP, FDA 21 CFR 312, EU CTR</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><circle cx="12" cy="16" r="1"/></svg><span class="domain-num">15</span></div><h4>Specialized Medicine</h4><p>Orphan drugs, pharmacogenomics, WHO essential medicines</p></div>
+        <div class="station-heading gs"><svg class="station-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><div><h3>Health</h3><span class="station-meta">9 packs · 151 questions · critical risk · EU AI Act high-risk</span></div></div>
+        <div class="domains-grid gs">
+          <div class="domain"><span class="domain-num">07</span><h4>Digital Health Record</h4><p>HL7 FHIR, HIPAA, EHDS, Cures Act</p></div>
+          <div class="domain"><span class="domain-num">08</span><h4>Wellness Management</h4><p>GDPR Art. 9, SAMHSA, ADA, ISO 45001</p></div>
+          <div class="domain"><span class="domain-num">09</span><h4>Patient Lifecycle</h4><p>FDA 510(k), JCI, CMS, ISO 13131</p></div>
+          <div class="domain"><span class="domain-num">10</span><h4>Clinical Lifecycle</h4><p>FDA 21 CFR 820, EU MDR, ICH GCP</p></div>
+          <div class="domain"><span class="domain-num">11</span><h4>Professional Practice</h4><p>HIPAA, HITECH, ONC, AMA CPT</p></div>
+          <div class="domain"><span class="domain-num">12</span><h4>Life Technology</h4><p>EU IVDR, FDA AI/ML SaMD, IEC 62304</p></div>
+          <div class="domain"><span class="domain-num">13</span><h4>Drug Discovery</h4><p>FDA IND, ICH Q8-Q12, GxP, 21 CFR 11</p></div>
+          <div class="domain"><span class="domain-num">14</span><h4>Clinical Trials</h4><p>ICH E6(R2) GCP, FDA 21 CFR 312</p></div>
+          <div class="domain"><span class="domain-num">15</span><h4>Specialized Medicine</h4><p>Orphan drugs, pharmacogenomics, WHO</p></div>
         </div>
 
-        <!-- ── WEALTH (5 packs) ── -->
-        <div class="station-heading fade-up">
-          <span class="station-icon">💰</span>
-          <div><h3>Wealth<span class="accent">_</span></h3><span class="station-meta">5 packs · 70 questions · very-high risk</span></div>
-        </div>
-        <div class="domains-grid fade-up">
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span class="domain-num">16</span></div><h4>Future of Work</h4><p>ILO gig economy, EU Platform Work, ADA, EEOC</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><rect x="5" y="14" width="4" height="3" rx="0.5"/></svg><span class="domain-num">17</span></div><h4>Digital Payments</h4><p>PSD2, PCI-DSS, AML/KYC, FATF, real-time settlement</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span class="domain-num">18</span></div><h4>No Poverty</h4><p>Microfinance, financial inclusion, SDG 1, World Bank</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="domain-num">19</span></div><h4>Circular Economy</h4><p>EU Taxonomy, green bonds, ESG reporting, SFDR</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="10" rx="1"/><path d="M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2"/><line x1="12" y1="11" x2="12" y2="13"/></svg><span class="domain-num">20</span></div><h4>Blockchain &amp; DeFi</h4><p>MiCA, SEC, CFTC, DeFi risk, smart contract audit</p></div>
+        <div class="station-heading gs"><svg class="station-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><div><h3>Wealth</h3><span class="station-meta">5 packs · 70 questions · very-high risk · EU AI Act high-risk</span></div></div>
+        <div class="domains-grid gs">
+          <div class="domain"><span class="domain-num">16</span><h4>Future of Work</h4><p>ILO, EU Platform Work, ADA, EEOC</p></div>
+          <div class="domain"><span class="domain-num">17</span><h4>Digital Payments</h4><p>PSD2, PCI-DSS, AML/KYC, FATF</p></div>
+          <div class="domain"><span class="domain-num">18</span><h4>No Poverty</h4><p>Microfinance, SDG 1, financial inclusion</p></div>
+          <div class="domain"><span class="domain-num">19</span><h4>Circular Economy</h4><p>EU Taxonomy, green bonds, ESG, SFDR</p></div>
+          <div class="domain"><span class="domain-num">20</span><h4>Blockchain &amp; DeFi</h4><p>MiCA, SEC, CFTC, smart contract audit</p></div>
         </div>
 
-        <!-- ── EDUCATION (5 packs) ── -->
-        <div class="station-heading fade-up">
-          <span class="station-icon">📚</span>
-          <div><h3>Education<span class="accent">_</span></h3><span class="station-meta">5 packs · 72 questions · very-high risk</span></div>
-        </div>
-        <div class="domains-grid fade-up">
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span class="domain-num">21</span></div><h4>K-12 Education</h4><p>FERPA, COPPA, age-appropriate AI, academic integrity</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2.5 3 4.5 6 4.5s6-2 6-4.5v-5"/></svg><span class="domain-num">22</span></div><h4>Higher Education</h4><p>Accreditation, research integrity, GDPR, Bologna</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91A6 6 0 013.07 2.53l3.77 3.77z"/></svg><span class="domain-num">23</span></div><h4>Skills &amp; Vocational Training</h4><p>ILO skills standards, EU Digital Skills, micro-credentials</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="domain-num">24</span></div><h4>Specialized Education</h4><p>STEM, arts, language — domain-specific pedagogy AI</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><span class="domain-num">25</span></div><h4>Differently Abled</h4><p>WCAG, IDEA, ADA, UN CRPD, assistive technology AI</p></div>
+        <div class="station-heading gs"><svg class="station-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><div><h3>Education</h3><span class="station-meta">5 packs · 72 questions · very-high risk · EU AI Act high-risk</span></div></div>
+        <div class="domains-grid gs">
+          <div class="domain"><span class="domain-num">21</span><h4>K-12 Education</h4><p>FERPA, COPPA, age-appropriate AI</p></div>
+          <div class="domain"><span class="domain-num">22</span><h4>Higher Education</h4><p>Accreditation, research integrity, GDPR</p></div>
+          <div class="domain"><span class="domain-num">23</span><h4>Skills &amp; Vocational</h4><p>ILO standards, EU Digital Skills</p></div>
+          <div class="domain"><span class="domain-num">24</span><h4>Specialized Education</h4><p>STEM, arts, domain-specific pedagogy</p></div>
+          <div class="domain"><span class="domain-num">25</span><h4>Differently Abled</h4><p>WCAG, IDEA, ADA, UN CRPD</p></div>
         </div>
 
-        <!-- ── MOBILITY (5 packs) ── -->
-        <div class="station-heading fade-up">
-          <span class="station-icon">🚗</span>
-          <div><h3>Mobility<span class="accent">_</span></h3><span class="station-meta">5 packs · 70 questions · critical risk</span></div>
-        </div>
-        <div class="domains-grid fade-up">
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="domain-num">26</span></div><h4>Sustainable Communities</h4><p>Smart city AI, urban planning, SDG 11, citizen equity</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 20h20"/><path d="M5 20V8l5-4h4l5 4v12"/><rect x="9" y="12" width="6" height="8"/></svg><span class="domain-num">27</span></div><h4>Sustainable Ports</h4><p>IMO, ISPS, maritime logistics, port safety AI</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="18" height="12" rx="1"/><path d="M7 8V6a2 2 0 012-2h6a2 2 0 012 2v2"/><line x1="12" y1="12" x2="12" y2="16"/></svg><span class="domain-num">28</span></div><h4>Sustainable Real Estate</h4><p>Green building, LEED/BREEAM, fair housing, proptech</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg><span class="domain-num">29</span></div><h4>Virtual Infrastructure</h4><p>Cloud sovereignty, digital twin, 5G/6G, NIS2</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg><span class="domain-num">30</span></div><h4>Privacy &amp; Security</h4><p>GDPR, eIDAS, zero-trust, autonomous vehicle cybersecurity</p></div>
+        <div class="station-heading gs"><svg class="station-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg><div><h3>Mobility</h3><span class="station-meta">5 packs · 70 questions · critical risk · EU AI Act high-risk</span></div></div>
+        <div class="domains-grid gs">
+          <div class="domain"><span class="domain-num">26</span><h4>Sustainable Communities</h4><p>Smart city AI, SDG 11, citizen equity</p></div>
+          <div class="domain"><span class="domain-num">27</span><h4>Sustainable Ports</h4><p>IMO, ISPS, maritime logistics safety</p></div>
+          <div class="domain"><span class="domain-num">28</span><h4>Sustainable Real Estate</h4><p>LEED/BREEAM, fair housing, proptech</p></div>
+          <div class="domain"><span class="domain-num">29</span><h4>Virtual Infrastructure</h4><p>Cloud sovereignty, digital twin, NIS2</p></div>
+          <div class="domain"><span class="domain-num">30</span><h4>Privacy &amp; Security</h4><p>GDPR, eIDAS, zero-trust, AV cyber</p></div>
         </div>
 
-        <!-- ── TECHNOLOGY (5 packs) ── -->
-        <div class="station-heading fade-up">
-          <span class="station-icon">💻</span>
-          <div><h3>Technology<span class="accent">_</span></h3><span class="station-meta">5 packs · 71 questions · high risk</span></div>
-        </div>
-        <div class="domains-grid fade-up">
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg><span class="domain-num">31</span></div><h4>Cognition to Intelligence</h4><p>AI safety, alignment, AGI governance, EU AI Act</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span class="domain-num">32</span></div><h4>Networked Ecosystems</h4><p>IoT security, mesh networks, interoperability, IEC 62443</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="domain-num">33</span></div><h4>OS for Sustainable Outcomes</h4><p>Platform responsibility, SOC 2, data sovereignty</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 9 10 15 15 12 10 9"/></svg><span class="domain-num">34</span></div><h4>Infotainment</h4><p>Content safety, deepfake, COPPA, DSA, misinformation</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><span class="domain-num">35</span></div><h4>Partnerships for Prosperity</h4><p>Cross-border data, SDG 17, technology transfer, IP</p></div>
+        <div class="station-heading gs"><svg class="station-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/></svg><div><h3>Technology</h3><span class="station-meta">5 packs · 71 questions · high risk · EU AI Act general-purpose</span></div></div>
+        <div class="domains-grid gs">
+          <div class="domain"><span class="domain-num">31</span><h4>Cognition to Intelligence</h4><p>AI safety, alignment, AGI governance</p></div>
+          <div class="domain"><span class="domain-num">32</span><h4>Networked Ecosystems</h4><p>IoT security, IEC 62443, mesh networks</p></div>
+          <div class="domain"><span class="domain-num">33</span><h4>OS for Sustainable Outcomes</h4><p>Platform responsibility, SOC 2, sovereignty</p></div>
+          <div class="domain"><span class="domain-num">34</span><h4>Infotainment</h4><p>Content safety, deepfake, DSA, COPPA</p></div>
+          <div class="domain"><span class="domain-num">35</span><h4>Partnerships for Prosperity</h4><p>Cross-border data, SDG 17, IP, tech transfer</p></div>
         </div>
 
-        <!-- ── GOVERNANCE (5 packs) ── -->
-        <div class="station-heading fade-up">
-          <span class="station-icon">🏛️</span>
-          <div><h3>Governance<span class="accent">_</span></h3><span class="station-meta">5 packs · 71 questions · very-high risk</span></div>
-        </div>
-        <div class="domains-grid fade-up">
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="domain-num">36</span></div><h4>Digital Citizens &amp; Rights</h4><p>GDPR, ePrivacy, digital identity, right to explanation</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><span class="domain-num">37</span></div><h4>Dance of Democracy</h4><p>Election integrity, algorithmic accountability, FOIA</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="domain-num">38</span></div><h4>Petition to Law</h4><p>Legislative AI, regulatory drafting, public comment</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg><span class="domain-num">39</span></div><h4>Citizen Services</h4><p>E-government, public service AI, FedRAMP, accessibility</p></div>
-          <div class="domain"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span class="domain-num">40</span></div><h4>Public &amp; Private Collaboration</h4><p>PPP governance, procurement AI, anti-corruption</p></div>
+        <div class="station-heading gs"><svg class="station-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg><div><h3>Governance</h3><span class="station-meta">5 packs · 71 questions · very-high risk · EU AI Act high-risk</span></div></div>
+        <div class="domains-grid gs">
+          <div class="domain"><span class="domain-num">36</span><h4>Digital Citizens &amp; Rights</h4><p>GDPR, ePrivacy, right to explanation</p></div>
+          <div class="domain"><span class="domain-num">37</span><h4>Dance of Democracy</h4><p>Election integrity, algorithmic accountability</p></div>
+          <div class="domain"><span class="domain-num">38</span><h4>Petition to Law</h4><p>Legislative AI, regulatory drafting</p></div>
+          <div class="domain"><span class="domain-num">39</span><h4>Citizen Services</h4><p>E-government, FedRAMP, accessibility</p></div>
+          <div class="domain"><span class="domain-num">40</span><h4>Public &amp; Private Collaboration</h4><p>PPP governance, procurement AI</p></div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ FIGURES ═══ -->
-    <section>
+    <!-- ═══ RESEARCH FOUNDATION ═══ -->
+    <section id="research">
       <div class="container">
-        <div class="figures">
-          <div class="figure-item fade-up"><span class="figure-val"><span class="accent">3,311</span></span><span class="figure-label">tests passing</span></div>
-          <div class="figure-item fade-up fd1"><span class="figure-val"><span class="accent">481</span></span><span class="figure-label">cli commands</span></div>
-          <div class="figure-item fade-up fd2"><span class="figure-val"><span class="accent">74</span>+</span><span class="figure-label">scoring modules</span></div>
-          <div class="figure-item fade-up fd3"><span class="figure-val"><span class="accent">592</span></span><span class="figure-label">industry questions</span></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ TRUST SIGNALS ═══ -->
-    <section class="section-alt">
-      <div class="container">
-        <div class="section-heading fade-up" style="text-align:center">
-          <p class="label">grounded in research</p>
+        <div class="section-heading gs" style="text-align:center">
+          <p class="label">research foundation</p>
           <h2>Built on <strong>primary sources<span class="accent">_</span></strong></h2>
+          <p class="section-desc" style="margin:1rem auto 0;text-align:center;max-width:600px">Every AMC module is grounded in peer-reviewed research. 21 papers analyzed, cross-referenced against 74 score modules and 86 assurance packs.</p>
         </div>
-        <div class="trust-grid">
-          <div class="trust-item fade-up"><h4>NIST AI RMF</h4><p>"Improve the ability to incorporate trustworthiness considerations into the design, development, use, and evaluation of AI products."</p><a href="https://www.nist.gov/itl/ai-risk-management-framework" class="card-link" target="_blank" rel="noopener">nist.gov →</a></div>
-          <div class="trust-item fade-up fd1"><h4>Levels of AGI — ICML 2024</h4><p>Future benchmarks should quantify behavior and capabilities against levels, autonomy, and risk — not benchmark theater.</p><a href="https://arxiv.org/abs/2311.02462" class="card-link" target="_blank" rel="noopener">arxiv.org →</a></div>
-          <div class="trust-item fade-up fd2"><h4>Connecting the Dots — NeurIPS 2024</h4><p>Frontier models can infer latent information from distributed evidence, making monitoring harder.</p><a href="https://arxiv.org/abs/2406.14546" class="card-link" target="_blank" rel="noopener">arxiv.org →</a></div>
+        <div class="research-grid">
+          <div class="research-item gs"><span class="research-tag">NIST</span><h4>NIST AI Risk Management Framework</h4><p>Core governance structure for trustworthy AI deployment and evaluation.</p><span class="research-maps">→ crossFrameworkMapping, governanceNISTRMF</span><a href="https://www.nist.gov/itl/ai-risk-management-framework" class="card-link" target="_blank" rel="noopener">nist.gov →</a></div>
+          <div class="research-item gs"><span class="research-tag">ICML 2024</span><h4>Levels of AGI — Operationalizing Progress</h4><p>Maturity levels framework for AI capabilities and autonomy.</p><span class="research-maps">→ L0-L5 maturity scale, autonomy scoring</span><a href="https://arxiv.org/abs/2311.02462" class="card-link" target="_blank" rel="noopener">arxiv 2311.02462 →</a></div>
+          <div class="research-item gs"><span class="research-tag">NeurIPS 2024</span><h4>Connecting the Dots — LLMs Infer Latent Info</h4><p>Frontier models infer information from distributed evidence.</p><span class="research-maps">→ contextLeakagePack, informationBarrier</span><a href="https://arxiv.org/abs/2406.14546" class="card-link" target="_blank" rel="noopener">arxiv 2406.14546 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>Zombie Agents — Persistent Memory Injection</h4><p>Cross-session memory poisoning via self-reinforcing payloads.</p><span class="research-maps">→ memoryIntegrity, zombieAgentPersistencePack</span><a href="https://arxiv.org/abs/2602.15654" class="card-link" target="_blank" rel="noopener">arxiv 2602.15654 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>Agent-as-a-Proxy Monitor Bypass</h4><p>Proves monitoring-based defenses are fundamentally fragile.</p><span class="research-maps">→ monitorBypassResistance, agentAsProxyPack</span><a href="https://arxiv.org/abs/2602.05066" class="card-link" target="_blank" rel="noopener">arxiv 2602.05066 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>SoK: Trust-Authorization Mismatch</h4><p>Static permissions vs dynamic trust — the root cause of agent failures.</p><span class="research-maps">→ trustAuthorizationSync, runtimeIdentityMaturity</span><a href="https://arxiv.org/abs/2512.06914" class="card-link" target="_blank" rel="noopener">arxiv 2512.06914 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>MCP Security Bench — 12 Attack Taxonomy</h4><p>First end-to-end evaluation of MCP-specific attack vectors.</p><span class="research-maps">→ mcpCompliance, mcpSecurityResiliencePack</span><a href="https://arxiv.org/abs/2510.15994" class="card-link" target="_blank" rel="noopener">arxiv 2510.15994 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>Beyond Max Tokens — Economic DoS</h4><p>Stealthy 658x cost amplification via tool-calling chains.</p><span class="research-maps">→ costPredictability, economicAmplificationPack</span><a href="https://arxiv.org/abs/2601.10955" class="card-link" target="_blank" rel="noopener">arxiv 2601.10955 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>ForesightSafety Bench — 94 Risk Dimensions</h4><p>Comprehensive 7-pillar safety evaluation covering 94 refined risk dimensions.</p><span class="research-maps">→ crossFrameworkMapping, catastrophicRiskIndicators</span><a href="https://arxiv.org/abs/2602.14135" class="card-link" target="_blank" rel="noopener">arxiv 2602.14135 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>The Promptware Kill Chain</h4><p>Formalizes multi-step malware delivery via prompt injection.</p><span class="research-maps">→ injectionPack, encodedInjectionPack</span><a href="https://arxiv.org/abs/2601.09625" class="card-link" target="_blank" rel="noopener">arxiv 2601.09625 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>MemTrust — Zero-Trust Memory Architecture</h4><p>Five-layer TEE-protected architecture for AI memory systems.</p><span class="research-maps">→ memoryMaturity, memorySecurityArchitecture</span><a href="https://arxiv.org/abs/2601.07004" class="card-link" target="_blank" rel="noopener">arxiv 2601.07004 →</a></div>
+          <div class="research-item gs"><span class="research-tag">2026</span><h4>Objective Decoupling in Social RL</h4><p>Sycophantic feedback permanently separates learned objective from ground truth.</p><span class="research-maps">→ sycophancyPack, alignmentIndex</span><a href="https://arxiv.org/abs/2602.08092" class="card-link" target="_blank" rel="noopener">arxiv 2602.08092 →</a></div>
         </div>
+        <p class="gs" style="text-align:center;margin-top:2rem"><a href="docs/index.html#RESEARCH_PAPERS_2026" class="card-link">see all 21 papers + gap analysis →</a></p>
       </div>
     </section>
 
     <!-- ═══ PRICING ═══ -->
-    <section id="pricing">
+    <section id="pricing" class="section-alt">
       <div class="container">
-        <div class="section-heading fade-up" style="text-align:center">
+        <div class="section-heading gs" style="text-align:center">
           <p class="label">pricing</p>
           <h2>Everything is <strong>free<span class="accent">_</span></strong></h2>
-          <p class="section-desc" style="margin:1rem auto 0;text-align:center;max-width:550px">The full trust stack is MIT licensed. The only paid surface is Industry Packs for regulated verticals.</p>
         </div>
         <div class="pricing-grid">
-          <div class="pricing-card fade-up">
+          <div class="pricing-card gs">
             <span class="tier">free / open source</span>
             <h3>The entire trust stack</h3>
-            <p>Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply. All <span class="hl">14 adapters</span>. <span class="hl">481 CLI commands</span>. Browser playground. CI gates.</p>
-            <div class="items"><span class="hl">138</span> diagnostics<br><span class="hl">86</span> assurance packs<br><span class="hl">14</span> framework adapters<br><span class="hl">3,311</span> tests passing<br><span class="hl">MIT</span> licensed forever</div>
-            <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-primary btn-lg">get started →</a>
+            <p>Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply. All <span class="hl">14 adapters</span>. <span class="hl">481 CLI commands</span>.</p>
+            <div class="items"><span class="hl">138</span> diagnostics · <span class="hl">86</span> assurance packs · <span class="hl">14</span> adapters · <span class="hl">3,311</span> tests · <span class="hl">MIT</span> licensed</div>
+            <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-primary btn-xl">get started →</a>
           </div>
-          <div class="pricing-card fade-up fd1">
+          <div class="pricing-card gs">
             <span class="tier">pro / enterprise</span>
             <h3>Industry Packs</h3>
-            <p><span class="hl">40 Retailization packs</span> across 7 stations — 592 sector-specific questions grounded in real regulatory frameworks.</p>
-            <div class="items">🌍 Environment (6 packs)<br>🏥 Health (9 packs)<br>💰 Wealth (5 packs)<br>📚 Education (5 packs)<br>🚗 Mobility (5 packs)<br>💻 Technology (5 packs)<br>🏛️ Governance (5 packs)</div>
-            <a href="docs/index.html#PRICING" class="btn btn-outline btn-lg">learn more →</a>
+            <p><span class="hl">40 industry packs</span> across 7 stations — 592 sector-specific questions for regulated verticals.</p>
+            <div class="items">Environment (6) · Health (9) · Wealth (5) · Education (5) · Mobility (5) · Technology (5) · Governance (5)</div>
+            <a href="docs/index.html#PRICING" class="btn btn-outline btn-xl">learn more →</a>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ═══ FAQ ═══ -->
-    <section class="section-alt">
+    <section>
       <div class="container">
-        <div class="section-heading fade-up" style="text-align:center">
-          <p class="label">faq</p>
-          <h2>Common <strong>questions<span class="accent">_</span></strong></h2>
-        </div>
+        <div class="section-heading gs" style="text-align:center"><p class="label">faq</p><h2>Common <strong>questions<span class="accent">_</span></strong></h2></div>
         <div class="faq-list">
-          <div class="faq-item fade-up"><button class="faq-q" aria-expanded="false">What is the 84-point documentation inflation gap?<span class="faq-icon">+</span></button><div class="faq-a"><p>When scored using self-reported documentation, an agent scores 100/100. When AMC evaluates the same agent using <span class="hl">execution-verified evidence</span>, the real score is 16/100. That 84-point gap is documentation inflation. AMC closes it with observed evidence and cryptographic proof chains.</p></div></div>
-          <div class="faq-item fade-up fd1"><button class="faq-q" aria-expanded="false">How is AMC different from other evaluation tools?<span class="faq-icon">+</span></button><div class="faq-a"><p>Most tools let the agent being evaluated provide its own evidence. AMC sits between the agent and the LLM provider as a <span class="hl">trusted observer</span>. Self-reported evidence is capped at <span class="hl">0.4× weight</span>. Observed evidence scores at 1.0×. That is a structural difference.</p></div></div>
-          <div class="faq-item fade-up fd2"><button class="faq-q" aria-expanded="false">Which frameworks does AMC support?<span class="faq-icon">+</span></button><div class="faq-a"><p><span class="hl">14 adapters</span>: LangChain, LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, LlamaIndex, Semantic Kernel, Claude Code, Gemini, OpenClaw, OpenHands, Python SDK, CLI, and any OpenAI-compatible endpoint. Zero code changes — one environment variable.</p></div></div>
-          <div class="faq-item fade-up fd3"><button class="faq-q" aria-expanded="false">Is AMC really free?<span class="faq-icon">+</span></button><div class="faq-a"><p>Yes. <span class="hl">MIT licensed</span>. The full trust stack — Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply — is free forever. The only paid surface is Industry Packs (40 sector-specific domain packs for regulated verticals).</p></div></div>
-          <div class="faq-item fade-up fd4"><button class="faq-q" aria-expanded="false">Do I need to change my agent's code?<span class="faq-icon">+</span></button><div class="faq-a"><p>No. AMC wraps your existing agent with <span class="hl">one environment variable</span>. The agent doesn't know it's being observed. Zero code changes required for any of the 14 supported frameworks.</p></div></div>
-          <div class="faq-item fade-up fd5"><button class="faq-q" aria-expanded="false">What does L0 to L5 mean?<span class="faq-icon">+</span></button><div class="faq-a"><p><span class="hl">L0</span>: Dangerous — no controls. <span class="hl">L1</span>: Minimal awareness. <span class="hl">L2</span>: Basic controls. <span class="hl">L3</span>: Mature governance. <span class="hl">L4</span>: Verified trust. <span class="hl">L5</span>: Autonomous with full evidence chains. Each level maps to specific capability thresholds with evidence requirements.</p></div></div>
-          <div class="faq-item fade-up"><button class="faq-q" aria-expanded="false">Can I use AMC in CI/CD?<span class="faq-icon">+</span></button><div class="faq-a"><p>Yes. <code>amc gate --min-score L3</code> fails the pipeline if the agent scores below your threshold. Works with GitHub Actions, GitLab CI, Jenkins, and any CI system that supports exit codes.</p></div></div>
+          <div class="faq-item gs"><button class="faq-q" aria-expanded="false">What is the 84-point documentation inflation gap?<span class="faq-icon">+</span></button><div class="faq-a"><p>Self-reported documentation scores 100/100. AMC's <span class="hl">execution-verified evidence</span> reveals the real score: 16/100. That 84-point gap is documentation inflation. AMC closes it with observed evidence and cryptographic proof chains.</p></div></div>
+          <div class="faq-item gs"><button class="faq-q" aria-expanded="false">How is AMC different from other evaluation tools?<span class="faq-icon">+</span></button><div class="faq-a"><p>Most tools let agents self-report evidence. AMC is a <span class="hl">trusted observer</span> — self-reported evidence capped at <span class="hl">0.4× weight</span>, observed execution at 1.0×. Structural difference.</p></div></div>
+          <div class="faq-item gs"><button class="faq-q" aria-expanded="false">Which frameworks does AMC support?<span class="faq-icon">+</span></button><div class="faq-a"><p><span class="hl">14 adapters</span>: LangChain, LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, LlamaIndex, Semantic Kernel, Claude Code, Gemini, OpenClaw, OpenHands, Python SDK, CLI, and any OpenAI-compatible endpoint.</p></div></div>
+          <div class="faq-item gs"><button class="faq-q" aria-expanded="false">Is AMC really free?<span class="faq-icon">+</span></button><div class="faq-a"><p>Yes. <span class="hl">MIT licensed forever</span>. The full trust stack is free. Only Industry Packs (40 sector-specific packs) are paid.</p></div></div>
+          <div class="faq-item gs"><button class="faq-q" aria-expanded="false">Can I use AMC in CI/CD?<span class="faq-icon">+</span></button><div class="faq-a"><p>Yes. <code>amc gate --min-score L3</code> fails the pipeline if below threshold. Works with GitHub Actions, GitLab CI, Jenkins.</p></div></div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ FINAL CTA ═══ -->
+    <!-- ═══ FINAL CTA + NEWSLETTER ═══ -->
     <section class="cta-section">
       <div class="container">
-        <p class="label fade-up" style="text-align:center;margin-bottom:1.5rem">get started</p>
-        <h2 class="fade-up fd1">a single score <strong>can change<br>how you ship agents<span class="accent">_</span></strong></h2>
-        <div class="cta-install fade-up fd2">$ npm i -g agent-maturity-compass</div>
-        <div class="cta-buttons fade-up fd3">
-          <a href="playground.html" class="btn btn-primary btn-lg">try in browser →</a>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-outline btn-lg">view on github →</a>
-          <a href="docs/index.html" class="btn btn-outline btn-lg">read the docs →</a>
+        <h2 class="gs">A single score <strong>can change<br>how you ship agents<span class="accent">_</span></strong></h2>
+        <div class="cta-install gs">$ npm i -g agent-maturity-compass</div>
+        <div class="cta-buttons gs">
+          <a href="playground.html" class="btn btn-primary btn-xl">try in browser →</a>
+          <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-outline btn-xl">view on github →</a>
+          <a href="docs/index.html" class="btn btn-outline btn-xl">read the docs →</a>
+        </div>
+        <div class="cta-sub gs">
+          <p class="cta-sub-text">Stay updated on AMC releases, new industry packs, and research.</p>
+          <div class="cta-sub-row">
+            <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="cta-sub-link">★ Star on GitHub</a>
+            <a href="https://github.com/thewisecrab/AgentMaturityCompass/releases" class="cta-sub-link">Releases</a>
+            <a href="https://www.npmjs.com/package/agent-maturity-compass" class="cta-sub-link">npm</a>
+          </div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-top">
-        <div>
-          <div class="footer-brand">amc<span style="color:#4AEF79">_</span></div>
-          <p class="footer-tagline">Trust scoring for AI agents.<br>Free and open source.</p>
-        </div>
-        <div class="footer-col">
-          <h4>Product</h4>
-          <a href="docs/index.html">Documentation</a>
-          <a href="playground.html">Playground</a>
-          <a href="https://www.npmjs.com/package/agent-maturity-compass">npm</a>
-          <a href="docs/index.html#PRICING">Pricing</a>
-        </div>
-        <div class="footer-col">
-          <h4>Resources</h4>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass">GitHub</a>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/CONTRIBUTING.md">Contributing</a>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/SECURITY.md">Security</a>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/LICENSE">License</a>
-        </div>
+        <div><div class="footer-brand">amc<span style="color:#4AEF79">_</span></div><p class="footer-tagline">Trust scoring for AI agents.<br>Free and open source.</p></div>
+        <div class="footer-col"><h4>Product</h4><a href="docs/index.html">Documentation</a><a href="playground.html">Playground</a><a href="https://www.npmjs.com/package/agent-maturity-compass">npm</a><a href="docs/index.html#PRICING">Pricing</a></div>
+        <div class="footer-col"><h4>Resources</h4><a href="https://github.com/thewisecrab/AgentMaturityCompass">GitHub</a><a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/CONTRIBUTING.md">Contributing</a><a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/SECURITY.md">Security</a><a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/LICENSE">License</a></div>
       </div>
-      <div class="footer-bottom">
-        <span class="footer-copy">© 2025 The Wise Crab. MIT License.</span>
-        <div class="footer-legal"><a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/LICENSE">MIT License</a></div>
-      </div>
+      <div class="footer-bottom"><span class="footer-copy">© 2025 The Wise Crab. MIT License.</span></div>
     </div>
   </footer>
 
-  <script src="particles.js?v=7"></script>
-  <script src="script.js?v=7"></script>
+  <script src="particles.js?v=8"></script>
+  <script src="script.js?v=8"></script>
 </body>
 </html>

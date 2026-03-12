@@ -1,6 +1,6 @@
 /**
- * Retailization Industry Packs — 40 industry-specific AMC sub-packs
- * Based on the Retailization framework by Subbu Iyer
+ * AMC Industry Packs — 40 industry-specific diagnostic sub-packs
+ * Organized across 7 domain stations
  * 7 stations: Environment, Health, Wealth, Education, Mobility, Technology, Governance
  */
 import type { Domain } from "./domainRegistry.js";
