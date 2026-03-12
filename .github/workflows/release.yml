@@ -89,6 +89,14 @@ jobs:
           cp dist/amc-release/artifacts/licenses/licenses.json "dist/licenses.json"
           cp dist/amc-release/artifacts/provenance/provenance.json "dist/provenance.json"
 
+      - name: Build experimental SEA binary artifact
+        run: |
+          npm run build:sea
+          VERSION=$(node -e 'const pkg=require("./package.json");process.stdout.write(pkg.version)')
+          mkdir -p dist/release-binaries
+          cp dist/sea/amc "dist/release-binaries/amc-linux-x64-sea-${VERSION}"
+          cp dist/sea/manifest.json "dist/release-binaries/amc-linux-x64-sea-${VERSION}.manifest.json"
+
       - name: Publish npm package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -140,3 +148,4 @@ jobs:
             dist/licenses.json
             dist/provenance.json
             dist/release-verify.txt
+            dist/release-binaries/*

@@ -2,13 +2,14 @@
 
 ## Overview
 
-AMC is distributed through 4 channels:
+AMC is distributed through 5 channels:
 
 | Channel | Status | Command |
 |---------|--------|---------|
 | **npm** | ✅ Ready | `npm i -g agent-maturity-compass` |
 | **GitHub Releases** | ✅ Ready | `.amcrelease` bundles + SBOM |
 | **Docker / GHCR** | ✅ Ready | `docker run ghcr.io/thewisecrab/amc-studio` |
+| **Single-binary (SEA)** | 🧪 Experimental | host-built `amc` binary artifact |
 | **Homebrew** | 🔜 Pending | `brew install thewisecrab/tap/amc` |
 
 ---
@@ -128,7 +129,26 @@ GitHub → Packages → amc-studio → Package Settings
 
 ---
 
-## 4. Homebrew Tap
+## 4. Single-binary (experimental SEA)
+
+AMC now has an **experimental** single-binary path using Node SEA.
+
+Local build:
+```bash
+npm run build
+npm run build:sea
+./dist/sea/amc doctor --json
+```
+
+Current release direction:
+- release CI is wired to build a host-specific Linux SEA binary artifact
+- the binary and its manifest are uploaded as GitHub release assets when the release workflow runs successfully
+- this is an MVP convenience path, not yet the default install route
+- runtime verification remains experimental and should be checked per host/runner
+
+See also: `docs/SINGLE_BINARY.md`
+
+# 5. Homebrew Tap
 
 ### How Homebrew taps work
 A Homebrew tap is just a GitHub repo named `homebrew-{tap-name}`.

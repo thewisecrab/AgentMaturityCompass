@@ -1,0 +1,89 @@
+name: Nightly compatibility matrix
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility-matrix:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node-version: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Pack npm tarball
+        run: npm pack --json > /tmp/amc-pack.json
+
+      - name: Install packed CLI globally
+        shell: bash
+        run: |
+          set -euo pipefail
+          TGZ=$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync("/tmp/amc-pack.json","utf8"));process.stdout.write(j[0].filename)')
+          npm i -g "./${TGZ}"
+          echo "AMC_MATRIX_PACK_INSTALL=ok" >> "$GITHUB_ENV"
+
+      - name: Verify doctor JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          amc doctor --json > /tmp/amc-doctor.json
+          echo "AMC_MATRIX_DOCTOR_JSON=ok" >> "$GITHUB_ENV"
+
+      - name: Verify quickscore JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          amc quickscore --json > /tmp/amc-quickscore.json || true
+          test -s /tmp/amc-quickscore.json
+          echo "AMC_MATRIX_QUICKSCORE_JSON=ok" >> "$GITHUB_ENV"
+
+      - name: Verify lite-score help path
+        shell: bash
+        run: |
+          set -euo pipefail
+          amc lite-score --help > /tmp/amc-lite-score.txt
+          test -s /tmp/amc-lite-score.txt
+          echo "AMC_MATRIX_LITE_SCORE=ok" >> "$GITHUB_ENV"
+
+      - name: Verify comms-check help path
+        shell: bash
+        run: |
+          set -euo pipefail
+          amc comms-check --help > /tmp/amc-comms-check.txt
+          test -s /tmp/amc-comms-check.txt
+          echo "AMC_MATRIX_COMMS_CHECK=ok" >> "$GITHUB_ENV"
+
+      - name: Build compatibility report
+        run: node scripts/compat-matrix-report.mjs /tmp/compat-matrix-${{ matrix.os }}-node${{ matrix.node-version }}.json
+
+      - name: Upload compatibility artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: |
+            /tmp/amc-doctor.json
+            /tmp/amc-quickscore.json
+            /tmp/amc-lite-score.txt
+            /tmp/amc-comms-check.txt
+            /tmp/compat-matrix-${{ matrix.os }}-node${{ matrix.node-version }}.json

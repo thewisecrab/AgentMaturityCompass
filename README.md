@@ -80,7 +80,9 @@ amc fix           # auto-generate fixes
 
 ### Option 2: Browser (0 minutes)
 
-**[→ Try the Web Playground](https://thewisecrab.github.io/AgentMaturityCompass/playground.html)** — answer 15 questions, get a score. No install.
+**[→ Try the Web Playground](https://thewisecrab.github.io/AgentMaturityCompass/playground.html)** — answer questions, explore scenarios and assurance packs, get a score. No install.
+
+This is AMC's **browser try-now path**: great for first-touch scoring and exploration. For execution evidence, traces, datasets, and CI gates, use the CLI.
 
 ### Option 3: Docker (0 config)
 
@@ -443,6 +445,25 @@ cd AgentMaturityCompass && npm ci && npm run build && npm link
 | [Install Packages](docs/INSTALL_PACKAGES.md) | [Support Policy](docs/SUPPORT_POLICY.md) |
 | [Release Cadence](docs/RELEASE_CADENCE.md) | [CI Templates](docs/CI_TEMPLATES.md) |
 | [Hardening Guide](docs/HARDENING.md) | [Community](docs/COMMUNITY.md) |
+
+### Single-binary install (experimental)
+
+AMC now includes an **experimental Node SEA packaging path** for host-specific single-binary builds:
+
+```bash
+npm run build
+npm run build:sea
+```
+
+The build path is wired in and produces SEA artifacts plus a manifest. Runtime verification is still experimental and host-sensitive. See [docs/SINGLE_BINARY.md](docs/SINGLE_BINARY.md) for the honest status and caveats.
+
+### Nightly compatibility matrix
+
+AMC now includes a scheduled GitHub Actions workflow that validates packaged CLI installs across a small OS/Node matrix and uploads JSON artifacts for inspection:
+
+- workflow: `.github/workflows/nightly-compatibility-matrix.yml`
+- current matrix: `ubuntu-latest` + `macos-latest`, Node `20` + `22`
+- checks: packed install, `doctor --json`, `quickscore --json`, `lite-score --help`, `comms-check --help`
 
 ### Workspace config profiles (MVP)
 
