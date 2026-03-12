@@ -74,11 +74,11 @@
       tx: 0, ty: 0, // set in resize
       angle: angle,
       t: t,
-      size: 1.8 + Math.random() * 1.2,
-      opacity: 0.08 + Math.random() * 0.15,
-      targetOpacity: 0.55 + t * 0.4, // brighter at end (higher score)
+      size: 2.5 + Math.random() * 2,
+      opacity: 0.15 + Math.random() * 0.25,
+      targetOpacity: 0.7 + t * 0.3, // brighter at end (higher score)
       color: color,
-      glowSize: t > 0.85 ? 8 : (t > 0.5 ? 5 : 3), // tip glows more
+      glowSize: t > 0.85 ? 14 : (t > 0.5 ? 10 : 6), // tip glows more
       seed: Math.random() * Math.PI * 2,
     };
   }
@@ -91,8 +91,8 @@
       y: Math.random() * logH,
       vx: 0.3 + Math.random() * 0.8,
       vy: (Math.random() - 0.5) * 0.3,
-      size: verified ? 1.5 + Math.random() : 0.8 + Math.random() * 0.8,
-      opacity: verified ? 0.3 + Math.random() * 0.3 : 0.08 + Math.random() * 0.12,
+      size: verified ? 2 + Math.random() * 1.5 : 1.2 + Math.random(),
+      opacity: verified ? 0.4 + Math.random() * 0.3 : 0.12 + Math.random() * 0.18,
       color: verified ? COL.indigo : COL.gray,
       verified: verified,
       seed: Math.random() * Math.PI * 2,
@@ -317,13 +317,15 @@
       if (p.opacity < 0.01) continue;
 
       // Glow for arc particles
-      if (p.type === 'arc' && p.opacity > 0.3 && p.glowSize > 3) {
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.glowSize * 2);
-        grad.addColorStop(0, rgba(p.color, p.opacity * 0.3));
+      if (p.type === 'arc' && p.opacity > 0.2) {
+        const glowR = p.glowSize * 2.5;
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
+        grad.addColorStop(0, rgba(p.color, p.opacity * 0.45));
+        grad.addColorStop(0.4, rgba(p.color, p.opacity * 0.15));
         grad.addColorStop(1, rgba(p.color, 0));
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.glowSize * 2, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -344,8 +346,8 @@
   }
 
   function drawConnections(fade) {
-    ctx.lineWidth = 0.5;
-    const maxDist = IS_MOBILE ? 30 : 45;
+    ctx.lineWidth = 0.8;
+    const maxDist = IS_MOBILE ? 35 : 55;
     // Only check arc particles
     for (let i = 0; i < ARC_COUNT; i++) {
       const a = particles[i];
@@ -357,7 +359,7 @@
         if (Math.abs(i - j) > 3) continue;
         const d = dist(a.x, a.y, b.x, b.y);
         if (d < maxDist) {
-          const alpha = (1 - d / maxDist) * Math.min(a.opacity, b.opacity) * fade * 0.6;
+          const alpha = (1 - d / maxDist) * Math.min(a.opacity, b.opacity) * fade * 0.8;
           const midColor = lerpColor(a.color, b.color, 0.5);
           ctx.strokeStyle = rgba(midColor, alpha);
           ctx.beginPath();
@@ -375,14 +377,16 @@
     ctx.globalAlpha *= fade;
 
     // Score number
-    ctx.font = '600 ' + (IS_MOBILE ? '28' : '42') + 'px Inter, system-ui, sans-serif';
-    ctx.fillStyle = rgba(COL.white, 0.9);
+    ctx.font = '700 ' + (IS_MOBILE ? '28' : '44') + 'px "Space Grotesk", Inter, system-ui, sans-serif';
+    ctx.fillStyle = rgba(COL.white, 0.92);
     ctx.fillText('L3', cx, cy - 6);
 
     // Sublabel
-    ctx.font = '400 ' + (IS_MOBILE ? '9' : '11') + 'px Inter, system-ui, sans-serif';
-    ctx.fillStyle = rgba(COL.gray, 0.6);
-    ctx.fillText('TRUST SCORE', cx, cy + (IS_MOBILE ? 16 : 22));
+    ctx.font = '500 ' + (IS_MOBILE ? '9' : '11') + 'px "Space Grotesk", Inter, system-ui, sans-serif';
+    ctx.fillStyle = rgba(COL.gray, 0.5);
+    ctx.letterSpacing = '0.15em';
+    ctx.fillText('TRUST SCORE', cx, cy + (IS_MOBILE ? 16 : 24));
+    ctx.letterSpacing = '0px';
   }
 
   /* ── Loop ── */
