@@ -73,5 +73,5 @@ The Design Council should update the AMC website (`website/index.html`) to refle
 6. **The "84-point gap" in the current site should be updated** to reflect the new 126-question diagnostic
 
 ## Commit
-`d8e6b2c` — feat: research-derived modules + docs update — 74 modules, 74 packs, 138 questions
+`d8e6b2c` — feat: research-derived modules + docs update — 74 modules, 86 packs, 138 questions
 Pushed to `main` on `thewisecrab/AgentMaturityCompass`

@@ -108,7 +108,7 @@ amc quickscore
 
 ## 🛡️ Security Recipes (5-10 minutes)
 
-### Full red-team (all 85 attack packs)
+### Full red-team (full assurance library)
 
 ```bash
 amc assurance run --scope full --verbose

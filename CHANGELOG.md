@@ -5,6 +5,14 @@ All notable changes to AMC are documented here.
 ## [Unreleased]
 
 ### Added
+- Documentation + website refresh for the expanded AMC workflow surface:
+  - new docs: `COMPATIBILITY_MATRIX`, `STARTER_BLUEPRINTS`, `OSS_ADOPTION_ROADMAP`
+  - website/docs hub now visibly surfaces compatibility, starter blueprints, and adoption planning
+  - starter blueprint example folders added for OpenClaw, LangChain RAG, CrewAI + GitHub Actions, and OpenAI-compatible lite-score flows
+  - public-facing stale counts/copy normalized across README, website, and selected docs/blog pages
+  - `lite-score` naming normalized in updated public docs
+
+### Added
 - Agent Transparency Report (`amc transparency report`) — behavioral SBOM for AI agents
 - AMC MCP Server (`amc mcp serve`) — Model Context Protocol integration for AI coding assistants
   - 6 tools: amc_list_agents, amc_quickscore, amc_get_guide, amc_check_compliance, amc_transparency_report, amc_score_sector_pack
@@ -48,8 +56,8 @@ All notable changes to AMC are documented here.
 
 ### Changed
 - Question bank expanded: 118 → 138 questions (added Evaluation & Growth dimension)
-- Assurance packs expanded: 71 → 74 packs
-- Test count: 2656 → 2699 (43 guide system tests added)
+- Assurance packs expanded: 71 → 86 packs
+- Test count: 2656 → 3311
 - Website stats updated across all surfaces
 - CLI formatting module (`src/cliFormat.ts`) shared across init, quickscore, doctor
 - Dashboard rebuilt from ground up (v11) with Linear/Vercel aesthetic

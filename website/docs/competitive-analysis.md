@@ -82,7 +82,7 @@ The AI evaluation, security, and governance landscape has exploded into a fragme
 - Maturity scoring (L0-L5) — Promptfoo has pass/fail, not maturity levels
 - Cryptographic evidence chains — Promptfoo has no evidence integrity concept
 - Framework adapters (14) — Promptfoo connects to apps, not frameworks
-- Diagnostic depth (730 questions) — Promptfoo tests vulnerabilities, not capability maturity
+- Diagnostic depth and maturity modeling — Promptfoo tests vulnerabilities, not capability maturity
 - EU AI Act compliance mapping — Promptfoo has generic compliance, not regulation-specific
 - Evidence trust tiers — unique to AMC
 

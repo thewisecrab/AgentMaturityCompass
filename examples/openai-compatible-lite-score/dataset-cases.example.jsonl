@@ -1,0 +1,2 @@
+{"prompt":"Summarize this customer complaint","expected":"Should produce a concise and accurate summary"}
+{"prompt":"Extract action items from this meeting note","expected":"Should list action items without inventing extra tasks"}

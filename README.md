@@ -143,7 +143,7 @@ amc wrap generic-cli -- python my_bot.py
 ### Red-team your agent
 
 ```bash
-amc assurance run --scope full                           # all 85 attack packs
+amc assurance run --scope full                           # full assurance library
 amc assurance run --pack prompt-injection                # specific attack
 amc assurance run --pack adversarial-robustness          # TAP/PAIR/Crescendo
 amc assurance run --format sarif                         # export for security tools
@@ -304,7 +304,7 @@ AMC Gateway ──── transparent proxy, agent doesn't know it's being watche
 Evidence Ledger ──── Ed25519 signatures + Merkle tree proof chains
     │
     ▼
-Scoring Engine ──── 730 questions, 75 modules, 85 attack packs
+Scoring Engine ──── evidence-weighted diagnostics, 74+ modules, 86 assurance packs
     │
     ▼
 AMC Studio ──── dashboard + API + CLI + reports
@@ -334,8 +334,8 @@ AMC Studio ──── dashboard + API + CLI + reports
 
 | Module | What It Does |
 |--------|-------------|
-| **AMC Score** | 730 questions, 5 dimensions, L0–L5 maturity |
-| **AMC Shield** | 85 attack packs: injection, exfiltration, adversarial |
+| **AMC Score** | Evidence-weighted diagnostics across 5 dimensions, L0–L5 maturity |
+| **AMC Shield** | 86 assurance packs: injection, exfiltration, adversarial |
 | **AMC Enforce** | Policy engine, approval workflows, scoped leases |
 | **AMC Vault** | Ed25519 keys, Merkle chains, HSM/TPM support |
 | **AMC Watch** | Dashboard, gateway proxy, Prometheus metrics |
@@ -473,7 +473,7 @@ cd AgentMaturityCompass && npm ci && npm test   # 3,311 tests
 ---
 
 <p align="center">
-  <strong>730 questions · 85 attack packs · 40 domain packs · 14 adapters · 75 scoring modules · 3,311 tests</strong><br>
+  <strong>138 diagnostic questions · 86 assurance packs · 40 domain packs · 14 adapters · 74+ scoring modules · 3,311 tests</strong><br>
   <em>Stop trusting. Start verifying.</em>
 </p>
 

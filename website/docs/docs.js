@@ -324,16 +324,24 @@ function showWelcome() {
         <div class="stat-card"><div class="num">14</div><div class="label">Framework Adapters</div></div>
       </div>
 
-      <h2 style="color:var(--green2);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:16px">Quick Start</h2>
+      <h2 style="color:var(--green2);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:16px">Start Here</h2>
       <div class="quick-links">
         <a href="#GETTING_STARTED" onclick="event.preventDefault();loadDoc('GETTING_STARTED')">🚀 Getting Started</a>
         <a href="#QUICKSTART" onclick="event.preventDefault();loadDoc('QUICKSTART')">⚡ Quick Start Guide</a>
+        <a href="#COMPATIBILITY_MATRIX" onclick="event.preventDefault();loadDoc('COMPATIBILITY_MATRIX')">🧩 Compatibility Matrix</a>
+        <a href="#STARTER_BLUEPRINTS" onclick="event.preventDefault();loadDoc('STARTER_BLUEPRINTS')">🛠️ Starter Blueprints</a>
+        <a href="#OSS_ADOPTION_ROADMAP" onclick="event.preventDefault();loadDoc('OSS_ADOPTION_ROADMAP')">📈 OSS Adoption Roadmap</a>
         <a href="#INSTALL" onclick="event.preventDefault();loadDoc('INSTALL')">📦 Installation</a>
-        <a href="#ARCHITECTURE_MAP" onclick="event.preventDefault();loadDoc('ARCHITECTURE_MAP')">🏗️ Architecture Map</a>
         <a href="#ADAPTERS" onclick="event.preventDefault();loadDoc('ADAPTERS')">🔌 Adapters</a>
         <a href="#SECURITY" onclick="event.preventDefault();loadDoc('SECURITY')">🔒 Security</a>
-        <a href="#EU_AI_ACT_COMPLIANCE" onclick="event.preventDefault();loadDoc('EU_AI_ACT_COMPLIANCE')">⚖️ EU AI Act Compliance</a>
-        <a href="#AGENT_GUIDE" onclick="event.preventDefault();loadDoc('AGENT_GUIDE')">🤖 Agent Guide</a>
+      </div>
+
+      <h2 style="color:var(--green2);border-bottom:1px solid var(--border);padding-bottom:8px;margin:32px 0 16px">Featured Docs</h2>
+      <div class="quick-links">
+        <a href="#COMPATIBILITY_MATRIX" onclick="event.preventDefault();loadDoc('COMPATIBILITY_MATRIX')">🧩 Which stacks work with AMC?</a>
+        <a href="#STARTER_BLUEPRINTS" onclick="event.preventDefault();loadDoc('STARTER_BLUEPRINTS')">🛠️ Opinionated starter stacks</a>
+        <a href="#OSS_ADOPTION_ROADMAP" onclick="event.preventDefault();loadDoc('OSS_ADOPTION_ROADMAP')">📈 What to build now vs later</a>
+        <a href="#EU_AI_ACT_COMPLIANCE" onclick="event.preventDefault();loadDoc('EU_AI_ACT_COMPLIANCE')">⚖️ Compliance and audit path</a>
       </div>
 
       <h2 style="color:var(--green2);border-bottom:1px solid var(--border);padding-bottom:8px;margin:32px 0 16px">Browse by Category</h2>
