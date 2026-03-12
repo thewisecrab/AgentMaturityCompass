@@ -1,6 +1,6 @@
 # AMC Domain Packs
 
-AMC domain packs extend the base 138-question AMC rubric. Additionally, 40 industry packs across 7 domain stations provide 592 sector-specific diagnostic questions.
+AMC domain packs extend the base 138-question AMC rubric. Additionally, 283 domain-level questions and 592 industry-specific questions across 40 packs and 7 domain stations bring the total diagnostic surface to **1,013 questions**.
 
 - Base AMC remains mandatory for every agent.
 - Domain packs add regulated vertical controls.
