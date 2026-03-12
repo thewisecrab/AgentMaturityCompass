@@ -1,5 +1,5 @@
 /* AMC Service Worker — network-first for pages, cache-first for static assets */
-const CACHE_NAME = 'amc-v4';
+const CACHE_NAME = 'amc-v5';
 const STATIC_ASSETS = [
   'style.css',
   'particles.js',
