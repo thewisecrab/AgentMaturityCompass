@@ -132,6 +132,21 @@
   setTimeout(renderStatic,5000);
 })();
 
+// ─── FAQ ACCORDION ───
+(function(){
+  document.querySelectorAll('.faq-q').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var item=btn.closest('.faq-item');
+      var was=item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(o){
+        o.classList.remove('open');
+        o.querySelector('.faq-q').setAttribute('aria-expanded','false');
+      });
+      if(!was){item.classList.add('open');btn.setAttribute('aria-expanded','true')}
+    });
+  });
+})();
+
 // ─── SMOOTH SCROLL ───
 document.querySelectorAll('a[href^="#"]').forEach(function(a){
   a.addEventListener('click',function(e){
