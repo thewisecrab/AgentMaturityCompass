@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/🧭_AMC-Trust_Score_for_AI_Agents-blue?style=for-the-badge&labelColor=1a1a2e" alt="AMC" />
+  <img src="https://img.shields.io/badge/🧭_AMC-Score_Fix_Ship_AI_Agents-blue?style=for-the-badge&labelColor=1a1a2e" alt="AMC" />
 </p>
 
 <h1 align="center">Agent Maturity Compass</h1>
 
 <p align="center">
-  <strong>Is your AI agent running with scissors?</strong><br>
-  Find out in 2 minutes. Fix it in 5. Free forever.
+  <strong>Score your AI agent. Find the gaps. Fix them.</strong><br>
+  2 minutes to your first score. Free and open source.
 </p>
 
 <p align="center">
@@ -29,25 +29,19 @@
 
 ## What is this?
 
-AMC is a **trust score for AI agents**.
-
-It does three things fast:
-1. **Score** the agent from evidence, not claims
-2. **Find** the trust, safety, and governance gaps
-3. **Generate** fixes, guardrails, reports, and next actions
+AMC scores AI agents from what they **actually do**, not what their docs say they do.
 
 ```bash
 npx agent-maturity-compass quickscore
 ```
 
-One command. No account. No API key required for a first score.
+One command. No account. No API key. You get:
 
-You get:
+1. **A trust score** — L0 (dangerous) to L5 (production-ready), based on execution evidence
+2. **A gap analysis** — exactly what's weak, what's risky, and what's missing
+3. **Generated fixes** — guardrails, config patches, CI gates, and compliance artifacts
 
-- **A maturity score** from L0 (dangerous) to L5 (production-ready)
-- **A gap analysis** showing what is missing or weak
-- **Fix paths** — guardrails, CI gates, hardening steps, and compliance artifacts
-- **Trace and observability workflows** — timelines, anomalies, session inspection
+Then you keep going: add adversarial testing, continuous monitoring, regulatory mapping, and fleet-wide governance — all from the same CLI.
 - **Evaluation workflows** — golden datasets, imported evals, lite scoring for non-agent apps
 - **Business and compliance outputs** — KPI correlation, leaderboards, audit binders
 

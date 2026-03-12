@@ -10,26 +10,26 @@
     if(t)h.setAttribute('data-theme',t);
     else h.setAttribute('data-theme','dark')})();
   </script>
-  <title>Agent Maturity Compass — Trust Score for AI Agents</title>
-  <meta name="description" content="AMC scores AI agents from execution evidence, not self-reported claims. 138 diagnostics, 86 assurance packs, 14 framework adapters. Zero to first score in 2 minutes. MIT licensed.">
+  <title>Agent Maturity Compass — Score, Fix, and Ship Trustworthy AI Agents</title>
+  <meta name="description" content="Score your AI agent in 2 minutes. Find trust gaps. Generate fixes. Ship with confidence. 138 diagnostics, 86 assurance packs, 14 adapters. Free and MIT licensed.">
   <meta name="keywords" content="AI agent trust scoring, agent maturity model, LLM governance, agent security, LangChain evaluation, CrewAI scoring, EU AI Act compliance, prompt injection testing, agent benchmark, cryptographic evidence">
   <meta name="robots" content="index, follow">
   <meta name="author" content="thewisecrab">
   <meta name="theme-color" content="#6366F1">
   <link rel="canonical" href="https://thewisecrab.github.io/AgentMaturityCompass/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Agent Maturity Compass — Trust Score for AI Agents">
-  <meta property="og:description" content="Your AI agent may look impressive in docs or demos. AMC checks whether it is actually safe, reliable, and ready — from execution evidence.">
+  <meta property="og:title" content="Agent Maturity Compass — Score, Fix, and Ship Trustworthy AI Agents">
+  <meta property="og:description" content="Score your AI agent in 2 minutes. Find the trust gaps. Generate fixes. Free and open source.">
   <meta property="og:url" content="https://thewisecrab.github.io/AgentMaturityCompass/">
   <meta property="og:image" content="https://thewisecrab.github.io/AgentMaturityCompass/og-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Agent Maturity Compass — AI Agent Trust Scoring">
+  <meta property="og:image:alt" content="Agent Maturity Compass — Score, Fix, and Ship Trustworthy AI Agents">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AMC — Trust Score for AI Agents">
-  <meta name="twitter:description" content="Score AI agents from evidence. Find the gaps. Fix what matters.">
+  <meta name="twitter:title" content="AMC — Score, Fix, Ship AI Agents">
+  <meta name="twitter:description" content="Score your AI agent. Find the gaps. Generate fixes. Ship with confidence. Free and open source.">
   <meta name="twitter:image" content="https://thewisecrab.github.io/AgentMaturityCompass/og-card.png">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Maturity Compass","alternateName":"AMC","description":"Open-source framework for scoring AI agent trustworthiness from execution evidence.","url":"https://thewisecrab.github.io/AgentMaturityCompass/","downloadUrl":"https://www.npmjs.com/package/agent-maturity-compass","codeRepository":"https://github.com/thewisecrab/AgentMaturityCompass","license":"https://opensource.org/licenses/MIT","applicationCategory":"DeveloperApplication","operatingSystem":"macOS, Linux, Windows","featureList":["Execution-verified trust scoring","Cryptographic evidence chains","L0-L5 maturity scale","14 framework adapters","86 assurance packs","EU AI Act compliance mapping","CI/CD gate mode","MIT licensed"],"author":{"@type":"Organization","name":"The Wise Crab","url":"https://github.com/thewisecrab"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Maturity Compass","alternateName":"AMC","description":"Score your AI agent. Find the trust gaps. Generate fixes. Ship with confidence. Free and open source.","url":"https://thewisecrab.github.io/AgentMaturityCompass/","downloadUrl":"https://www.npmjs.com/package/agent-maturity-compass","codeRepository":"https://github.com/thewisecrab/AgentMaturityCompass","license":"https://opensource.org/licenses/MIT","applicationCategory":"DeveloperApplication","operatingSystem":"macOS, Linux, Windows","featureList":["Score AI agents from execution evidence","Find trust, safety, and governance gaps","Generate fixes and guardrails automatically","CI gates to prevent trust regressions","14 framework adapters","86 adversarial assurance packs","MIT licensed"],"author":{"@type":"Organization","name":"The Wise Crab","url":"https://github.com/thewisecrab"}}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 84-point documentation inflation gap?","acceptedAnswer":{"@type":"Answer","text":"When scored by keyword matching, an agent scores 100/100. AMC execution-verified evidence: 16/100. That 84-point gap is documentation inflation."}},{"@type":"Question","name":"How is AMC different?","acceptedAnswer":{"@type":"Answer","text":"AMC sits between the agent and the LLM provider as a trusted observer, capturing every API call with Ed25519 signatures. Self-reported evidence is capped at 0.4x weight."}},{"@type":"Question","name":"Which frameworks does AMC support?","acceptedAnswer":{"@type":"Answer","text":"14 adapters: LangChain, LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, LlamaIndex, Semantic Kernel, Claude Code, Gemini, OpenClaw, OpenHands, Python SDK, CLI, OpenAI-compatible."}}]}</script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -77,13 +77,27 @@
       <div class="dot-grid" aria-hidden="true"></div>
       <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-content">
-        <span class="section-label reveal" style="margin-bottom:.5rem">Open Source · MIT Licensed</span>
-        <h1 class="reveal">Your AI agent<br><span class="gradient-text italic-accent">scores itself.</span><br>AMC scores it <span class="italic-accent">for real.</span></h1>
-        <p class="hero-subtitle reveal reveal-delay-1">AMC observes your agent's actual behavior with AI, then generates trust scores, gap reports, and fixes — so you ship agents that are safe instead of agents that claim to be safe.</p>
-        <p class="hero-tagline reveal reveal-delay-1">Free tier: full CLI + browser playground · <code>npm i -g agent-maturity-compass</code></p>
+        <span class="section-label reveal" style="margin-bottom:.5rem">Free · Open Source · MIT Licensed</span>
+        <h1 class="reveal">Score your AI agent.<br><span class="gradient-text italic-accent">Find the gaps. Fix them.</span></h1>
+        <p class="hero-subtitle reveal reveal-delay-1">AMC runs 138 diagnostics against your agent's actual behavior — not its documentation — and tells you exactly what's weak, what's risky, and how to fix it.</p>
+
+        <div class="hero-layers reveal reveal-delay-1" style="display:flex;gap:1.5rem;justify-content:center;margin:1.5rem 0;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted)"><strong style="color:var(--accent);font-size:1.1rem">1.</strong> Score it</span>
+          <span style="color:var(--muted);font-size:.85rem">→</span>
+          <span style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted)"><strong style="color:var(--accent);font-size:1.1rem">2.</strong> Find gaps</span>
+          <span style="color:var(--muted);font-size:.85rem">→</span>
+          <span style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted)"><strong style="color:var(--accent);font-size:1.1rem">3.</strong> Generate fixes</span>
+          <span style="color:var(--muted);font-size:.85rem">→</span>
+          <span style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted)"><strong style="color:var(--accent);font-size:1.1rem">4.</strong> Ship with confidence</span>
+        </div>
+
+        <div class="hero-install reveal reveal-delay-2" onclick="navigator.clipboard&&navigator.clipboard.writeText('npm i -g agent-maturity-compass')" title="Click to copy" style="margin:0 auto 1.5rem;max-width:420px">
+          <span>$</span> npm i -g agent-maturity-compass <span class="copy-hint">⎘</span>
+        </div>
+
         <div class="hero-ctas reveal reveal-delay-2">
-          <a href="playground.html" class="btn-primary">Try in Browser <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn-outline">Browse Repository</a>
+          <a href="playground.html" class="btn-primary">Try in Browser — No Install <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          <a href="#quickstart" class="btn-outline">See How It Works</a>
         </div>
       </div>
     </section>
