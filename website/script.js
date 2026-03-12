@@ -5,7 +5,7 @@
   var h=document.documentElement;
   var t=localStorage.getItem('amc-theme');
   if(t) h.setAttribute('data-theme',t);
-  else if(window.matchMedia('(prefers-color-scheme:dark)').matches) h.setAttribute('data-theme','dark');
+  else h.setAttribute('data-theme','dark');
 })();
 
 function toggleTheme(){

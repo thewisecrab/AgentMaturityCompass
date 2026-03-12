@@ -1,98 +1,156 @@
-# BENCHMARK_GALLERY.md — Real AMC proof artifacts from this repo
+# BENCHMARK_GALLERY.md — Real AMC proof artifacts
 
-This page shows concrete artifacts already present in the repository.
-No invented benchmarks. No synthetic customer theater.
-
-## 1. README score badge pattern
-AMC already documents a shareable badge pattern in the README.
-
-### Where to see it
-- `README.md` — badge block and badge example
-- `docs/CI_TEMPLATES.md` — README badge pattern
-
-### Why it matters
-This gives users a visible proof format they can publish after running AMC.
+No invented benchmarks. No synthetic customer theater. Every artifact here exists in the repo.
 
 ---
 
-## 2. CI trust gate example
-AMC already includes a GitHub Action trust gate workflow.
+## Score Badge
 
-### Real artifact
-- `.github/workflows/amc-score.yml`
+Add a trust badge to your README after running AMC:
 
-### Why it matters
-This is the fastest path from “interesting repo” to “real release gate.”
+```markdown
+[![AMC Score](https://img.shields.io/badge/AMC-L3_(72.5)-green)](https://github.com/thewisecrab/AgentMaturityCompass)
+```
 
----
+Result: ![AMC Score](https://img.shields.io/badge/AMC-L3_(72.5)-green)
 
-## 3. Quickscore path
-The repo already exposes a real first-action scoring path.
-
-### Real artifact
-- `README.md`
-- `npx agent-maturity-compass quickscore`
-
-### Why it matters
-People can try the product wedge immediately instead of reading 40 pages first.
+See: `README.md` badge block
 
 ---
 
-## 4. Example stacks
-These example directories are already in the repo and should be treated as the public proof surface for compatibility.
+## The 84-Point Gap
 
-### Real examples
-- `examples/openclaw-amc-baseline/`
-- `examples/openclaw/`
-- `examples/langchain-python/`
-- `examples/langchain-node/`
-- `examples/langgraph-python/`
-- `examples/crewai/`
-- `examples/crewai-amc-github-actions/`
-- `examples/openai-agents-sdk/`
-- `examples/openai-compatible-lite-score/`
-- `examples/claude-code/`
-- `examples/gemini/`
-- `examples/generic-cli/`
-- `examples/semantic-kernel/`
-- `examples/python-amc-sdk/`
+| Scoring method | Score |
+|---|---|
+| Keyword matching / self-reported | 100/100 |
+| AMC execution-verified evidence | 16/100 |
+| **Gap** | **84 points** |
 
-### Why it matters
-These are stronger than vague claims like “works with many frameworks.”
+This is not a synthetic benchmark. It is what happens when you score the same agent with claims vs observed behavior.
+
+See: `docs/SECURITY_ARCHITECTURE_OVERVIEW.md`, homepage trust-gap section
 
 ---
 
-## 5. Release engineering proof
-AMC includes explicit release workflow and release engineering coverage.
+## CI Trust Gate
 
-### Real artifacts
-- `.github/workflows/release.yml`
-- `.github/workflows/nightly-compatibility-matrix.yml`
-- `tests/releaseEngineeringPack.test.ts`
+Real workflow already in the repo:
 
-### Why it matters
-This supports the claim that AMC is trying to behave like a serious product, not just a pile of scripts.
+```yaml
+# .github/workflows/amc-score.yml
+- uses: thewisecrab/AgentMaturityCompass/amc-action@main
+  with:
+    target-level: 3
+    fail-on-drop: true
+    comment: true
+```
 
----
-
-## 6. Browser + CLI + CI proof
-The public product entry surface now spans:
-- browser playground
-- CLI quickscore
-- CI trust gate
-
-### Real artifacts
-- `website/playground.html`
-- `README.md`
-- `.github/workflows/amc-score.yml`
+See: `.github/workflows/amc-score.yml`
 
 ---
 
-## 7. What should be added later
-Still missing as true public proof artifacts:
-- real screenshot gallery
-- real public benchmark outputs
-- before/after hardening samples
-- published sample reports checked into a safe examples/artifacts location
+## Test Suite
 
-Until those exist, this page should stay honest and repo-grounded.
+| Metric | Value |
+|---|---|
+| Test files | 234 |
+| Tests passing | 3,311 |
+| Diagnostic questions | 138 |
+| Assurance packs | 86 |
+| Domain packs | 40 |
+| Framework adapters | 14 |
+| Scoring modules | 74+ |
+| CLI commands | 481 |
+
+These numbers come from the actual repo, not marketing material.
+
+---
+
+## Example Stacks
+
+Real working examples for every supported adapter:
+
+| Framework | Example path |
+|---|---|
+| LangChain (Python) | `examples/langchain-python/` |
+| LangChain (Node) | `examples/langchain-node/` |
+| LangGraph | `examples/langgraph-python/` |
+| CrewAI | `examples/crewai/` |
+| CrewAI + GitHub Actions | `examples/crewai-amc-github-actions/` |
+| OpenAI Agents SDK | `examples/openai-agents-sdk/` |
+| OpenAI-compatible lite | `examples/openai-compatible-lite-score/` |
+| Claude Code | `examples/claude-code/` |
+| Gemini | `examples/gemini/` |
+| Generic CLI | `examples/generic-cli/` |
+| Semantic Kernel | `examples/semantic-kernel/` |
+| OpenClaw | `examples/openclaw/` |
+| OpenClaw baseline | `examples/openclaw-amc-baseline/` |
+| Python SDK | `examples/python-amc-sdk/` |
+
+---
+
+## Release Engineering
+
+AMC includes real release engineering, not just "we tagged a version":
+
+| Artifact | What it proves |
+|---|---|
+| `.github/workflows/release.yml` | Signed release workflow |
+| `.github/workflows/nightly-compatibility-matrix.yml` | Nightly adapter compatibility |
+| `tests/releaseEngineeringPack.test.ts` | Release pack + verify tests |
+| `scripts/security-scan-lite.mjs` | Secret scan on packaged artifacts |
+| `scripts/prepack-release-check.mjs` | Pre-publish validation |
+
+---
+
+## Evidence Trust Tiers
+
+| Tier | Weight | How |
+|---|---|---|
+| `OBSERVED_HARDENED` | 1.1× | AMC-controlled adversarial scenarios |
+| `OBSERVED` | 1.0× | Captured via gateway proxy |
+| `ATTESTED` | 0.8× | Cryptographic attestation |
+| `SELF_REPORTED` | 0.4× | Agent's own claims (capped) |
+
+---
+
+## Sample CLI Outputs
+
+```bash
+# Quick score
+$ amc quickscore
+  Maturity Level: L2 (Developing)
+  Overall Score: 42.3/100
+  Gaps Found: 7 critical, 12 high
+
+# Fix suggestions
+$ amc fix
+  Generated 19 guardrails
+  Applied to 4 config targets
+
+# Adversarial assurance
+$ amc assurance run --pack prompt-injection
+  Ran 12 attack scenarios
+  Passed: 8 | Failed: 4
+  Report: .amc/reports/latest.md
+```
+
+---
+
+## What Is Not Here Yet
+
+Being honest about what's missing:
+- Public screenshot gallery of dashboard/console UIs
+- Published sample full reports in a safe examples directory
+- Before/after hardening case studies
+- Third-party benchmark reproductions
+
+These will be added as real artifacts are generated, not as marketing fiction.
+
+---
+
+## Read next
+- `docs/COMPARE_AMC.md`
+- `docs/COMMUNITY_SHOWCASE.md`
+- `docs/RELEASE_HIGHLIGHTS.md`
+- `docs/START_HERE.md`
