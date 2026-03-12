@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import YAML from "yaml";
 import { detectAllRuntimes } from "./runtimes/index.js";
 import { ensureSigningKeys } from "./crypto/keys.js";
-import type { AMCConfig, RiskTier } from "./types.js";
+import type { AMCConfig, AMCConfigProfileName, RiskTier } from "./types.js";
 import { questionIds } from "./diagnostic/questionBank.js";
 import { createSignedTargetProfile, defaultTargetMapping, saveTargetProfile } from "./targets/targetProfile.js";
 import {
@@ -89,6 +89,7 @@ export function getWorkspacePaths(workspace = process.cwd(), agentId?: string): 
 
 export function defaultAMCConfig(): AMCConfig {
   return {
+    profile: "dev",
     runtimes: {
       claude: { command: "claude", argsTemplate: [] },
       gemini: { command: "gemini", argsTemplate: [] },
@@ -107,6 +108,44 @@ export function defaultAMCConfig(): AMCConfig {
   };
 }
 
+export function applyAMCConfigProfile(profile: AMCConfigProfileName, baseConfig?: AMCConfig): AMCConfig {
+  const base = baseConfig ? structuredClone(baseConfig) : defaultAMCConfig();
+  const next: AMCConfig = {
+    ...base,
+    profile,
+    security: { ...base.security },
+    supervise: {
+      extraEnv: { ...(base.supervise?.extraEnv ?? {}) },
+      includeProxyEnv: base.supervise?.includeProxyEnv ?? true,
+      customBaseUrlEnvKeys: [...(base.supervise?.customBaseUrlEnvKeys ?? [])]
+    },
+    runtimes: {
+      claude: { ...base.runtimes.claude },
+      gemini: { ...base.runtimes.gemini },
+      openclaw: { ...base.runtimes.openclaw },
+      mock: { ...base.runtimes.mock },
+      any: { ...base.runtimes.any }
+    }
+  };
+
+  if (profile === "dev") {
+    next.security.trustBoundaryMode = "shared";
+    next.supervise.includeProxyEnv = true;
+    next.supervise.extraEnv.AMC_ENV = "dev";
+  } else if (profile === "ci") {
+    next.security.trustBoundaryMode = "isolated";
+    next.supervise.includeProxyEnv = true;
+    next.supervise.extraEnv.AMC_ENV = "ci";
+    next.supervise.extraEnv.CI = next.supervise.extraEnv.CI || "true";
+  } else if (profile === "prod") {
+    next.security.trustBoundaryMode = "isolated";
+    next.supervise.includeProxyEnv = false;
+    next.supervise.extraEnv.AMC_ENV = "prod";
+  }
+
+  return next;
+}
+
 export function loadAMCConfig(workspace = process.cwd()): AMCConfig {
   const paths = getWorkspacePaths(workspace);
   if (!pathExists(paths.config)) {
@@ -115,6 +154,7 @@ export function loadAMCConfig(workspace = process.cwd()): AMCConfig {
   const raw = YAML.parse(readUtf8(paths.config)) as Partial<AMCConfig> | null;
   const base = defaultAMCConfig();
   return {
+    profile: raw?.profile === "ci" || raw?.profile === "prod" || raw?.profile === "dev" ? raw.profile : base.profile,
     runtimes: {
       claude: { ...base.runtimes.claude, ...(raw?.runtimes?.claude ?? {}) },
       gemini: { ...base.runtimes.gemini, ...(raw?.runtimes?.gemini ?? {}) },

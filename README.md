@@ -441,7 +441,25 @@ cd AgentMaturityCompass && npm ci && npm run build && npm link
 | [CLI Reference (481 commands)](docs/AMC_MASTER_REFERENCE.md) | [Architecture](docs/ARCHITECTURE_MAP.md) |
 | [Compatibility Matrix](docs/COMPATIBILITY_MATRIX.md) | [Starter Blueprints](docs/STARTER_BLUEPRINTS.md) |
 | [Install Packages](docs/INSTALL_PACKAGES.md) | [Support Policy](docs/SUPPORT_POLICY.md) |
-| [Release Cadence](docs/RELEASE_CADENCE.md) | [Hardening Guide](docs/HARDENING.md) |
+| [Release Cadence](docs/RELEASE_CADENCE.md) | [CI Templates](docs/CI_TEMPLATES.md) |
+| [Hardening Guide](docs/HARDENING.md) | [Community](docs/COMMUNITY.md) |
+
+### Workspace config profiles (MVP)
+
+AMC now supports lightweight workspace config presets for `.amc/amc.config.yaml`:
+
+```bash
+amc init --profile dev
+amc quickstart --profile ci
+amc config profile prod
+```
+
+Current MVP behavior:
+- `dev` → shared trust boundary, proxy env enabled
+- `ci` → isolated trust boundary, proxy env enabled
+- `prod` → isolated trust boundary, proxy env disabled
+- explicit `--trust-boundary` still overrides the profile when you need it
+
 | [Assurance Lab](docs/ASSURANCE_LAB.md) | [Domain Packs](docs/SECTOR_PACKS.md) |
 | [EU AI Act Compliance](docs/EU_AI_ACT_COMPLIANCE.md) | [Multi-Agent Trust](docs/MULTI_AGENT_TRUST.md) |
 | [Executive Overview](docs/EXECUTIVE_OVERVIEW.md) | [White Paper](whitepaper/AMC_WHITEPAPER_v1.md) |

@@ -383,10 +383,19 @@ export function generateCompletionScript(shell: CompletionShell, commandPaths: s
 export function cliDiscoverabilityFooter(): string {
   return [
     "",
+    "Start with a task:",
+    "  • First-time setup       → amc setup    / amc quickstart --profile dev",
+    "  • Health check          → amc doctor",
+    "  • Start services        → amc up",
+    "  • Score an agent        → amc score     / amc diagnostic run",
+    "  • Run assurance         → amc assurance run --scope full",
+    "  • Inspect traces        → amc trace list / amc trace inspect",
+    "  • Build audit artifacts → amc audit binder create",
+    "  • Explore interactively → amc shell",
+    "",
     "Discoverability:",
     "  • Use 'amc help <command>' for detailed subcommand docs",
     "  • Use '--help' after any command path (for example: 'amc run --help')",
-    "  • Use 'amc shell' for an interactive REPL with natural language support",
     "  • Namespace shortcuts:",
     "      - evidence  → verify, bundle, transparency, receipts",
     "      - score     → score, diagnostic, compare",
@@ -395,6 +404,6 @@ export function cliDiscoverabilityFooter(): string {
     "      - admin     → user, identity, vault, trust, ops",
     "      - lifecycle → init, up, doctor, verify",
     "      - eval      → run, compare, whatif",
-    "  • Start with common entry points: setup, up, score, verify, adapters run",
+    "  • Start with common entry points: setup, quickstart, doctor, up, score, verify",
   ].join("\n");
 }

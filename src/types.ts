@@ -277,7 +277,10 @@ export interface RuntimeConfig {
   argsTemplate: string[];
 }
 
+export type AMCConfigProfileName = "dev" | "ci" | "prod";
+
 export interface AMCConfig {
+  profile?: AMCConfigProfileName;
   runtimes: {
     claude: RuntimeConfig;
     gemini: RuntimeConfig;

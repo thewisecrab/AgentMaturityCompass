@@ -13,7 +13,7 @@ import { compareRuns, compareModels, generateReport, loadRunReport, runDiagnosti
 import { loadTargetProfile, loadTargetProfileFromFile, setTargetProfileInteractive, verifyTargetProfileSignature } from "./targets/targetProfile.js";
 import { runTuneWizard, runUpgradeWizard } from "./tuning/tuneWizard.js";
 import { loadContextGraph } from "./context/contextGraph.js";
-import { initWorkspace, loadAMCConfig, quickstartWizard, runDoctor } from "./workspace.js";
+import { applyAMCConfigProfile, initWorkspace, loadAMCConfig, quickstartWizard, runDoctor, saveAMCConfig } from "./workspace.js";
 import { runDoctorCli } from "./doctor/doctorCli.js";
 import { cliDiscoverabilityFooter, flattenCommandPaths, parseUnknownCommandToken, suggestCommandPaths } from "./cliUx.js";
 import {
@@ -1115,8 +1115,9 @@ program.hook("preAction", (_thisCommand, actionCommand) => {
 program
   .command("init")
   .description("Initialize .amc workspace")
-  .option("--trust-boundary <mode>", "isolated|shared", "shared")
-  .action(async (opts: { trustBoundary: "isolated" | "shared" }) => {
+  .option("--trust-boundary <mode>", "isolated|shared")
+  .option("--profile <name>", "workspace config profile: dev|ci|prod", "dev")
+  .action(async (opts: { trustBoundary?: "isolated" | "shared"; profile: "dev" | "ci" | "prod" }) => {
     // Ensure vault passphrase is available before init (it creates crypto keys)
     if (!process.env.AMC_VAULT_PASSPHRASE) {
       if (process.stdin.isTTY) {
@@ -1157,12 +1158,18 @@ program
     }
 
     const init = initWorkspace({ trustBoundaryMode: opts.trustBoundary });
+    const profiled = applyAMCConfigProfile(opts.profile, loadAMCConfig(process.cwd()));
+    if (opts.trustBoundary) {
+      profiled.security.trustBoundaryMode = opts.trustBoundary;
+    }
+    saveAMCConfig(process.cwd(), profiled);
     const fmt = await import("./cliFormat.js");
     console.log(fmt.logo());
     console.log(fmt.pass("Workspace initialized"));
     console.log(fmt.info(`Location: ${init.workspacePath}`));
     console.log(fmt.nextSteps([
       { cmd: "amc quickscore", desc: "Get your first maturity score (2 min, interactive)" },
+      { cmd: `amc config profile ${opts.profile}`, desc: "Re-apply the selected workspace config profile" },
       { cmd: "amc setup --demo", desc: "Load demo data and explore all features" },
       { cmd: "amc doctor", desc: "Check what's available in your environment" },
       { cmd: "amc up", desc: "Start Studio (web dashboard)" },
@@ -2635,6 +2642,26 @@ program
   });
 
 const configCmd = program.command("config").description("Inspect resolved runtime configuration");
+
+configCmd
+  .command("profile [name]")
+  .description("Print or apply workspace config profile (dev|ci|prod)")
+  .action((name?: "dev" | "ci" | "prod") => {
+    const current = loadAMCConfig(process.cwd());
+    if (!name) {
+      console.log(chalk.cyan(`Active workspace config profile: ${current.profile ?? "dev"}`));
+      console.log(`- trustBoundaryMode: ${current.security.trustBoundaryMode}`);
+      console.log(`- includeProxyEnv: ${current.supervise.includeProxyEnv}`);
+      console.log(`- extraEnv: ${Object.keys(current.supervise.extraEnv).length}`);
+      return;
+    }
+    const next = applyAMCConfigProfile(name, current);
+    saveAMCConfig(process.cwd(), next);
+    console.log(chalk.green(`✓ Applied workspace config profile: ${name}`));
+    console.log(chalk.gray(`  Wrote .amc/amc.config.yaml`));
+    console.log(chalk.gray(`  trustBoundaryMode=${next.security.trustBoundaryMode}`));
+    console.log(chalk.gray(`  includeProxyEnv=${next.supervise.includeProxyEnv}`));
+  });
 
 configCmd
   .command("print")
@@ -17077,14 +17104,18 @@ program
 program
   .command("quickstart")
   .description("2-minute quickstart with Quick Score assessment")
-  .action(async () => {
+  .option("--profile <name>", "workspace config profile: dev|ci|prod", "dev")
+  .action(async (opts: { profile: "dev" | "ci" | "prod" }) => {
     console.log(chalk.bold.hex("#FF6600")("\n🚀  AMC Quick Start — Agent Maturity in 2 Minutes\n"));
 
     // Step 1: workspace init
     console.log(chalk.cyan("Step 1: Setting up workspace..."));
     try {
       const ws = await quickstartWizard(process.cwd());
+      const profiled = applyAMCConfigProfile(opts.profile, loadAMCConfig(process.cwd()));
+      saveAMCConfig(process.cwd(), profiled);
       console.log(chalk.green("  ✓ Workspace initialized"));
+      console.log(chalk.gray(`    Profile: ${opts.profile}`));
       console.log(chalk.gray(`    Gateway: ${ws.nextGatewayCommand}`));
     } catch { console.log(chalk.green("  ✓ Workspace already configured")); }
 

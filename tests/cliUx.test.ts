@@ -36,6 +36,9 @@ describe("cliUx", () => {
   it("includes practical discoverability tips", () => {
     const footer = cliDiscoverabilityFooter();
     expect(footer).toContain("amc help <command>");
-    expect(footer).toContain("adapters run");
+    expect(footer).toContain("amc quickstart");
+    expect(footer).toContain("amc doctor");
+    expect(footer).toContain("amc score");
+    expect(footer).toContain("amc shell");
   });
 });
