@@ -1,28 +1,40 @@
-# PRODUCT_EDITIONS.md — AMC product stack and editions
+# PRODUCT_EDITIONS.md — AMC Edition Matrix
 
-AMC uses canonical product names. Keep them visible.
+## Edition model
 
-## Canonical AMC product family
+AMC has one simple split:
 
-- **Score** — maturity diagnostics and evidence-weighted trust scoring
-- **Shield** — adversarial testing and assurance packs
-- **Enforce** — policy controls, approvals, and action governance
-- **Vault** — keys, signatures, and tamper-evident proof infrastructure
-- **Watch** — observability, traces, anomalies, and monitoring
-- **Fleet** — multi-agent oversight, comparison, and governance at scale
-- **Passport** — portable identity, credentials, and portability artifacts
-- **Comply** — regulatory mapping, audit binders, and compliance reporting
+- **Free / Open Source**: the entire trust stack
+- **Pro / Enterprise**: Industry Packs (sector-specific domain diagnostics)
 
-## Edition matrix
+## Full edition matrix
 
-| Edition | Intended user | Included products |
-|---|---|---|
-| **Open Source / Free** | solo builders, OSS maintainers, eval-first teams | Score, starter Shield packs, limited Watch surfaces, basic Comply references |
-| **Team / Pro** | engineering teams, platform teams | stronger Score, expanded Shield, Watch, selected Comply outputs, limited Fleet workflows |
-| **Enterprise / Regulated** | large orgs, regulated teams, high-trust deployments | full Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply |
+| Product | Free / Open Source | Pro | Enterprise |
+|---|---|---|---|
+| **Score** | ✅ Full | ✅ Full | ✅ Full |
+| **Shield** (86 assurance packs) | ✅ Full | ✅ Full | ✅ Full |
+| **Enforce** | ✅ Full | ✅ Full | ✅ Full |
+| **Vault** | ✅ Full | ✅ Full | ✅ Full |
+| **Watch** | ✅ Full | ✅ Full | ✅ Full |
+| **Fleet** | ✅ Full | ✅ Full | ✅ Full |
+| **Passport** | ✅ Full | ✅ Full | ✅ Full |
+| **Comply** | ✅ Full | ✅ Full | ✅ Full |
+| **All 14 adapters** | ✅ Full | ✅ Full | ✅ Full |
+| **481 CLI commands** | ✅ Full | ✅ Full | ✅ Full |
+| **Browser playground** | ✅ Full | ✅ Full | ✅ Full |
+| **CI trust gates** | ✅ Full | ✅ Full | ✅ Full |
+| **Industry Packs** (40 verticals) | ❌ | ✅ Selected verticals | ✅ All 40 packs |
+| **Priority support** | ❌ | ❌ | ✅ |
+| **Custom pack development** | ❌ | ❌ | ✅ |
+| **Deployment assistance** | ❌ | ❌ | ✅ |
 
-## Why this matters
-AMC should not look like one giant blob of features. The product family is the packaging layer that explains how the trust stack expands with user maturity.
+## Why this model
 
-## Honest note
-This is the edition architecture and packaging direction. Exact commercial numbers and contractual terms belong on `docs/PRICING.md` and future sales materials.
+Most open-source projects gate core features behind paid tiers, which kills adoption. AMC gates only **domain-specific content** (Industry Packs) — the part that requires ongoing regulatory expertise and maintenance.
+
+The trust stack itself is free. Always.
+
+## Read next
+- `docs/PRICING.md`
+- `docs/PRICING_FAQ.md`
+- `docs/ENTERPRISE.md`

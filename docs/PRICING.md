@@ -1,86 +1,77 @@
-# PRICING.md — AMC pricing and commercial path
+# PRICING.md — AMC Pricing
 
-AMC needs a commercial story that is clear without pretending the pricing spreadsheet is final.
+## The model
 
-## The short version
-- **Free / Open Source** gets you in.
-- **Team / Pro** helps a team operationalize trust workflows.
-- **Enterprise / Regulated** is for governance-heavy deployments.
-- **Sponsorship** supports the project and is not the same as buying product value.
+AMC is open source and MIT licensed. The full trust stack is free.
 
-If you only remember one thing:
+The only paid surface is **Industry Packs** — 40 sector-specific domain packs that map trust scoring to regulated and specialized verticals.
 
-> Sponsorship funds the mission. Pricing buys product, deployment, support, or service value.
+## What is free
 
----
+Everything except Industry Packs:
 
-## Who each path is for
+- **Score** — full evidence-weighted trust scoring, gap analysis, maturity diagnostics
+- **Shield** — all 86 adversarial assurance packs
+- **Enforce** — policy controls, approval workflows, scoped actions, governance
+- **Vault** — Ed25519 signatures, Merkle chains, tamper-evident proof infrastructure
+- **Watch** — traces, anomalies, timelines, monitoring, operational drift detection
+- **Fleet** — multi-agent oversight, comparison, delegation graphs
+- **Passport** — portable identity, credentials, trust portability artifacts
+- **Comply** — regulatory mapping (EU AI Act, ISO 42001, NIST AI RMF, OWASP), audit binders, governance reports
+- **All 14 framework adapters** — LangChain, CrewAI, OpenAI, Claude Code, Gemini, AutoGen, LlamaIndex, Semantic Kernel, OpenClaw, OpenHands, Python SDK, generic CLI, OpenAI-compatible
+- **481 CLI commands**
+- **138 diagnostic questions**
+- **Browser playground**
+- **CI trust gates**
+- **GitHub Action**
 
-| Path | Best for | What you are really buying |
+All of the above is MIT licensed and always will be.
+
+## What is paid
+
+**Industry Packs** — 40 domain-specific packs that add sector-tuned diagnostics, compliance mappings, and trust scoring calibrated to specific regulated verticals.
+
+Examples:
+- Healthcare / HIPAA
+- Financial services / SOX / PCI-DSS
+- Education / FERPA
+- Government / FedRAMP
+- Insurance
+- Legal / eDiscovery
+- Mobility / autonomous systems
+- Energy / critical infrastructure
+
+### Why these are paid
+Industry packs require deep domain expertise, regulatory research, and ongoing maintenance as regulations evolve. Keeping them as the paid tier funds the open-source core sustainably.
+
+### How to access
+- **Pro** — individual access to Industry Packs for specific verticals
+- **Enterprise** — full access to all 40 Industry Packs, priority support, custom pack development, deployment assistance
+
+## Pricing tiers
+
+| Tier | What you get | Who it's for |
 |---|---|---|
-| **Free / Open Source** | solo builders, OSS maintainers, first evaluation | a first score, a first workflow, and a real trust wedge |
-| **Starter / Pro** | individuals and very small teams | repeatable use, richer outputs, more trust workflows |
-| **Team** | engineering and platform teams | collaboration, monitoring, deployment clarity, shared process |
-| **Enterprise** | regulated orgs, larger AI programs, governance-heavy teams | policy, evidence infrastructure, support, deployment options, compliance-oriented workflows |
-| **Sponsor** | individuals/companies backing the project | project sustainability, not product access |
+| **Free / Open Source** | Full AMC trust stack (Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply), all adapters, all CLI commands, browser playground, CI gates | Everyone — solo devs, teams, enterprises evaluating |
+| **Pro** | Everything in Free + selected Industry Packs for your verticals | Teams in regulated industries who need sector-specific diagnostics |
+| **Enterprise** | Everything in Pro + all 40 Industry Packs + priority support + custom pack development + deployment assistance | Regulated organizations, platform teams at scale |
 
----
+## FAQ
 
-## Product packaging by tier
+### Is the core product really free?
+Yes. Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply — all free, all MIT licensed. No feature gating on the trust stack itself.
 
-| Tier | Included direction |
-|---|---|
-| **Free** | Score, starter Shield packs, browser playground, CLI quickscore/fix |
-| **Starter / Pro** | stronger Score, more Shield, some Watch, richer outputs |
-| **Team** | Score + Shield + Watch + selected Comply + limited Fleet |
-| **Enterprise** | full Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply |
+### What if I don't need Industry Packs?
+Then AMC is completely free for you. The full trust stack works without any Industry Pack.
 
----
+### Can I build my own domain packs?
+Yes. AMC's pack system is extensible. You can create custom packs for your own domain. The paid Industry Packs are professionally maintained, regularly updated, and backed by regulatory research.
 
-## Deployment value by tier
-
-| Tier | Typical deployment path |
-|---|---|
-| **Free** | browser, local CLI, basic CI |
-| **Starter / Pro** | stronger CI and repeatable local/team workflows |
-| **Team** | team deployment / shared workflows |
-| **Enterprise** | managed, self-hosted, on-prem, regulated delivery expectations |
-
----
-
-## Support / service story
-
-| Tier | Support expectation |
-|---|---|
-| **Free** | docs, examples, community path |
-| **Starter / Pro** | lightweight guidance / better packaged workflows |
-| **Team** | more operational support and implementation clarity |
-| **Enterprise** | onboarding, implementation, governance/compliance support, higher-touch engagement |
-
-See also:
-- `docs/SERVICES_AND_SUPPORT.md`
-- `docs/BUYER_PACKAGES.md`
-- `docs/DEPLOYMENT_OPTIONS.md`
-
----
-
-## Honest current state
-Exact commercial numbers may still evolve.
-That is fine.
-What matters right now is that visitors can finally understand:
-- what is free
-- what becomes paid value
-- what enterprise means
-- how sponsorship differs from pricing
-
-That clarity is better than hiding the commercial ladder entirely.
-
----
+### Will free features ever become paid?
+No. The MIT license is permanent. Features that are free today stay free.
 
 ## Read next
 - `docs/PRODUCT_EDITIONS.md`
 - `docs/PRICING_FAQ.md`
-- `docs/BUYER_PACKAGES.md`
-- `docs/SERVICES_AND_SUPPORT.md`
 - `docs/DEPLOYMENT_OPTIONS.md`
-- `SPONSORING.md`
+- `docs/ENTERPRISE.md`

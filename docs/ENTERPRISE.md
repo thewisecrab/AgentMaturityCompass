@@ -1,55 +1,59 @@
-# ENTERPRISE.md — AMC for enterprise and regulated teams
+# ENTERPRISE.md — AMC Enterprise
 
-## Who this is for
-- Platform teams deploying AI agents at scale
-- Regulated organizations (financial services, healthcare, government)
-- Security teams responsible for AI governance
-- Compliance leads mapping to EU AI Act, ISO 42001, NIST AI RMF
+## What Enterprise adds
 
-## What enterprise AMC includes
+The full AMC trust stack is free and MIT licensed. Enterprise adds:
 
-### Full product stack
-All eight canonical AMC products:
-- **Score** — evidence-weighted trust diagnostics
-- **Shield** — 86 adversarial assurance packs
-- **Enforce** — policy controls, approval workflows, scoped actions
-- **Vault** — Ed25519 signatures, Merkle chains, HSM/TPM support
-- **Watch** — traces, anomalies, dashboards, Prometheus metrics
-- **Fleet** — multi-agent oversight, comparison, delegation graphs
-- **Passport** — portable agent credentials (.amcpass)
-- **Comply** — EU AI Act, ISO 42001, NIST AI RMF, SOC 2, OWASP mapping
+1. **All 40 Industry Packs** — sector-specific domain diagnostics for regulated verticals
+2. **Priority support** — faster response times and dedicated channels
+3. **Custom pack development** — bespoke domain packs for your specific regulatory or industry needs
+4. **Deployment assistance** — help with self-hosted, on-prem, or hybrid deployments
 
-### Deployment options
+## What is already free
+
+Everything else:
+- Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply
+- All 14 framework adapters
+- 481 CLI commands
+- 138 diagnostic questions
+- 86 adversarial assurance packs
+- Browser playground
+- CI trust gates
+- GitHub Action
+
+## Industry Packs included in Enterprise
+
+All 40 domain-specific packs, including:
+- Healthcare / HIPAA
+- Financial services / SOX / PCI-DSS
+- Education / FERPA
+- Government / FedRAMP
+- Insurance
+- Legal / eDiscovery
+- Mobility / autonomous systems
+- Energy / critical infrastructure
+- And 32 more specialized verticals
+
+## Deployment options
+
 | Option | Best for |
 |---|---|
-| Self-hosted | Teams that need internal control |
+| Self-hosted | Teams that need full internal control |
 | Managed/hosted | Teams that want reduced operational overhead |
 | On-premises | Regulated environments with data residency requirements |
-| Hybrid | Mixed deployment with cloud scoring + on-prem evidence storage |
+| Hybrid | Cloud scoring + on-prem evidence storage |
 
-### Enterprise support
-- Implementation and onboarding assistance
-- Governance and compliance advisory
-- Policy pack development
-- Custom domain pack creation
-- Priority support channels
-- SLA expectations (response time, uptime)
-
-### Security posture
-- No data leaves your environment in self-hosted/on-prem deployments
-- Ed25519 cryptographic signing for all evidence
-- Tamper-evident ledger with Merkle tree verification
-- SBOM generation for supply chain transparency
+All deployment options use the same AMC trust stack. No feature differences by deployment type.
 
 ## How to engage
-1. Start with the free open-source tier to evaluate AMC
-2. Review `docs/PRODUCT_EDITIONS.md` for edition comparison
-3. Review `docs/PRICING.md` for pricing architecture
-4. Contact for enterprise packaging and deployment discussion
+
+1. Start with the free open-source tier — it includes the full trust stack
+2. Evaluate whether your industry needs sector-specific diagnostics
+3. If yes, review Industry Packs and contact for Pro or Enterprise access
+4. See `docs/PRICING.md` and `docs/PRODUCT_EDITIONS.md` for the full matrix
 
 ## Read next
-- `docs/PRODUCT_EDITIONS.md`
 - `docs/PRICING.md`
+- `docs/PRODUCT_EDITIONS.md`
 - `docs/DEPLOYMENT_OPTIONS.md`
 - `docs/SERVICES_AND_SUPPORT.md`
-- `docs/BUYER_PACKAGES.md`

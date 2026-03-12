@@ -93,17 +93,17 @@ These names are intentional. AMC is not a single command with a long README — 
 
 ---
 
-## Editions preview
+## Pricing
 
-AMC is open source first, but the packaging direction is broader than a bare CLI:
+The full trust stack is **free and MIT licensed**. The only paid surface is Industry Packs.
 
-| Edition | Intended shape |
+| Tier | What you get |
 |---|---|
-| **Free / Open Source** | Score, starter Shield packs, browser playground, CLI quickscore/fix |
-| **Team / Pro** | Stronger Score + Shield workflows, Watch, selected Comply outputs, small-team Fleet workflows |
-| **Enterprise / Regulated** | Full stack: Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply |
+| **Free / Open Source** | Everything — Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply, all 14 adapters, 481 CLI commands, browser playground, CI gates |
+| **Pro** | Everything in Free + selected Industry Packs for your regulated verticals |
+| **Enterprise** | Everything in Pro + all 40 Industry Packs + priority support + custom pack development + deployment assistance |
 
-> Honest note: this is the product packaging direction, not fake finalized pricing. Exact pricing and tier limits should live on a dedicated pricing page.
+> Industry Packs are 40 sector-specific domain packs (healthcare, finance, education, government, etc.) that require ongoing regulatory research and maintenance. The core trust stack stays free forever.
 
 ---
 
