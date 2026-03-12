@@ -1,7 +1,8 @@
 /* AMC Service Worker — network-first for pages, cache-first for static assets */
-const CACHE_NAME = 'amc-v3';
+const CACHE_NAME = 'amc-v4';
 const STATIC_ASSETS = [
   'style.css',
+  'particles.js',
   'i18n.js',
   'manifest.json'
 ];
