@@ -8,7 +8,6 @@
   <title>Agent Maturity Compass — Score, Fix, Ship AI Agents</title>
   <meta name="description" content="Score your AI agent in 2 minutes. Find trust gaps. Generate fixes. Ship with confidence. 138 diagnostics, 86 assurance packs, 14 adapters. Free and open source.">
   <meta name="theme-color" content="#071C26">
-  <meta name="author" content="thewisecrab">
   <link rel="canonical" href="https://thewisecrab.github.io/AgentMaturityCompass/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Agent Maturity Compass — Score, Fix, Ship AI Agents">
@@ -17,12 +16,15 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- GSAP + ScrollTrigger + Lenis (same stack as OSE) -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://unpkg.com/lenis@1.3.13/dist/lenis.min.js" defer></script>
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to content</a>
-  <div class="scroll-bar" aria-hidden="true"></div>
 
   <!-- NAV -->
   <nav class="nav">
@@ -30,6 +32,7 @@
       <a href="#" class="nav-brand">amc<span class="accent">_</span></a>
       <ul class="nav-links">
         <li><a href="#products">products</a></li>
+        <li><a href="#domains">domains</a></li>
         <li><a href="#methodology">approach</a></li>
         <li><a href="#demo">demo</a></li>
         <li><a href="#pricing">pricing</a></li>
@@ -43,6 +46,7 @@
   </nav>
   <div class="nav-mobile">
     <a href="#products">products</a>
+    <a href="#domains">domains</a>
     <a href="#methodology">approach</a>
     <a href="#demo">demo</a>
     <a href="#pricing">pricing</a>
@@ -52,78 +56,63 @@
 
   <main id="main">
 
-    <!-- ═══ 1. HERO ═══ -->
+    <!-- ═══ HERO ═══ -->
     <section class="hero">
       <canvas id="hero-canvas" aria-hidden="true"></canvas>
-      <div class="watermark" aria-hidden="true" style="top:8%;right:-3%">AMC</div>
+      <div class="hero-watermark" aria-hidden="true">AMC</div>
 
-      <!-- Geometric wireframe decoration -->
-      <svg class="hero-geo" aria-hidden="true" viewBox="0 0 500 500" fill="none" stroke="rgba(74,239,121,0.08)" stroke-width="0.5">
+      <svg class="hero-geo" aria-hidden="true" viewBox="0 0 500 500" fill="none" stroke="rgba(74,239,121,0.07)" stroke-width="0.5">
         <circle cx="250" cy="250" r="200"/><circle cx="250" cy="250" r="150"/><circle cx="250" cy="250" r="100"/>
         <line x1="250" y1="50" x2="250" y2="450"/><line x1="50" y1="250" x2="450" y2="250"/>
         <line x1="109" y1="109" x2="391" y2="391"/><line x1="391" y1="109" x2="109" y2="391"/>
-        <circle cx="250" cy="250" r="8" fill="rgba(74,239,121,0.15)" stroke="rgba(74,239,121,0.3)"/>
+        <circle cx="250" cy="250" r="8" fill="rgba(74,239,121,0.12)" stroke="rgba(74,239,121,0.25)"/>
       </svg>
 
       <div class="container hero-content">
         <div class="hero-top">
-          <div>
-            <p class="label reveal" style="margin-bottom:1.2rem">trust scoring for ai agents</p>
-            <h1 class="reveal">Score your agent<span class="accent">_</span><br>Find the gaps<span class="accent">.</span><br>Fix them<span class="accent">.</span></h1>
-            <p class="hero-sub reveal reveal-d1"><span class="highlight">138 diagnostics</span> against actual execution behavior. Not documentation. Not self-reported claims. <span class="highlight">Evidence</span> you can verify, sign, and audit.</p>
+          <div class="hero-text">
+            <p class="label fade-up">trust scoring for ai agents</p>
+            <h1 class="fade-up fd1">Score your<br>agent<span class="accent">_</span></h1>
+            <h1 class="fade-up fd2" style="color:var(--text-muted);font-weight:400">Find the gaps<span class="accent">.</span><br>Fix them<span class="accent">.</span></h1>
+            <p class="hero-sub fade-up fd3"><span class="hl">138 diagnostics</span> against actual execution behavior. Not documentation. Not self-reported claims. <span class="hl">Evidence</span> you can verify, sign, and audit.</p>
           </div>
-          <div class="hero-meta reveal reveal-d2">
+          <div class="hero-actions fade-up fd4">
             <div class="hero-install" onclick="navigator.clipboard&&navigator.clipboard.writeText('npm i -g agent-maturity-compass')" title="Click to copy">
-              $ npm i -g agent-maturity-compass
+              <span class="hi-prompt">$</span> npm i -g agent-maturity-compass
             </div>
-            <a href="playground.html" class="btn btn-primary">try in browser →</a>
-            <a href="#demo" class="btn btn-outline">see the demo →</a>
+            <div class="hero-btns">
+              <a href="playground.html" class="btn btn-primary btn-lg">try in browser →</a>
+              <a href="#demo" class="btn btn-outline btn-lg">see the demo →</a>
+            </div>
           </div>
         </div>
-        <div class="hero-scroll">
+        <div class="hero-scroll fade-up fd5">
           <span class="hero-scroll-text">scroll to explore</span>
           <div class="hero-scroll-line"></div>
-          <span class="hero-scroll-arrow">↓</span>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 2. STATS STRIP ═══ -->
+    <!-- ═══ STATS STRIP ═══ -->
     <section class="stats-strip">
       <div class="container">
         <div class="stats-row">
-          <div class="stat reveal">
-            <span class="stat-value">138</span>
-            <span class="stat-label">diagnostic questions</span>
-          </div>
-          <div class="stat reveal reveal-d1">
-            <span class="stat-value">86</span>
-            <span class="stat-label">assurance packs</span>
-          </div>
-          <div class="stat reveal reveal-d2">
-            <span class="stat-value">14</span>
-            <span class="stat-label">framework adapters</span>
-          </div>
-          <div class="stat reveal reveal-d3">
-            <span class="stat-value">3,311</span>
-            <span class="stat-label">tests passing</span>
-          </div>
-          <div class="stat reveal reveal-d4">
-            <span class="stat-value">L0–L5</span>
-            <span class="stat-label">maturity scale</span>
-          </div>
+          <div class="stat fade-up"><span class="stat-value">138</span><span class="stat-label">diagnostic questions</span></div>
+          <div class="stat fade-up fd1"><span class="stat-value">86</span><span class="stat-label">assurance packs</span></div>
+          <div class="stat fade-up fd2"><span class="stat-value">14</span><span class="stat-label">framework adapters</span></div>
+          <div class="stat fade-up fd3"><span class="stat-value">3,311</span><span class="stat-label">tests passing</span></div>
+          <div class="stat fade-up fd4"><span class="stat-value">L0–L5</span><span class="stat-label">maturity scale</span></div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 3. THE GAP ═══ -->
+    <!-- ═══ THE GAP ═══ -->
     <section class="big-number">
       <div class="container">
-        <div class="reveal"><div class="big-number-value">84</div></div>
-        <p class="reveal reveal-d1">The gap between what your agent <span class="text-white">claims</span> and what <span class="highlight">execution evidence</span> shows.</p>
-        <p class="evidence reveal reveal-d2">documentation score: <span class="text-white">100</span> &nbsp;→&nbsp; evidence-verified: <span class="highlight">16</span> &nbsp;→&nbsp; gap: <span class="highlight">84</span></p>
-
-        <div class="gap-compare reveal reveal-d3">
+        <div class="big-number-value fade-up">84</div>
+        <p class="big-number-desc fade-up fd1">The gap between what your agent <span class="text-w">claims</span> and what <span class="hl">execution evidence</span> shows.</p>
+        <p class="evidence fade-up fd2">documentation score: <span class="text-w">100</span> → evidence-verified: <span class="hl">16</span> → gap: <span class="hl">84</span></p>
+        <div class="gap-compare fade-up fd3">
           <div class="gap-side">
             <span class="label" style="color:var(--text-dim)">without amc</span>
             <ul>
@@ -137,87 +126,90 @@
           <div class="gap-side">
             <span class="label" style="color:var(--accent)">with amc</span>
             <ul>
-              <li>Score from observed execution evidence</li>
-              <li>86 adversarial packs run automatically</li>
+              <li>Score from <span class="hl">observed execution evidence</span></li>
+              <li><span class="hl">86 adversarial packs</span> run automatically</li>
               <li>CI gates prevent trust regressions</li>
-              <li>Cryptographic proof chains for audits</li>
+              <li><span class="hl">Cryptographic proof chains</span> for audits</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 4. SECTION HEADING: PRODUCTS ═══ -->
-    <section id="products" style="padding-bottom:0">
+    <!-- ═══ PRODUCTS ═══ -->
+    <section id="products">
       <div class="container">
-        <div class="section-heading reveal">
-          <h2>Trust diagnostics <strong>to score, test, and govern complex agents<span class="accent">_</span></strong></h2>
-          <p class="section-desc">Eight named surfaces. One trust stack. All free and MIT licensed.</p>
+        <div class="section-heading fade-up">
+          <p class="label">the trust stack</p>
+          <h2>Eight named surfaces<span class="accent">_</span><br><strong>One complete trust platform</strong></h2>
+          <p class="section-desc">All free. All MIT licensed. All composable.</p>
         </div>
-      </div>
-    </section>
-
-    <!-- ═══ 5. PRODUCT CARDS ═══ -->
-    <section style="padding-top:2rem">
-      <div class="container">
         <div class="card-grid">
-          <div class="card reveal">
-            <span class="card-number">01</span>
+
+          <div class="card fade-up">
+            <div class="card-top"><span class="card-number">01</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
             <h3 class="underscore">Score</h3>
-            <p>Evidence-weighted trust scoring across 138 diagnostics. L0 to L5 maturity. Self-reported claims capped at 0.4× weight. You can't game this.</p>
+            <p>Evidence-weighted trust scoring across <span class="hl">138 diagnostics</span>. L0 to L5 maturity. Self-reported claims capped at 0.4× weight. You can't game this.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
-          <div class="card reveal reveal-d1">
-            <span class="card-number">02</span>
+
+          <div class="card fade-up fd1">
+            <div class="card-top"><span class="card-number">02</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z"/></svg></div>
             <h3 class="underscore">Shield</h3>
-            <p>86 adversarial assurance packs. Prompt injection, exfiltration, context leakage, sycophancy, over-compliance, and 41 other failure modes tested automatically.</p>
+            <p><span class="hl">86 adversarial assurance packs</span>. Prompt injection, exfiltration, context leakage, sycophancy, over-compliance, and 41 other failure modes.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
-          <div class="card reveal reveal-d2">
-            <span class="card-number">03</span>
+
+          <div class="card fade-up fd2">
+            <div class="card-top"><span class="card-number">03</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
             <h3 class="underscore">Enforce</h3>
-            <p>Policy controls, approval workflows, scoped actions, and governance gates for higher-trust environments and regulated deployments.</p>
+            <p>Policy controls, approval workflows, scoped actions, and <span class="hl">governance gates</span> for higher-trust environments and regulated deployments.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
-          <div class="card reveal reveal-d3">
-            <span class="card-number">04</span>
+
+          <div class="card fade-up fd3">
+            <div class="card-top"><span class="card-number">04</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
             <h3 class="underscore">Vault</h3>
-            <p>Ed25519 signatures, Merkle-tree evidence chains, tamper-evident ledgers. Every score, report, and artifact is cryptographically verifiable.</p>
+            <p><span class="hl">Ed25519 signatures</span>, Merkle-tree evidence chains, tamper-evident ledgers. Every artifact is cryptographically verifiable.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
-          <div class="card reveal reveal-d4">
-            <span class="card-number">05</span>
+
+          <div class="card fade-up">
+            <div class="card-top"><span class="card-number">05</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
             <h3 class="underscore">Watch</h3>
-            <p>Traces, anomalies, timelines, and drift detection. Continuous monitoring of agent trust posture. Know when something changes before it breaks.</p>
+            <p>Traces, anomalies, timelines, and <span class="hl">drift detection</span>. Continuous monitoring of agent trust posture. Know when something changes.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
-          <div class="card reveal reveal-d5">
-            <span class="card-number">06</span>
+
+          <div class="card fade-up fd1">
+            <div class="card-top"><span class="card-number">06</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
             <h3 class="underscore">Comply</h3>
-            <p>Map evidence to EU AI Act, ISO 42001, NIST AI RMF, SOC 2, and OWASP LLM Top 10. Generate audit binders in one command.</p>
+            <p>Map evidence to <span class="hl">EU AI Act, ISO 42001, NIST AI RMF, SOC 2</span>, and OWASP LLM Top 10. Generate audit binders in one command.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
-          <div class="card reveal">
-            <span class="card-number">07</span>
+
+          <div class="card fade-up fd2">
+            <div class="card-top"><span class="card-number">07</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
             <h3 class="underscore">Fleet</h3>
-            <p>Compare, benchmark, and govern multiple agents together. Delegation graphs, trust baselines, and org-wide policy enforcement.</p>
+            <p>Compare, benchmark, and govern <span class="hl">multiple agents</span> together. Delegation graphs, trust baselines, and org-wide policy enforcement.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
-          <div class="card reveal reveal-d1">
-            <span class="card-number">08</span>
+
+          <div class="card fade-up fd3">
+            <div class="card-top"><span class="card-number">08</span><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><circle cx="7" cy="15" r="1.5"/></svg></div>
             <h3 class="underscore">Passport</h3>
-            <p>Portable identity, credentials, and trust portability artifacts. Carry verified trust scores between environments and organizations.</p>
+            <p><span class="hl">Portable identity</span>, credentials, and trust portability artifacts. Carry verified trust scores between environments.</p>
             <a href="docs/index.html" class="card-link">learn more →</a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 6. FRAMEWORK LOGOS ═══ -->
+    <!-- ═══ FRAMEWORKS ═══ -->
     <section>
       <div class="container">
-        <p class="label reveal" style="text-align:center;margin-bottom:1.5rem">works with your stack</p>
-        <div class="logos">
+        <p class="label fade-up" style="text-align:center;margin-bottom:1.5rem">works with your stack</p>
+        <div class="logos fade-up fd1">
           <span>LangChain</span><span>CrewAI</span><span>OpenAI</span><span>Claude Code</span>
           <span>AutoGen</span><span>Gemini</span><span>LlamaIndex</span><span>Semantic Kernel</span>
           <span>OpenClaw</span><span>OpenHands</span><span>Python SDK</span><span>CLI</span>
@@ -226,44 +218,43 @@
       </div>
     </section>
 
-    <!-- ═══ 7. METHODOLOGY ═══ -->
+    <!-- ═══ METHODOLOGY ═══ -->
     <section id="methodology" class="section-alt">
       <div class="container">
-        <div class="section-heading reveal">
-          <h2>Expertise built on <strong>evidence<span class="accent">_</span></strong></h2>
-          <p class="section-desc">A structured methodology that combines diagnostic rigor with developer speed to turn agents into trusted systems.</p>
+        <div class="section-heading fade-up">
+          <p class="label">our approach</p>
+          <h2>Expertise built on<br><strong>evidence<span class="accent">_</span></strong></h2>
+          <p class="section-desc">A structured methodology that combines diagnostic rigor with developer speed.</p>
         </div>
         <div class="steps">
-          <div class="steps-text reveal-left">
-            <div class="steps-visual">
-              <svg viewBox="0 0 300 300" fill="none" stroke="rgba(74,239,121,0.12)" stroke-width="0.5" style="width:100%;max-width:300px">
-                <circle cx="150" cy="150" r="120"/><circle cx="150" cy="150" r="80"/><circle cx="150" cy="150" r="40"/>
-                <path d="M150 30 L150 270" /><path d="M30 150 L270 150" />
-                <text x="150" y="155" text-anchor="middle" fill="rgba(74,239,121,0.5)" font-family="Space Mono,monospace" font-size="24" stroke="none">L3</text>
-              </svg>
-            </div>
-            <a href="playground.html" class="btn btn-primary" style="margin-top:2rem">try in browser →</a>
+          <div class="steps-visual fade-left">
+            <svg viewBox="0 0 300 300" fill="none" stroke="rgba(74,239,121,0.12)" stroke-width="0.5" style="width:100%;max-width:280px">
+              <circle cx="150" cy="150" r="120"/><circle cx="150" cy="150" r="80"/><circle cx="150" cy="150" r="40"/>
+              <path d="M150 30 L150 270"/><path d="M30 150 L270 150"/>
+              <text x="150" y="155" text-anchor="middle" fill="rgba(74,239,121,0.5)" font-family="Space Mono,monospace" font-size="24" stroke="none">L3</text>
+            </svg>
+            <a href="playground.html" class="btn btn-primary btn-lg" style="margin-top:2rem">try in browser →</a>
           </div>
           <div class="step-list">
-            <div class="step reveal-right reveal-d1">
+            <div class="step fade-right fd1">
               <span class="step-num">01</span>
               <div>
                 <h4 class="underscore">Score and analyze</h4>
-                <p>Point AMC at any agent. 138 diagnostic questions run against execution evidence — observed API calls, tool usage, error handling, behavioral patterns. Get a trust score from L0 (dangerous) to L5 (production-ready) in under 2 minutes. No code changes required.</p>
+                <p>Point AMC at any agent. <span class="hl">138 diagnostic questions</span> run against execution evidence — observed API calls, tool usage, error handling, behavioral patterns. Get a trust score from <span class="hl">L0 to L5</span> in under 2 minutes.</p>
               </div>
             </div>
-            <div class="step reveal-right reveal-d2">
+            <div class="step fade-right fd2">
               <span class="step-num">02</span>
               <div>
                 <h4 class="underscore">Fix and harden</h4>
-                <p>AMC generates targeted guardrails for your exact configuration — not generic advice, specific patches for 15 configuration targets. 86 assurance packs test prompt injection, exfiltration, context leakage, sycophancy, and other failure modes automatically.</p>
+                <p>AMC generates <span class="hl">targeted guardrails</span> for your exact configuration — specific patches for 15 configuration targets. <span class="hl">86 assurance packs</span> test prompt injection, exfiltration, context leakage, and more.</p>
               </div>
             </div>
-            <div class="step reveal-right reveal-d3">
+            <div class="step fade-right fd3">
               <span class="step-num">03</span>
               <div>
                 <h4 class="underscore">Ship and monitor</h4>
-                <p>Add a CI gate with one command. Set score thresholds. Prevent trust regressions before they reach production. Generate compliance artifacts for EU AI Act, ISO 42001, NIST AI RMF. Deploy with Watch for continuous drift detection.</p>
+                <p>Add a <span class="hl">CI gate</span> with one command. Set score thresholds. Prevent trust regressions. Generate compliance artifacts for <span class="hl">EU AI Act, ISO 42001, NIST AI RMF</span>. Deploy with Watch for continuous drift detection.</p>
               </div>
             </div>
           </div>
@@ -271,268 +262,265 @@
       </div>
     </section>
 
-    <!-- ═══ 8. TERMINAL DEMO ═══ -->
+    <!-- ═══ TERMINAL DEMO ═══ -->
     <section id="demo">
       <div class="container">
-        <div class="section-heading reveal" style="text-align:center">
+        <div class="section-heading fade-up" style="text-align:center">
+          <p class="label">live demo</p>
           <h2>See it <strong>in action<span class="accent">_</span></strong></h2>
-          <p class="section-desc">One command. No account. No API key. Your first trust score in 2 minutes.</p>
+          <p class="section-desc" style="margin:1rem auto 0">One command. No account. No API key. Your first trust score in 2 minutes.</p>
         </div>
-        <div class="terminal reveal-scale reveal-d1">
+        <div class="terminal fade-up fd1">
           <div class="terminal-bar">
-            <div class="terminal-dot r"></div>
-            <div class="terminal-dot y"></div>
-            <div class="terminal-dot g"></div>
+            <div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div>
             <div class="terminal-title">amc — quickscore</div>
           </div>
           <div class="terminal-body" id="terminal-body"></div>
         </div>
-        <div class="demo-actions reveal reveal-d2">
-          <div class="hero-install" onclick="navigator.clipboard&&navigator.clipboard.writeText('npx agent-maturity-compass quickscore')">$ npx agent-maturity-compass quickscore</div>
-          <a href="playground.html" class="btn btn-primary">or try in browser →</a>
+        <div class="demo-actions fade-up fd2">
+          <div class="hero-install" onclick="navigator.clipboard&&navigator.clipboard.writeText('npx agent-maturity-compass quickscore')"><span class="hi-prompt">$</span> npx agent-maturity-compass quickscore</div>
+          <a href="playground.html" class="btn btn-primary btn-lg">or try in browser →</a>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 9. WHO IT'S FOR ═══ -->
+    <!-- ═══ WHO IT'S FOR ═══ -->
     <section class="section-alt">
       <div class="container">
-        <div class="section-heading reveal">
+        <div class="section-heading fade-up">
+          <p class="label">who it's for</p>
           <h2>Built for <strong>every developer<span class="accent">_</span></strong></h2>
         </div>
         <div class="persona-grid">
-          <div class="persona reveal">
-            <span class="card-number">→</span>
+          <div class="persona fade-up">
+            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <h3>Solo developers</h3>
-            <p>Get a first score fast. See the gaps. Add a CI gate. No enterprise overhead needed. The full trust stack is free.</p>
+            <p>Get a first score fast. See the gaps. Add a CI gate. No enterprise overhead. The <span class="hl">full trust stack is free</span>.</p>
           </div>
-          <div class="persona reveal reveal-d1">
-            <span class="card-number">→</span>
+          <div class="persona fade-up fd1">
+            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
             <h3>Engineering teams</h3>
-            <p>Standardize trust scoring across agents. Share workflows, enforce thresholds, monitor drift over time with Fleet and Watch.</p>
+            <p>Standardize trust scoring across agents. Share workflows, <span class="hl">enforce thresholds</span>, monitor drift with Fleet and Watch.</p>
           </div>
-          <div class="persona reveal reveal-d2">
-            <span class="card-number">→</span>
+          <div class="persona fade-up fd2">
+            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             <h3>Security &amp; compliance</h3>
-            <p>Run 86 adversarial assurance packs. Map evidence to regulatory frameworks. Generate audit-grade reports with Comply.</p>
+            <p>Run <span class="hl">86 adversarial assurance packs</span>. Map evidence to regulatory frameworks. Generate audit-grade reports with Comply.</p>
           </div>
-          <div class="persona reveal reveal-d3">
-            <span class="card-number">→</span>
+          <div class="persona fade-up fd3">
+            <svg class="persona-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             <h3>Platform teams</h3>
-            <p>Deploy AMC as infrastructure. Score every agent in the fleet. Set org-wide trust policies and baselines with Enforce.</p>
+            <p>Deploy AMC as infrastructure. Score every agent in the fleet. Set <span class="hl">org-wide trust policies</span> with Enforce.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 10. KEY DIFFERENTIATORS ═══ -->
+    <!-- ═══ DIFFERENTIATORS ═══ -->
     <section>
       <div class="container">
-        <div class="section-heading reveal">
+        <div class="section-heading fade-up">
+          <p class="label">why amc</p>
           <h2>What makes this <strong>different<span class="accent">_</span></strong></h2>
         </div>
         <div class="diff-grid">
-          <div class="diff reveal">
-            <h4 class="underscore">Evidence-weighted scoring</h4>
-            <p>Self-reported evidence is capped at 0.4× weight. Observed execution evidence scores at 1.0×. You can't game this with better documentation.</p>
-          </div>
-          <div class="diff reveal reveal-d1">
-            <h4 class="underscore">Cryptographic proof chains</h4>
-            <p>Every score is backed by Ed25519 signatures and Merkle-tree evidence chains. Tamper-evident. Auditor-friendly. Not just a number in a dashboard.</p>
-          </div>
-          <div class="diff reveal reveal-d2">
-            <h4 class="underscore">Zero code changes</h4>
-            <p>AMC wraps your existing agent with one environment variable. The agent doesn't know it's being observed. No SDK integration required.</p>
-          </div>
-          <div class="diff reveal reveal-d3">
-            <h4 class="underscore">481 CLI commands</h4>
-            <p>Score, fix, shield, watch, comply, fleet, vault, passport — every trust workflow is a CLI command away. Scriptable. Composable. CI-ready.</p>
-          </div>
-          <div class="diff reveal reveal-d4">
-            <h4 class="underscore">14 framework adapters</h4>
-            <p>LangChain, CrewAI, OpenAI, AutoGen, Claude Code, Gemini, LlamaIndex, Semantic Kernel, and 6 more. One tool for your entire stack.</p>
-          </div>
-          <div class="diff reveal reveal-d5">
-            <h4 class="underscore">Free forever</h4>
-            <p>The entire trust stack is MIT licensed. Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply — all free. Only Industry Packs are paid.</p>
-          </div>
+          <div class="diff fade-up"><h4 class="underscore">Evidence-weighted scoring</h4><p>Self-reported evidence capped at <span class="hl">0.4× weight</span>. Observed execution evidence scores at <span class="hl">1.0×</span>. You can't game this with better documentation.</p></div>
+          <div class="diff fade-up fd1"><h4 class="underscore">Cryptographic proof chains</h4><p><span class="hl">Ed25519 signatures</span> and Merkle-tree evidence chains. Tamper-evident. Auditor-friendly. Not just a number in a dashboard.</p></div>
+          <div class="diff fade-up fd2"><h4 class="underscore">Zero code changes</h4><p>AMC wraps your existing agent with <span class="hl">one environment variable</span>. The agent doesn't know it's being observed. No SDK integration required.</p></div>
+          <div class="diff fade-up fd3"><h4 class="underscore">481 CLI commands</h4><p>Score, fix, shield, watch, comply, fleet, vault, passport — every trust workflow is a <span class="hl">CLI command</span> away. Scriptable. Composable. CI-ready.</p></div>
+          <div class="diff fade-up fd4"><h4 class="underscore">14 framework adapters</h4><p>LangChain, CrewAI, OpenAI, AutoGen, Claude Code, Gemini, LlamaIndex, Semantic Kernel, and <span class="hl">6 more</span>. One tool for your entire stack.</p></div>
+          <div class="diff fade-up fd5"><h4 class="underscore">Free forever</h4><p>The <span class="hl">entire trust stack</span> is MIT licensed. Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply — all free. Only Industry Packs are paid.</p></div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 11. TRUST SIGNALS ═══ -->
-    <section class="section-alt">
+    <!-- ═══ INDUSTRY DOMAINS — ALL 40 ═══ -->
+    <section id="domains" class="section-alt">
       <div class="container">
-        <div class="section-heading reveal" style="text-align:center">
-          <h2>Grounded in <strong>research<span class="accent">_</span></strong></h2>
-        </div>
-        <div class="trust-grid">
-          <div class="trust-item reveal">
-            <h4>NIST AI RMF</h4>
-            <p>"Improve the ability to incorporate trustworthiness considerations into the design, development, use, and evaluation of AI products."</p>
-            <a href="https://www.nist.gov/itl/ai-risk-management-framework" class="card-link" target="_blank" rel="noopener">nist.gov →</a>
-          </div>
-          <div class="trust-item reveal reveal-d1">
-            <h4>Levels of AGI — ICML 2024</h4>
-            <p>Future benchmarks should quantify behavior and capabilities against levels, autonomy, and risk — not benchmark theater.</p>
-            <a href="https://arxiv.org/abs/2311.02462" class="card-link" target="_blank" rel="noopener">arxiv.org →</a>
-          </div>
-          <div class="trust-item reveal reveal-d2">
-            <h4>Connecting the Dots — NeurIPS 2024</h4>
-            <p>Frontier models can infer latent information from distributed evidence, making monitoring harder if you only rely on what is explicit.</p>
-            <a href="https://arxiv.org/abs/2406.14546" class="card-link" target="_blank" rel="noopener">arxiv.org →</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ 12. PRICING ═══ -->
-    <section id="pricing">
-      <div class="container">
-        <div class="pricing-header reveal">
-          <h2>Everything is <strong>free<span class="accent">_</span></strong></h2>
-          <p>The full trust stack is MIT licensed. The only paid surface is Industry Packs — 40 sector-specific domain packs for regulated verticals.</p>
-        </div>
-        <div class="pricing-grid">
-          <div class="pricing-card reveal">
-            <span class="tier">free / open source</span>
-            <h3>The entire trust stack</h3>
-            <p>Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply. All 14 adapters. 481 CLI commands. Browser playground. CI gates.</p>
-            <div class="items">
-              138 diagnostics<br>86 assurance packs<br>14 framework adapters<br>3,311 tests passing<br>MIT licensed forever
-            </div>
-            <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-primary">get started →</a>
-          </div>
-          <div class="pricing-card reveal reveal-d1">
-            <span class="tier">pro / enterprise</span>
-            <h3>Industry Packs</h3>
-            <p>40 sector-specific domain packs for regulated verticals. Priority support. Custom pack development. Deployment assistance.</p>
-            <div class="items">
-              healthcare / HIPAA<br>financial / SOX / PCI-DSS<br>education / FERPA<br>government / FedRAMP<br>+ 36 more verticals
-            </div>
-            <a href="docs/index.html#PRICING" class="btn btn-outline">learn more →</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ 13. INDUSTRY DOMAINS ═══ -->
-    <section>
-      <div class="container">
-        <div class="domains-heading reveal">
-          <h2>Industry Packs for <strong>every regulated vertical<span class="accent">_</span></strong></h2>
-          <p class="section-desc" style="margin:1rem auto 0;text-align:center;max-width:550px">40 sector-specific domain packs. Each adds tailored diagnostics, compliance mappings, and trust scoring calibrated to your industry.</p>
+        <div class="section-heading fade-up" style="text-align:center">
+          <p class="label">industry packs</p>
+          <h2>40 regulated verticals<span class="accent">_</span><br><strong>One diagnostic framework</strong></h2>
+          <p class="section-desc" style="margin:1rem auto 0;text-align:center;max-width:550px">Sector-specific diagnostics, compliance mappings, and trust scoring calibrated to your industry's regulatory requirements.</p>
         </div>
         <div class="domains-grid">
-          <div class="domain reveal">
-            <span class="domain-num">01</span>
-            <h4>Healthcare</h4>
-            <p>HIPAA compliance mapping, PHI handling verification, clinical decision support guardrails, patient safety diagnostics.</p>
-          </div>
-          <div class="domain reveal reveal-d1">
-            <span class="domain-num">02</span>
-            <h4>Financial Services</h4>
-            <p>SOX and PCI-DSS compliance, transaction integrity, market manipulation detection, fiduciary duty scoring.</p>
-          </div>
-          <div class="domain reveal reveal-d2">
-            <span class="domain-num">03</span>
-            <h4>Government</h4>
-            <p>FedRAMP alignment, classified data handling, FISMA controls, citizen privacy protections, audit trail requirements.</p>
-          </div>
-          <div class="domain reveal reveal-d3">
-            <span class="domain-num">04</span>
-            <h4>Education</h4>
-            <p>FERPA compliance, student data protection, age-appropriate content verification, academic integrity safeguards.</p>
-          </div>
-          <div class="domain reveal">
-            <span class="domain-num">05</span>
-            <h4>Insurance</h4>
-            <p>Actuarial fairness scoring, claims processing integrity, underwriting bias detection, regulatory filing compliance.</p>
-          </div>
-          <div class="domain reveal reveal-d1">
-            <span class="domain-num">06</span>
-            <h4>Legal</h4>
-            <p>Attorney-client privilege protection, eDiscovery compliance, confidentiality scoring, judicial decision support safeguards.</p>
-          </div>
-          <div class="domain reveal reveal-d2">
-            <span class="domain-num">07</span>
-            <h4>Energy</h4>
-            <p>Critical infrastructure protection, NERC CIP compliance, safety-critical system scoring, operational technology guardrails.</p>
-          </div>
-          <div class="domain reveal reveal-d3">
-            <span class="domain-num">08</span>
-            <h4>Autonomous Systems</h4>
-            <p>Safety-critical decision scoring, real-time monitoring requirements, fail-safe verification, ISO 26262 alignment.</p>
-          </div>
+
+          <!-- Row 1 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="domain-num">01</span></div><h4>Healthcare</h4><p>HIPAA, PHI handling, clinical decision support</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="domain-num">02</span></div><h4>Financial Services</h4><p>SOX, PCI-DSS, transaction integrity</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg><span class="domain-num">03</span></div><h4>Government</h4><p>FedRAMP, FISMA, classified data handling</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span class="domain-num">04</span></div><h4>Education</h4><p>FERPA, student data protection, academic integrity</p></div>
+
+          <!-- Row 2 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="domain-num">05</span></div><h4>Insurance</h4><p>Actuarial fairness, claims integrity, underwriting bias</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><span class="domain-num">06</span></div><h4>Legal</h4><p>Privilege protection, eDiscovery, confidentiality</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="domain-num">07</span></div><h4>Energy</h4><p>NERC CIP, critical infrastructure, OT guardrails</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg><span class="domain-num">08</span></div><h4>Autonomous Systems</h4><p>ISO 26262, safety-critical, fail-safe verification</p></div>
+
+          <!-- Row 3 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span class="domain-num">09</span></div><h4>Defense</h4><p>ITAR, CMMC, classified operations</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg><span class="domain-num">10</span></div><h4>Pharma</h4><p>FDA 21 CFR Part 11, GxP, clinical trial integrity</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07"/><path d="M3.59 1.59l16.83 16.83"/></svg><span class="domain-num">11</span></div><h4>Telecom</h4><p>Network security, subscriber privacy, SLA compliance</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><span class="domain-num">12</span></div><h4>Retail</h4><p>PCI compliance, recommendation fairness, pricing integrity</p></div>
+
+          <!-- Row 4 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="6" width="22" height="12" rx="2"/><path d="M1 10h22"/></svg><span class="domain-num">13</span></div><h4>Banking</h4><p>Basel III, AML/KYC, transaction monitoring</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg><span class="domain-num">14</span></div><h4>Manufacturing</h4><p>IEC 62443, process safety, supply chain integrity</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="23 7 16 12 16 7 23 7"/></svg><span class="domain-num">15</span></div><h4>Media</h4><p>Content moderation, deepfake detection, attribution</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="domain-num">16</span></div><h4>Real Estate</h4><p>Fair housing, appraisal bias, lending compliance</p></div>
+
+          <!-- Row 5 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.22.46.34.97.33 1.49V11a2 2 0 010 4z"/></svg><span class="domain-num">17</span></div><h4>SaaS / Cloud</h4><p>SOC 2, multi-tenancy, data residency</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91A6 6 0 013.07 2.53l3.77 3.77z"/></svg><span class="domain-num">18</span></div><h4>Logistics</h4><p>Supply chain safety, route optimization fairness</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10"/></svg><span class="domain-num">19</span></div><h4>Travel</h4><p>Pricing transparency, accessibility, GDPR</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span class="domain-num">20</span></div><h4>HR Tech</h4><p>Hiring bias, EEOC, candidate data protection</p></div>
+
+          <!-- Row 6 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><span class="domain-num">21</span></div><h4>Agriculture</h4><p>Crop advisory fairness, environmental compliance</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="domain-num">22</span></div><h4>Gaming</h4><p>Loot box fairness, age verification, COPPA</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg><span class="domain-num">23</span></div><h4>Food & Beverage</h4><p>Allergen safety, FDA labeling, HACCP</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18"/><path d="M8 6l4-3 4 3"/><circle cx="12" cy="12" r="9" stroke-dasharray="4 2"/></svg><span class="domain-num">24</span></div><h4>Aerospace</h4><p>DO-178C, ITAR, flight safety systems</p></div>
+
+          <!-- Row 7 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg><span class="domain-num">25</span></div><h4>Semiconductors</h4><p>IP protection, export controls, EAR compliance</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="domain-num">26</span></div><h4>Smart Cities</h4><p>Surveillance ethics, citizen data protection</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span class="domain-num">27</span></div><h4>Publishing</h4><p>Content attribution, copyright, plagiarism detection</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="domain-num">28</span></div><h4>Emergency Services</h4><p>Priority dispatch fairness, liability, triage safety</p></div>
+
+          <!-- Row 8 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="domain-num">29</span></div><h4>Biotech</h4><p>Genomic data protection, IRB compliance, biosecurity</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><span class="domain-num">30</span></div><h4>Mental Health</h4><p>Crisis detection, therapeutic guardrails, 42 CFR Part 2</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span class="domain-num">31</span></div><h4>Quality Assurance</h4><p>ISO 9001, defect prediction, testing coverage</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="domain-num">32</span></div><h4>Accounting</h4><p>SOX, audit trail integrity, GAAP compliance</p></div>
+
+          <!-- Row 9 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="domain-num">33</span></div><h4>Climate Tech</h4><p>Carbon accounting accuracy, ESG reporting</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg><span class="domain-num">34</span></div><h4>Construction</h4><p>BIM integrity, safety compliance, permitting</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22a10 10 0 100-20 10 10 0 000 20z"/><path d="M12 6v6l4 2"/></svg><span class="domain-num">35</span></div><h4>Mining</h4><p>Environmental impact, safety monitoring, MSHA</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg><span class="domain-num">36</span></div><h4>Transportation</h4><p>DOT compliance, routing fairness, safety systems</p></div>
+
+          <!-- Row 10 -->
+          <div class="domain fade-up"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg><span class="domain-num">37</span></div><h4>Nonprofit</h4><p>Donor data protection, grant compliance, impact scoring</p></div>
+
+          <div class="domain fade-up fd1"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg><span class="domain-num">38</span></div><h4>Creative / Advertising</h4><p>Brand safety, ad targeting fairness, FTC disclosure</p></div>
+
+          <div class="domain fade-up fd2"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18"/><path d="M17 8l-5-5-5 5"/><path d="M17 16l-5 5-5-5"/></svg><span class="domain-num">39</span></div><h4>Utilities</h4><p>Grid reliability, rate fairness, NERC standards</p></div>
+
+          <div class="domain fade-up fd3"><div class="domain-head"><svg class="domain-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg><span class="domain-num">40</span></div><h4>Custom</h4><p>Build your own pack with AMC's diagnostic authoring toolkit</p></div>
+
         </div>
-        <p class="reveal" style="text-align:center;margin-top:2rem;font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--text-dim)">+ 32 more verticals including defense, pharma, telecom, retail, manufacturing, logistics, media, real estate...</p>
       </div>
     </section>
 
-    <!-- ═══ 14. FIGURES ═══ -->
+    <!-- ═══ FIGURES ═══ -->
     <section>
       <div class="container">
         <div class="figures">
-          <div class="figure-item reveal">
-            <span class="figure-val"><span class="accent">3,311</span></span>
-            <span class="figure-label">tests passing</span>
+          <div class="figure-item fade-up"><span class="figure-val"><span class="accent">3,311</span></span><span class="figure-label">tests passing</span></div>
+          <div class="figure-item fade-up fd1"><span class="figure-val"><span class="accent">481</span></span><span class="figure-label">cli commands</span></div>
+          <div class="figure-item fade-up fd2"><span class="figure-val"><span class="accent">74</span>+</span><span class="figure-label">scoring modules</span></div>
+          <div class="figure-item fade-up fd3"><span class="figure-val"><span class="accent">40</span></span><span class="figure-label">domain packs</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ TRUST SIGNALS ═══ -->
+    <section class="section-alt">
+      <div class="container">
+        <div class="section-heading fade-up" style="text-align:center">
+          <p class="label">grounded in research</p>
+          <h2>Built on <strong>primary sources<span class="accent">_</span></strong></h2>
+        </div>
+        <div class="trust-grid">
+          <div class="trust-item fade-up"><h4>NIST AI RMF</h4><p>"Improve the ability to incorporate trustworthiness considerations into the design, development, use, and evaluation of AI products."</p><a href="https://www.nist.gov/itl/ai-risk-management-framework" class="card-link" target="_blank" rel="noopener">nist.gov →</a></div>
+          <div class="trust-item fade-up fd1"><h4>Levels of AGI — ICML 2024</h4><p>Future benchmarks should quantify behavior and capabilities against levels, autonomy, and risk — not benchmark theater.</p><a href="https://arxiv.org/abs/2311.02462" class="card-link" target="_blank" rel="noopener">arxiv.org →</a></div>
+          <div class="trust-item fade-up fd2"><h4>Connecting the Dots — NeurIPS 2024</h4><p>Frontier models can infer latent information from distributed evidence, making monitoring harder.</p><a href="https://arxiv.org/abs/2406.14546" class="card-link" target="_blank" rel="noopener">arxiv.org →</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PRICING ═══ -->
+    <section id="pricing">
+      <div class="container">
+        <div class="section-heading fade-up" style="text-align:center">
+          <p class="label">pricing</p>
+          <h2>Everything is <strong>free<span class="accent">_</span></strong></h2>
+          <p class="section-desc" style="margin:1rem auto 0;text-align:center;max-width:550px">The full trust stack is MIT licensed. The only paid surface is Industry Packs for regulated verticals.</p>
+        </div>
+        <div class="pricing-grid">
+          <div class="pricing-card fade-up">
+            <span class="tier">free / open source</span>
+            <h3>The entire trust stack</h3>
+            <p>Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply. All <span class="hl">14 adapters</span>. <span class="hl">481 CLI commands</span>. Browser playground. CI gates.</p>
+            <div class="items"><span class="hl">138</span> diagnostics<br><span class="hl">86</span> assurance packs<br><span class="hl">14</span> framework adapters<br><span class="hl">3,311</span> tests passing<br><span class="hl">MIT</span> licensed forever</div>
+            <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-primary btn-lg">get started →</a>
           </div>
-          <div class="figure-item reveal reveal-d1">
-            <span class="figure-val"><span class="accent">481</span></span>
-            <span class="figure-label">cli commands</span>
-          </div>
-          <div class="figure-item reveal reveal-d2">
-            <span class="figure-val"><span class="accent">74</span>+</span>
-            <span class="figure-label">scoring modules</span>
-          </div>
-          <div class="figure-item reveal reveal-d3">
-            <span class="figure-val"><span class="accent">40</span></span>
-            <span class="figure-label">domain packs</span>
+          <div class="pricing-card fade-up fd1">
+            <span class="tier">pro / enterprise</span>
+            <h3>Industry Packs</h3>
+            <p><span class="hl">40</span> sector-specific domain packs for regulated verticals. Priority support. Custom pack development.</p>
+            <div class="items">Healthcare / HIPAA<br>Financial / SOX / PCI-DSS<br>Education / FERPA<br>Government / FedRAMP<br>+ <span class="hl">36</span> more verticals</div>
+            <a href="docs/index.html#PRICING" class="btn btn-outline btn-lg">learn more →</a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 15. FAQ ═══ -->
+    <!-- ═══ FAQ ═══ -->
     <section class="section-alt">
       <div class="container">
-        <div class="section-heading reveal" style="text-align:center">
+        <div class="section-heading fade-up" style="text-align:center">
+          <p class="label">faq</p>
           <h2>Common <strong>questions<span class="accent">_</span></strong></h2>
         </div>
         <div class="faq-list">
-          <div class="faq-item reveal">
-            <button class="faq-q" aria-expanded="false">What is the 84-point documentation inflation gap?<span class="faq-icon">+</span></button>
-            <div class="faq-a"><p>When scored using self-reported documentation, an agent scores 100/100. When AMC evaluates the same agent using execution-verified evidence, the real score is 16/100. That 84-point gap is documentation inflation. AMC closes it with observed evidence and cryptographic proof chains.</p></div>
-          </div>
-          <div class="faq-item reveal reveal-d1">
-            <button class="faq-q" aria-expanded="false">How is AMC different from other evaluation tools?<span class="faq-icon">+</span></button>
-            <div class="faq-a"><p>Most tools let the agent being evaluated provide its own evidence. AMC sits between the agent and the LLM provider as a trusted observer. Self-reported evidence is capped at 0.4× weight. Observed evidence scores at 1.0×. That is a structural difference.</p></div>
-          </div>
-          <div class="faq-item reveal reveal-d2">
-            <button class="faq-q" aria-expanded="false">Which frameworks does AMC support?<span class="faq-icon">+</span></button>
-            <div class="faq-a"><p>14 adapters: LangChain, LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, LlamaIndex, Semantic Kernel, Claude Code, Gemini, OpenClaw, OpenHands, Python SDK, CLI, and any OpenAI-compatible endpoint. Zero code changes — one environment variable.</p></div>
-          </div>
-          <div class="faq-item reveal reveal-d3">
-            <button class="faq-q" aria-expanded="false">Is AMC really free?<span class="faq-icon">+</span></button>
-            <div class="faq-a"><p>Yes. MIT licensed. The full trust stack — Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply — is free forever. The only paid surface is Industry Packs (40 sector-specific domain packs for regulated verticals).</p></div>
-          </div>
-          <div class="faq-item reveal reveal-d4">
-            <button class="faq-q" aria-expanded="false">Do I need to change my agent's code?<span class="faq-icon">+</span></button>
-            <div class="faq-a"><p>No. AMC wraps your existing agent with one environment variable. The agent doesn't know it's being observed. Zero code changes required for any of the 14 supported frameworks.</p></div>
-          </div>
+          <div class="faq-item fade-up"><button class="faq-q" aria-expanded="false">What is the 84-point documentation inflation gap?<span class="faq-icon">+</span></button><div class="faq-a"><p>When scored using self-reported documentation, an agent scores 100/100. When AMC evaluates the same agent using <span class="hl">execution-verified evidence</span>, the real score is 16/100. That 84-point gap is documentation inflation. AMC closes it with observed evidence and cryptographic proof chains.</p></div></div>
+          <div class="faq-item fade-up fd1"><button class="faq-q" aria-expanded="false">How is AMC different from other evaluation tools?<span class="faq-icon">+</span></button><div class="faq-a"><p>Most tools let the agent being evaluated provide its own evidence. AMC sits between the agent and the LLM provider as a <span class="hl">trusted observer</span>. Self-reported evidence is capped at <span class="hl">0.4× weight</span>. Observed evidence scores at 1.0×. That is a structural difference.</p></div></div>
+          <div class="faq-item fade-up fd2"><button class="faq-q" aria-expanded="false">Which frameworks does AMC support?<span class="faq-icon">+</span></button><div class="faq-a"><p><span class="hl">14 adapters</span>: LangChain, LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, LlamaIndex, Semantic Kernel, Claude Code, Gemini, OpenClaw, OpenHands, Python SDK, CLI, and any OpenAI-compatible endpoint. Zero code changes — one environment variable.</p></div></div>
+          <div class="faq-item fade-up fd3"><button class="faq-q" aria-expanded="false">Is AMC really free?<span class="faq-icon">+</span></button><div class="faq-a"><p>Yes. <span class="hl">MIT licensed</span>. The full trust stack — Score, Shield, Enforce, Vault, Watch, Fleet, Passport, Comply — is free forever. The only paid surface is Industry Packs (40 sector-specific domain packs for regulated verticals).</p></div></div>
+          <div class="faq-item fade-up fd4"><button class="faq-q" aria-expanded="false">Do I need to change my agent's code?<span class="faq-icon">+</span></button><div class="faq-a"><p>No. AMC wraps your existing agent with <span class="hl">one environment variable</span>. The agent doesn't know it's being observed. Zero code changes required for any of the 14 supported frameworks.</p></div></div>
+          <div class="faq-item fade-up fd5"><button class="faq-q" aria-expanded="false">What does L0 to L5 mean?<span class="faq-icon">+</span></button><div class="faq-a"><p><span class="hl">L0</span>: Dangerous — no controls. <span class="hl">L1</span>: Minimal awareness. <span class="hl">L2</span>: Basic controls. <span class="hl">L3</span>: Mature governance. <span class="hl">L4</span>: Verified trust. <span class="hl">L5</span>: Autonomous with full evidence chains. Each level maps to specific capability thresholds with evidence requirements.</p></div></div>
+          <div class="faq-item fade-up"><button class="faq-q" aria-expanded="false">Can I use AMC in CI/CD?<span class="faq-icon">+</span></button><div class="faq-a"><p>Yes. <code>amc gate --min-score L3</code> fails the pipeline if the agent scores below your threshold. Works with GitHub Actions, GitLab CI, Jenkins, and any CI system that supports exit codes.</p></div></div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ 14. FINAL CTA ═══ -->
+    <!-- ═══ FINAL CTA ═══ -->
     <section class="cta-section">
       <div class="container">
-        <h2 class="reveal">A single score <strong>can change<br>how you ship agents<span class="accent">_</span></strong></h2>
-        <div class="cta-install reveal reveal-d1">$ npm i -g agent-maturity-compass</div>
-        <div class="cta-buttons reveal reveal-d2">
-          <a href="playground.html" class="btn btn-primary">try in browser →</a>
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-outline">view on github →</a>
-          <a href="docs/index.html" class="btn btn-outline">read the docs →</a>
+        <p class="label fade-up" style="text-align:center;margin-bottom:1.5rem">get started</p>
+        <h2 class="fade-up fd1">a single score <strong>can change<br>how you ship agents<span class="accent">_</span></strong></h2>
+        <div class="cta-install fade-up fd2">$ npm i -g agent-maturity-compass</div>
+        <div class="cta-buttons fade-up fd3">
+          <a href="playground.html" class="btn btn-primary btn-lg">try in browser →</a>
+          <a href="https://github.com/thewisecrab/AgentMaturityCompass" class="btn btn-outline btn-lg">view on github →</a>
+          <a href="docs/index.html" class="btn btn-outline btn-lg">read the docs →</a>
         </div>
       </div>
     </section>
@@ -564,9 +552,7 @@
       </div>
       <div class="footer-bottom">
         <span class="footer-copy">© 2025 The Wise Crab. MIT License.</span>
-        <div class="footer-legal">
-          <a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/LICENSE">MIT License</a>
-        </div>
+        <div class="footer-legal"><a href="https://github.com/thewisecrab/AgentMaturityCompass/blob/main/LICENSE">MIT License</a></div>
       </div>
     </div>
   </footer>
