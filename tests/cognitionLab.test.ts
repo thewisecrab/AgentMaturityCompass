@@ -62,7 +62,7 @@ describe("experiment templates", () => {
   test("self knowledge template has 4 probes", () => {
     const t = getLabTemplate("tmpl_self_knowledge")!;
     expect(t.defaultProbes.length).toBe(4);
-    expect(t.defaultProbes[0]!.probeId).toMatch(/^sk-/);
+    expect(t.defaultProbes[0]!.probeId).toBe("selfknow-known-fact");
   });
 
   test("templates cover all experiment kinds", () => {

@@ -492,13 +492,33 @@ export async function handleBridgeRequest(options: HandleBridgeRequestOptions): 
     | null = null;
   let overrideMatches: string[] = [];
 
-  const preparedPrompt = await preparePromptForBridgeRequest({
-    workspace: options.workspace,
-    agentId: lease.payload.agentId,
-    provider: promptProviderForBridge(route.provider),
-    requestKind: intent.requestKind,
-    body: bodyJson
-  });
+  let preparedPrompt;
+  try {
+    preparedPrompt = await preparePromptForBridgeRequest({
+      workspace: options.workspace,
+      agentId: lease.payload.agentId,
+      provider: promptProviderForBridge(route.provider),
+      requestKind: intent.requestKind,
+      body: bodyJson
+    });
+  } catch (error) {
+    const requestId = randomUUID();
+    const reason = String(error);
+    auditDeniedBridgeCall({
+      workspace: options.workspace,
+      requestId,
+      agentId: lease.payload.agentId,
+      auditType: "PROMPT_PACK_INVALID",
+      status: 503,
+      reason,
+      provider: route.provider
+    });
+    writeJson(options.res, 503, {
+      error: "PROMPT_PACK_INVALID",
+      reasons: [reason]
+    });
+    return true;
+  }
   if (!preparedPrompt.ok) {
     const requestId = randomUUID();
     auditDeniedBridgeCall({
