@@ -10,14 +10,21 @@ Runnable starter blueprint for a LangChain app evaluated with AMC.
 ## Quick start (Python)
 
 ```bash
+./setup.sh
+./run-python.sh
+```
+
+Manual flow:
+
+```bash
 npm i -g agent-maturity-compass
 amc up
 amc wrap langchain-python -- python examples/langchain-python/main.py
 amc quickscore
 amc dataset create rag-baseline
-amc dataset add-case rag-baseline --prompt "What does the policy say about refunds?" --expected "Should mention refund policy"
+amc dataset import rag-baseline --file examples/langchain-rag-amc/dataset-cases.example.jsonl
 amc dataset run rag-baseline
-amc trace inspect $(amc trace list | head -n 1)
+amc trace list
 ```
 
 ## Quick start (Node)

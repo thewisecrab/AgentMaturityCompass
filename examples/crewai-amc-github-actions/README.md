@@ -10,6 +10,13 @@ Starter blueprint for evaluating CrewAI workflows with AMC and preparing for CI 
 ## Quick start
 
 ```bash
+./setup.sh
+./run.sh
+```
+
+Manual flow:
+
+```bash
 npm i -g agent-maturity-compass
 amc up
 amc wrap crewai-cli -- python examples/crewai/main.py

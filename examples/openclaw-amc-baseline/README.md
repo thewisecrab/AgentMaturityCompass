@@ -18,7 +18,14 @@ This blueprint gives you a practical path to:
 ## Quick start
 
 ```bash
-npm i -g agent-maturity-compass
+./setup.sh
+./run.sh
+```
+
+Manual flow:
+
+```bash
+npm i -g openclaw agent-maturity-compass
 amc up
 amc wrap openclaw-cli -- openclaw run --config examples/openclaw/config.yaml
 amc quickscore

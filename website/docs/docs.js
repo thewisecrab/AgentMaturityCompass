@@ -328,20 +328,46 @@ function showWelcome() {
       <div class="quick-links">
         <a href="#GETTING_STARTED" onclick="event.preventDefault();loadDoc('GETTING_STARTED')">🚀 Getting Started</a>
         <a href="#QUICKSTART" onclick="event.preventDefault();loadDoc('QUICKSTART')">⚡ Quick Start Guide</a>
-        <a href="#COMPATIBILITY_MATRIX" onclick="event.preventDefault();loadDoc('COMPATIBILITY_MATRIX')">🧩 Compatibility Matrix</a>
-        <a href="#STARTER_BLUEPRINTS" onclick="event.preventDefault();loadDoc('STARTER_BLUEPRINTS')">🛠️ Starter Blueprints</a>
-        <a href="#OSS_ADOPTION_ROADMAP" onclick="event.preventDefault();loadDoc('OSS_ADOPTION_ROADMAP')">📈 OSS Adoption Roadmap</a>
         <a href="#INSTALL" onclick="event.preventDefault();loadDoc('INSTALL')">📦 Installation</a>
         <a href="#ADAPTERS" onclick="event.preventDefault();loadDoc('ADAPTERS')">🔌 Adapters</a>
         <a href="#SECURITY" onclick="event.preventDefault();loadDoc('SECURITY')">🔒 Security</a>
+        <a href="#EU_AI_ACT_COMPLIANCE" onclick="event.preventDefault();loadDoc('EU_AI_ACT_COMPLIANCE')">⚖️ Compliance</a>
       </div>
 
-      <h2 style="color:var(--green2);border-bottom:1px solid var(--border);padding-bottom:8px;margin:32px 0 16px">Featured Docs</h2>
-      <div class="quick-links">
-        <a href="#COMPATIBILITY_MATRIX" onclick="event.preventDefault();loadDoc('COMPATIBILITY_MATRIX')">🧩 Which stacks work with AMC?</a>
-        <a href="#STARTER_BLUEPRINTS" onclick="event.preventDefault();loadDoc('STARTER_BLUEPRINTS')">🛠️ Opinionated starter stacks</a>
-        <a href="#OSS_ADOPTION_ROADMAP" onclick="event.preventDefault();loadDoc('OSS_ADOPTION_ROADMAP')">📈 What to build now vs later</a>
-        <a href="#EU_AI_ACT_COMPLIANCE" onclick="event.preventDefault();loadDoc('EU_AI_ACT_COMPLIANCE')">⚖️ Compliance and audit path</a>
+      <h2 style="color:var(--green2);border-bottom:1px solid var(--border);padding-bottom:8px;margin:32px 0 16px">Featured Guides</h2>
+      <div class="feature-cards">
+        <a class="feature-card-link" href="#COMPATIBILITY_MATRIX" onclick="event.preventDefault();loadDoc('COMPATIBILITY_MATRIX')">
+          <div class="feature-card-icon">🧩</div>
+          <div class="feature-card-body">
+            <h3>Compatibility Matrix</h3>
+            <p>See which frameworks, providers, environments, and workflows are ready for AMC right now.</p>
+            <span>Find your stack →</span>
+          </div>
+        </a>
+        <a class="feature-card-link" href="#STARTER_BLUEPRINTS" onclick="event.preventDefault();loadDoc('STARTER_BLUEPRINTS')">
+          <div class="feature-card-icon">🛠️</div>
+          <div class="feature-card-body">
+            <h3>Starter Blueprints</h3>
+            <p>Opinionated starting points for OpenClaw, LangChain RAG, CrewAI, and OpenAI-compatible apps.</p>
+            <span>Steal the baseline →</span>
+          </div>
+        </a>
+        <a class="feature-card-link" href="#OSS_ADOPTION_ROADMAP" onclick="event.preventDefault();loadDoc('OSS_ADOPTION_ROADMAP')">
+          <div class="feature-card-icon">📈</div>
+          <div class="feature-card-body">
+            <h3>OSS Adoption Roadmap</h3>
+            <p>Prioritized plan for reducing adoption friction and turning curiosity into retained usage.</p>
+            <span>See what to build next →</span>
+          </div>
+        </a>
+        <a class="feature-card-link" href="#EU_AI_ACT_COMPLIANCE" onclick="event.preventDefault();loadDoc('EU_AI_ACT_COMPLIANCE')">
+          <div class="feature-card-icon">⚖️</div>
+          <div class="feature-card-body">
+            <h3>Compliance & Audit</h3>
+            <p>Trace the path from agent behavior to evidence-backed compliance and audit-ready artifacts.</p>
+            <span>Open compliance docs →</span>
+          </div>
+        </a>
       </div>
 
       <h2 style="color:var(--green2);border-bottom:1px solid var(--border);padding-bottom:8px;margin:32px 0 16px">Browse by Category</h2>

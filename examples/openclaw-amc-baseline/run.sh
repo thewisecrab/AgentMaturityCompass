@@ -4,20 +4,25 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+if ! command -v amc >/dev/null 2>&1; then
+  echo "AMC CLI not found. Install with: npm i -g agent-maturity-compass"
+  exit 1
+fi
+
+if ! command -v openclaw >/dev/null 2>&1; then
+  echo "OpenClaw CLI not found. Install with: npm i -g openclaw"
+  exit 1
+fi
+
 echo "== OpenClaw + AMC baseline =="
-echo "Repo: $ROOT"
-echo
+echo "Starting AMC services..."
+amc up || true
 
-echo "1) Start AMC services if needed"
-echo "   amc up"
-echo
+echo "\nRunning wrapped OpenClaw example..."
+amc wrap openclaw-cli -- openclaw run --config examples/openclaw/config.yaml || true
 
-echo "2) Run the OpenClaw example through AMC wrapping"
-echo "   amc wrap openclaw-cli -- openclaw run --config examples/openclaw/config.yaml"
-echo
-
-echo "3) Generate score + trace + observability"
-echo "   amc quickscore"
-echo "   amc trace list"
-echo "   amc observe timeline"
-echo "   amc assurance run --scope full"
+echo "\nSuggested next commands:"
+echo "  amc quickscore"
+echo "  amc trace list"
+echo "  amc observe timeline"
+echo "  amc assurance run --scope full"

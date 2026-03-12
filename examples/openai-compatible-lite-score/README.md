@@ -12,10 +12,17 @@ Starter blueprint for scoring a plain chatbot or LLM app that is not yet a full 
 ## Quick start
 
 ```bash
+./setup.sh
+./run.sh
+```
+
+Manual flow:
+
+```bash
 npm i -g agent-maturity-compass
 amc lite-score
 amc dataset create app-baseline
-amc dataset add-case app-baseline --prompt "Summarize this support ticket" --expected "Should summarize accurately"
+amc dataset import app-baseline --file examples/openai-compatible-lite-score/dataset-cases.example.jsonl
 amc dataset run app-baseline
 amc business report
 ```

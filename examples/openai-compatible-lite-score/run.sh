@@ -4,10 +4,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+if ! command -v amc >/dev/null 2>&1; then
+  echo "AMC CLI not found. Install with: npm i -g agent-maturity-compass"
+  exit 1
+fi
+
 echo "== OpenAI-compatible app + AMC lite-score =="
-echo "Suggested flow:"
-echo "  amc lite-score"
+echo "Starting with lite scoring..."
+amc lite-score || true
+
+echo "\nSuggested next commands:"
 echo "  amc dataset create app-baseline"
-echo "  amc dataset add-case app-baseline --prompt 'Summarize this support ticket' --expected 'Should summarize accurately'"
+echo "  amc dataset import app-baseline --file examples/openai-compatible-lite-score/dataset-cases.example.jsonl"
 echo "  amc dataset run app-baseline"
 echo "  amc business report"
