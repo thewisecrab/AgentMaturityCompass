@@ -7,11 +7,16 @@ function initReveals(){
 
   if(typeof gsap==='undefined'||typeof ScrollTrigger==='undefined') return;
   gsap.registerPlugin(ScrollTrigger);
-  gsap.utils.toArray('.gs').forEach(function(el){
-    gsap.fromTo(el,{opacity:0,y:20},{opacity:1,y:0,duration:0.45,ease:'power2.out',
-      scrollTrigger:{trigger:el,start:'top 95%',toggleActions:'play none none none'}
+  ScrollTrigger.config({limitCallbacks:true});
+  var gsEls=gsap.utils.toArray('.gs');
+  // Batch reveals instead of individual ScrollTriggers
+  if(gsEls.length>0){
+    ScrollTrigger.batch(gsEls,{
+      onEnter:function(batch){gsap.to(batch,{opacity:1,y:0,duration:0.4,ease:'power2.out',stagger:0.08});},
+      start:'top 92%',
+      once:true
     });
-  });
+  }
 
   var nav=document.querySelector('.nav');
   if(nav){
