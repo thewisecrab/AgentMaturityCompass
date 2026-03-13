@@ -222,7 +222,7 @@ section{padding:clamp(5rem,10vw,8rem) 0;position:relative;z-index:1}
 .faq-item.open .faq-a{max-height:300px}.faq-item.open .faq-icon{transform:rotate(45deg)}
 
 /* ═══ GRADIENT CTA (OSE pre-footer) ═══ */
-.gradient-cta{position:relative;padding:clamp(16rem,30vw,28rem) 0 0;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#0f0f0f 8%,#1a1a1a 18%,#2a2a2a 30%,#4a4a4a 45%,#777 60%,#aaa 75%,#d0d0d0 88%,#f2f2f2 100%);overflow:hidden;margin-bottom:0}
+.gradient-cta{position:relative;padding:clamp(16rem,30vw,28rem) 0 0;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#0f0f0f 8%,#1a1a1a 18%,#2a2a2a 30%,#4a4a4a 45%,#777 60%,#aaa 75%,#d0d0d0 88%,#fff 100%);overflow:hidden;margin-bottom:0}
 .gradient-cta-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .gradient-cta-line{position:absolute;top:0;bottom:0;width:auto;background:none;font-family:var(--mono);font-size:.55rem;letter-spacing:.04em;white-space:nowrap;color:rgba(255,255,255,.12);pointer-events:none}
 .gradient-cta-line::before{content:var(--tk,'amc');position:absolute;animation:tokenFloat var(--dur,6s) ease-in-out infinite alternate;animation-delay:var(--delay,0s)}
@@ -235,7 +235,8 @@ section{padding:clamp(5rem,10vw,8rem) 0;position:relative;z-index:1}
 .gradient-cta-content h2{color:var(--text);margin-bottom:2.5rem}
 .gradient-cta-content .label{color:rgba(255,255,255,.46)}
 .gradient-cta-content .btn{box-shadow:0 4px 20px rgba(74,239,121,.2)}
-.footer{margin-top:0;background:rgba(242,242,242,.85);color:#555;padding:clamp(3rem,6vw,5rem) 0 2rem;position:relative;z-index:0}
+.footer{margin-top:0;background:#ffffff;color:#555;padding:clamp(3rem,6vw,5rem) 0 2rem;position:relative;z-index:2;overflow:hidden}
+.footer::before{content:'amc';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--sans);font-size:clamp(16rem,35vw,32rem);font-weight:900;color:rgba(0,0,0,.10);line-height:1;letter-spacing:-.06em;pointer-events:none;text-transform:lowercase;white-space:nowrap}
 .footer-bottom{gap:2rem}
 @media(prefers-reduced-motion:reduce){.gradient-cta-lines,.gradient-cta-watermark{animation:none}}
 

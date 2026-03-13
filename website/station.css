@@ -63,7 +63,7 @@
 .station-breadcrumb strong{color:var(--text)}
 
 /* CTA — same gradient as homepage */
-.station-cta{position:relative;padding:clamp(16rem,30vw,28rem) 0 0;background:linear-gradient(180deg,#0a0a0a 0%,#0f0f0f 8%,#1a1a1a 18%,#2a2a2a 30%,#4a4a4a 45%,#777 60%,#aaa 75%,#d0d0d0 88%,#f2f2f2 100%);overflow:hidden;z-index:1}
+.station-cta{position:relative;padding:clamp(16rem,30vw,28rem) 0 0;background:linear-gradient(180deg,#0a0a0a 0%,#0f0f0f 8%,#1a1a1a 18%,#2a2a2a 30%,#4a4a4a 45%,#777 60%,#aaa 75%,#d0d0d0 88%,#fff 100%);overflow:hidden;z-index:1}
 .station-cta .container{padding-bottom:clamp(14rem,25vw,22rem)}
 .station-cta .gradient-cta-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .station-cta .gradient-cta-line{position:absolute;top:0;bottom:0;width:auto;background:none;font-family:var(--mono);font-size:.55rem;letter-spacing:.04em;white-space:nowrap;color:rgba(255,255,255,.12);pointer-events:none}
@@ -74,7 +74,7 @@
 .station-cta h2{text-transform:uppercase;color:var(--text);margin-bottom:2.5rem}
 
 /* Footer on station pages */
-.footer{background:#f2f2f2;color:#555}
+.footer{background:#ffffff;color:#555}
 
 /* Responsive */
 @media(max-width:900px){.station-two-col{grid-template-columns:1fr}.pack-article{grid-template-columns:50px 1fr 42px;gap:1rem}}
