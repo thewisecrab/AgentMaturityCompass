@@ -12,6 +12,7 @@
  */
 
 import { createHash, randomBytes } from "node:crypto";
+import { toDisplayScore, toInternalScore } from "../score/scoringScale.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -110,8 +111,8 @@ export function verifyCommitment(commitment: EvidenceCommitment, revealedValue: 
  * Thresholds map to L0–L5: L1=0.15, L2=0.35, L3=0.55, L4=0.75, L5=0.90
  */
 export function createRangeProof(
-  value: number,                      // 0–1 AMC score
-  threshold: number,                  // 0–1 minimum required (e.g., 0.75 for L4+)
+  value: number,                      // Display scale (default 0–100)
+  threshold: number,                  // Display scale (default 0–100, e.g., 75 for L4+)
   agentId: string,
 ): ZKComplianceProof {
   const r = randomHex();
@@ -126,7 +127,8 @@ export function createRangeProof(
   const deltaCommitment = hash(delta.toString(), r);
 
   // Map threshold to level name for human-readable claim
-  const levelName = threshold >= 0.9 ? "L5" : threshold >= 0.75 ? "L4" : threshold >= 0.55 ? "L3" : threshold >= 0.35 ? "L2" : threshold >= 0.15 ? "L1" : "L0";
+  const internalThreshold = toInternalScore(threshold);
+  const levelName = internalThreshold >= 0.9 ? "L5" : internalThreshold >= 0.75 ? "L4" : internalThreshold >= 0.55 ? "L3" : internalThreshold >= 0.35 ? "L2" : internalThreshold >= 0.15 ? "L1" : "L0";
 
   return {
     id: randomHex(16),

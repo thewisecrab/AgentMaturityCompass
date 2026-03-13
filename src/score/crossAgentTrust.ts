@@ -9,15 +9,7 @@
 
 import { createHash, createHmac } from 'node:crypto';
 import { type MaturityLevel } from './formalSpec.js';
-
-function scoreToLevel(score: number): MaturityLevel {
-  if (score >= 0.9) return 'L5';
-  if (score >= 0.75) return 'L4';
-  if (score >= 0.55) return 'L3';
-  if (score >= 0.35) return 'L2';
-  if (score >= 0.15) return 'L1';
-  return 'L0';
-}
+import { scoreToLevel, toDisplayScore } from './scoringScale.js';
 
 export interface AgentIdentityClaim {
   agentId: string;
@@ -35,7 +27,7 @@ export interface TrustVerificationResult {
   trusted: boolean;
   trustLevel: 'full' | 'conditional' | 'limited' | 'untrusted';
   reasons: string[];
-  score: number;           // 0–1 composite trust score
+  score: number;           // Display scale (default 0–100)
   level: MaturityLevel;    // L0–L5 derived from score
   grantedScopes: string[]; // what this agent is allowed to do
   requiredActions?: string[];
@@ -140,7 +132,8 @@ export function verifyAgentClaim(
 
   return {
     trusted: trustLevel !== 'untrusted',
-    trustLevel, reasons, score,
+    trustLevel, reasons,
+    score: toDisplayScore(score),
     level: scoreToLevel(score),
     grantedScopes,
     requiredActions: requiredActions.length ? requiredActions : undefined,
@@ -162,7 +155,7 @@ export function verifyAgentClaim(
 export interface TrustEdge {
   from: string;         // agent ID
   to: string;           // agent ID
-  score: number;        // 0–1
+  score: number;        // Internal 0–1 (edges use internal scale for math)
   scopes: string[];
   establishedAt: number; // timestamp ms
   ttlMs?: number;        // time-to-live for this edge
@@ -175,8 +168,8 @@ export interface TrustGraph {
 export interface TransitiveTrustResult {
   from: string;
   to: string;
-  transitiveScore: number;       // 0–1
-  maturityLevel: MaturityLevel;  // L0–L5 derived from transitiveScore
+  transitiveScore: number;       // Display scale (default 0–100)
+  maturityLevel: MaturityLevel;  // L0–L5
   effectiveScopes: string[];
   path: string[];           // agent IDs in the trust chain
   hops: number;
@@ -220,11 +213,11 @@ export function computeTransitiveTrust(
     if (current.agent === to) {
       const hops = current.path.length - 1;
       const decay = Math.pow(decayPerHop, hops - 1); // First hop has no decay
-      const transitiveScore = current.score * decay; // Already 0–1 scale
+      const internalTransitive = current.score * decay; // Internal 0–1 scale
       const result: TransitiveTrustResult = {
         from, to,
-        transitiveScore: Math.round(transitiveScore * 1000) / 1000,
-        maturityLevel: scoreToLevel(transitiveScore),
+        transitiveScore: toDisplayScore(internalTransitive),
+        maturityLevel: scoreToLevel(internalTransitive),
         effectiveScopes: current.scopes,
         path: current.path,
         hops,

@@ -69,7 +69,7 @@ export interface TrustDegradationAlert {
 export interface BehavioralProfilerConfig {
   windowSizeMs: number;               // Sliding window for profile (default: 1 hour)
   anomalyThresholdSigma: number;      // Standard deviations for anomaly (default: 2.5)
-  trustDegradationThreshold: number;  // Score drop (0–1 scale) to trigger alert (default: 0.05)
+  trustDegradationThreshold: number;  // Score drop (display scale, default 5 out of 100) to trigger alert
   minEventsForProfile: number;        // Minimum events before profiling (default: 50)
   enablePushAlerts: boolean;          // Push alerts to operators
 }
@@ -128,7 +128,7 @@ export class BehavioralProfiler extends EventEmitter {
     this.config = {
       windowSizeMs: config?.windowSizeMs ?? 3600000,          // 1 hour
       anomalyThresholdSigma: config?.anomalyThresholdSigma ?? 2.5,
-      trustDegradationThreshold: config?.trustDegradationThreshold ?? 0.05,
+      trustDegradationThreshold: config?.trustDegradationThreshold ?? 5,
       minEventsForProfile: config?.minEventsForProfile ?? 50,
       enablePushAlerts: config?.enablePushAlerts ?? true,
     };
@@ -254,12 +254,12 @@ export class BehavioralProfiler extends EventEmitter {
 
       const alert: TrustDegradationAlert = {
         id: randomUUID(), agentId, timestamp,
-        alertType: score < 0.30 ? "trust_critical" : "trust_degrading",
+        alertType: score < 30 ? "trust_critical" : "trust_degrading",
         currentTrust: score, previousTrust: previous,
         degradationRate,
         triggeringAnomalies: [],
-        recommendedAction: score < 0.30
-          ? "IMMEDIATE: Agent below L2 — suspend operations and investigate."
+        recommendedAction: score < 30
+          ? "IMMEDIATE: Agent below L2 (score < 30) — suspend operations and investigate."
           : "REVIEW: Trust degrading — investigate cause within 1 hour.",
       };
 

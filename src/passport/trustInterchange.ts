@@ -10,15 +10,7 @@
 
 import { createHash, createHmac, randomBytes, randomUUID } from "node:crypto";
 import { type MaturityLevel } from "../score/formalSpec.js";
-
-function scoreToLevel(score: number): MaturityLevel {
-  if (score >= 0.9) return "L5";
-  if (score >= 0.75) return "L4";
-  if (score >= 0.55) return "L3";
-  if (score >= 0.35) return "L2";
-  if (score >= 0.15) return "L1";
-  return "L0";
-}
+import { scoreToLevel, toDisplayScore, toInternalScore, getScoringConfig } from "../score/scoringScale.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -47,7 +39,7 @@ export interface AMCTrustToken {
 
 export interface TrustClaim {
   dimension: string;              // "security" | "reliability" | "safety" | etc.
-  score: number;                  // 0–1 (canonical AMC scale)
+  score: number;                  // Display scale (default 0–100)
   level: MaturityLevel;           // L0–L5 derived from score
   evidenceCount: number;
   observedShare: number;          // 0-1 fraction of observed evidence
@@ -174,7 +166,7 @@ export function verifyTrustToken(
 
   // Check claims integrity
   for (const claim of token.claims) {
-    if (claim.score < 0 || claim.score > 1) reasons.push(`Invalid score for ${claim.dimension}: ${claim.score} (must be 0–1)`);
+    if (claim.score < 0 || claim.score > 100) reasons.push(`Invalid score for ${claim.dimension}: ${claim.score}`);
     if (claim.observedShare < 0 || claim.observedShare > 1) reasons.push(`Invalid observedShare for ${claim.dimension}`);
   }
 
@@ -227,10 +219,12 @@ export function translateTrustScores(
   for (const mapping of translation.mappings) {
     const sourceScore = scores[mapping.sourceDimension];
     if (sourceScore !== undefined) {
-      const translatedScore = Math.min(1.0, Math.max(0, sourceScore * mapping.conversionFactor + mapping.offset));
+      // sourceScore is display-scale; convert to internal for computation
+      const internalSource = toInternalScore(sourceScore);
+      const internalTranslated = Math.min(1.0, Math.max(0, internalSource * mapping.conversionFactor + mapping.offset));
       result[mapping.targetDimension] = {
-        score: Math.round(translatedScore * 1000) / 1000,
-        level: scoreToLevel(translatedScore),
+        score: toDisplayScore(internalTranslated),
+        level: scoreToLevel(internalTranslated),
         confidence: mapping.confidence,
       };
     }

@@ -10,15 +10,7 @@
  */
 
 import { type MaturityLevel } from "./formalSpec.js";
-
-function scoreToLevel(score: number): MaturityLevel {
-  if (score >= 0.9) return "L5";
-  if (score >= 0.75) return "L4";
-  if (score >= 0.55) return "L3";
-  if (score >= 0.35) return "L2";
-  if (score >= 0.15) return "L1";
-  return "L0";
-}
+import { scoreToLevel, toDisplayScore } from "./scoringScale.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -49,13 +41,13 @@ export interface IndustryBenchmark {
 }
 
 export interface IndustryAdjustedScore {
-  rawScore: number;                // 0–1
-  adjustedScore: number;           // 0–1
-  maturityLevel: MaturityLevel;    // L0–L5 derived from adjustedScore
+  rawScore: number;                // Display scale (default 0–100)
+  adjustedScore: number;           // Display scale (default 0–100)
+  maturityLevel: MaturityLevel;    // L0–L5 derived from internal score
   industryId: string;
   percentileRank: number;          // 0–100 where this agent sits vs industry peers
   dimensionAdjustments: Record<string, { raw: number; weighted: number; weight: number; level: MaturityLevel }>;
-  decayApplied: number;
+  decayApplied: number;            // Display scale
   riskFactors: string[];
   complianceGaps: string[];
 }
@@ -196,7 +188,7 @@ export function computeIndustryAdjustedScore(
   const currentTime = now ?? Date.now();
   const staleHours = (currentTime - lastVerifiedAt) / 3600000;
 
-  // Apply dimension weights
+  // Apply dimension weights (internal 0–1, output via toDisplayScore)
   const adjustments: Record<string, { raw: number; weighted: number; weight: number; level: MaturityLevel }> = {};
   let totalWeighted = 0;
   let totalWeight = 0;
@@ -204,21 +196,21 @@ export function computeIndustryAdjustedScore(
   for (const [dim, rawScore] of Object.entries(rawDimensionScores)) {
     const weight = model.dimensionWeights[dim] ?? 1.0;
     const weighted = rawScore * weight;
-    adjustments[dim] = { raw: rawScore, weighted, weight, level: scoreToLevel(rawScore) };
+    adjustments[dim] = { raw: toDisplayScore(rawScore), weighted: toDisplayScore(weighted), weight, level: scoreToLevel(rawScore) };
     totalWeighted += weighted;
     totalWeight += weight;
   }
 
-  let adjustedScore = totalWeight > 0 ? totalWeighted / totalWeight : 0;
+  let internalScore = totalWeight > 0 ? totalWeighted / totalWeight : 0;
 
   // Apply temporal decay
-  const decayPoints = Math.min(adjustedScore, (staleHours / 24) * model.trustDecayRate);
+  const decayPoints = Math.min(internalScore, (staleHours / 24) * model.trustDecayRate);
   if (staleHours > model.maxStaleHours) {
-    adjustedScore = 0; // Expired → L0
+    internalScore = 0; // Expired → L0
   } else {
-    adjustedScore -= decayPoints;
+    internalScore -= decayPoints;
   }
-  adjustedScore = Math.max(0, Math.round(adjustedScore * 1000) / 1000);
+  internalScore = Math.max(0, internalScore);
 
   // Risk factors
   const riskFactors: string[] = [];
@@ -227,32 +219,34 @@ export function computeIndustryAdjustedScore(
     riskFactors.push(`Low observed evidence: ${(observedEvidenceShare * 100).toFixed(0)}% (need ${(model.evidenceRequirements.minObservedShare * 100).toFixed(0)}%)`);
   }
 
-  // Compliance gaps — dimension below 0.5 (L2 threshold)
+  // Compliance gaps — dimension below L3 threshold (0.55)
   const complianceGaps: string[] = [];
   for (const dim of model.evidenceRequirements.requiredDimensions) {
-    if (!rawDimensionScores[dim] || rawDimensionScores[dim]! < 0.5) {
+    if (!rawDimensionScores[dim] || rawDimensionScores[dim]! < 0.55) {
       complianceGaps.push(`Required dimension "${dim}" at ${scoreToLevel(rawDimensionScores[dim] ?? 0)} — needs L3+`);
     }
   }
 
-  // Percentile rank
+  // Percentile rank (internal 0–1 vs internal benchmarks)
   const bench = model.benchmarkPercentiles;
   let percentileRank: number;
-  if (adjustedScore >= bench.p99) percentileRank = 99;
-  else if (adjustedScore >= bench.p90) percentileRank = 90 + 9 * (adjustedScore - bench.p90) / (bench.p99 - bench.p90);
-  else if (adjustedScore >= bench.p75) percentileRank = 75 + 15 * (adjustedScore - bench.p75) / (bench.p90 - bench.p75);
-  else if (adjustedScore >= bench.p50) percentileRank = 50 + 25 * (adjustedScore - bench.p50) / (bench.p75 - bench.p50);
-  else if (adjustedScore >= bench.p25) percentileRank = 25 + 25 * (adjustedScore - bench.p25) / (bench.p50 - bench.p25);
-  else percentileRank = 25 * adjustedScore / Math.max(0.01, bench.p25);
+  if (internalScore >= bench.p99) percentileRank = 99;
+  else if (internalScore >= bench.p90) percentileRank = 90 + 9 * (internalScore - bench.p90) / (bench.p99 - bench.p90);
+  else if (internalScore >= bench.p75) percentileRank = 75 + 15 * (internalScore - bench.p75) / (bench.p90 - bench.p75);
+  else if (internalScore >= bench.p50) percentileRank = 50 + 25 * (internalScore - bench.p50) / (bench.p75 - bench.p50);
+  else if (internalScore >= bench.p25) percentileRank = 25 + 25 * (internalScore - bench.p25) / (bench.p50 - bench.p25);
+  else percentileRank = 25 * internalScore / Math.max(0.01, bench.p25);
+
+  const rawAvg = Object.values(rawDimensionScores).reduce((s, v) => s + v, 0) / Math.max(1, Object.keys(rawDimensionScores).length);
 
   return {
-    rawScore: Object.values(rawDimensionScores).reduce((s, v) => s + v, 0) / Math.max(1, Object.keys(rawDimensionScores).length),
-    adjustedScore,
-    maturityLevel: scoreToLevel(adjustedScore),
+    rawScore: toDisplayScore(rawAvg),
+    adjustedScore: toDisplayScore(internalScore),
+    maturityLevel: scoreToLevel(internalScore),
     industryId: model.industryId,
     percentileRank: Math.round(percentileRank * 10) / 10,
     dimensionAdjustments: adjustments,
-    decayApplied: decayPoints,
+    decayApplied: toDisplayScore(decayPoints),
     riskFactors,
     complianceGaps,
   };

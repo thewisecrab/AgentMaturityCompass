@@ -15,15 +15,7 @@
  */
 
 import { type MaturityLevel } from "../score/formalSpec.js";
-
-function scoreToLevel(score: number): MaturityLevel {
-  if (score >= 0.9) return "L5";
-  if (score >= 0.75) return "L4";
-  if (score >= 0.55) return "L3";
-  if (score >= 0.35) return "L2";
-  if (score >= 0.15) return "L1";
-  return "L0";
-}
+import { scoreToLevel, toDisplayScore } from "../score/scoringScale.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -46,7 +38,7 @@ export interface FormalProperty {
 
 export interface SystemState {
   agentId: string;
-  trustScore: number;                  // 0–1
+  trustScore: number;                  // Display scale (default 0–100)
   maturityLevel: MaturityLevel;        // L0–L5
   activeScopes: string[];
   pendingActions: string[];
@@ -103,12 +95,12 @@ export const CORE_SAFETY_PROPERTIES: FormalProperty[] = [
     id: "safety-trust-floor",
     name: "Trust Floor Guarantee",
     category: "safety",
-    description: "An agent below L2 (trustScore < 0.35) NEVER has write or execute scopes.",
-    predicate: (s) => !(s.trustScore < 0.35 && (s.activeScopes.includes("write") || s.activeScopes.includes("execute"))),
+    description: "An agent below L2 (trustScore < 35) NEVER has write or execute scopes.",
+    predicate: (s) => !(s.trustScore < 35 && (s.activeScopes.includes("write") || s.activeScopes.includes("execute"))),
     tlaSpec: `
       \\* Safety Property: TrustFloor
       TrustFloor == \\A a \\in Agents :
-        a.trustScore < 0.35 => a.activeScopes \\cap {"write", "execute"} = {}
+        a.trustScore < 35 => a.activeScopes \\cap {"write", "execute"} = {}
     `,
     temporal: "always",
   },
@@ -228,7 +220,7 @@ export function boundedModelCheck(
   const violations: InvariantCheckResult[] = [];
   let totalStates = 0;
 
-  const trustScores = [0, 0.10, 0.20, 0.34, 0.35, 0.36, 0.55, 0.75, 0.90, 1.0];
+  const trustScores = [0, 10, 20, 34, 35, 36, 55, 75, 90, 100];
   const scopeSets: string[][] = [[], ["read"], ["read", "write"], ["read", "write", "execute"]];
   const failures = [0, 1, 2, 3, 4, 5];
   const depths = [0, 1, 2, 3, 4];
@@ -245,7 +237,7 @@ export function boundedModelCheck(
               const state: SystemState = {
                 agentId,
                 trustScore: trust,
-                maturityLevel: scoreToLevel(trust),
+                maturityLevel: scoreToLevel(trust / 100),
                 activeScopes: scopes,
                 pendingActions: [],
                 lastVerifiedAt: Date.now() - stale * 3600000,
@@ -290,7 +282,7 @@ export function verifyPolicyComposition(policies: PolicyRule[][]): PolicyComposi
           if (ruleA.action !== ruleB.action) {
             // Test with a sample state to detect conflicts
             const testState: SystemState = {
-              agentId: "test", trustScore: 0.55, maturityLevel: "L3" as MaturityLevel,
+              agentId: "test", trustScore: 55, maturityLevel: "L3" as MaturityLevel,
               activeScopes: ["read", "write"], pendingActions: [],
               lastVerifiedAt: Date.now(), evidenceCount: 5,
               selfReportedShare: 0.3, policyViolations: 0,
