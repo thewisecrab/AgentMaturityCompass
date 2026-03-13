@@ -134,6 +134,251 @@ export function verifyAgentClaim(
   };
 }
 
+// ── Trust Transitivity ─────────────────────────────────────────────────────
+
+/**
+ * Trust transitivity: if A trusts B and B trusts C, what trust does A grant C?
+ *
+ * Trust decays at each hop:
+ *   transitiveScore = score_AB × score_BC × decayFactor^hops
+ *
+ * Scopes are intersected (C only gets scopes that both B and A→B grant).
+ * Maximum chain depth is configurable (default: 3).
+ */
+
+export interface TrustEdge {
+  from: string;         // agent ID
+  to: string;           // agent ID
+  score: number;        // 0–100
+  scopes: string[];
+  establishedAt: number; // timestamp ms
+  ttlMs?: number;        // time-to-live for this edge
+}
+
+export interface TrustGraph {
+  edges: TrustEdge[];
+}
+
+export interface TransitiveTrustResult {
+  from: string;
+  to: string;
+  transitiveScore: number;
+  effectiveScopes: string[];
+  path: string[];           // agent IDs in the trust chain
+  hops: number;
+  decayApplied: number;     // total decay multiplier
+  weakestLink: { from: string; to: string; score: number };
+  expired: boolean;
+}
+
+export function computeTransitiveTrust(
+  graph: TrustGraph,
+  from: string,
+  to: string,
+  opts?: { maxHops?: number; decayPerHop?: number; now?: number },
+): TransitiveTrustResult | null {
+  const maxHops = opts?.maxHops ?? 3;
+  const decayPerHop = opts?.decayPerHop ?? 0.7;  // 30% decay per hop
+  const now = opts?.now ?? Date.now();
+
+  // BFS shortest path with highest trust
+  const visited = new Set<string>();
+  const queue: Array<{ agent: string; path: string[]; score: number; scopes: string[]; weakest: TrustEdge }> = [];
+
+  // Seed with direct edges from 'from'
+  for (const edge of graph.edges) {
+    if (edge.from === from && !isEdgeExpired(edge, now)) {
+      queue.push({
+        agent: edge.to,
+        path: [from, edge.to],
+        score: edge.score,
+        scopes: [...edge.scopes],
+        weakest: edge,
+      });
+    }
+  }
+
+  let bestResult: TransitiveTrustResult | null = null;
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+
+    if (current.agent === to) {
+      const hops = current.path.length - 1;
+      const decay = Math.pow(decayPerHop, hops - 1); // First hop has no decay
+      const transitiveScore = current.score * decay / 100; // Normalize to 0–100
+      const result: TransitiveTrustResult = {
+        from, to,
+        transitiveScore: Math.round(transitiveScore * 100) / 100,
+        effectiveScopes: current.scopes,
+        path: current.path,
+        hops,
+        decayApplied: decay,
+        weakestLink: { from: current.weakest.from, to: current.weakest.to, score: current.weakest.score },
+        expired: false,
+      };
+      if (!bestResult || result.transitiveScore > bestResult.transitiveScore) {
+        bestResult = result;
+      }
+      continue;
+    }
+
+    if (visited.has(current.agent)) continue;
+    if (current.path.length > maxHops) continue;
+    visited.add(current.agent);
+
+    // Explore next hops
+    for (const edge of graph.edges) {
+      if (edge.from === current.agent && !visited.has(edge.to) && !isEdgeExpired(edge, now)) {
+        const combinedScore = (current.score * edge.score) / 100;
+        const intersectedScopes = current.scopes.filter(s => edge.scopes.includes(s));
+        const weakest = edge.score < current.weakest.score ? edge : current.weakest;
+
+        queue.push({
+          agent: edge.to,
+          path: [...current.path, edge.to],
+          score: combinedScore,
+          scopes: intersectedScopes,
+          weakest,
+        });
+      }
+    }
+  }
+
+  return bestResult;
+}
+
+// ── Temporal Trust Decay ───────────────────────────────────────────────────
+
+/**
+ * Temporal decay: trust scores degrade over time if not refreshed.
+ *
+ * Models:
+ * - Exponential: score × e^(-λt)  where λ is decay rate, t is hours since establishment
+ * - Linear: score × max(0, 1 - t/maxAge)
+ * - Step: full trust until threshold, then drops to reduced level
+ *
+ * Industry-specific decay rates are configurable.
+ */
+
+export type DecayModel = "exponential" | "linear" | "step";
+
+export interface TemporalDecayConfig {
+  model: DecayModel;
+  halfLifeHours: number;       // For exponential: hours until trust halves
+  maxAgeHours: number;         // For linear: hours until trust reaches 0
+  stepThresholdHours: number;  // For step: hours until step-down
+  stepReduction: number;       // For step: score multiplier after step (e.g., 0.5)
+}
+
+export const INDUSTRY_DECAY_PRESETS: Record<string, TemporalDecayConfig> = {
+  healthcare: { model: "exponential", halfLifeHours: 4, maxAgeHours: 24, stepThresholdHours: 6, stepReduction: 0.3 },
+  finance: { model: "exponential", halfLifeHours: 8, maxAgeHours: 48, stepThresholdHours: 12, stepReduction: 0.4 },
+  defense: { model: "step", halfLifeHours: 2, maxAgeHours: 12, stepThresholdHours: 4, stepReduction: 0.2 },
+  entertainment: { model: "linear", halfLifeHours: 72, maxAgeHours: 168, stepThresholdHours: 48, stepReduction: 0.7 },
+  general: { model: "exponential", halfLifeHours: 24, maxAgeHours: 168, stepThresholdHours: 48, stepReduction: 0.5 },
+};
+
+export function applyTemporalDecay(
+  originalScore: number,
+  establishedAt: number,
+  config: TemporalDecayConfig,
+  now?: number,
+): number {
+  const elapsed = ((now ?? Date.now()) - establishedAt) / 3600000; // hours
+  if (elapsed < 0) return originalScore;
+
+  switch (config.model) {
+    case "exponential": {
+      const lambda = Math.LN2 / config.halfLifeHours;
+      return originalScore * Math.exp(-lambda * elapsed);
+    }
+    case "linear": {
+      const factor = Math.max(0, 1 - elapsed / config.maxAgeHours);
+      return originalScore * factor;
+    }
+    case "step": {
+      return elapsed < config.stepThresholdHours
+        ? originalScore
+        : originalScore * config.stepReduction;
+    }
+  }
+}
+
+function isEdgeExpired(edge: TrustEdge, now: number): boolean {
+  if (edge.ttlMs && (now - edge.establishedAt) > edge.ttlMs) return true;
+  return false;
+}
+
+// ── Trust Inheritance ──────────────────────────────────────────────────────
+
+/**
+ * When Agent-A delegates to Agent-B, what trust does B inherit?
+ *
+ * Rules:
+ * - Delegated agent inherits AT MOST the delegator's scopes (can't escalate)
+ * - Inherited score = min(delegator's score, delegate's own score) × inheritFactor
+ * - Inheritance can be restricted by policy
+ */
+
+export interface DelegationPolicy {
+  inheritFactor: number;        // 0–1, how much trust is inherited (default: 0.8)
+  scopeRestrictions?: string[]; // Only these scopes can be inherited
+  maxDelegationDepth: number;   // How many levels of re-delegation allowed
+  requireExplicitGrant: boolean; // Must delegator explicitly grant each scope?
+}
+
+export interface InheritedTrust {
+  delegatorId: string;
+  delegateId: string;
+  inheritedScore: number;
+  inheritedScopes: string[];
+  delegationDepth: number;
+  restrictions: string[];
+}
+
+export function computeInheritedTrust(
+  delegatorTrust: TrustVerificationResult,
+  delegateScore: number,
+  policy: DelegationPolicy,
+  delegationDepth: number = 1,
+): InheritedTrust {
+  if (delegationDepth > policy.maxDelegationDepth) {
+    return {
+      delegatorId: "", delegateId: "",
+      inheritedScore: 0, inheritedScopes: [],
+      delegationDepth,
+      restrictions: [`Delegation depth ${delegationDepth} exceeds maximum ${policy.maxDelegationDepth}`],
+    };
+  }
+
+  const baseScore = Math.min(delegatorTrust.score, delegateScore);
+  const inheritedScore = baseScore * policy.inheritFactor * Math.pow(0.9, delegationDepth - 1);
+
+  let inheritedScopes = [...delegatorTrust.grantedScopes];
+  if (policy.scopeRestrictions) {
+    inheritedScopes = inheritedScopes.filter(s => policy.scopeRestrictions!.includes(s));
+  }
+  // Delegated agents never get 'delegate' scope unless explicitly granted
+  if (!policy.requireExplicitGrant) {
+    inheritedScopes = inheritedScopes.filter(s => s !== "delegate");
+  }
+
+  const restrictions: string[] = [];
+  if (inheritedScore < delegatorTrust.score) {
+    restrictions.push(`Score reduced from ${delegatorTrust.score} to ${inheritedScore.toFixed(1)} via inheritance`);
+  }
+  if (inheritedScopes.length < delegatorTrust.grantedScopes.length) {
+    restrictions.push(`Scopes restricted: ${delegatorTrust.grantedScopes.length} → ${inheritedScopes.length}`);
+  }
+
+  return {
+    delegatorId: "", delegateId: "",
+    inheritedScore: Math.round(inheritedScore * 10) / 10,
+    inheritedScopes, delegationDepth, restrictions,
+  };
+}
+
 export function createAgentClaim(
   agentId: string,
   publicKeyHash: string,
