@@ -139,7 +139,7 @@ function startCycle(){
   cycleTimer=setInterval(function(){
     currentProduct=(currentProduct+1)%PRODUCTS.length;
     renderProduct(currentProduct);
-  },5000);
+  },10000);
 }
 
 function initProducts(){
