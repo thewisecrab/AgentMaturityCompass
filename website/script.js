@@ -28,6 +28,13 @@ function initReveals(){
     gsap.fromTo(bigNum,{scale:0.6},{scale:1,duration:0.8,ease:'power2.out',scrollTrigger:{trigger:bigNum,start:'top 90%'}});
   }
 
+  // AMC watermark fade out during FAQ section
+  var watermark=document.querySelector('.amc-watermark');
+  var faq=document.querySelector('#faq');
+  if(watermark&&faq){
+    gsap.to(watermark,{opacity:0,scrollTrigger:{trigger:faq,start:'top 80%',end:'top 30%',scrub:true}});
+  }
+
   // Station card parallax stagger
   var cards=gsap.utils.toArray('.station-card');
   if(cards.length>0){
