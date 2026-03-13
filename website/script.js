@@ -27,6 +27,19 @@ function initReveals(){
   if(bigNum){
     gsap.fromTo(bigNum,{scale:0.6},{scale:1,duration:0.8,ease:'power2.out',scrollTrigger:{trigger:bigNum,start:'top 90%'}});
   }
+
+  // Station card parallax stagger
+  var cards=gsap.utils.toArray('.station-card');
+  if(cards.length>0){
+    cards.forEach(function(card,i){
+      gsap.fromTo(card,
+        {y:60+i*15,opacity:0},
+        {y:0,opacity:1,duration:0.7,ease:'power2.out',
+          scrollTrigger:{trigger:card,start:'top 95%',toggleActions:'play none none none'}
+        }
+      );
+    });
+  }
 }
 
 var PRODUCTS=[

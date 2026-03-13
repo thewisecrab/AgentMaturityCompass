@@ -101,7 +101,7 @@ function loop(){
 
 function init(){
   resize();
-  for(var i=0;i<32;i++)tokens.push(new Token());
+  for(var i=0;i<20;i++)tokens.push(new Token());
   loop();
 }
 

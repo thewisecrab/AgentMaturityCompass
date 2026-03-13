@@ -4,14 +4,23 @@
 .nav{background:transparent;backdrop-filter:none;border-bottom:none}
 .nav.scrolled{background:rgba(7,28,38,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 
-/* Hero with background image */
+/* Hero with background image — full viewport */
 .station-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;padding:0 0 clamp(3rem,6vw,5rem);background-size:cover;background-position:center;overflow:hidden}
 .station-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,38,.3) 0%,rgba(7,28,38,.7) 50%,rgba(7,28,38,.95) 100%);z-index:1}
-.station-hero-title{font-size:clamp(3rem,8vw,6rem);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;color:var(--text);position:relative;z-index:2}
+
+/* Hero scroll-away block effect */
+.station-hero-blocks{position:absolute;inset:0;z-index:2;opacity:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg, transparent 0px, transparent 48px, rgba(7,28,38,.85) 48px, rgba(7,28,38,.85) 50px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 48px, rgba(7,28,38,.85) 48px, rgba(7,28,38,.85) 50px);
+  background-size:50px 50px;
+  transition:opacity .1s linear}
+
+.station-hero-title{font-size:clamp(3rem,8vw,6rem);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;color:var(--text);position:relative;z-index:3}
 
 /* Station nav icons */
 .station-nav{margin-bottom:2rem}
-.station-nav-row{display:grid;grid-template-columns:repeat(4,40px);gap:.6rem}
+.station-nav-row{display:grid;grid-template-columns:repeat(7,40px);gap:.6rem}
 .station-nav-item{width:40px;height:40px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.1);background:rgba(7,28,38,.6);backdrop-filter:blur(4px);transition:all .25s;padding:8px}
 .station-nav-item svg{width:100%;height:100%}
 .station-nav-item:hover{color:var(--accent);border-color:rgba(74,239,121,.3);background:rgba(7,28,38,.8)}
@@ -21,7 +30,7 @@
 .station-content{padding:clamp(5rem,10vw,8rem) 0;background:var(--bg);position:relative;z-index:1}
 .station-two-col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,6rem);align-items:start}
 .station-left .label{margin-bottom:.8rem}
-.station-tagline{font-size:clamp(1.6rem,3vw,2.4rem);color:var(--text);font-weight:700;line-height:1.2;text-transform:none;letter-spacing:-.02em;margin-bottom:1.5rem}
+.station-tagline{font-size:clamp(1.2rem,2vw,1.6rem);color:var(--text);font-weight:700;line-height:1.3;text-transform:none;letter-spacing:-.01em;margin-bottom:1.5rem}
 .station-body{font-size:.95rem;color:var(--text-muted);line-height:1.7;max-width:480px}
 
 /* Skills accordion */
@@ -40,7 +49,7 @@
 .pack-article{display:grid;grid-template-columns:50px 1fr 50px;gap:1.5rem;align-items:center;padding:clamp(1.2rem,2.5vw,2rem) 0;border-bottom:1px solid var(--border);transition:background .3s}
 .pack-article:hover{background:rgba(255,255,255,.015)}
 .pack-tag{width:40px;height:40px;color:var(--accent);flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.pack-tag svg{width:24px;height:24px}
+.pack-tag svg{width:28px;height:28px}
 .pack-article-body h3{font-size:clamp(1rem,1.8vw,1.3rem);color:var(--text);font-weight:600;text-transform:none;letter-spacing:-.01em;margin-bottom:.4rem}
 .pack-article-body p{font-size:.85rem;color:var(--text-muted);line-height:1.5;margin-bottom:.3rem}
 .pack-frameworks{font-family:var(--mono);font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
@@ -49,16 +58,26 @@
 
 /* Breadcrumb */
 .station-breadcrumb{padding:2rem 0;font-family:var(--mono);font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;background:var(--bg);position:relative;z-index:1}
+.station-breadcrumb a{color:var(--text-dim);transition:color .2s}
+.station-breadcrumb a:hover{color:var(--accent)}
 .station-breadcrumb strong{color:var(--text)}
 
-/* CTA */
-.station-cta{position:relative;padding:clamp(8rem,14vw,12rem) 0;background:linear-gradient(180deg,var(--bg) 0%,#0a2a3a 30%,#15465e 55%,#3a7a8f 75%,#8ec4d4 90%,#e8f0f4 100%);overflow:hidden;z-index:1}
-.station-cta h2{text-transform:uppercase}
+/* CTA — same gradient as homepage */
+.station-cta{position:relative;padding:clamp(10rem,18vw,16rem) 0 clamp(6.5rem,12vw,9rem);background:linear-gradient(180deg,var(--bg) 0%,#0a2a3a 20%,#15465e 45%,#3a7a8f 65%,#8ec4d4 85%,#e8f0f4 100%);overflow:hidden;z-index:1}
+.station-cta .gradient-cta-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.station-cta .gradient-cta-line{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.08)}
+.station-cta .gradient-cta-line::before{content:'';position:absolute;left:-2px;width:5px;height:24px;background:rgba(255,255,255,.18);border-radius:3px;animation:lineFloat var(--dur,6s) ease-in-out infinite alternate;animation-delay:var(--delay,0s)}
+.station-cta .gradient-cta-watermark{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);font-family:var(--sans);font-size:clamp(10rem,25vw,22rem);font-weight:900;color:rgba(255,255,255,.03);line-height:1;letter-spacing:-.05em;pointer-events:none;text-transform:lowercase;white-space:nowrap}
+.station-cta h2{text-transform:uppercase;color:var(--text);margin-bottom:2.5rem}
+
+/* Footer on station pages */
+.footer{background:#e8f0f4;color:#555}
 
 /* Responsive */
-@media(max-width:900px){.station-two-col{grid-template-columns:1fr}.pack-article{grid-template-columns:1fr;gap:.8rem}.pack-tag{order:-1}}
-@media(max-width:640px){.station-nav-row{grid-template-columns:repeat(4,36px);gap:.4rem}.station-nav-item{width:36px;height:36px;padding:6px}}
+@media(max-width:900px){.station-two-col{grid-template-columns:1fr}.pack-article{grid-template-columns:50px 1fr 42px;gap:1rem}}
+@media(max-width:640px){.station-nav-row{grid-template-columns:repeat(7,36px);gap:.4rem}.station-nav-item{width:36px;height:36px;padding:6px}}
 
-/* Blinking cursor reuse */
+/* Reuse homepage keyframes */
+@keyframes lineFloat{0%{top:10%}100%{top:80%}}
 .blink-cursor{display:inline-block;animation:blinkCursor 1s steps(2,end) infinite}
 @keyframes blinkCursor{0%,48%{opacity:1}50%,100%{opacity:.1}}
