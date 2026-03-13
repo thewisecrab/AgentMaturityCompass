@@ -11,11 +11,11 @@ var amcZoneStart,amcZoneEnd,guardrailTop,guardrailBottom,guardrailMid;
 function resize(){
   W=canvas.width=canvas.parentElement.offsetWidth;
   H=canvas.height=canvas.parentElement.offsetHeight;
-  amcZoneStart=W*0.5;
-  amcZoneEnd=W*0.9;
+  amcZoneStart=W*0.35;
+  amcZoneEnd=W*0.95;
   guardrailMid=H*0.52;
-  guardrailTop=guardrailMid-10;
-  guardrailBottom=guardrailMid+10;
+  guardrailTop=guardrailMid-18;
+  guardrailBottom=guardrailMid+18;
 }
 
 function Token(){this.reset(true)}

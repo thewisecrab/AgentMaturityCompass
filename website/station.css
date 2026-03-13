@@ -1,7 +1,7 @@
 /* ═══ STATION DETAIL PAGES — OSE-style ═══ */
 
 /* Hero with background image */
-.station-hero{position:relative;min-height:70vh;display:flex;align-items:flex-end;padding:0 0 clamp(3rem,6vw,5rem);background-size:cover;background-position:center;overflow:hidden}
+.station-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;padding:0 0 clamp(3rem,6vw,5rem);background-size:cover;background-position:center;overflow:hidden}
 .station-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,28,38,.3) 0%,rgba(7,28,38,.7) 50%,rgba(7,28,38,.95) 100%);z-index:1}
 .station-hero-title{font-size:clamp(3rem,8vw,6rem);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;color:var(--text);position:relative;z-index:2}
 
@@ -33,9 +33,10 @@
 .station-packs{padding:clamp(5rem,10vw,8rem) 0;background:var(--bg);position:relative;z-index:1}
 .station-packs h2{text-transform:none;font-size:clamp(1.8rem,3.5vw,2.8rem);color:var(--text);margin-bottom:3rem}
 .pack-articles{border-top:1px solid var(--border)}
-.pack-article{display:grid;grid-template-columns:200px 1fr 50px;gap:2rem;align-items:center;padding:clamp(1.2rem,2.5vw,2rem) 0;border-bottom:1px solid var(--border);transition:background .3s}
+.pack-article{display:grid;grid-template-columns:50px 1fr 50px;gap:1.5rem;align-items:center;padding:clamp(1.2rem,2.5vw,2rem) 0;border-bottom:1px solid var(--border);transition:background .3s}
 .pack-article:hover{background:rgba(255,255,255,.015)}
-.pack-tag{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.pack-tag{width:40px;height:40px;color:var(--accent);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.pack-tag svg{width:24px;height:24px}
 .pack-article-body h3{font-size:clamp(1rem,1.8vw,1.3rem);color:var(--text);font-weight:600;text-transform:none;letter-spacing:-.01em;margin-bottom:.4rem}
 .pack-article-body p{font-size:.85rem;color:var(--text-muted);line-height:1.5;margin-bottom:.3rem}
 .pack-frameworks{font-family:var(--mono);font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
@@ -47,7 +48,7 @@
 .station-breadcrumb strong{color:var(--text)}
 
 /* CTA */
-.station-cta{position:relative;padding:clamp(8rem,14vw,12rem) 0;background:var(--bg);overflow:hidden;z-index:1}
+.station-cta{position:relative;padding:clamp(8rem,14vw,12rem) 0;background:linear-gradient(180deg,var(--bg) 0%,#0a2a3a 30%,#15465e 55%,#3a7a8f 75%,#8ec4d4 90%,#e8f0f4 100%);overflow:hidden;z-index:1}
 .station-cta h2{text-transform:uppercase}
 
 /* Responsive */

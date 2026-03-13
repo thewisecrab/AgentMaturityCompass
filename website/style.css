@@ -2,8 +2,7 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#071C26;--bg-alt:#0A2230;--bg-card:#0D2A3A;--text:#FFFFFF;--text-muted:#94B0BF;--text-dim:rgba(255,255,255,0.35);--accent:#4AEF79;--accent2:#3CD468;--border:rgba(255,255,255,0.07);--mono:'Space Mono',monospace;--sans:'Inter',system-ui,sans-serif}
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body{font-family:var(--sans);background:var(--bg);color:var(--text-muted);line-height:1.65;font-size:16px;overflow-x:hidden;position:relative}
-body::before{content:'amc';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--sans);font-size:clamp(30rem,55vw,60rem);font-weight:900;color:rgba(255,255,255,.018);line-height:.85;letter-spacing:-.06em;pointer-events:none;z-index:0;text-transform:lowercase;white-space:nowrap}
+body{font-family:var(--sans);background:var(--bg);color:var(--text-muted);line-height:1.65;font-size:16px;overflow-x:hidden}
 a{color:inherit;text-decoration:none}img,svg{display:block;max-width:100%}button{cursor:pointer;border:none;background:none;font:inherit}
 .skip-link{position:absolute;left:-9999px;z-index:9999;padding:.5rem 1rem;background:var(--accent);color:var(--bg);font-weight:700}.skip-link:focus{left:.5rem;top:.5rem}
 
@@ -152,7 +151,7 @@ section{padding:clamp(5rem,10vw,8rem) 0;position:relative;z-index:1}
 .station-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(74,239,121,.03),transparent 40%);opacity:0;transition:opacity .4s}
 .station-card:hover{border-color:rgba(74,239,121,.2);transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,.3)}
 .station-card:hover::before{opacity:1}
-.station-card-icon{width:32px;height:32px;color:var(--text-dim);margin-bottom:1.5rem;position:relative;opacity:.6}
+.station-card-icon{width:32px;height:32px;color:var(--accent);margin-bottom:1.5rem;position:relative}
 .station-card-icon svg{width:100%;height:100%}
 .station-card h3{font-size:clamp(1.3rem,2.2vw,1.8rem);font-weight:800;color:var(--text);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:-.02em}
 .station-card h3::after{content:'_';color:var(--accent)}
@@ -211,8 +210,8 @@ section{padding:clamp(5rem,10vw,8rem) 0;position:relative;z-index:1}
 .faq-item.open .faq-a{max-height:300px}.faq-item.open .faq-icon{transform:rotate(45deg)}
 
 /* ═══ GRADIENT CTA (OSE pre-footer) ═══ */
-.gradient-cta{position:relative;padding:clamp(10rem,18vw,16rem) 0 clamp(6.5rem,12vw,9rem);text-align:center;background:var(--bg);overflow:hidden;margin-bottom:0}
-.gradient-cta-lines{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent 92px,rgba(74,239,121,.06) 93px,rgba(74,239,121,.1) 94px,transparent 95px,transparent 136px);opacity:.55;mask-image:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.4) 50%,rgba(0,0,0,.15) 85%,transparent 100%);animation:prefooterLines 8s linear infinite;pointer-events:none}
+.gradient-cta{position:relative;padding:clamp(10rem,18vw,16rem) 0 clamp(6.5rem,12vw,9rem);text-align:center;background:linear-gradient(180deg,var(--bg) 0%,#0a2a3a 30%,#15465e 55%,#3a7a8f 75%,#8ec4d4 90%,#e8f0f4 100%);overflow:hidden;margin-bottom:0}
+.gradient-cta-lines{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent 92px,rgba(255,255,255,.12) 93px,rgba(255,255,255,.16) 94px,transparent 95px,transparent 136px);opacity:.5;mask-image:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.5) 40%,rgba(0,0,0,.2) 75%,transparent 100%);animation:prefooterLines 8s linear infinite;pointer-events:none}
 @keyframes prefooterLines{0%{transform:translateX(0)}100%{transform:translateX(46px)}}
 .gradient-cta::after{content:none}
 .gradient-cta-watermark{display:none}
@@ -221,7 +220,7 @@ section{padding:clamp(5rem,10vw,8rem) 0;position:relative;z-index:1}
 .gradient-cta-content h2{color:var(--text);margin-bottom:2.5rem}
 .gradient-cta-content .label{color:rgba(255,255,255,.46)}
 .gradient-cta-content .btn{box-shadow:0 4px 20px rgba(74,239,121,.2)}
-.footer{margin-top:0;background:var(--bg);color:var(--text-muted);padding:clamp(3rem,6vw,5rem) 0 2rem;position:relative;z-index:2;border-top:1px solid var(--border)}
+.footer{margin-top:0;background:#e8f0f4;color:#555;padding:clamp(3rem,6vw,5rem) 0 2rem;position:relative;z-index:2}
 .footer-bottom{gap:2rem}
 @media(prefers-reduced-motion:reduce){.gradient-cta-lines,.gradient-cta-watermark{animation:none}}
 
@@ -239,14 +238,14 @@ section{padding:clamp(5rem,10vw,8rem) 0;position:relative;z-index:1}
 /* ═══ FOOTER ═══ */
 
 .footer-inner{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
-.footer-top{display:flex;justify-content:space-between;gap:3rem;flex-wrap:wrap;padding-bottom:3rem;border-bottom:1px solid var(--border)}
-.footer-brand{font-family:var(--mono);font-size:1.6rem;font-weight:700;letter-spacing:-.03em;color:var(--text)}
-.footer-tagline{font-size:.82rem;color:var(--text-dim);margin-top:.5rem;line-height:1.5}
+.footer-top{display:flex;justify-content:space-between;gap:3rem;flex-wrap:wrap;padding-bottom:3rem;border-bottom:1px solid rgba(0,0,0,.08)}
+.footer-brand{font-family:var(--mono);font-size:1.6rem;font-weight:700;letter-spacing:-.03em;color:#1a1a1a}
+.footer-tagline{font-size:.82rem;color:#777;margin-top:.5rem;line-height:1.5}
 .footer-col{display:flex;flex-direction:column;gap:.5rem}
-.footer-col h4{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:.5rem}
-.footer-col a{font-size:.82rem;color:var(--text-muted);transition:color .2s}.footer-col a:hover{color:var(--accent)}
+.footer-col h4{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:#999;margin-bottom:.5rem}
+.footer-col a{font-size:.82rem;color:#555;transition:color .2s}.footer-col a:hover{color:#1a1a1a}
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:2rem;flex-wrap:wrap;gap:1rem}
-.footer-copy{font-size:.72rem;color:var(--text-dim)}
+.footer-copy{font-size:.72rem;color:#999}
 
 /* ═══ GSAP — immediate visibility, animate on scroll ═══ */
 .gs{opacity:0;transform:translateY(20px);will-change:opacity,transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
